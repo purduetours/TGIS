@@ -10,7 +10,7 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        // Only using Inter (Acumin Pro alternative) for the entire site
+                        // Using Inter (Acumin Pro alternative) for the entire site
                         sans: ['Inter', 'sans-serif'], 
                     },
                     colors: {
@@ -30,9 +30,7 @@
         
         /* Custom CSS for the Full-Page Background Image */
         body {
-            /* IMPORTANT: Replace 'path/to/your/purdue-background-image.jpg' 
-               with your actual image path or URL. 
-            */
+            /* Using the background image from your previous code */
             background-image: url('https://www.purdue.edu/hr/workremotely/images/FoundersPark.jpg'); 
             background-size: cover; /* Ensures the image covers the whole body */
             background-position: center; /* Centers the image */
@@ -41,32 +39,28 @@
     </style>
 </head>
 <body class="font-sans min-h-screen flex flex-col antialiased">
-    <div class="absolute inset-0 bg-primary-black opacity-30"></div>
+    <div class="absolute inset-0 bg-primary-black opacity-20"></div>
 
     <main class="flex-grow flex items-center justify-center p-4 relative z-10">
-        <div class="max-w-xl w-full bg-white bg-opacity-95 backdrop-blur-sm shadow-2xl rounded-xl overflow-hidden p-8 sm:p-12 text-center border-t-8 border-primary-gold">
+        <div class="max-w-xl w-full bg-white bg-opacity-65 backdrop-blur-sm shadow-2xl rounded-xl overflow-hidden p-6 sm:p-8 text-center border-t-8 border-primary-gold">
             
-            <p class="text-xl font-extrabold text-primary-black uppercase tracking-widest mb-6">
-                Office of Admissions
-            </p>
-
             <img src="PU-H-Full-RGB.png" 
                  alt="Purdue University Logo" 
-                 class="h-32 w-auto mx-auto mb-12">
+                 class="h-32 w-auto mx-auto mb-8">
 
-            <h1 class="text-4xl sm:text-5xl font-extrabold text-text-dark mb-10 leading-snug border-t pt-8 border-gray-200">
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-text-dark mb-8 leading-snug border-t pt-6 border-gray-200">
                 Tour Guide <span class="text-primary-black">Information System</span>
             </h1>
 
             
             <form action="#" method="POST">
                 <button type="submit"
-                    class="inline-block w-full sm:w-auto px-10 py-4 bg-primary-black text-white font-extrabold text-xl rounded-lg shadow-xl hover:bg-gray-800 transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-primary-black/50">
+                    class="inline-block w-full sm:w-auto px-10 py-3 bg-primary-black text-white font-extrabold text-lg rounded-lg shadow-xl hover:bg-gray-800 transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-primary-black/50">
                     Sign On
                 </button>
             </form>
 
-            <div class="mt-12 pt-6 border-t border-gray-200">
+            <div class="mt-8 pt-6 border-t border-gray-200">
                 <p class="text-sm text-gray-500 font-medium">
                     Please contact Jacob if your TGIS Profile is not established.
                 </p>
