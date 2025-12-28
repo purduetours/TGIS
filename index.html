@@ -10,11 +10,9 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        // Using Inter (Acumin Pro alternative) for the entire site
                         sans: ['Inter', 'sans-serif'], 
                     },
                     colors: {
-                        // Purdue's official gold and black/dark colors
                         'primary-gold': '#CFB991', 
                         'primary-black': '#212121', 
                         'primary-gold-dark': '#B8A17D', 
@@ -25,25 +23,59 @@
         }
     </script>
     <style>
-        /* Import only the Inter font */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
         
-        /* Custom CSS for the Full-Page Background Image */
         body {
-            /* Using the background image from your previous code */
             background-image: url('https://www.purdue.edu/hr/workremotely/images/FoundersPark.jpg'); 
-            background-size: cover; /* Ensures the image covers the whole body */
-            background-position: center; /* Centers the image */
-            background-attachment: fixed; /* Keeps the background static on scroll */
+            background-size: cover; 
+            background-position: center; 
+            background-attachment: fixed; 
+            overflow-x: hidden;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh);
+            }
+        }
+
+        @keyframes wobble {
+            0%, 100% {
+                margin-left: 0;
+            }
+            50% {
+                margin-left: 20px;
+            }
+        }
+
+        .snowflake {
+            color: #fff;
+            font-size: 1em;
+            position: fixed;
+            top: -10vh;
+            z-index: 1000;
+            user-select: none;
+            pointer-events: none;
+            
+            animation: 
+                fall linear infinite, 
+                wobble ease-in-out infinite;
+        }
+
+        @media (max-width: 640px) {
+            .snowflake {
+                font-size: 0.7em;
+            }
         }
     </style>
 </head>
 <body class="font-sans min-h-screen flex flex-col antialiased">
+    <div id="snow-container" class="absolute inset-0"></div>
+
     <div class="absolute inset-0 bg-primary-black opacity-20"></div>
 
     <main class="flex-grow flex items-center justify-center p-4 relative z-10">
         <div class="max-w-xl w-full bg-white bg-opacity-65 backdrop-blur-sm shadow-2xl rounded-xl overflow-hidden p-6 sm:p-8 text-center border-t-8 border-primary-gold">
-            
             <img src="PU-H-Full-RGB.png" 
                  alt="Purdue University Logo" 
                  class="h-25 w-auto mx-auto mb-8">
@@ -52,7 +84,6 @@
                 Tour Guide <span class="text-primary-black">Information System</span>
             </h1>
 
-            
             <form action="https://purdue.ca1.qualtrics.com/jfe/form/SV_aXWKLeeEHUPPjgi" method="POST">
                 <button type="submit"
                     class="inline-block w-full sm:w-auto px-10 py-3 bg-primary-black text-white font-extrabold text-lg rounded-lg shadow-xl hover:bg-gray-800 transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-primary-black/50">
@@ -67,8 +98,37 @@
             </div>
         </div>
     </main>
-    
+        
     <script>
+        const snowContainer = document.getElementById('snow-container');
+        const numSnowflakes = 50;
+        const snowflakeCharacters = ['\u2744', '\u2745', '\u2746'];
+
+        function generateSnowflakes() {
+            for (let i = 0; i < numSnowflakes; i++) {
+                const snowflake = document.createElement('div');
+                snowflake.classList.add('snowflake');
+                
+                snowflake.textContent = snowflakeCharacters[Math.floor(Math.random() * snowflakeCharacters.length)];
+
+                snowflake.style.left = `${Math.random() * 100}vw`;
+
+                const fallDuration = `${5 + Math.random() * 15}s`;
+                snowflake.style.animationDuration = fallDuration;
+                
+                const fallDelay = `-${Math.random() * 20}s`;
+                snowflake.style.animationDelay = fallDelay;
+
+                const wobbleDuration = `${2 + Math.random() * 5}s`;
+                snowflake.style.animationDuration = `${fallDuration}, ${wobbleDuration}`;
+                
+                snowflake.style.fontSize = `${0.8 + Math.random() * 0.8}em`;
+
+                snowContainer.appendChild(snowflake);
+            }
+        }
+
+        generateSnowflakes();
     </script>
 </body>
 </html>
