@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TGIS Desk Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], },
+                    colors: {
+                        'primary-gold': '#CFB991',
+                        'text-dark': '#374151',
+                        'status-red': '#EF4444',
+                        'status-green': '#10B981',
+                        'status-gray': '#9CA3AF', 
+                        'status-purple': '#8B5CF6', 
+                        // Custom colors for status/highlighting
+                        'tour-active': '#8B5CF6', // Purple for active tour
+                        'tour-done': '#10B981', // Green for completed tour
+                        'tour-upcoming': '#CFB991', // Gold for upcoming tour
+                    }
+                }
+            }
+        }
+
+        // JavaScript to update date and time in real-time
+        function updateDateTime() {
+            const now = new Date();
+            const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+
+            document.getElementById('current-date').textContent = now.toLocaleDateString('en-US', dateOptions);
+            document.getElementById('current-time').textContent = now.toLocaleTimeString('en-US', timeOptions);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateDateTime();
+            setInterval(updateDateTime, 1000); // Update every second
+        });
+    </script>
+    <style>
+        .content-area {
+            margin-left: 16rem; 
+        }
+        @media (max-width: 640px) {
+            .content-area {
+                margin-left: 0; 
+            }
+        }
+        /* ... existing scrollbar styles ... */
+    </style>
+</head>
+
+<body class="font-sans bg-gray-50 min-h-screen antialiased">
+
+<nav id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white shadow-xl border-r border-gray-100 p-6 z-10 hidden sm:block">
+    <div class="mb-8 text-center">
+        <p class="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-1">TGIS</p>
+        <h1 class="text-2xl font-extrabold text-text-dark leading-tight">
+            <span class="text-primary-gold">Dashboard</span>
+        </h1>
+    </div>
+
+    <div class="mb-6">
+        <p class="text-lg font-semibold text-text-dark">Welcome, Desk Worker!</p>
+        <span class="text-xs text-gray-500">Day at a Glance</span>
+    </div>
+
+    <ul class="space-y-2">
+        <li><a href="#" class="block p-3 rounded-lg text-text-dark bg-gray-100 font-semibold">Desk Dashboard</a></li>
+        <li><a href="#" class="block p-3 rounded-lg text-text-dark hover:bg-gray-100 font-medium">View Schedule</a></li>
+        <li><a href="#" class="block p-3 rounded-lg text-text-dark hover:bg-gray-100 font-medium">Submit Forms</a></li>
+        <li><a href="#" class="block p-3 rounded-lg text-text-dark hover:bg-gray-100 font-medium">View Statistics</a></li>
+        <li><a href="#" class="block p-3 rounded-lg text-text-dark hover:bg-gray-100 font-medium">Tour Guide Profile</a></li>
+        <li><a href="#" class="block p-3 rounded-lg text-status-red hover:bg-red-50 font-medium">Logout</a></li>
+    </ul>
+
+</nav>
+
+<header class="sm:hidden p-4 bg-white shadow-md flex justify-between items-center z-20">
+    <div class="text-lg font-bold text-primary-gold">TGIS</div>
+    <button id="mobile-menu-button" class="text-text-dark">
+        ☰
+    </button>
+</header>
+
+<div class="content-area p-4 sm:p-8">
+    <div class="max-w-6xl w-full bg-white shadow-2xl rounded-3xl overflow-hidden p-6 sm:p-10 border border-gray-100">
+
+        <h2 class="text-2xl font-bold text-text-dark mb-2">
+            Desk Operations: Day at a Glance
+        </h2>
+        <p class="text-lg text-gray-500 mb-6 border-b pb-2">
+            <span id="current-date" class="font-medium"></span> | <span id="current-time" class="font-bold text-text-dark"></span>
+        </p>
+        
+        <h3 class="text-lg font-semibold text-text-dark mb-3">Tour Status Quick View</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            
+            <div class="bg-tour-done border-2 border-tour-done/70 rounded-2xl p-4 text-center text-white shadow-md">
+                <p class="text-sm font-semibold opacity-90">RETURNED</p>
+                <h4 class="text-3xl font-black tracking-tight">9:30</h4>
+            </div>
+
+            <div class="bg-tour-active border-2 border-tour-active/70 rounded-2xl p-4 text-center text-white shadow-lg transform scale-105">
+                <p class="text-sm font-semibold opacity-90">ON TOUR</p>
+                <h4 class="text-3xl font-black tracking-tight">10:30</h4>
+            </div>
+
+            <div class="bg-tour-upcoming/20 border-2 border-tour-upcoming/70 rounded-2xl p-4 text-center text-text-dark shadow-sm">
+                <p class="text-sm font-semibold text-text-dark/70">UPCOMING</p>
+                <h4 class="text-3xl font-black tracking-tight text-tour-upcoming">1:30</h4>
+            </div>
+
+            <div class="bg-tour-upcoming/20 border-2 border-tour-upcoming/70 rounded-2xl p-4 text-center text-text-dark shadow-sm">
+                <p class="text-sm font-semibold text-text-dark/70">UPCOMING</p>
+                <h4 class="text-3xl font-black tracking-tight text-tour-upcoming">2:30</h4>
+            </div>
+        </div>
+
+        <h3 class="text-lg font-semibold text-text-dark mb-3">Desk Coverage</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            
+            <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
+                <h4 class="text-xl font-bold text-text-dark mb-3 border-b pb-2">Front Desk</h4>
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <span class="font-semibold text-gray-700">Brooke Folkers (8:00 AM - 12:00 PM)</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <span class="font-semibold text-gray-700">Jacob Lavra (10:30 AM - 1:00 PM)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
+                <h4 class="text-xl font-bold text-text-dark mb-3 border-b pb-2">Welcome Desk</h4>
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <span class="font-semibold text-gray-700">Sam Katovich (11:00 AM - 1:00 PM)</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <span class="font-semibold text-gray-700">Lillie Recker (10:30 AM - 12:30 PM)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h3 class="text-lg font-semibold text-text-dark mb-3">Tour Guide Assignments</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            
+            <div class="p-4 rounded-2xl shadow-lg border border-gray-200 bg-white">
+                <h4 class="text-xl font-bold text-text-dark mb-3">9:30 AM Tour</h4>
+                <ul class="space-y-1 text-sm text-gray-700">
+                    <li class="p-1.5 rounded-md font-medium">Guide 1</li>
+                    <li class="p-1.5 rounded-md font-medium">Guide 2</li>
+                    <li class="p-1.5 rounded-md font-medium">Guide 3</li>
+                    <li class="p-1.5 rounded-md font-medium">Guide 4</li>
+                    <li class="p-1.5 rounded-md font-medium">Guide 5</li>
+                    <li class="p-1.5 rounded-md font-medium">Guide 6</li>
+                </ul>
+            </div>
+
+            <div class="p-4 rounded-2xl shadow-lg border-2 border-tour-active bg-tour-active/10">
+                <h4 class="text-xl font-bold text-tour-active mb-3">10:30 AM Tour (ON TOUR)</h4>
+                <ul class="space-y-1 text-sm text-gray-800">
+                    <li class="p-1.5 rounded-md font-semibold bg-tour-active text-white">Guide 7</li>
+                    <li class="p-1.5 rounded-md font-medium">Guide 8</li>
+                    <li class="p-1.5 rounded-md font-medium">Guide 9</li>
+                    <li class="p-1.5 rounded-md font-medium">Guide 10</li>
+                    <li class="p-1.5 rounded-md font-medium">Guide 11</li>
+                    <li class="p-1.5 rounded-md font-medium">Guide 12</li>
+                </ul>
+            </div>
+            
+            <div class="p-4 rounded-2xl shadow-lg border border-gray-200 bg-white">
+                <h4 class="text-xl font-bold text-text-dark mb-3">1:30 PM Tour</h4>
+                <ul class="space-y-1 text-sm text-gray-700">
+                    <li class="p-1.5 rounded-md font-medium">Guide 13</li>
+                    <li class="p-1.5 rounded-md font-medium">Guide 14</li>
+                    <li class="p-1.5 rounded-md font-medium">Guide 15</li>
+                    <li class="p-1.5 rounded-md font-medium">Guide 16</li>
+                    <li class="p-1.5 rounded-md font-medium">Guide 17</li>
+                    <li class="p-1.5 rounded-md font-medium">Guide 18</li>
+                </ul>
+            </div>
+
+            <div class="p-4 rounded-2xl shadow-lg border border-gray-200 bg-white">
+                <h4 class="text-xl font-bold text-text-dark mb-3">2:30 PM Tour</h4>
+                <ul class="space-y-1 text-sm text-gray-700">
+                    <li class="p-1.5 rounded-md font-medium">Guide 19</li>
+                    <li class="p-1.5 rounded-md font-medium">Guide 20</li>
+                    <li class="p-1.5 rounded-md font-medium">Guide 21</li>
+                    <li class="p-1.5 rounded-md font-medium">Guide 22</li>
+                    <li class="p-1.5 rounded-md font-medium">Guide 23</li>
+                    <li class="p-1.5 rounded-md font-medium">Guide 24</li>
+                </ul>
+            </div>
+            
+        </div>
+        </div> 
+</div> 
+
+<script>
+    // Existing script for sidebar toggle
+    const sidebar = document.getElementById('sidebar');
+    const menuButton = document.getElementById('mobile-menu-button');
+    
+    if (menuButton) {
+        menuButton.addEventListener('click', () => {
+            if (sidebar.classList.contains('hidden')) {
+                sidebar.classList.remove('hidden');
+                sidebar.classList.add('fixed', 'block'); 
+            } else {
+                sidebar.classList.add('hidden');
+                sidebar.classList.remove('fixed', 'block');
+            }
+        });
+    }
+
+    // NOTE: The updateDateTime function has been moved to the <head> section
+    // to ensure it runs immediately upon DOM load.
+</script>
+</body>
+</html>
