@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TGIS Forms</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], },
+                    colors: {
+                        'primary-gold': '#CFB991',
+                        'text-dark': '#374151',
+                        'status-red': '#EF4444',
+                        'status-green': '#10B981',
+                        'status-gray': '#9CA3AF', 
+                        'status-purple': '#8B5CF6', 
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .content-area {
+            margin-left: 16rem; 
+        }
+        @media (max-width: 640px) {
+            .content-area {
+                margin-left: 0; 
+            }
+        }
+        .status-card-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        .status-card-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        .status-card-container::-webkit-scrollbar-thumb {
+            background: #e0e0e0;
+            border-radius: 10px;
+        }
+        .status-card-container::-webkit-scrollbar-thumb:hover {
+            background: #d4d4d4;
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-gray-50 min-h-screen antialiased">
+
+<nav id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white shadow-xl border-r border-gray-100 p-6 z-10 hidden sm:block">
+    <div class="mb-8 text-center">
+        <p class="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-1">TGIS</p>
+        <h1 class="text-2xl font-extrabold text-text-dark leading-tight">
+            <span class="text-primary-gold">Dashboard</span>
+        </h1>
+    </div>
+
+    <div class="mb-6">
+        <p class="text-lg font-semibold text-text-dark">Welcome, Tour Guide!</p>
+        <span class="text-xs text-gray-500">New Hire Profile</span>
+    </div>
+
+    <ul class="space-y-2">
+        <li><a href="#" class="block p-3 rounded-lg text-text-dark hover:bg-gray-100 font-medium">Dashboard</a></li>
+        <li><a href="#" class="block p-3 rounded-lg text-text-dark bg-gray-100 font-semibold">View Schedule</a></li>
+        <li><a href="#" class="block p-3 rounded-lg text-text-dark hover:bg-gray-100 font-medium">Submit Forms</a></li>
+        <li><a href="#" class="block p-3 rounded-lg text-text-dark hover:bg-gray-100 font-medium">View Statistics</a></li>
+        <li><a href="#" class="block p-3 rounded-lg text-text-dark hover:bg-gray-100 font-medium">Tour Guide Profile</a></li>
+        <li><a href="#" class="block p-3 rounded-lg text-status-red hover:bg-red-50 font-medium">Logout</a></li>
+    </ul>
+
+</nav>
+
+<header class="sm:hidden p-4 bg-white shadow-md flex justify-between items-center z-20">
+    <div class="text-lg font-bold text-primary-gold">TGIS</div>
+    <button id="mobile-menu-button" class="text-text-dark">
+        ☰
+    </button>
+</header>
+
+<div class="content-area p-4 sm:p-8">
+    <div class="max-w-6xl w-full bg-white shadow-2xl rounded-3xl overflow-hidden p-6 sm:p-10 border border-gray-100">
+
+        <h2 class="text-2xl font-bold text-text-dark mb-6 border-b pb-2">
+            Spring 2026 Tour Schedule
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+            <div class="bg-primary-gold/10 border-2 border-primary-gold/40 rounded-2xl p-6 text-center lg:col-span-1">
+                <p class="text-sm font-semibold text-text-dark uppercase tracking-widest mb-1">Upcoming Tours</p>
+                <h3 class="text-5xl font-extrabold text-text-dark tracking-tight">20</h3>
+                <p class="text-sm text-gray-600 mt-2">Scheduled for the rest of the semester</p>
+            </div>
+
+            <div class="bg-status-purple/10 border-2 border-status-purple/40 rounded-2xl p-6 text-center lg:col-span-1">
+                <p class="text-sm font-semibold text-text-dark uppercase tracking-widest mb-1">Weekly Tour Slot</p>
+                <h3 class="text-3xl font-black text-status-purple tracking-tight">Wednesday</h3>
+                <p class="text-2xl font-bold text-text-dark mt-1">2:30 PM</p>
+            </div>
+
+            <div class="bg-gray-100 border-2 border-status-gray/40 rounded-2xl p-6 lg:col-span-1">
+                <p class="text-lg font-bold text-text-dark mb-3">Saturday Tour</p>
+                <ul class="space-y-2 text-sm text-gray-700">
+                    <li class="p-3 bg-white rounded-lg shadow-sm border border-gray-200 flex justify-between items-center">
+                        <span class="font-medium">March 15, 10:00 AM</span>
+                        <span class="text-xs text-status-red font-semibold">Mandatory</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="bg-white border-2 border-gray-200 rounded-2xl p-6 md:col-span-2">
+                <p class="text-lg font-bold text-text-dark mb-3">Program Days</p>
+                <ul class="space-y-3 text-sm text-gray-700">
+                    <li class="p-4 bg-gray-50 rounded-lg border-l-4 border-status-green flex justify-between items-center">
+                        <span class="font-medium">April 4: Accepted Student Day</span>
+                        <span class="text-xs text-status-green font-semibold">2 Shifts</span>
+                    </li>
+                    <li class="p-4 bg-gray-50 rounded-lg border-l-4 border-status-green flex justify-between items-center">
+                        <span class="font-medium">May 1: Transfer Student Open House</span>
+                        <span class="text-xs text-status-green font-semibold">1 Shift</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="bg-white border-2 border-gray-200 rounded-2xl p-6 md:col-span-1">
+                <p class="text-lg font-bold text-text-dark mb-3">Total Daily Visits</p>
+                <div class="p-3 bg-gray-50 rounded-lg text-center">
+                    <h3 class="text-4xl font-extrabold text-status-red">17</h3>
+                    <p class="text-sm text-gray-600 mt-1">Total Daily Visits Scheduled</p>
+                </div>
+            </div>
+
+        </div>
+        </div> 
+</div> 
+
+<script>
+    const sidebar = document.getElementById('sidebar');
+    const menuButton = document.getElementById('mobile-menu-button');
+    
+    if (menuButton) {
+        menuButton.addEventListener('click', () => {
+            if (sidebar.classList.contains('hidden')) {
+                sidebar.classList.remove('hidden');
+                sidebar.classList.add('fixed', 'block'); 
+            } else {
+                sidebar.classList.add('hidden');
+                sidebar.classList.remove('fixed', 'block');
+            }
+        });
+    }
+</script>
+</body>
+</html>
