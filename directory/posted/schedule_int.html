@@ -1,312 +1,208 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TGIS Forms - Updated Schedule</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'], },
-                    colors: {
-                        'primary-gold': '#CFB991',
-                        'text-dark': '#374151',
-                        'status-red': '#EF4444',
-                        'status-green': '#10B981',
-                        'status-gray': '#9CA3AF', 
-                        'status-purple': '#8B5CF6', 
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        .content-area {
-            margin-left: 16rem; 
-        }
-        @media (max-width: 640px) {
-            .content-area {
-                margin-left: 0; 
-            }
-        }
-        /* Styles for the detailed visit list */
-        .visit-list-container {
-            max-height: 250px; 
-            overflow-y: auto;
-            padding-right: 1rem; /* Space for scrollbar */
-        }
-        .visit-list-container::-webkit-scrollbar {
-            width: 8px;
-        }
-        .visit-list-container::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-        .visit-list-container::-webkit-scrollbar-thumb {
-            background: #d1d5db; /* gray-300 */
-            border-radius: 10px;
-        }
-        .visit-list-container::-webkit-scrollbar-thumb:hover {
-            background: #9ca3af; /* gray-400 */
-        }
-
-        /* Modal/Pop-up styles */
-        .modal {
-            transition: opacity 0.25s ease;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TGIS Forms</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], },
+                    colors: {
+                        'primary-gold': '#CFB991',
+                        'text-dark': '#374151',
+                        'status-red': '#EF4444',
+                        'status-green': '#10B981',
+                        'status-gray': '#9CA3AF', 
+                        'status-purple': '#8B5CF6', 
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .content-area { margin-left: 16rem; }
+        @media (max-width: 640px) { .content-area { margin-left: 0; } }
+        
+        /* Modal Animation */
+        .modal-active { display: flex !important; }
+    </style>
 </head>
 
 <body class="font-sans bg-gray-50 min-h-screen antialiased">
 
-<nav id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white shadow-xl border-r border-gray-100 p-6 z-30 hidden sm:block">
-    <div class="mb-8 text-center">
-        <p class="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-1">TGIS</p>
-        <h1 class="text-2xl font-extrabold text-text-dark leading-tight">
-            <span class="text-primary-gold">Dashboard</span>
-        </h1>
-    </div>
-
-    <div class="mb-6">
-        <p class="text-lg font-semibold text-text-dark">Welcome, Tour Guide!</p>
-        <span class="text-xs text-gray-500">New Hire Profile</span>
-    </div>
-
-    <ul class="space-y-2">
-        <li><a href="#" class="block p-3 rounded-lg text-text-dark hover:bg-gray-100 font-medium">Dashboard</a></li>
-        <li><a href="#" class="block p-3 rounded-lg text-text-dark bg-gray-100 font-semibold">View Schedule</a></li>
-        <li><a href="#" class="block p-3 rounded-lg text-text-dark hover:bg-gray-100 font-medium">Submit Forms</a></li>
-        <li><a href="#" class="block p-3 rounded-lg text-text-dark hover:bg-gray-100 font-medium">View Statistics</a></li>
-        <li><a href="#" class="block p-3 rounded-lg text-text-dark hover:bg-gray-100 font-medium">Tour Guide Profile</a></li>
-        <li><a href="#" class="block p-3 rounded-lg text-status-red hover:bg-red-50 font-medium">Logout</a></li>
-    </ul>
-
+<nav id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white shadow-xl border-r border-gray-100 p-6 z-10 hidden sm:block">
+    <div class="mb-8 text-center">
+        <p class="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-1">TGIS</p>
+        <h1 class="text-2xl font-extrabold text-text-dark leading-tight">
+            <span class="text-primary-gold">Dashboard</span>
+        </h1>
+    </div>
+    <div class="mb-6">
+        <p class="text-lg font-semibold text-text-dark">Welcome, Tour Guide!</p>
+        <span class="text-xs text-gray-500">New Hire Profile</span>
+    </div>
+    <ul class="space-y-2">
+        <li><a href="#" class="block p-3 rounded-lg text-text-dark hover:bg-gray-100 font-medium">Dashboard</a></li>
+        <li><a href="#" class="block p-3 rounded-lg text-text-dark bg-gray-100 font-semibold">View Schedule</a></li>
+        <li><a href="#" class="block p-3 rounded-lg text-text-dark hover:bg-gray-100 font-medium">Submit Forms</a></li>
+        <li><a href="#" class="block p-3 rounded-lg text-text-dark hover:bg-gray-100 font-medium">View Statistics</a></li>
+        <li><a href="#" class="block p-3 rounded-lg text-text-dark hover:bg-gray-100 font-medium">Tour Guide Profile</a></li>
+        <li><a href="#" class="block p-3 rounded-lg text-status-red hover:bg-red-50 font-medium">Logout</a></li>
+    </ul>
 </nav>
 
-<header class="sm:hidden p-4 bg-white shadow-md flex justify-between items-center z-40">
-    <div class="text-lg font-bold text-primary-gold">TGIS</div>
-    <button id="mobile-menu-button" class="text-text-dark">
-        ☰
-    </button>
+<header class="sm:hidden p-4 bg-white shadow-md flex justify-between items-center z-20">
+    <div class="text-lg font-bold text-primary-gold">TGIS</div>
+    <button id="mobile-menu-button" class="text-text-dark">☰</button>
 </header>
 
 <div class="content-area p-4 sm:p-8">
-    <div class="max-w-6xl w-full bg-white shadow-2xl rounded-3xl overflow-hidden p-6 sm:p-10 border border-gray-100">
+    <div class="max-w-6xl w-full bg-white shadow-2xl rounded-3xl overflow-hidden p-6 sm:p-10 border border-gray-100">
 
-        <h2 class="text-2xl font-bold text-text-dark mb-6 border-b pb-2">
-            Spring 2026 Tour Schedule
-        </h2>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <h2 class="text-2xl font-bold text-text-dark mb-6 border-b pb-2">Spring 2026 Tour Schedule</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-            <div class="bg-primary-gold/10 border-2 border-primary-gold/40 rounded-2xl p-6 text-center lg:col-span-1">
-                <p class="text-sm font-semibold text-text-dark uppercase tracking-widest mb-1">Upcoming Tours</p>
-                <h3 class="text-5xl font-extrabold text-text-dark tracking-tight">20</h3>
-                <p class="text-sm text-gray-600 mt-2">Scheduled for the rest of the semester</p>
-            </div>
+            <div class="bg-primary-gold/10 border-2 border-primary-gold/40 rounded-2xl p-6 text-center lg:col-span-1">
+                <p class="text-sm font-semibold text-text-dark uppercase tracking-widest mb-1">Upcoming Tours</p>
+                <h3 class="text-5xl font-extrabold text-text-dark tracking-tight">20</h3>
+                <p class="text-sm text-gray-600 mt-2">Scheduled for the rest of the semester</p>
+            </div>
 
-                        <div class="bg-status-purple/10 border-2 border-status-purple/40 rounded-2xl p-6 text-center lg:col-span-1 cursor-pointer hover:bg-status-purple/20 transition duration-150" 
-                onclick="openModal('Weekly Tour Slot', ['Alice Johnson', 'Bob Smith', 'Charlie Brown', 'David Lee', 'Eve Martinez'])">
-                <p class="text-sm font-semibold text-text-dark uppercase tracking-widest mb-1">Weekly Tour Slot</p>
-                <h3 class="text-3xl font-black text-status-purple tracking-tight">Wednesday</h3>
-                <p class="text-2xl font-bold text-text-dark mt-1">2:30 PM</p>
-                <span class="text-xs text-status-purple font-medium mt-2 inline-block underline">View Coworkers (Click)</span>
-            </div>
+            <div class="bg-status-purple/10 border-2 border-status-purple/40 rounded-2xl p-6 text-center lg:col-span-1 flex flex-col justify-between">
+                <div>
+                    <p class="text-sm font-semibold text-text-dark uppercase tracking-widest mb-1">Weekly Tour Slot</p>
+                    <h3 class="text-3xl font-black text-status-purple tracking-tight">Wednesday</h3>
+                    <p class="text-2xl font-bold text-text-dark mt-1">2:30 PM</p>
+                </div>
+                <button onclick="openCoworkerModal('Weekly Tour')" class="mt-4 w-full py-2 bg-status-purple text-white rounded-xl text-sm font-bold hover:bg-purple-700 transition-colors">
+                    View Coworkers
+                </button>
+            </div>
 
-                        <div class="bg-gray-100 border-2 border-status-gray/40 rounded-2xl p-6 lg:col-span-1 cursor-pointer hover:bg-gray-200 transition duration-150" 
-                onclick="openModal('Saturday Tour - March 15', ['Fiona Green', 'George Hall', 'Hannah Iris', 'Ivan Jones', 'Kelly King'])">
-                <p class="text-lg font-bold text-text-dark mb-3">Saturday Tour</p>
-                <ul class="space-y-2 text-sm text-gray-700">
-                    <li class="p-3 bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col items-start">
-                        <div class="flex justify-between w-full">
-                            <span class="font-medium">March 15, 10:00 AM</span>
-                            <span class="text-xs text-status-red font-semibold">Mandatory</span>
-                        </div>
-                        <span class="text-xs text-gray-500 mt-1 underline">View Coworkers (Click)</span>
-                    </li>
-                </ul>
-            </div>
+            <div class="bg-gray-100 border-2 border-status-gray/40 rounded-2xl p-6 lg:col-span-1 flex flex-col justify-between">
+                <div>
+                    <p class="text-lg font-bold text-text-dark mb-3">Saturday Tour</p>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li class="p-3 bg-white rounded-lg shadow-sm border border-gray-200 flex justify-between items-center">
+                            <span class="font-medium">March 15, 10:00 AM</span>
+                            <span class="text-xs text-status-red font-semibold">Mandatory</span>
+                        </li>
+                    </ul>
+                </div>
+                <button onclick="openCoworkerModal('Saturday Tour')" class="mt-4 w-full py-2 bg-gray-700 text-white rounded-xl text-sm font-bold hover:bg-gray-900 transition-colors">
+                    View Coworkers
+                </button>
+            </div>
 
-                        <div class="bg-white border-2 border-gray-200 rounded-2xl p-6 md:col-span-2">
-                <p class="text-lg font-bold text-text-dark mb-3">Program Days</p>
-                <ul class="space-y-3 text-sm text-gray-700">
-                                        <li class="p-4 bg-gray-50 rounded-lg border-l-4 border-status-green flex justify-between items-center cursor-pointer hover:bg-gray-100 transition duration-150"
-                        onclick="openModal('Accepted Student Day - April 4', ['Laura Miller', 'Mark Nelson', 'Nancy Owen', 'Oscar Perez', 'Quinn Rhodes'])">
-                        <span class="font-medium">April 4: Accepted Student Day</span>
-                        <div class="text-right">
-                            <span class="text-xs text-status-green font-semibold block">8:00 AM - 12:00 PM</span>
-                            <span class="text-xs text-status-green font-semibold block">1:00 PM - 5:00 PM</span>
-                            <span class="text-xs text-gray-500 mt-1 underline">View Coworkers (Click)</span>
-                        </div>
-                    </li>
-                                        <li class="p-4 bg-gray-50 rounded-lg border-l-4 border-status-green flex justify-between items-center cursor-pointer hover:bg-gray-100 transition duration-150"
-                        onclick="openModal('Transfer Open House - May 1', ['Sam Taylor', 'Uma Vance', 'Victor White', 'Wendy Young', 'Xavier Zedd'])">
-                        <span class="font-medium">May 1: Transfer Student Open House</span>
-                        <div class="text-right">
-                            <span class="text-xs text-status-green font-semibold block">9:00 AM - 1:00 PM</span>
-                            <span class="text-xs text-gray-500 mt-1 underline">View Coworkers (Click)</span>
-                        </div>
-                    </li>
-                </ul>
-            </div>
+            <div class="bg-white border-2 border-gray-200 rounded-2xl p-6 md:col-span-2 flex flex-col justify-between">
+                <div>
+                    <p class="text-lg font-bold text-text-dark mb-3">Program Days</p>
+                    <ul class="space-y-3 text-sm text-gray-700">
+                        <li class="p-4 bg-gray-50 rounded-lg border-l-4 border-status-green flex justify-between items-center">
+                            <span class="font-medium">April 4: Purdue's For Me</span>
+                            <span class="text-xs text-status-green font-semibold">Academic Loop</span>
+                        </li>
+                        <li class="p-4 bg-gray-50 rounded-lg border-l-4 border-status-green flex justify-between items-center">
+                            <span class="font-medium">April 15: Introducing Purdue</span>
+                            <span class="text-xs text-status-green font-semibold">Full Tour</span>
+                        </li>
+                    </ul>
+                </div>
+                <button onclick="openCoworkerModal('Program Days')" class="mt-4 w-full py-2 bg-status-green text-white rounded-xl text-sm font-bold hover:bg-green-700 transition-colors">
+                    View Coworkers
+                </button>
+            </div>
 
-                        <div class="bg-white border-2 border-gray-200 rounded-2xl p-6 md:col-span-1">
-                <p class="text-lg font-bold text-text-dark mb-3">All Daily Visits (17 Total)</p>
-                <div class="visit-list-container space-y-2">
-                                        <div class="p-2 bg-gray-50 rounded-lg text-sm flex justify-between items-center border border-gray-200">
-                        <span class="font-medium">Feb 10, 10:00 AM</span>
-                        <span class="text-xs text-gray-500">Regular</span>
-                    </div>
-                    <div class="p-2 bg-gray-50 rounded-lg text-sm flex justify-between items-center border border-gray-200">
-                        <span class="font-medium">Feb 17, 1:00 PM</span>
-                        <span class="text-xs text-gray-500">Regular</span>
-                    </div>
-                    <div class="p-2 bg-gray-50 rounded-lg text-sm flex justify-between items-center border border-gray-200">
-                        <span class="font-medium">Feb 24, 10:00 AM</span>
-                        <span class="text-xs text-gray-500">Regular</span>
-                    </div>
-                    <div class="p-2 bg-gray-50 rounded-lg text-sm flex justify-between items-center border border-gray-200">
-                        <span class="font-medium">Mar 3, 1:00 PM</span>
-                        <span class="text-xs text-gray-500">Regular</span>
-                    </div>
-                    <div class="p-2 bg-gray-50 rounded-lg text-sm flex justify-between items-center border border-gray-200">
-                        <span class="font-medium">Mar 10, 10:00 AM</span>
-                        <span class="text-xs text-gray-500">Regular</span>
-                    </div>
-                    <div class="p-2 bg-gray-50 rounded-lg text-sm flex justify-between items-center border border-gray-200">
-                        <span class="font-medium">Mar 24, 1:00 PM</span>
-                        <span class="text-xs text-gray-500">Regular</span>
-                    </div>
-                    <div class="p-2 bg-gray-50 rounded-lg text-sm flex justify-between items-center border border-gray-200">
-                        <span class="font-medium">Apr 7, 10:00 AM</span>
-                        <span class="text-xs text-gray-500">Regular</span>
-                    </div>
-                    <div class="p-2 bg-gray-50 rounded-lg text-sm flex justify-between items-center border border-gray-200">
-                        <span class="font-medium">Apr 14, 1:00 PM</span>
-                        <span class="text-xs text-gray-500">Regular</span>
-                    </div>
-                    <div class="p-2 bg-gray-50 rounded-lg text-sm flex justify-between items-center border border-gray-200">
-                        <span class="font-medium">Apr 21, 10:00 AM</span>
-                        <span class="text-xs text-gray-500">Regular</span>
-                    </div>
-                    <div class="p-2 bg-gray-50 rounded-lg text-sm flex justify-between items-center border border-gray-200">
-                        <span class="font-medium">Apr 28, 1:00 PM</span>
-                        <span class="text-xs text-gray-500">Regular</span>
-                    </div>
-                    <div class="p-2 bg-gray-50 rounded-lg text-sm flex justify-between items-center border border-gray-200">
-                        <span class="font-medium">May 5, 10:00 AM</span>
-                        <span class="text-xs text-gray-500">Regular</span>
-                    </div>
-                    <div class="p-2 bg-gray-50 rounded-lg text-sm flex justify-between items-center border border-gray-200">
-                        <span class="font-medium">May 12, 1:00 PM</span>
-                        <span class="text-xs text-gray-500">Regular</span>
-                    </div>
-                    <div class="p-2 bg-gray-50 rounded-lg text-sm flex justify-between items-center border border-gray-200">
-                        <span class="font-medium">May 19, 10:00 AM</span>
-                        <span class="text-xs text-gray-500">Regular</span>
-                    </div>
-                    <div class="p-2 bg-gray-50 rounded-lg text-sm flex justify-between items-center border border-gray-200">
-                        <span class="font-medium">May 26, 1:00 PM</span>
-                        <span class="text-xs text-gray-500">Regular</span>
-                    </div>
-                    <div class="p-2 bg-gray-50 rounded-lg text-sm flex justify-between items-center border border-gray-200">
-                        <span class="font-medium">Jun 2, 10:00 AM</span>
-                        <span class="text-xs text-gray-500">Regular</span>
-                    </div>
-                    <div class="p-2 bg-gray-50 rounded-lg text-sm flex justify-between items-center border border-gray-200">
-                        <span class="font-medium">Jun 9, 1:00 PM</span>
-                        <span class="text-xs text-gray-500">Regular</span>
-                    </div>
-                    <div class="p-2 bg-gray-50 rounded-lg text-sm flex justify-between items-center border border-gray-200">
-                        <span class="font-medium">Jun 16, 10:00 AM</span>
-                        <span class="text-xs text-gray-500">Regular</span>
-                    </div>
-                </div>
-            </div>
+            <div class="bg-white border-2 border-gray-200 rounded-2xl p-6 md:col-span-1">
+                <p class="text-lg font-bold text-text-dark mb-3">Total Daily Visits</p>
+                <div class="p-3 bg-gray-50 rounded-lg text-center">
+                    <h3 class="text-4xl font-extrabold text-status-red">17</h3>
+                    <p class="text-sm text-gray-600 mt-1">Total Daily Visits Scheduled</p>
+                </div>
+            </div>
 
-        </div>
-    </div> 
-</div> 
+        </div>
+    </div> 
+</div> 
 
-<div id="coworker-modal" class="modal fixed inset-0 bg-gray-900 bg-opacity-75 z-50 flex items-center justify-center opacity-0 pointer-events-none">
-    <div class="bg-white rounded-xl shadow-2xl max-w-sm w-full m-4 p-6 transform translate-y-4 transition-all duration-300 ease-in-out">
-        <div class="flex justify-between items-start mb-4 border-b pb-2">
-            <h3 id="modal-title" class="text-xl font-bold text-text-dark">Coworkers for [Event Name]</h3>
-            <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-            </button>
-        </div>
-        <div class="space-y-3">
-            <p class="text-sm text-gray-600 font-semibold">Working With You:</p>
-            <ul id="coworker-list" class="space-y-2 text-sm text-text-dark">
-                            </ul>
-        </div>
-        <button onclick="closeModal()" class="mt-6 w-full bg-primary-gold text-white font-semibold py-2 rounded-lg hover:bg-primary-gold/80 transition duration-150">
-            Close
-        </button>
-    </div>
+<div id="coworkerModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-white rounded-3xl max-w-sm w-full shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+        <div class="p-6 border-b border-gray-100 bg-gray-50">
+            <div class="flex justify-between items-center">
+                <h3 id="modalTitle" class="text-xl font-bold text-text-dark">Coworkers</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">Assigned team for this slot</p>
+        </div>
+        <div class="p-6">
+            <ul id="coworkerList" class="space-y-4">
+                </ul>
+            <button onclick="closeModal()" class="mt-8 w-full py-3 bg-gray-100 text-text-dark font-bold rounded-xl hover:bg-gray-200 transition-colors">
+                Close Window
+            </button>
+        </div>
+    </div>
 </div>
 
 <script>
-    const sidebar = document.getElementById('sidebar');
-    const menuButton = document.getElementById('mobile-menu-button');
-    const modal = document.getElementById('coworker-modal');
-    const modalTitle = document.getElementById('modal-title');
-    const coworkerList = document.getElementById('coworker-list');
-    
-    // Mobile Menu Toggle
-    if (menuButton) {
-        menuButton.addEventListener('click', () => {
-            if (sidebar.classList.contains('hidden')) {
-                sidebar.classList.remove('hidden');
-                sidebar.classList.add('fixed', 'block'); 
-            } else {
-                sidebar.classList.add('hidden');
-                sidebar.classList.remove('fixed', 'block');
-            }
-        });
-    }
+    // Sidebar logic
+    const sidebar = document.getElementById('sidebar');
+    const menuButton = document.getElementById('mobile-menu-button');
+    if (menuButton) {
+        menuButton.addEventListener('click', () => {
+            sidebar.classList.toggle('hidden');
+            sidebar.classList.toggle('fixed');
+            sidebar.classList.toggle('block');
+        });
+    }
 
-    // Modal Functions
-    function openModal(eventName, coworkers) {
-        modalTitle.textContent = 'Coworkers for ' + eventName;
-        coworkerList.innerHTML = ''; // Clear previous list
+    // Modal Logic
+    const modal = document.getElementById('coworkerModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const coworkerList = document.getElementById('coworkerList');
 
-        coworkers.forEach(coworker => {
-            const listItem = document.createElement('li');
-            listItem.className = 'p-3 bg-gray-100 rounded-lg flex items-center';
-            listItem.innerHTML = '<span class="text-primary-gold mr-3">👤</span>' + coworker;
-            coworkerList.appendChild(listItem);
-        });
+    // Sample Data
+    const coworkerData = {
+        'Weekly Tour': ['Anushree Chanda', 'Beatriz Machado', 'Caroline Oconnor', 'Cole Schidler', 'Casey Wong'],
+        'Saturday Tour': ['Gabe MacPhail', 'Joey Pelletier', 'Jonah Skarda', 'Jacob Lavra', 'Kristina Vodraska'],
+        'Program Days': ['Lillie Recker', 'Logann Tuttle', 'Marley Sharpe', 'Matthew Majeski', 'Nick Steingraeber']
+    };
 
-        modal.classList.remove('opacity-0', 'pointer-events-none');
-        modal.querySelector('div').classList.remove('translate-y-4');
-        document.body.classList.add('overflow-hidden'); // Prevent background scrolling
-    }
+    function openCoworkerModal(role) {
+        modalTitle.innerText = `${role} Coworkers`;
+        coworkerList.innerHTML = ''; // Clear previous
+        
+        coworkerData[role].forEach(name => {
+            const li = document.createElement('li');
+            li.className = "flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg transition-colors";
+            li.innerHTML = `
+                <div class="w-10 h-10 rounded-full bg-primary-gold/20 flex items-center justify-center text-primary-gold font-bold">
+                    ${name.charAt(0)}
+                </div>
+                <span class="text-text-dark font-semibold">${name}</span>
+            `;
+            coworkerList.appendChild(li);
+        });
 
-    function closeModal() {
-        modal.classList.add('opacity-0', 'pointer-events-none');
-        modal.querySelector('div').classList.add('translate-y-4');
-        document.body.classList.remove('overflow-hidden');
-    }
+        modal.classList.add('modal-active');
+    }
 
-    // Close modal when clicking outside (on the overlay)
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            closeModal();
-        }
-    });
+    function closeModal() {
+        modal.classList.remove('modal-active');
+    }
 
-    // Close modal on Escape key press
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && !modal.classList.contains('opacity-0')) {
-            closeModal();
-        }
-    });
+    // Close modal when clicking outside the box
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            closeModal();
+        }
+    }
 </script>
 </body>
 </html>
