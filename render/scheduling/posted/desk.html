@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TGIS | Desk Schedule</title>
+    <title>TGIS | My Desk Week</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
@@ -25,18 +25,19 @@
         .content-area { margin-left: 18rem; }
         @media (max-width: 1024px) { 
             .content-area { margin-left: 0; }
-            #sidebar { transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+            #sidebar { transform: translateX(-100%); transition: transform 0.3s; }
             #sidebar.open { transform: translateX(0); display: block !important; }
         }
         .loader { border-top-color: #CFB991; animation: spinner 0.6s linear infinite; }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
+        /* Navigation Styles */
         .nav-button { transition: all 0.2s ease; display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem; color: #4B5563; margin-bottom: 0.5rem; }
         .nav-button:hover { background-color: #F3F4F6; color: #111827; }
         .nav-button.active { background-color: #CFB991; color: white; box-shadow: 0 4px 6px -1px rgba(207, 185, 145, 0.4); }
 
-        .filter-tab { padding: 0.5rem 1.25rem; border-radius: 0.75rem; font-size: 0.75rem; font-weight: 800; color: #6B7280; transition: all 0.2s; }
-        .filter-tab.active { background: #374151; color: white; }
+        /* Column scroll for mobile */
+        .week-grid { display: grid; grid-template-columns: repeat(5, minmax(240px, 1fr)); gap: 1.5rem; overflow-x: auto; padding-bottom: 1rem; }
     </style>
 </head>
 
@@ -44,7 +45,7 @@
 
 <div id="loading-overlay" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center transition-opacity duration-500">
     <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
-    <h2 class="text-text-dark font-bold text-lg">Syncing Desk Data...</h2>
+    <h2 class="text-text-dark font-bold text-lg">Organizing Your Week...</h2>
 </div>
 
 <nav id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white shadow-2xl border-r border-gray-100 p-6 z-40 hidden lg:block overflow-y-auto">
@@ -61,77 +62,59 @@
             <div class="w-12 h-12 rounded-full bg-primary-gold flex items-center justify-center text-white font-black text-lg shadow-inner" id="profile-initial">?</div>
             <div>
                 <p id="guide-name" class="font-bold text-text-dark leading-tight">Loading...</p>
-                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Guide Profile</p>
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter text-center">Desk Worker</p>
             </div>
-        </div>
-        <div class="flex items-center text-[10px] text-status-green font-bold bg-white w-fit px-2 py-1 rounded-md border border-gray-100">
-            <span class="w-1.5 h-1.5 bg-status-green rounded-full mr-1.5 animate-pulse"></span> SYSTEM ONLINE
         </div>
     </div>
 
-    <div class="mb-8">
+    <nav class="mb-8">
         <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 ml-2">Navigation</p>
-        <nav>
-            <a href="#" class="nav-button"><span>📊</span><span class="ml-3">Dashboard</span></a>
-            <a href="#" class="nav-button"><span>🗓️</span><span class="ml-3">Tour Schedule</span></a>
-            <a href="#" class="nav-button active"><span>🖥️</span><span class="ml-3">Desk Schedule</span></a>
-            <a href="#" class="nav-button"><span>📝</span><span class="ml-3">Forms</span></a>
-            <a href="#" class="nav-button"><span>📈</span><span class="ml-3">Statistics</span></a>
-        </nav>
-    </div>
+        <a href="#" class="nav-button"><span>📊</span><span class="ml-3">Dashboard</span></a>
+        <a href="#" class="nav-button"><span>🗓️</span><span class="ml-3">Tour Schedule</span></a>
+        <a href="#" class="nav-button active"><span>🖥️</span><span class="ml-3">Desk Schedule</span></a>
+        <a href="#" class="nav-button"><span>📝</span><span class="ml-3">Forms</span></a>
+    </nav>
 </nav>
 
-<header class="lg:hidden p-4 bg-white shadow-md flex justify-between items-center z-20 sticky top-0">
-    <div class="text-lg font-black text-text-dark uppercase tracking-tighter">TGIS Portal</div>
-    <button id="mobile-menu-button" class="text-text-dark text-3xl">☰</button>
-</header>
-
 <div class="content-area p-4 sm:p-8">
-    <div class="max-w-6xl w-full bg-white shadow-2xl rounded-3xl overflow-hidden p-6 sm:p-10 border border-gray-100">
-        <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
-            
-            <div class="space-y-6">
-                <h2 class="text-sm font-black text-gray-400 uppercase tracking-widest mb-4 px-2">Your Weekly Rotation</h2>
-                <div id="personal-shifts-container" class="space-y-6">
-                    </div>
-            </div>
+    <header class="mb-8 flex justify-between items-center px-2">
+        <div>
+            <h2 class="text-3xl font-black text-text-dark tracking-tight">Weekly Desk Overview</h2>
+            <p class="text-sm font-bold text-gray-400 uppercase tracking-widest mt-1">Your Personal Shift Rotation</p>
+        </div>
+        <button onclick="fetchData()" class="bg-white border border-gray-200 p-3 rounded-2xl shadow-sm hover:bg-gray-50 transition-all font-bold text-xs text-text-dark">
+            🔄 REFRESH
+        </button>
+    </header>
 
-            <div class="xl:col-span-2 flex flex-col">
-                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-                    <h2 class="text-2xl font-black text-text-dark">Master Schedule</h2>
-                    <div id="day-tabs" class="flex p-1 bg-gray-100 rounded-xl w-fit">
-                        <button onclick="renderMaster('Monday')" class="filter-tab active">Mon</button>
-                        <button onclick="renderMaster('Tuesday')" class="filter-tab">Tue</button>
-                        <button onclick="renderMaster('Wednesday')" class="filter-tab">Wed</button>
-                        <button onclick="renderMaster('Thursday')" class="filter-tab">Thu</button>
-                        <button onclick="renderMaster('Friday')" class="filter-tab">Fri</button>
-                    </div>
-                </div>
-
-                <div class="border border-gray-100 rounded-2xl overflow-hidden shadow-sm bg-white">
-                    <table class="w-full text-left">
-                        <thead>
-                            <tr class="bg-gray-50 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b">
-                                <th class="px-6 py-4">Desk</th>
-                                <th class="px-6 py-4">Time</th>
-                                <th class="px-6 py-4">Guide</th>
-                            </tr>
-                        </thead>
-                        <tbody id="master-table-body" class="divide-y divide-gray-50"></tbody>
-                    </table>
-                </div>
-            </div>
+    <div class="week-grid" id="week-container">
+        <div class="day-column" data-day="Monday">
+            <h3 class="text-center font-black text-gray-400 uppercase text-[10px] tracking-[0.2em] mb-4">Monday</h3>
+            <div class="space-y-4" id="Monday-slots"></div>
+        </div>
+        <div class="day-column" data-day="Tuesday">
+            <h3 class="text-center font-black text-gray-400 uppercase text-[10px] tracking-[0.2em] mb-4">Tuesday</h3>
+            <div class="space-y-4" id="Tuesday-slots"></div>
+        </div>
+        <div class="day-column" data-day="Wednesday">
+            <h3 class="text-center font-black text-gray-400 uppercase text-[10px] tracking-[0.2em] mb-4">Wednesday</h3>
+            <div class="space-y-4" id="Wednesday-slots"></div>
+        </div>
+        <div class="day-column" data-day="Thursday">
+            <h3 class="text-center font-black text-gray-400 uppercase text-[10px] tracking-[0.2em] mb-4">Thursday</h3>
+            <div class="space-y-4" id="Thursday-slots"></div>
+        </div>
+        <div class="day-column" data-day="Friday">
+            <h3 class="text-center font-black text-gray-400 uppercase text-[10px] tracking-[0.2em] mb-4">Friday</h3>
+            <div class="space-y-4" id="Friday-slots"></div>
         </div>
     </div>
 </div>
 
 <script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbwy4cS2iDCJ0rLNFxdTvvPfwIi8CDjcQDfp-NLdQcFOloNCXS2jMWA9BfeNkDiPKn1ArA/exec'; // RE-ENTER YOUR DEPLOYED URL
+    const scriptURL = 'YOUR_APPS_SCRIPT_URL_HERE';
     const userName = new URLSearchParams(window.location.search).get('user');
     let allShifts = [];
-
-    document.getElementById('mobile-menu-button').onclick = () => document.getElementById('sidebar').classList.add('open');
-    document.getElementById('close-menu').onclick = () => document.getElementById('sidebar').classList.remove('open');
 
     async function fetchData() {
         if (!userName) return;
@@ -148,75 +131,71 @@
                 document.getElementById('profile-initial').innerText = data.guide.full_name[0];
             }
 
-            const userShifts = allShifts.filter(s => s.username.toLowerCase() === userName.toLowerCase());
-            renderPersonal(userShifts);
-            renderMaster('Monday');
+            renderWeekColumns();
         } catch (e) { console.error(e); }
     }
 
-    function renderPersonal(shifts) {
-        const container = document.getElementById('personal-shifts-container');
-        container.innerHTML = shifts.map(s => {
-            const coworkers = allShifts.filter(o => 
-                o.day_of_week === s.day_of_week && o.desk === s.desk && 
-                o.username !== s.username && isOverlapping(s.start_time, s.end_time, o.start_time, o.end_time)
-            );
-
-            return `
-                <div class="relative bg-white border border-gray-100 rounded-3xl p-6 shadow-sm hover:shadow-md transition-shadow">
-                    <div class="absolute -top-3 -right-3 w-14 h-14 bg-primary-gold rounded-full flex flex-col items-center justify-center text-white shadow-lg border-4 border-white">
-                        <span class="text-[8px] font-black uppercase leading-none mb-1">Desk</span>
-                        <span class="text-xs font-bold leading-none">${s.desk}</span>
-                    </div>
-                    
-                    <p class="text-primary-gold font-black uppercase text-xs tracking-widest mb-1">${s.day_of_week}</p>
-                    <h3 class="text-2xl font-black text-text-dark leading-tight mb-4">${s.start_time} - ${s.end_time}</h3>
-                    
-                    <div class="pt-4 border-t border-gray-50">
-                        <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-2">Shift Partners</p>
-                        <div class="flex flex-wrap gap-2">
-                            ${coworkers.map(c => `
-                                <div class="bg-gray-50 px-2 py-1 rounded-lg flex items-center border border-gray-100">
-                                    <div class="w-4 h-4 rounded-full bg-gray-300 text-[8px] text-white flex items-center justify-center font-bold mr-1.5">${c.full_name[0]}</div>
-                                    <span class="text-[10px] font-bold text-text-dark">${c.full_name}</span>
-                                </div>
-                            `).join('') || '<span class="text-[10px] italic text-gray-400">Solo Shift</span>'}
-                        </div>
-                    </div>
-                </div>
-            `;
-        }).join('') || '<p class="text-center text-gray-400 italic py-4">No desk shifts assigned.</p>';
-    }
-
-    function renderMaster(day) {
-        document.querySelectorAll('.filter-tab').forEach(t => t.classList.toggle('active', t.innerText === day.substring(0,3)));
-        const body = document.getElementById('master-table-body');
-        const dayShifts = allShifts.filter(s => s.day_of_week === day).sort((a,b) => a.start_time.localeCompare(b.start_time));
+    function renderWeekColumns() {
+        const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
         
-        body.innerHTML = dayShifts.map(s => `
-            <tr class="hover:bg-gray-50/50 transition-colors">
-                <td class="px-6 py-4 text-[10px] font-black text-primary-gold uppercase tracking-tighter">${s.desk}</td>
-                <td class="px-6 py-4 text-sm font-bold text-text-dark">${s.start_time} - ${s.end_time}</td>
-                <td class="px-6 py-4">
-                    <div class="flex items-center">
-                        <div class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-[9px] font-bold mr-2 border border-gray-200">${s.full_name[0]}</div>
-                        <span class="text-sm font-medium text-text-dark">${s.full_name}</span>
-                    </div>
-                </td>
-            </tr>
-        `).join('') || '<tr><td colspan="3" class="p-10 text-center text-gray-400 italic">No shifts recorded.</td></tr>';
+        days.forEach(day => {
+            const slotContainer = document.getElementById(`${day}-slots`);
+            const userShiftsForDay = allShifts.filter(s => 
+                s.username.toLowerCase() === userName.toLowerCase() && 
+                s.day_of_week === day
+            ).sort((a,b) => toMin(a.start_time) - toMin(b.start_time));
+
+            if (userShiftsForDay.length === 0) {
+                slotContainer.innerHTML = `<div class="bg-gray-100/50 border-2 border-dashed border-gray-200 rounded-3xl p-8 text-center text-[10px] font-bold text-gray-300 uppercase tracking-widest">OFF</div>`;
+            } else {
+                slotContainer.innerHTML = userShiftsForDay.map(s => {
+                    const partners = allShifts.filter(o => 
+                        o.day_of_week === s.day_of_week && 
+                        o.desk === s.desk && 
+                        o.username.toLowerCase() !== s.username.toLowerCase() && 
+                        isOverlapping(s.start_time, s.end_time, o.start_time, o.end_time)
+                    );
+
+                    return `
+                        <div class="relative bg-white border border-gray-100 rounded-3xl p-5 shadow-sm hover:shadow-md transition-all">
+                            <div class="absolute -top-3 -right-3 w-12 h-12 bg-primary-gold rounded-full flex flex-col items-center justify-center text-white shadow-lg border-2 border-white">
+                                <span class="text-[10px] font-black">${s.desk}</span>
+                            </div>
+
+                            <p class="text-2xl font-black text-text-dark leading-tight">${s.start_time}</p>
+                            <p class="text-xs font-bold text-gray-400 mb-4">to ${s.end_time}</p>
+                            
+                            <div class="pt-3 border-t border-gray-50">
+                                <p class="text-[8px] font-black text-gray-300 uppercase tracking-[0.1em] mb-2 text-center">Partners</p>
+                                <div class="flex flex-col gap-1.5">
+                                    ${partners.map(p => `
+                                        <div class="flex items-center bg-gray-50 p-1.5 rounded-xl">
+                                            <div class="w-4 h-4 rounded-full bg-primary-gold/20 text-primary-gold text-[8px] flex items-center justify-center font-black mr-2">${p.full_name[0]}</div>
+                                            <span class="text-[9px] font-bold text-text-dark truncate">${p.full_name}</span>
+                                        </div>
+                                    `).join('') || '<p class="text-[9px] text-gray-300 text-center italic">Solo</p>'}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        });
     }
 
-    // Logic to detect if two time blocks overlap
+    function toMin(t) {
+        if (!t) return 0;
+        const match = t.match(/(\d+):(\d+)\s*(AM|PM)/i);
+        if (!match) return 0;
+        let [_, h, m, part] = match;
+        h = parseInt(h); m = parseInt(m);
+        if (part.toUpperCase() === 'PM' && h < 12) h += 12;
+        if (part.toUpperCase() === 'AM' && h === 12) h = 0;
+        return h * 60 + m;
+    }
+
     function isOverlapping(s1, e1, s2, e2) {
-        const toMin = (t) => {
-            const [time, part] = t.split(' ');
-            let [h, m] = time.split(':').map(Number);
-            if (part === 'PM' && h < 12) h += 12;
-            if (part === 'AM' && h === 12) h = 0;
-            return h * 60 + m;
-        };
-        return toMin(s1) < toMin(e2) && toMin(s2) < toMin(e1);
+        return (toMin(s1) < toMin(e2)) && (toMin(e1) > toMin(s2));
     }
 
     fetchData();
