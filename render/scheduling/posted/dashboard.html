@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TGIS Scheduling Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], },
+                    colors: {
+                        'primary-gold': '#CFB991',
+                        'text-dark': '#374151',
+                        'status-red': '#EF4444',
+                        'status-green': '#10B981',
+                        'status-gray': '#9CA3AF', 
+                        'status-purple': '#8B5CF6', 
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .content-area { margin-left: 16rem; }
+        @media (max-width: 640px) { .content-area { margin-left: 0; } }
+        .modal-active { display: flex !important; }
+        /* Style adjustments for FullCalendar to match Tailwind */
+        .fc { font-family: 'Inter', sans-serif; }
+        .fc-header-toolbar { font-size: 0.8rem; margin-bottom: 1rem !important; }
+        .fc-daygrid-event { cursor: pointer; border-radius: 4px; padding: 2px; }
+        .fc-col-header-cell { background: #f9fafb; padding: 8px 0; }
+    </style>
+</head>
+
+<body class="font-sans bg-gray-50 min-h-screen antialiased">
+
+<nav id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white shadow-xl border-r border-gray-100 p-6 z-10 hidden sm:block">
+    <div class="mb-8 text-center">
+        <p class="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-1">TGIS</p>
+        <h1 class="text-2xl font-extrabold text-text-dark leading-tight">
+            <span class="text-primary-gold">Dashboard</span>
+        </h1>
+    </div>
+    <div class="mb-6">
+        <p class="text-lg font-semibold text-text-dark">Welcome, <span id="guide-name">Tour Guide</span>!</p>
+        <span id="profile-status" class="text-xs text-gray-500 italic">Loading Profile...</span>
+    </div>
+
+    <div class="mb-8">
+        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Weekly Desk Shifts</p>
+        <ul id="sidebar-desk-list" class="space-y-2 text-sm">
+            <li class="text-gray-500 italic text-xs">Loading shifts...</li>
+        </ul>
+    </div>
+
+    <ul class="space-y-2">
+        <li><a href="#" class="block p-3 rounded-lg text-text-dark hover:bg-gray-100 font-medium">Dashboard</a></li>
+        <li><a href="#" class="block p-3 rounded-lg text-text-dark bg-gray-100 font-semibold">View Schedule</a></li>
+        <li><a href="#" class="block p-3 rounded-lg text-status-red hover:bg-red-50 font-medium">Logout</a></li>
+    </ul>
+</nav>
+
+<header class="sm:hidden p-4 bg-white shadow-md flex justify-between items-center z-20">
+    <div class="text-lg font-bold text-primary-gold">TGIS</div>
+    <button id="mobile-menu-button" class="text-text-dark">☰</button>
+</header>
+
+<div class="content-area p-4 sm:p-8">
+    <div class="max-w-6xl w-full bg-white shadow-2xl rounded-3xl overflow-hidden p-6 sm:p-10 border border-gray-100">
+
+        <h2 class="text-2xl font-bold text-text-dark mb-6 border-b pb-2">Spring 2026 Schedule</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+            <div class="space-y-6">
+                <div class="bg-primary-gold/10 border-2 border-primary-gold/40 rounded-2xl p-6 text-center">
+                    <p class="text-sm font-semibold text-text-dark uppercase tracking-widest mb-1">Total Tours</p>
+                    <h3 id="total-tours-count" class="text-5xl font-extrabold text-text-dark tracking-tight">--</h3>
+                </div>
+
+                <div class="bg-status-purple/10 border-2 border-status-purple/40 rounded-2xl p-6 text-center">
+                    <p class="text-sm font-semibold text-text-dark uppercase tracking-widest mb-1">Weekly Slot</p>
+                    <h3 id="weekly-tour-day" class="text-3xl font-black text-status-purple tracking-tight">---</h3>
+                    <p id="weekly-tour-time" class="text-xl font-bold text-text-dark mt-1">--:--</p>
+                    <button onclick="openCoworkerModal('Weekly Tour')" class="mt-4 w-full py-2 bg-status-purple text-white rounded-xl text-xs font-bold hover:bg-purple-700">View Coworkers</button>
+                </div>
+
+                <div class="bg-gray-100 border-2 border-status-gray/40 rounded-2xl p-6">
+                    <p class="text-lg font-bold text-text-dark mb-3">Saturday Tour</p>
+                    <ul id="saturday-tour-list" class="space-y-2 text-xs"></ul>
+                    <button onclick="openCoworkerModal('Saturday Tour')" class="mt-4 w-full py-2 bg-gray-700 text-white rounded-xl text-xs font-bold hover:bg-gray-900">View Coworkers</button>
+                </div>
+            </div>
+
+            <div class="bg-white border-2 border-gray-200 rounded-2xl p-6 md:col-span-2 min-h-[550px] flex flex-col">
+                <div class="flex justify-between items-center mb-4">
+                    <p class="text-lg font-bold text-text-dark">Program Days Calendar</p>
+                    <span class="text-[10px] bg-status-green/10 text-status-green px-2 py-1 rounded-full font-bold uppercase tracking-wider">Live Sync</span>
+                </div>
+                <div id="calendar" class="flex-grow"></div>
+            </div>
+
+        </div>
+    </div> 
+</div> 
+
+<div id="coworkerModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-white rounded-3xl max-w-sm w-full shadow-2xl overflow-hidden">
+        <div class="p-6 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
+            <h3 id="modalTitle" class="text-xl font-bold text-text-dark">Coworkers</h3>
+            <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+        </div>
+        <div class="p-6">
+            <ul id="coworkerList" class="space-y-4"></ul>
+            <button onclick="closeModal()" class="mt-8 w-full py-3 bg-gray-100 text-text-dark font-bold rounded-xl hover:bg-gray-200">Close</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbz-PP9uFgxzye-LW7EgqEI5hI-G_2btkVEBNW2i8qctqpuKfZ-bc-aibn37CZ4dYv4x5Q/exec';
+    const urlParams = new URLSearchParams(window.location.search);
+    const userName = urlParams.get('user');
+
+    // Sidebar & Modal Utility
+    function closeModal() { document.getElementById('coworkerModal').classList.remove('modal-active'); }
+    window.onclick = (e) => { if (e.target == document.getElementById('coworkerModal')) closeModal(); }
+
+    const coworkerData = {
+        'Weekly Tour': ['Anushree Chanda', 'Beatriz Machado', 'Caroline Oconnor', 'Cole Schidler', 'Casey Wong'],
+        'Saturday Tour': ['Gabe MacPhail', 'Joey Pelletier', 'Jonah Skarda', 'Jacob Lavra', 'Kristina Vodraska'],
+        'Program Days': ['Lillie Recker', 'Logann Tuttle', 'Marley Sharpe', 'Matthew Majeski', 'Nick Steingraeber']
+    };
+
+    function openCoworkerModal(role) {
+        document.getElementById('modalTitle').innerText = `${role} Coworkers`;
+        const list = document.getElementById('coworkerList');
+        list.innerHTML = '';
+        const names = coworkerData[role] || coworkerData['Program Days'];
+        names.forEach(name => {
+            const li = document.createElement('li');
+            li.className = "flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg";
+            li.innerHTML = `<div class="w-8 h-8 rounded-full bg-primary-gold/20 flex items-center justify-center text-primary-gold font-bold text-xs">${name.charAt(0)}</div><span class="text-text-dark font-semibold text-sm">${name}</span>`;
+            list.appendChild(li);
+        });
+        document.getElementById('coworkerModal').classList.add('modal-active');
+    }
+
+    if (userName) {
+        fetch(`${scriptURL}?user=${userName}`)
+            .then(res => res.json())
+            .then(data => {
+                // Profile
+                if (data.guide) {
+                    document.getElementById('guide-name').innerText = data.guide.full_name;
+                    document.getElementById('profile-status').innerText = data.guide.profile_status;
+                    document.getElementById('total-tours-count').innerText = data.guide.total_tours;
+                }
+
+                // Weekly Tour
+                const weekly = data.tours.find(t => t.tour_type === "Weekly Tour");
+                if (weekly) {
+                    document.getElementById('weekly-tour-day').innerText = weekly.day;
+                    document.getElementById('weekly-tour-time').innerText = weekly.time;
+                }
+
+                // Saturday List
+                const saturdays = data.tours.filter(t => t.tour_type === "Saturday Tour");
+                document.getElementById('saturday-tour-list').innerHTML = saturdays.map(t => `
+                    <li class="p-2 bg-white rounded border flex justify-between items-center">
+                        <span class="font-medium">${t.day}</span>
+                        <span class="text-[10px] text-status-red font-bold">${t.time}</span>
+                    </li>
+                `).join('') || '<li class="italic text-gray-400">None assigned</li>';
+
+                // Sidebar Desk Shifts
+                document.getElementById('sidebar-desk-list').innerHTML = data.deskShifts.map(s => `
+                    <li class="p-2 bg-gray-50 rounded border border-gray-100">
+                        <p class="text-[10px] font-bold text-primary-gold uppercase">${s.desk}</p>
+                        <p class="font-semibold text-text-dark">${s.day_of_week}s</p>
+                        <p class="text-[10px] text-gray-500">${s.start_time}-${s.end_time}</p>
+                    </li>
+                `).join('') || '<li class="italic text-gray-400">No shifts</li>';
+
+                // CALENDAR LOGIC
+                const programTours = data.tours.filter(t => t.tour_type !== "Weekly Tour" && t.tour_type !== "Saturday Tour");
+                const events = programTours.map(p => ({
+                    title: p.tour_type,
+                    start: p.day, // Google Sheets must have date like "2026-04-04" or "April 4, 2026"
+                    backgroundColor: '#10B981',
+                    borderColor: '#10B981',
+                    allDay: true
+                }));
+
+                const calendarEl = document.getElementById('calendar');
+                const calendar = new FullCalendar.Calendar(calendarEl, {
+                    initialView: 'dayGridMonth',
+                    events: events,
+                    headerToolbar: { left: 'prev,next', center: 'title', right: 'today' },
+                    eventClick: function(info) {
+                        openCoworkerModal('Program Days');
+                    },
+                    height: 'auto'
+                });
+                calendar.render();
+            })
+            .catch(err => console.error(err));
+    }
+</script>
+</body>
+</html>
