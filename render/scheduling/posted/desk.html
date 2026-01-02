@@ -11,13 +11,11 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'], },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
                     colors: {
                         'primary-gold': '#CFB991',
                         'text-dark': '#374151',
-                        'status-red': '#EF4444',
                         'status-green': '#10B981',
-                        'status-purple': '#8B5CF6', 
                     }
                 }
             }
@@ -46,7 +44,7 @@
 
 <div id="loading-overlay" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center transition-opacity duration-500">
     <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
-    <h2 class="text-text-dark font-bold text-lg">Syncing Desk Data...</h2>
+    <h2 class="text-text-dark font-bold text-lg">Fixing Time Formats...</h2>
 </div>
 
 <nav id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white shadow-2xl border-r border-gray-100 p-6 z-40 hidden lg:block overflow-y-auto">
@@ -157,6 +155,16 @@
     document.getElementById('mobile-menu-button').onclick = () => document.getElementById('sidebar').classList.add('open');
     document.getElementById('close-menu').onclick = () => document.getElementById('sidebar').classList.remove('open');
 
+    // Helper to clean up "1899-12-30" strings if they slip through GAS
+    function formatTimeString(val) {
+        if (!val) return "---";
+        if (typeof val === 'string' && val.includes('T')) {
+            const date = new Date(val);
+            return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
+        }
+        return val;
+    }
+
     async function fetchData() {
         if (!userName) return;
         try {
@@ -172,7 +180,6 @@
                 document.getElementById('profile-initial').innerText = data.guide.full_name[0];
             }
 
-            // Render Personal Shifts (Dashboard Style)
             const userShifts = allShifts.filter(s => s.username.toLowerCase() === userName.toLowerCase());
             renderPersonal(userShifts);
             renderMaster('Monday');
@@ -183,6 +190,9 @@
     function renderPersonal(shifts) {
         const container = document.getElementById('personal-shifts-container');
         container.innerHTML = shifts.map(s => {
+            const start = formatTimeString(s.start_time);
+            const end = formatTimeString(s.end_time);
+
             const coworkers = allShifts.filter(o => 
                 o.day_of_week === s.day_of_week && o.desk === s.desk && 
                 o.username !== s.username && isOverlapping(s.start_time, s.end_time, o.start_time, o.end_time)
@@ -194,7 +204,7 @@
                         <p class="text-[10px] font-black text-primary-gold uppercase tracking-widest">${s.day_of_week}</p>
                         <p class="text-[9px] font-bold text-gray-500 uppercase">${s.desk}</p>
                     </div>
-                    <h3 class="text-2xl font-black text-text-dark">${s.start_time} - ${s.end_time}</h3>
+                    <h3 class="text-2xl font-black text-text-dark">${start} - ${end}</h3>
                     <div class="mt-4 flex flex-wrap gap-1">
                         ${coworkers.map(c => `<span class="bg-white/60 text-[10px] font-bold px-2 py-1 rounded-md text-text-dark border border-primary-gold/20">${c.full_name}</span>`).join('') || '<span class="text-[10px] italic text-gray-400">Solo Shift</span>'}
                     </div>
@@ -206,12 +216,12 @@
     function renderMaster(day) {
         document.querySelectorAll('.filter-tab').forEach(t => t.classList.toggle('active', t.innerText === day.substring(0,3)));
         const body = document.getElementById('master-table-body');
-        const dayShifts = allShifts.filter(s => s.day_of_week === day).sort((a,b) => a.start_time.localeCompare(b.start_time));
+        const dayShifts = allShifts.filter(s => s.day_of_week === day);
         
         body.innerHTML = dayShifts.map(s => `
             <tr class="hover:bg-gray-50 transition-colors">
                 <td class="px-6 py-4 text-[10px] font-black text-primary-gold uppercase tracking-tighter">${s.desk}</td>
-                <td class="px-6 py-4 text-sm font-bold text-text-dark">${s.start_time} - ${s.end_time}</td>
+                <td class="px-6 py-4 text-sm font-bold text-text-dark">${formatTimeString(s.start_time)} - ${formatTimeString(s.end_time)}</td>
                 <td class="px-6 py-4">
                     <div class="flex items-center">
                         <div class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-[9px] font-bold mr-2">${s.full_name[0]}</div>
