@@ -11,7 +11,7 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    fontFamily: { sans: ['Inter', 'sans-serif'], },
                     colors: {
                         'primary-gold': '#CFB991',
                         'text-dark': '#374151',
@@ -44,7 +44,7 @@
 
 <div id="loading-overlay" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center transition-opacity duration-500">
     <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
-    <h2 class="text-text-dark font-bold text-lg">Fixing Time Formats...</h2>
+    <h2 class="text-text-dark font-bold text-lg">Syncing Desk Data...</h2>
 </div>
 
 <nav id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white shadow-2xl border-r border-gray-100 p-6 z-40 hidden lg:block overflow-y-auto">
@@ -61,7 +61,7 @@
             <div class="w-12 h-12 rounded-full bg-primary-gold flex items-center justify-center text-white font-black text-lg shadow-inner" id="profile-initial">?</div>
             <div>
                 <p id="guide-name" class="font-bold text-text-dark leading-tight">Loading...</p>
-                <p id="profile-status" class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Guide Profile</p>
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Guide Profile</p>
             </div>
         </div>
         <div class="flex items-center text-[10px] text-status-green font-bold bg-white w-fit px-2 py-1 rounded-md border border-gray-100">
@@ -79,12 +79,6 @@
             <a href="#" class="nav-button"><span>📈</span><span class="ml-3">Statistics</span></a>
         </nav>
     </div>
-
-    <div class="pt-6 border-t border-gray-100">
-        <button onclick="fetchData()" class="w-full flex items-center justify-center p-3 rounded-xl text-xs text-primary-gold font-bold bg-primary-gold/5 hover:bg-primary-gold/10 transition-colors">
-            SYNC SCHEDULE
-        </button>
-    </div>
 </nav>
 
 <header class="lg:hidden p-4 bg-white shadow-md flex justify-between items-center z-20 sticky top-0">
@@ -94,24 +88,12 @@
 
 <div class="content-area p-4 sm:p-8">
     <div class="max-w-6xl w-full bg-white shadow-2xl rounded-3xl overflow-hidden p-6 sm:p-10 border border-gray-100">
-        
         <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
             
             <div class="space-y-6">
-                <div>
-                    <h2 class="text-sm font-black text-gray-400 uppercase tracking-widest mb-4">Your Assignments</h2>
-                    <div id="personal-shifts-container" class="space-y-4">
-                        </div>
-                </div>
-
-                <div class="bg-gray-50 border border-gray-200 rounded-2xl p-6">
-                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 text-center">Desk Rules</p>
-                    <p class="text-[11px] text-text-dark font-medium leading-relaxed">
-                        • Always arrive 5 mins early.<br>
-                        • Ensure 2 people are present before leaving.<br>
-                        • Log all walk-in inquiries.
-                    </p>
-                </div>
+                <h2 class="text-sm font-black text-gray-400 uppercase tracking-widest mb-4 px-2">Your Weekly Rotation</h2>
+                <div id="personal-shifts-container" class="space-y-6">
+                    </div>
             </div>
 
             <div class="xl:col-span-2 flex flex-col">
@@ -127,50 +109,36 @@
                 </div>
 
                 <div class="border border-gray-100 rounded-2xl overflow-hidden shadow-sm bg-white">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left">
-                            <thead>
-                                <tr class="bg-gray-50 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b">
-                                    <th class="px-6 py-4">Desk</th>
-                                    <th class="px-6 py-4">Time</th>
-                                    <th class="px-6 py-4">Guide</th>
-                                </tr>
-                            </thead>
-                            <tbody id="master-table-body" class="divide-y divide-gray-50">
-                                </tbody>
-                        </table>
-                    </div>
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="bg-gray-50 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b">
+                                <th class="px-6 py-4">Desk</th>
+                                <th class="px-6 py-4">Time</th>
+                                <th class="px-6 py-4">Guide</th>
+                            </tr>
+                        </thead>
+                        <tbody id="master-table-body" class="divide-y divide-gray-50"></tbody>
+                    </table>
                 </div>
             </div>
-
         </div>
     </div>
 </div>
 
 <script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbz-PP9uFgxzye-LW7EgqEI5hI-G_2btkVEBNW2i8qctqpuKfZ-bc-aibn37CZ4dYv4x5Q/exec';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbwy4cS2iDCJ0rLNFxdTvvPfwIi8CDjcQDfp-NLdQcFOloNCXS2jMWA9BfeNkDiPKn1ArA/exec'; // RE-ENTER YOUR DEPLOYED URL
     const userName = new URLSearchParams(window.location.search).get('user');
     let allShifts = [];
 
     document.getElementById('mobile-menu-button').onclick = () => document.getElementById('sidebar').classList.add('open');
     document.getElementById('close-menu').onclick = () => document.getElementById('sidebar').classList.remove('open');
 
-    // Helper to clean up "1899-12-30" strings if they slip through GAS
-    function formatTimeString(val) {
-        if (!val) return "---";
-        if (typeof val === 'string' && val.includes('T')) {
-            const date = new Date(val);
-            return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
-        }
-        return val;
-    }
-
     async function fetchData() {
         if (!userName) return;
         try {
             const res = await fetch(`${scriptURL}?user=${userName}`);
             const data = await res.json();
-            allShifts = data.masterDeskSchedule || data.deskShifts;
+            allShifts = data.masterDeskSchedule;
 
             document.getElementById('loading-overlay').classList.add('opacity-0');
             setTimeout(() => document.getElementById('loading-overlay').style.display = 'none', 500);
@@ -183,48 +151,55 @@
             const userShifts = allShifts.filter(s => s.username.toLowerCase() === userName.toLowerCase());
             renderPersonal(userShifts);
             renderMaster('Monday');
-
         } catch (e) { console.error(e); }
     }
 
     function renderPersonal(shifts) {
         const container = document.getElementById('personal-shifts-container');
         container.innerHTML = shifts.map(s => {
-            const start = formatTimeString(s.start_time);
-            const end = formatTimeString(s.end_time);
-
             const coworkers = allShifts.filter(o => 
                 o.day_of_week === s.day_of_week && o.desk === s.desk && 
                 o.username !== s.username && isOverlapping(s.start_time, s.end_time, o.start_time, o.end_time)
             );
 
             return `
-                <div class="bg-primary-gold/10 border-2 border-primary-gold/30 rounded-2xl p-6">
-                    <div class="flex justify-between items-start mb-2">
-                        <p class="text-[10px] font-black text-primary-gold uppercase tracking-widest">${s.day_of_week}</p>
-                        <p class="text-[9px] font-bold text-gray-500 uppercase">${s.desk}</p>
+                <div class="relative bg-white border border-gray-100 rounded-3xl p-6 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="absolute -top-3 -right-3 w-14 h-14 bg-primary-gold rounded-full flex flex-col items-center justify-center text-white shadow-lg border-4 border-white">
+                        <span class="text-[8px] font-black uppercase leading-none mb-1">Desk</span>
+                        <span class="text-xs font-bold leading-none">${s.desk}</span>
                     </div>
-                    <h3 class="text-2xl font-black text-text-dark">${start} - ${end}</h3>
-                    <div class="mt-4 flex flex-wrap gap-1">
-                        ${coworkers.map(c => `<span class="bg-white/60 text-[10px] font-bold px-2 py-1 rounded-md text-text-dark border border-primary-gold/20">${c.full_name}</span>`).join('') || '<span class="text-[10px] italic text-gray-400">Solo Shift</span>'}
+                    
+                    <p class="text-primary-gold font-black uppercase text-xs tracking-widest mb-1">${s.day_of_week}</p>
+                    <h3 class="text-2xl font-black text-text-dark leading-tight mb-4">${s.start_time} - ${s.end_time}</h3>
+                    
+                    <div class="pt-4 border-t border-gray-50">
+                        <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-2">Shift Partners</p>
+                        <div class="flex flex-wrap gap-2">
+                            ${coworkers.map(c => `
+                                <div class="bg-gray-50 px-2 py-1 rounded-lg flex items-center border border-gray-100">
+                                    <div class="w-4 h-4 rounded-full bg-gray-300 text-[8px] text-white flex items-center justify-center font-bold mr-1.5">${c.full_name[0]}</div>
+                                    <span class="text-[10px] font-bold text-text-dark">${c.full_name}</span>
+                                </div>
+                            `).join('') || '<span class="text-[10px] italic text-gray-400">Solo Shift</span>'}
+                        </div>
                     </div>
                 </div>
             `;
-        }).join('') || '<p class="text-center text-gray-400 italic py-4">No shifts assigned.</p>';
+        }).join('') || '<p class="text-center text-gray-400 italic py-4">No desk shifts assigned.</p>';
     }
 
     function renderMaster(day) {
         document.querySelectorAll('.filter-tab').forEach(t => t.classList.toggle('active', t.innerText === day.substring(0,3)));
         const body = document.getElementById('master-table-body');
-        const dayShifts = allShifts.filter(s => s.day_of_week === day);
+        const dayShifts = allShifts.filter(s => s.day_of_week === day).sort((a,b) => a.start_time.localeCompare(b.start_time));
         
         body.innerHTML = dayShifts.map(s => `
-            <tr class="hover:bg-gray-50 transition-colors">
+            <tr class="hover:bg-gray-50/50 transition-colors">
                 <td class="px-6 py-4 text-[10px] font-black text-primary-gold uppercase tracking-tighter">${s.desk}</td>
-                <td class="px-6 py-4 text-sm font-bold text-text-dark">${formatTimeString(s.start_time)} - ${formatTimeString(s.end_time)}</td>
+                <td class="px-6 py-4 text-sm font-bold text-text-dark">${s.start_time} - ${s.end_time}</td>
                 <td class="px-6 py-4">
                     <div class="flex items-center">
-                        <div class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-[9px] font-bold mr-2">${s.full_name[0]}</div>
+                        <div class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-[9px] font-bold mr-2 border border-gray-200">${s.full_name[0]}</div>
                         <span class="text-sm font-medium text-text-dark">${s.full_name}</span>
                     </div>
                 </td>
@@ -232,10 +207,19 @@
         `).join('') || '<tr><td colspan="3" class="p-10 text-center text-gray-400 italic">No shifts recorded.</td></tr>';
     }
 
-    function isOverlapping(s1, e1, s2, e2) { return (s1 < e2 && s2 < e1); }
+    // Logic to detect if two time blocks overlap
+    function isOverlapping(s1, e1, s2, e2) {
+        const toMin = (t) => {
+            const [time, part] = t.split(' ');
+            let [h, m] = time.split(':').map(Number);
+            if (part === 'PM' && h < 12) h += 12;
+            if (part === 'AM' && h === 12) h = 0;
+            return h * 60 + m;
+        };
+        return toMin(s1) < toMin(e2) && toMin(s2) < toMin(e1);
+    }
 
     fetchData();
 </script>
-
 </body>
 </html>
