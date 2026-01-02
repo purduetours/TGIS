@@ -1,124 +1,231 @@
-<div class="content-area p-4 sm:p-8">
-    <div class="max-w-6xl w-full">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TGIS | Desk Schedule</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], },
+                    colors: {
+                        'primary-gold': '#CFB991',
+                        'text-dark': '#374151',
+                        'status-red': '#EF4444',
+                        'status-green': '#10B981',
+                        'status-purple': '#8B5CF6', 
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .content-area { margin-left: 18rem; }
+        @media (max-width: 1024px) { 
+            .content-area { margin-left: 0; }
+            #sidebar { transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+            #sidebar.open { transform: translateX(0); display: block !important; }
+        }
+        .loader { border-top-color: #CFB991; animation: spinner 0.6s linear infinite; }
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        <div class="mb-10">
-            <h2 class="text-2xl font-black text-text-dark mb-6 flex items-center">
-                <span class="mr-3 p-2 bg-primary-gold/20 rounded-lg text-primary-gold text-sm">👤</span>
-                Your Desk Assignments
-            </h2>
-            <div id="user-shift-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                </div>
-        </div>
+        .nav-button { transition: all 0.2s ease; display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem; color: #4B5563; margin-bottom: 0.5rem; }
+        .nav-button:hover { background-color: #F3F4F6; color: #111827; }
+        .nav-button.active { background-color: #CFB991; color: white; box-shadow: 0 4px 6px -1px rgba(207, 185, 145, 0.4); }
 
-        <div class="bg-white shadow-2xl rounded-3xl overflow-hidden border border-gray-100">
-            <div class="p-6 border-b border-gray-100 bg-gray-50 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h2 class="text-xl font-black text-text-dark">Master Desk Schedule</h2>
-                    <p class="text-xs text-gray-400 font-bold uppercase tracking-widest mt-1">Full Weekly Rotation</p>
-                </div>
-                <div id="day-filters" class="flex space-x-1 bg-gray-200/50 p-1 rounded-xl overflow-x-auto">
-                    <button onclick="filterMasterSchedule('Monday')" class="filter-tab active">Mon</button>
-                    <button onclick="filterMasterSchedule('Tuesday')" class="filter-tab">Tue</button>
-                    <button onclick="filterMasterSchedule('Wednesday')" class="filter-tab">Wed</button>
-                    <button onclick="filterMasterSchedule('Thursday')" class="filter-tab">Thu</button>
-                    <button onclick="filterMasterSchedule('Friday')" class="filter-tab">Fri</button>
-                </div>
-            </div>
+        .filter-tab { padding: 0.5rem 1.25rem; border-radius: 0.75rem; font-size: 0.75rem; font-weight: 800; color: #6B7280; transition: all 0.2s; }
+        .filter-tab.active { background: #374151; color: white; }
+    </style>
+</head>
 
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-gray-50 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">
-                            <th class="p-4">Desk</th>
-                            <th class="p-4">Time Block</th>
-                            <th class="p-4">Staff Member</th>
-                            <th class="p-4">Working With</th>
-                        </tr>
-                    </thead>
-                    <tbody id="master-schedule-body" class="divide-y divide-gray-50">
-                        </tbody>
-                </table>
-            </div>
-        </div>
-    </div> 
+<body class="font-sans bg-gray-50 min-h-screen antialiased">
+
+<div id="loading-overlay" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center transition-opacity duration-500">
+    <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
+    <h2 class="text-text-dark font-bold text-lg">Syncing Desk Data...</h2>
 </div>
 
-<style>
-    /* New Styles for Desk Page */
-    .filter-tab { padding: 0.5rem 1rem; border-radius: 0.75rem; font-size: 0.75rem; font-weight: 800; color: #6B7280; transition: all 0.2s; }
-    .filter-tab.active { background: white; color: #CFB991; shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-    .shift-card { background: white; border: 2px solid #F3F4F6; border-radius: 1.5rem; padding: 1.5rem; transition: border-color 0.2s; }
-    .shift-card:hover { border-color: #CFB991; }
-</style>
+<nav id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white shadow-2xl border-r border-gray-100 p-6 z-40 hidden lg:block overflow-y-auto">
+    <div class="mb-8 flex justify-between items-start">
+        <div>
+            <p class="text-[10px] font-black text-primary-gold uppercase tracking-[0.2em] mb-1">Official Portal</p>
+            <h1 class="text-xl font-black text-text-dark leading-tight">Tour Guide<br>Information System</h1>
+        </div>
+        <button id="close-menu" class="lg:hidden text-gray-400 text-2xl">&times;</button>
+    </div>
+
+    <div class="mb-8 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+        <div class="flex items-center space-x-3 mb-3">
+            <div class="w-12 h-12 rounded-full bg-primary-gold flex items-center justify-center text-white font-black text-lg shadow-inner" id="profile-initial">?</div>
+            <div>
+                <p id="guide-name" class="font-bold text-text-dark leading-tight">Loading...</p>
+                <p id="profile-status" class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Guide Profile</p>
+            </div>
+        </div>
+        <div class="flex items-center text-[10px] text-status-green font-bold bg-white w-fit px-2 py-1 rounded-md border border-gray-100">
+            <span class="w-1.5 h-1.5 bg-status-green rounded-full mr-1.5 animate-pulse"></span> SYSTEM ONLINE
+        </div>
+    </div>
+
+    <div class="mb-8">
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 ml-2">Navigation</p>
+        <nav>
+            <a href="#" class="nav-button"><span>📊</span><span class="ml-3">Dashboard</span></a>
+            <a href="#" class="nav-button"><span>🗓️</span><span class="ml-3">Tour Schedule</span></a>
+            <a href="#" class="nav-button active"><span>🖥️</span><span class="ml-3">Desk Schedule</span></a>
+            <a href="#" class="nav-button"><span>📝</span><span class="ml-3">Forms</span></a>
+            <a href="#" class="nav-button"><span>📈</span><span class="ml-3">Statistics</span></a>
+        </nav>
+    </div>
+
+    <div class="pt-6 border-t border-gray-100">
+        <button onclick="fetchData()" class="w-full flex items-center justify-center p-3 rounded-xl text-xs text-primary-gold font-bold bg-primary-gold/5 hover:bg-primary-gold/10 transition-colors">
+            SYNC SCHEDULE
+        </button>
+    </div>
+</nav>
+
+<header class="lg:hidden p-4 bg-white shadow-md flex justify-between items-center z-20 sticky top-0">
+    <div class="text-lg font-black text-text-dark uppercase tracking-tighter">TGIS Portal</div>
+    <button id="mobile-menu-button" class="text-text-dark text-3xl">☰</button>
+</header>
+
+<div class="content-area p-4 sm:p-8">
+    <div class="max-w-6xl w-full bg-white shadow-2xl rounded-3xl overflow-hidden p-6 sm:p-10 border border-gray-100">
+        
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+            
+            <div class="space-y-6">
+                <div>
+                    <h2 class="text-sm font-black text-gray-400 uppercase tracking-widest mb-4">Your Assignments</h2>
+                    <div id="personal-shifts-container" class="space-y-4">
+                        </div>
+                </div>
+
+                <div class="bg-gray-50 border border-gray-200 rounded-2xl p-6">
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 text-center">Desk Rules</p>
+                    <p class="text-[11px] text-text-dark font-medium leading-relaxed">
+                        • Always arrive 5 mins early.<br>
+                        • Ensure 2 people are present before leaving.<br>
+                        • Log all walk-in inquiries.
+                    </p>
+                </div>
+            </div>
+
+            <div class="xl:col-span-2 flex flex-col">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                    <h2 class="text-2xl font-black text-text-dark">Master Schedule</h2>
+                    <div id="day-tabs" class="flex p-1 bg-gray-100 rounded-xl w-fit">
+                        <button onclick="renderMaster('Monday')" class="filter-tab active">Mon</button>
+                        <button onclick="renderMaster('Tuesday')" class="filter-tab">Tue</button>
+                        <button onclick="renderMaster('Wednesday')" class="filter-tab">Wed</button>
+                        <button onclick="renderMaster('Thursday')" class="filter-tab">Thu</button>
+                        <button onclick="renderMaster('Friday')" class="filter-tab">Fri</button>
+                    </div>
+                </div>
+
+                <div class="border border-gray-100 rounded-2xl overflow-hidden shadow-sm bg-white">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="bg-gray-50 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b">
+                                    <th class="px-6 py-4">Desk</th>
+                                    <th class="px-6 py-4">Time</th>
+                                    <th class="px-6 py-4">Guide</th>
+                                </tr>
+                            </thead>
+                            <tbody id="master-table-body" class="divide-y divide-gray-50">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
 
 <script>
-    // Logic to handle the new views
-    let masterData = [];
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbz-PP9uFgxzye-LW7EgqEI5hI-G_2btkVEBNW2i8qctqpuKfZ-bc-aibn37CZ4dYv4x5Q/exec';
+    const userName = new URLSearchParams(window.location.search).get('user');
+    let allShifts = [];
+
+    document.getElementById('mobile-menu-button').onclick = () => document.getElementById('sidebar').classList.add('open');
+    document.getElementById('close-menu').onclick = () => document.getElementById('sidebar').classList.remove('open');
 
     async function fetchData() {
-        // ... (Keep existing fetch logic) ...
-        const res = await fetch(`${scriptURL}?user=${userName}`);
-        const data = await res.json();
-        masterData = data.masterDeskSchedule;
+        if (!userName) return;
+        try {
+            const res = await fetch(`${scriptURL}?user=${userName}`);
+            const data = await res.json();
+            allShifts = data.masterDeskSchedule || data.deskShifts;
 
-        // Render User's Personal Shifts
-        const userShiftGrid = document.getElementById('user-shift-grid');
-        userShiftGrid.innerHTML = data.userShifts.map(shift => {
-            // Find who else is at the same desk at the same time
-            const partners = masterData.filter(s => 
-                s.day_of_week === shift.day_of_week && 
-                s.desk === shift.desk && 
-                s.username !== shift.username &&
-                // Check for time overlap logic
-                isOverlapping(shift.start_time, shift.end_time, s.start_time, s.end_time)
+            document.getElementById('loading-overlay').classList.add('opacity-0');
+            setTimeout(() => document.getElementById('loading-overlay').style.display = 'none', 500);
+
+            if (data.guide) {
+                document.getElementById('guide-name').innerText = data.guide.full_name;
+                document.getElementById('profile-initial').innerText = data.guide.full_name[0];
+            }
+
+            // Render Personal Shifts (Dashboard Style)
+            const userShifts = allShifts.filter(s => s.username.toLowerCase() === userName.toLowerCase());
+            renderPersonal(userShifts);
+            renderMaster('Monday');
+
+        } catch (e) { console.error(e); }
+    }
+
+    function renderPersonal(shifts) {
+        const container = document.getElementById('personal-shifts-container');
+        container.innerHTML = shifts.map(s => {
+            const coworkers = allShifts.filter(o => 
+                o.day_of_week === s.day_of_week && o.desk === s.desk && 
+                o.username !== s.username && isOverlapping(s.start_time, s.end_time, o.start_time, o.end_time)
             );
 
             return `
-                <div class="shift-card">
-                    <div class="flex justify-between items-start mb-4">
-                        <span class="bg-primary-gold/10 text-primary-gold text-[10px] font-black px-2 py-1 rounded uppercase">${shift.desk}</span>
-                        <span class="text-text-dark font-black">${shift.day_of_week}</span>
+                <div class="bg-primary-gold/10 border-2 border-primary-gold/30 rounded-2xl p-6">
+                    <div class="flex justify-between items-start mb-2">
+                        <p class="text-[10px] font-black text-primary-gold uppercase tracking-widest">${s.day_of_week}</p>
+                        <p class="text-[9px] font-bold text-gray-500 uppercase">${s.desk}</p>
                     </div>
-                    <p class="text-2xl font-black text-text-dark">${shift.start_time} - ${shift.end_time}</p>
-                    <div class="mt-4 pt-4 border-t border-gray-100">
-                        <p class="text-[10px] font-bold text-gray-400 uppercase mb-2">Co-Workers during this block:</p>
-                        <div class="flex flex-wrap gap-2">
-                            ${partners.map(p => `<span class="bg-gray-100 text-text-dark text-[10px] font-bold px-2 py-1 rounded-full">${p.full_name}</span>`).join('') || '<span class="text-xs italic text-gray-400">Solo Shift</span>'}
-                        </div>
+                    <h3 class="text-2xl font-black text-text-dark">${s.start_time} - ${s.end_time}</h3>
+                    <div class="mt-4 flex flex-wrap gap-1">
+                        ${coworkers.map(c => `<span class="bg-white/60 text-[10px] font-bold px-2 py-1 rounded-md text-text-dark border border-primary-gold/20">${c.full_name}</span>`).join('') || '<span class="text-[10px] italic text-gray-400">Solo Shift</span>'}
                     </div>
                 </div>
             `;
-        }).join('');
-
-        // Initial render of Master Schedule (Monday by default)
-        filterMasterSchedule('Monday');
+        }).join('') || '<p class="text-center text-gray-400 italic py-4">No shifts assigned.</p>';
     }
 
-    function filterMasterSchedule(day) {
-        // Update Tabs
-        document.querySelectorAll('.filter-tab').forEach(btn => {
-            btn.classList.toggle('active', btn.innerText.includes(day.substring(0,3)));
-        });
-
-        const filtered = masterData.filter(s => s.day_of_week === day);
-        const body = document.getElementById('master-schedule-body');
+    function renderMaster(day) {
+        document.querySelectorAll('.filter-tab').forEach(t => t.classList.toggle('active', t.innerText === day.substring(0,3)));
+        const body = document.getElementById('master-table-body');
+        const dayShifts = allShifts.filter(s => s.day_of_week === day).sort((a,b) => a.start_time.localeCompare(b.start_time));
         
-        body.innerHTML = filtered.sort((a,b) => a.start_time.localeCompare(b.start_time)).map(s => `
-            <tr class="hover:bg-gray-50/50 transition-colors">
-                <td class="p-4 text-xs font-black text-primary-gold uppercase">${s.desk}</td>
-                <td class="p-4 text-sm font-bold text-text-dark">${s.start_time} - ${s.end_time}</td>
-                <td class="p-4 font-bold text-text-dark text-sm">${s.full_name}</td>
-                <td class="p-4">
-                    <button onclick="viewPartners('${s.username}', '${s.day_of_week}', '${s.start_time}', '${s.desk}')" class="text-[10px] font-black text-status-purple hover:underline">VIEW PARTNERS</button>
+        body.innerHTML = dayShifts.map(s => `
+            <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 text-[10px] font-black text-primary-gold uppercase tracking-tighter">${s.desk}</td>
+                <td class="px-6 py-4 text-sm font-bold text-text-dark">${s.start_time} - ${s.end_time}</td>
+                <td class="px-6 py-4">
+                    <div class="flex items-center">
+                        <div class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-[9px] font-bold mr-2">${s.full_name[0]}</div>
+                        <span class="text-sm font-medium text-text-dark">${s.full_name}</span>
+                    </div>
                 </td>
             </tr>
-        `).join('');
+        `).join('') || '<tr><td colspan="3" class="p-10 text-center text-gray-400 italic">No shifts recorded.</td></tr>';
     }
 
-    // Simple time overlap helper
-    function isOverlapping(start1, end1, start2, end2) {
-        // This is a basic string comparison (e.g., "08:00" < "10:00")
-        // For 100% accuracy with AM/PM, you'd convert to 24hr integers first
-        return start1 < end2 && start2 < end1;
-    }
+    function isOverlapping(s1, e1, s2, e2) { return (s1 < e2 && s2 < e1); }
+
+    fetchData();
 </script>
+
+</body>
+</html>
