@@ -19,9 +19,8 @@
                         'status-red': '#EF4444',
                         'status-green': '#10B981',
                         'status-purple': '#8B5CF6', 
-                        'desk-shift-blue': '#1D4ED8', // Bright Color for User's Shift
+                        'desk-shift-blue': '#1D4ED8', 
                         
-                        // EXPANDED Faint Colors for Other Guides' Shifts (10 unique themes)
                         'guide-bg-1': '#FEE2E2', 'guide-text-1': '#991B1B',      // Red
                         'guide-bg-2': '#FEF3C7', 'guide-text-2': '#92400E',      // Amber
                         'guide-bg-3': '#D1FAE5', 'guide-text-3': '#065F46',      // Emerald
@@ -53,7 +52,6 @@
         .nav-button.active { background-color: #CFB991; color: white; box-shadow: 0 4px 6px -1px rgba(207, 185, 145, 0.4); }
         #coworkerList { max-height: 70vh; overflow-y: auto; } 
         
-        /* Table Styles */
         #welcome-desk-body td, #front-desk-body td {
             min-width: 120px; 
             vertical-align: top;
@@ -62,15 +60,15 @@
              min-width: 120px;
         }
 
-        /* NEW: Alert Popup Styling */
+        
         #alert-popup {
             transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
-            transform: translateY(-100%); /* Start off-screen */
+            transform: translateY(-100%); 
             opacity: 0;
             display: flex;
         }
         #alert-popup.show {
-            transform: translateY(0); /* Slide in */
+            transform: translateY(0); 
             opacity: 1;
         }
     </style>
@@ -228,14 +226,13 @@
 
 
 <script>
-    // UPDATED APPSCRIPT URL
+    // APP SCRIPTS CONNECTION, reference when training new codirector in April, VERY IMPORTANT!!!
     const scriptURL = 'https://script.google.com/macros/s/AKfycbxfKcVOjsxVbW0yVqiaZ9bVA5WuHXduJrRloAXb1TE69xrJM2Yo6Y4ELOjMw7RH-z1qdg/exec';
     const userName = new URLSearchParams(window.location.search).get('user');
 
-    // Simple Guide ID Hashmap for consistent color assignment
+    // color key hashmap
     const guideColors = {};
     const colorClasses = [
-        // 10 distinct faint color themes
         { id: 1, bg: 'guide-bg-1', text: 'guide-text-1' },
         { id: 2, bg: 'guide-bg-2', text: 'guide-text-2' },
         { id: 3, bg: 'guide-bg-3', text: 'guide-text-3' },
@@ -249,32 +246,28 @@
     ];
     let colorIndex = 0;
 
-    // **********************************************
-    // NEW FUNCTIONALITY: Alert Popup Logic
-    // **********************************************
+
     const alertPopup = document.getElementById('alert-popup');
     const closeAlertBtn = document.getElementById('close-alert');
 
-    // Function to show the alert and hide it after the specified duration
     function showAlert(duration = 10000) {
-        // Show the alert by adding the 'show' class
         alertPopup.classList.add('show');
         
-        // Hide the alert after the specified duration
+        // hide popup
         setTimeout(() => {
             alertPopup.classList.remove('show');
-            // Give time for the transition to finish before setting display:none
+            // transition time
             setTimeout(() => { alertPopup.style.display = 'none'; }, 300); 
         }, duration);
     }
 
-    // Event listener to close the alert manually
+    // listender, manually close popup
     closeAlertBtn.addEventListener('click', () => {
         alertPopup.classList.remove('show');
         setTimeout(() => { alertPopup.style.display = 'none'; }, 300);
     });
 
-    // Utility to get the user name for navigation links
+    // update navigation with username passed through qualtrics
     const updateNavLinks = (user) => {
         document.querySelectorAll('a[href*="index.html"]').forEach(a => {
             if (a.href.includes('?user=')) {
@@ -293,24 +286,19 @@
     closeBtn?.addEventListener('click', () => sidebar.classList.remove('open'));
 
 
-    // **********************************************
-    // REVISED: Helper to format guide names
-    // This now expects the clean DISPLAY NAME and the backend USERNAME/EMAIL
-    // **********************************************
+
     function formatGuide(displayName, guideUsername) {
         if (!displayName) return '';
 
-        // We use the original guideUsername (email) for checking if it's the logged-in user 
-        // and for color assignment consistency.
+
         const isUser = guideUsername === userName;
         let colorClass, textClass;
 
         if (isUser) {
-            // Bright color for logged-in user
             colorClass = 'bg-desk-shift-blue/90';
             textClass = 'text-white';
         } else {
-            // Assign a faint, consistent, unique color for other guides
+            // randomizer for colors
             if (!guideColors[guideUsername]) {
                 guideColors[guideUsername] = colorClasses[colorIndex % colorClasses.length];
                 colorIndex++;
@@ -319,13 +307,13 @@
             textClass = `text-${guideColors[guideUsername].text}`;
         }
         
-        // Display the clean Display Name directly
+        // displays displayname not username from source data
         const display = displayName;
 
         return `<div class="p-1 rounded-lg text-xs leading-snug font-semibold ${colorClass} ${textClass}">${display}</div>`;
     }
     
-    // Helper to check for current shift (UNMODIFIED)
+    // checks current shift
     function checkCurrentShift(userShifts) {
         const now = new Date();
         const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -371,10 +359,6 @@
     }
 
 
-    // **********************************************
-    // REVISED: Function to process the raw, merged shift data and display it in the table
-    // This now iterates over guide objects { displayName, username }
-    // **********************************************
     const buildTableBody = (deskName, bodyId, data) => {
         const bodyElement = document.getElementById(bodyId);
         const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
@@ -388,11 +372,11 @@
             return;
         }
 
-        // 2. Build Table Rows, iterating over the fixed 30-minute slots
+        // makes the 30 min time slot interval for master grid
         sortedTimeSlots.forEach(timeKey => {
             html += `<tr class="hover:bg-gray-50">`;
             
-            // Time Column (Sticky to the left)
+            // Time Column for master grid
             html += `<td class="px-3 py-2 whitespace-nowrap text-xs font-bold text-desk-shift-blue sticky left-0 bg-white">${timeKey}</td>`;
             
             days.forEach(day => {
@@ -401,18 +385,18 @@
                 let cellContent = '';
                 
                 if (shiftData) {
-                    // The shiftData.desk[deskName] now contains an array of { displayName: 'Name', username: 'email' } objects
+                    // shift data array
                     const guideDetails = shiftData.desk[deskName] || [];
                     
                     if (guideDetails.length > 0) {
                         // Use flex container to lay out guides horizontally
                         cellContent = `<div class="flex flex-row space-x-1 justify-center items-start w-full">`; 
                         
-                        // Sort the user's shift to appear first (leftmost) based on username
+                        // sort master tables based on userbame alphabetically
                         const sortedGuides = guideDetails.sort((a, b) => (a.username === userName ? -1 : b.username === userName ? 1 : 0));
                         
                         sortedGuides.forEach(guide => {
-                            // Pass both the Display Name and the Username (for coloring/matching)
+                            // pass through for display name and username
                             cellContent += formatGuide(guide.displayName, guide.username);
                         });
                         cellContent += `</div>`;
@@ -422,11 +406,9 @@
                         cellContent = `<div class="text-xs text-gray-400 italic text-center w-full">Open</div>`; 
                     }
                 } else {
-                    // No shift block defined for this time/day
                     cellContent = `<div class="text-xs text-gray-400 italic text-center w-full">--</div>`;
                 }
                 
-                // Add padding and align content
                 html += `<td class="p-2 align-top text-center">${cellContent}</td>`; 
             });
             
@@ -437,7 +419,7 @@
     };
 
 
-    // Main function to fetch and display data
+
     async function fetchData() {
         if (!userName) {
             document.getElementById('loading-overlay').classList.add('opacity-0');
@@ -457,7 +439,7 @@
             document.getElementById('loading-overlay').classList.add('opacity-0');
             setTimeout(() => document.getElementById('loading-overlay').style.display = 'none', 500);
 
-            // 1. Populate Profile Info
+            // load profile with google database
             if (data.guide) {
                 document.getElementById('guide-name').innerText = data.guide.full_name;
                 document.getElementById('profile-status').innerText = data.guide.profile_status;
@@ -465,16 +447,16 @@
             }
             document.getElementById('last-update-time').innerText = data.lastUpdated || new Date().toLocaleTimeString();
 
-            // 2. Calculate and Display Summary Cards
+            // calculate totals
             const userShifts = data.userDeskShifts || [];
             let totalHours = 0;
             
-            // UPDATED: Generate small card HTML for each user shift with prominent time/day
+            // weekly shift cards at top 
             const userShiftsHTML = userShifts.map(shift => {
                 const hours = shift.duration_minutes / 60;
                 totalHours += hours;
                 
-                // Use a dedicated color theme for personal assignments
+                // load color based on WD or FD
                 const cardColorClass = shift.desk === 'Welcome Desk' ? 'bg-primary-gold/20 border-primary-gold/40' : 'bg-desk-shift-blue/20 border-desk-shift-blue/40';
                 const mainTextColorClass = shift.desk === 'Welcome Desk' ? 'text-text-dark' : 'text-desk-shift-blue';
 
@@ -497,10 +479,10 @@
             userSummaryContainer.innerHTML = userShiftsHTML || '<span class="text-sm text-gray-500 italic sm:col-span-2 lg:col-span-3">No shifts assigned this week.</span>';
 
 
-            // 3. Current Shift Status
+            // current shift status
             checkCurrentShift(userShifts);
 
-            // 4. Render Master Weekly Desk Schedule Table
+            // render master tables
             buildTableBody('Welcome Desk', 'welcome-desk-body', data);
             buildTableBody('Front Desk', 'front-desk-body', data);
 
@@ -512,17 +494,14 @@
     }
 
     fetchData();
-    // Re-sync data every 5 minutes (300,000 milliseconds)
+    // Re-sync function
     setInterval(() => fetchData(), 300000); 
-    // Also, update the Current Shift card every minute for real-time status 
+    // Update current shift 
     setInterval(() => checkCurrentShift(window.deskData ? window.deskData.userDeskShifts : []), 60000);
 
-    // **********************************************
-    // FINAL STEP: Show the alert when the page loads
-    // **********************************************
+    //DOM FD alert for first week
     document.addEventListener('DOMContentLoaded', () => {
-        // We ensure the DOM is ready before trying to show the alert
-        showAlert(10000); // Show for 10 seconds
+        showAlert(10000); 
     });
 </script>
 </body>
