@@ -203,7 +203,7 @@
         return dummyDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
     }
 
-    // HELPER: Determines the overall status for the group
+    // HELPER: Determines the overall status for the group (USED FOR MODAL ONLY)
     function getGroupStatus(guides) {
         if (!guides || guides.length === 0) {
             return {
@@ -314,19 +314,25 @@
             // 3. Update Calendar
             const events = data.groupedTours
                 .filter(p => p.tour_type !== "Weekly Tour" && p.tour_type !== "Saturday Tour")
-                // --- CALENDAR FILTER APPLIED HERE ---
+                // Filter: Keep only tours where the logged-in user is a guide
                 .filter(slot => 
                     slot.guides.some(guide => guide.name === data.guide.full_name)
                 )
-                // ------------------------------------
                 .map(slot => {
-                    const groupStatus = getGroupStatus(slot.guides);
+                    // Find the current user's specific guide status in this slot
+                    const userGuide = slot.guides.find(guide => guide.name === data.guide.full_name);
+                    const userStatus = userGuide ? userGuide.status : 'Scheduled'; // Fallback to scheduled if somehow missing
+
+                    // Determine color based ONLY on the user's status
+                    const userStatusInfo = getStatusClasses(userStatus);
                     
                     return {
-                        title: `${slot.tour_type} (${slot.guides.length})`, // Show guide count (even if only one is the user)
+                        // Change 1: Title is now the Time
+                        title: `${slot.time}`, 
                         start: slot.date, 
-                        backgroundColor: groupStatus.fc_color, 
-                        borderColor: groupStatus.fc_color,
+                        // Change 2: Color is based ONLY on the user's status
+                        backgroundColor: userStatusInfo.fc_color, 
+                        borderColor: userStatusInfo.fc_color,
                         extendedProps: {
                             slotData: slot // Store the entire slot object for the modal
                         }
@@ -373,7 +379,7 @@
             // Calculate dynamic end time
             const endTimeStr = calculateEndTime(slotData.time, slotData.tour_type);
             
-            // Determine group status for the callout
+            // Determine group status for the callout (Still uses group status here)
             const groupStatus = getGroupStatus(slotData.guides);
             
             // Build the Tour Details section
