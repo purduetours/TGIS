@@ -335,8 +335,8 @@
             renderTourCards('Program Day', 'program-day-list', data.groupedTours, data.guide.full_name);
 
             // Desk Shifts (No change needed)
-            document.getElementById('sidebar-desk-list').innerHTML = data.masterDeskSchedule
-                .map(s => `<li class="p-3 bg-gray-50 rounded-xl border border-gray-100 mb-2"><p class="text-[9px] font-black text-primary-gold mb-1 uppercase">${s.Desk}</p><p class="text-[11px] font-bold">${s.DayOfWeek}s: ${s.Time}</p></li>`).join('');
+            //document.getElementById('sidebar-desk-list').innerHTML = data.masterDeskSchedule
+            //    .map(s => `<li class="p-3 bg-gray-50 rounded-xl border border-gray-100 mb-2"><p class="text-[9px] font-black text-primary-gold mb-1 uppercase">${s.Desk}</p><p class="text-[11px] font-bold">${s.DayOfWeek}s: ${s.Time}</p></li>`).join('');
 
             // 4. Update Calendar (NOW INCLUDES SATURDAY TOUR & PROGRAM DAY)
             const events = data.groupedTours
