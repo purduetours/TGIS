@@ -82,7 +82,7 @@
 <div id="alert-popup" class="fixed top-0 left-0 right-0 z-50 p-3 bg-status-red text-white shadow-xl">
     <div class="max-w-7xl mx-auto flex justify-between items-center space-x-4">
         <p id="alert-message" class="font-semibold text-sm">
-            🚨 **ANNOUNCEMENT:** Welcome to the new Desk Schedule dashboard! Check the schedule carefully for any changes this week. 
+            ATTENTION FRONT DESK: The listed schedule is ONLY for the week of January 12 - January 16. The permanent front desk schedule will be released at a later time. 
         </p>
         <button id="close-alert" class="text-white opacity-75 hover:opacity-100 font-bold text-xl leading-none">&times;</button>
     </div>
@@ -257,7 +257,7 @@
     const closeAlertBtn = document.getElementById('close-alert');
 
     // Function to show the alert and hide it after 6 seconds (or immediately if user closes it)
-    function showAlert(duration = 6000) {
+    function showAlert(duration = 10000) {
         // Show the alert by adding the 'show' class
         alertPopup.classList.add('show');
         
