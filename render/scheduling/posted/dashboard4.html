@@ -38,9 +38,8 @@
         .nav-button { transition: all 0.2s ease; display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem; color: #4B5563; margin-bottom: 0.5rem; }
         .nav-button:hover { background-color: #F3F4F6; color: #111827; }
         .nav-button.active { background-color: #CFB991; color: white; box-shadow: 0 4px 6px -1px rgba(207, 185, 145, 0.4); }
-
-        /* FIX: Scrollable content for the modal */
-        #coworkerList { max-height: 70vh; overflow-y: auto; padding-right: 1rem; }
+        /* Add styles to allow the modal list to scroll if content is long */
+        #coworkerList { max-height: 70vh; overflow-y: auto; } 
     </style>
 </head>
 
@@ -147,16 +146,15 @@
 </div>
 
 <div id="coworkerModal" class="fixed inset-0 bg-black/60 z-[120] hidden items-center justify-center p-4 backdrop-blur-md">
-    <div class="bg-white rounded-3xl max-w-sm w-full shadow-2xl p-6 animate-in zoom-in duration-200 flex flex-col">
-        <h3 id="modalTitle" class="font-bold text-text-dark border-b pb-4 mb-4 uppercase text-xs tracking-widest text-center flex-shrink-0">Team Members</h3>
-        <div id="coworkerList" class="overflow-y-auto">
-            </div>
-        <button onclick="closeModal()" class="mt-8 w-full py-3 bg-gray-900 text-white font-bold rounded-2xl flex-shrink-0">Close Window</button>
+    <div class="bg-white rounded-3xl max-w-sm w-full shadow-2xl p-6 animate-in zoom-in duration-200">
+        <h3 id="modalTitle" class="font-bold text-text-dark border-b pb-4 mb-4 uppercase text-xs tracking-widest text-center">Team Members</h3>
+        <div id="coworkerList" class="space-y-3"></div> 
+        <button onclick="closeModal()" class="mt-8 w-full py-3 bg-gray-900 text-white font-bold rounded-2xl">Close Window</button>
     </div>
 </div>
 
 <script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbz-PP9uFgxzye-LW7EgqEI5hI-G_2btkVEBNW2i8qctqpuKfZ-bc-aibn37CZ4dYv4x5Q/exec';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbxJi017bePgUQiJzeAJVVJ5_YUnjlVGmb2p1qhEsfL_mc86qWRNiiWKun-6D6o_7GpJLw/exec';
     const userName = new URLSearchParams(window.location.search).get('user');
     let calendar;
 
@@ -192,11 +190,11 @@
     // NEW HELPER: Calculates End Time and handles time math
     function calculateEndTime(startTimeStr, tourType) {
         // startTimeStr is in format "h:mm AM/PM"
+        // 90 minutes for Daily/Weekly, 45 minutes for Program Day
         const durationMinutes = (tourType.toLowerCase().includes('daily visit') || tourType.toLowerCase().includes('weekly tour')) ? 90 : 45;
         
-        // This is a bit complex as we are working with AppScript's formatted strings.
-        // For accurate time calculation, we need to rely on standard Date objects.
-        const dummyDate = new Date(`2000/01/01 ${startTimeStr}`); // Use a dummy date for time calculation
+        // Use a dummy date for time calculation
+        const dummyDate = new Date(`2000/01/01 ${startTimeStr}`); 
         if (isNaN(dummyDate)) return "N/A";
 
         dummyDate.setMinutes(dummyDate.getMinutes() + durationMinutes);
@@ -205,10 +203,9 @@
         return dummyDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
     }
 
-    // NEW HELPER: Determines the overall status for the group based on guide statuses
+    // NEW HELPER: Determines the overall status for the group
     function getGroupStatus(guides) {
         if (!guides || guides.length === 0) {
-            // New "Gray for Not Needed" status if the slot is empty
             return {
                 text: 'NOT ASSIGNED',
                 tailwind: 'bg-gray-200 border-gray-400 text-gray-700',
@@ -219,30 +216,27 @@
         
         const statuses = guides.map(g => g.status.toLowerCase().trim());
 
-        // Highest priority: Dropped
         if (statuses.includes('dropped')) {
             return {
                 text: `ALERT: ${statuses.filter(s => s === 'dropped').length} GUIDE(S) DROPPED`,
                 tailwind: 'bg-status-red/20 border-status-red text-status-red',
                 header: 'STATUS ALERT',
-                isAlert: true
+                fc_color: '#EF4444'
             };
         }
-        // Second priority: Not Given
         if (statuses.includes('not given')) {
             return {
                 text: `ALERT: ${statuses.filter(s => s === 'not given').length} GUIDE(S) NOT GIVEN`,
                 tailwind: 'bg-status-purple/20 border-status-purple text-status-purple',
                 header: 'STATUS ALERT',
-                isAlert: true
+                fc_color: '#8B5CF6'
             };
         }
-        // Default: Scheduled (Everyone is scheduled)
         return {
             text: 'FULLY SCHEDULED',
             tailwind: 'bg-status-green/20 border-status-green text-status-green',
             header: 'STATUS: OK',
-            isDefault: false
+            fc_color: '#10B981'
         };
     }
 
@@ -259,7 +253,7 @@
 
             if(isManual) showToast();
 
-            // Populate Sidebar Profile 
+            // Populate Sidebar Profile (using the flat list for total tours)
             if (data.guide) {
                 document.getElementById('guide-name').innerText = data.guide.full_name;
                 document.getElementById('profile-status').innerText = data.guide.profile_status;
@@ -270,26 +264,29 @@
             document.getElementById('last-update-time').innerText = data.lastUpdated || new Date().toLocaleTimeString();
 
             // ----------------------------------------------------
-            // Update Dashboard Elements 
+            // Update Dashboard Elements based on NEW GROUPED DATA
             // ----------------------------------------------------
             
-            // 1. Weekly Tour Slot 
+            // 1. Weekly Tour Slot (Find the current user's weekly tour)
             const weeklyTour = data.userTours.find(t => t.TourType === "Weekly Tour");
             const weeklyStatusInfo = weeklyTour ? getStatusClasses(weeklyTour.status) : { tailwind: 'border-status-purple/40', text: 'text-status-purple' };
             
             const weeklyTourCard = document.getElementById('weekly-tour-card');
             if (weeklyTourCard) {
+                // Reset/apply border and text color based on status
                 weeklyTourCard.className = `bg-status-purple/10 border-2 rounded-2xl p-6 text-center ${weeklyStatusInfo.tailwind.replace(/bg-status-[\w]+\/\d+/, '').replace(/text-status-[\w]+/, '')}`;
                 
+                // Update text color for the title/day based on status
                 const weeklyTourDay = document.getElementById('weekly-tour-day');
                 const weeklyTourTime = document.getElementById('weekly-tour-time');
 
+                // If scheduled/default, use primary-gold/text-dark, otherwise use status color
                 if (weeklyStatusInfo.tailwind.includes('status-red') || weeklyStatusInfo.tailwind.includes('status-purple')) {
                     weeklyTourDay.className = `text-2xl font-black ${weeklyStatusInfo.text}`;
                 } else {
-                    weeklyTourDay.className = `text-2xl font-black text-status-purple`; 
+                    weeklyTourDay.className = `text-2xl font-black text-status-purple`; // default purple/original color
                 }
-                weeklyTourTime.className = `text-lg font-bold text-text-dark`; 
+                weeklyTourTime.className = `text-lg font-bold text-text-dark`; // Keep time dark
             }
 
             document.getElementById('weekly-tour-day').innerText = weeklyTour?.DayOfWeek || '---';
@@ -300,6 +297,7 @@
                 .filter(t => t.TourType === "Saturday Tour")
                 .map(t => {
                     const statusInfo = getStatusClasses(t.status);
+                    // Highlight the specific tour based on status
                     const timeColorClass = statusInfo.tailwind.includes('text-status-red') || statusInfo.tailwind.includes('text-status-purple') ? statusInfo.text : 'text-primary-gold';
 
                     return `<li class="flex justify-between text-[10px] p-2 rounded border font-bold tracking-tight ${statusInfo.tailwind}">
@@ -317,25 +315,14 @@
                 .filter(p => p.tour_type !== "Weekly Tour" && p.tour_type !== "Saturday Tour")
                 .map(slot => {
                     const groupStatus = getGroupStatus(slot.guides);
-                    let fc_color;
-
-                    if (groupStatus.text === 'NOT ASSIGNED') {
-                        fc_color = '#9CA3AF'; // Gray for Not Assigned
-                    } else if (groupStatus.text.includes('DROPPED')) {
-                        fc_color = '#EF4444'; // Red for Dropped
-                    } else if (groupStatus.text.includes('NOT GIVEN')) {
-                        fc_color = '#8B5CF6'; // Purple for Not Given
-                    } else {
-                        fc_color = '#10B981'; // Green for Fully Scheduled
-                    }
                     
                     return {
-                        title: `${slot.tour_type} (${slot.guides.length})`,
+                        title: `${slot.tour_type} (${slot.guides.length})`, // Show guide count
                         start: slot.date, 
-                        backgroundColor: fc_color, 
-                        borderColor: fc_color,
+                        backgroundColor: groupStatus.fc_color, 
+                        borderColor: groupStatus.fc_color,
                         extendedProps: {
-                            slotData: slot
+                            slotData: slot // Store the entire slot object for the modal
                         }
                     };
                 });
@@ -369,26 +356,22 @@
     };
 
     function openCoworkerModal(role, slotData = null) {
-        
         let teamMembers = [];
         let modalTitleText = `${role} Team`;
-        
-        // Modal Body Content Variables
-        let detailsHtml = '';
-        let statusCalloutHtml = '';
-        
-        // 1. Handle Calendar Click Data
+        let modalContentHtml = ''; // Use a single variable to build the content
+
+        // 1. If slotData is provided (from the calendar click)
         if (slotData) {
-            teamMembers = slotData.guides;
+            teamMembers = slotData.guides; 
             
-            // Calculate End Time
+            // Calculate dynamic end time
             const endTimeStr = calculateEndTime(slotData.time, slotData.tour_type);
             
-            // Determine Group Status
+            // Determine group status for the callout
             const groupStatus = getGroupStatus(slotData.guides);
             
-            // Build Details HTML
-            detailsHtml = `
+            // Build the Tour Details section
+            const detailsHtml = `
                 <div class="text-left mb-6 space-y-2 text-sm text-gray-700">
                     <p class="font-bold text-lg text-text-dark">${slotData.tour_type}</p>
                     <p><span class="font-semibold">Date:</span> ${slotData.date}</p>
@@ -397,15 +380,17 @@
                 </div>
             `;
             
-            // Build Status Callout HTML
-            statusCalloutHtml = `
+            // Build the Status Callout section
+            const statusCalloutHtml = `
                 <div class="p-3 text-center rounded-xl font-bold uppercase tracking-widest text-xs border-2 mb-6 ${groupStatus.tailwind}">
                     ${groupStatus.header}: ${groupStatus.text}
                 </div>
             `;
             
             modalTitleText = `Tour Details`;
-
+            modalContentHtml += detailsHtml;
+            modalContentHtml += statusCalloutHtml;
+            
         } else {
             // 2. Fallback for "View Team" buttons (no specific date)
             teamMembers = (hardcodedTeams[role] || hardcodedTeams['Program Days']).map(name => ({
@@ -413,19 +398,16 @@
                 status: 'Scheduled' 
             }));
             
-            detailsHtml = `<h4 class="text-sm font-semibold text-text-dark mb-4">${role} General Team Roster</h4>`;
-            statusCalloutHtml = ''; 
+            modalContentHtml += `<h4 class="text-sm font-semibold text-text-dark mb-4">${role} General Team Roster</h4>`;
         }
 
         document.getElementById('modalTitle').innerText = modalTitleText;
         const listContainer = document.getElementById('coworkerList');
+        listContainer.innerHTML = '';
         
-        // Clear previous content
-        listContainer.innerHTML = ''; 
+        // Append initial content (details/status/fallback header)
+        listContainer.innerHTML = modalContentHtml;
 
-        // Prepend details and status callout
-        listContainer.innerHTML = detailsHtml + statusCalloutHtml;
-        
         // Build Profile Cards List
         let profileCardsHtml = teamMembers.map(guide => {
             const statusInfo = getStatusClasses(guide.status);
@@ -444,7 +426,7 @@
             </li>`;
         }).join('');
 
-        // Append the profile cards
+        // Wrap profile cards in a <ul> and append them
         listContainer.innerHTML += `<ul class="space-y-3">${profileCardsHtml}</ul>`;
 
         document.getElementById('coworkerModal').classList.add('modal-active');
