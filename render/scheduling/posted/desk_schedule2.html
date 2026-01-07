@@ -178,7 +178,7 @@
 
 
 <script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbz6KdawyQIs5GphWjTjZC2eisdxkPQTX54j8hNpO8DeYa6W9cpslQb6qbkCXiP7LsAVUg/exec';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbzSF9Cx5ZfbEaJIAjOEkCaCigGJYDHv0TOLpL-qZ-SdwXD4cmxp3pVUA7NZ2mdYBUuQRw/exec';
     const userName = new URLSearchParams(window.location.search).get('user');
 
     // Utility to get the user name for navigation links
@@ -207,10 +207,13 @@
         const isUser = guideEmail === userName;
         const colorClass = isUser ? 'bg-desk-shift-blue/90 text-white font-bold shadow-md' : 'bg-gray-100 text-text-dark font-semibold';
         
-        // Simple display name (e.g., Jane.Doe@purdue.edu -> Jane D.)
+        // Simple display name (e.g., jane.doe -> Jane D.)
         const namePart = guideEmail.split('@')[0];
         const nameParts = namePart.split('.');
-        const display = nameParts.length > 1 ? `${nameParts[0]} ${nameParts[1].charAt(0)}.` : nameParts[0];
+        // Capitalize the first name, and use the first letter of the last name
+        const display = nameParts.length > 1 
+            ? `${nameParts[0].charAt(0).toUpperCase() + nameParts[0].slice(1)} ${nameParts[1].charAt(0).toUpperCase()}.` 
+            : nameParts[0].charAt(0).toUpperCase() + nameParts[0].slice(1);
 
         return `<div class="p-2 rounded-lg text-xs leading-snug ${colorClass}">${display}</div>`;
     }
@@ -244,6 +247,7 @@
         // 2. Build Table Rows
         sortedTimeSlots.forEach(timeKey => {
             html += `<tr>`;
+            // The timeKey is now a guaranteed human-readable string from the Apps Script
             html += `<td class="px-3 py-2 whitespace-nowrap text-sm font-bold text-desk-shift-blue">${timeKey}</td>`;
             
             days.forEach(day => {
@@ -266,7 +270,7 @@
                         cellContent = `<div class="text-xs text-gray-400 italic">Unstaffed</div>`; 
                     }
                 } else {
-                    // Time block doesn't exist for this specific day (e.g., 8-10 on Tues)
+                    // Time block doesn't exist for this specific day
                     cellContent = `<div class="text-xs text-gray-400 italic">No Shift</div>`;
                 }
                 
