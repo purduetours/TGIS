@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TGIS Dashboard | Live</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], },
+                    colors: {
+                        'primary-gold': '#CFB991',
+                        'text-dark': '#374151',
+                        'status-red': '#EF4444',
+                        'status-green': '#10B981',
+                        'status-purple': '#8B5CF6', 
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* FIX APPLIED HERE: Ensure content area correctly offsets sidebar */
+        .content-area { margin-left: 18rem; }
+        @media (max-width: 1024px) { 
+            .content-area { margin-left: 0; }
+            #sidebar { transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+            #sidebar.open { transform: translateX(0); display: block !important; }
+        }
+        .modal-active { display: flex !important; }
+        .loader { border-top-color: #CFB991; animation: spinner 0.6s linear infinite; }
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .nav-button { transition: all 0.2s ease; display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem; color: #4B5563; margin-bottom: 0.5rem; }
+        .nav-button:hover { background-color: #F3F4F6; color: #111827; }
+        .nav-button.active { background-color: #CFB991; color: white; box-shadow: 0 4px 6px -1px rgba(207, 185, 145, 0.4); }
+        /* Add styles to allow the modal list to scroll if content is long */
+        #coworkerList { max-height: 70vh; overflow-y: auto; } 
+    </style>
+</head>
+
+<body class="font-sans bg-gray-50 min-h-screen antialiased">
+
+<div id="loading-overlay" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center transition-opacity duration-500">
+    <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
+    <h2 class="text-text-dark font-bold text-lg">Syncing TGIS Data...</h2>
+</div>
+
+<div id="toast" class="fixed bottom-5 right-5 z-[110] bg-gray-900 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-2xl translate-y-20 transition-transform duration-300 pointer-events-none opacity-0 flex items-center">
+    <span class="w-2 h-2 bg-status-green rounded-full mr-2"></span>
+    Data Synced
+</div>
+
+<nav id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white shadow-2xl border-r border-gray-100 p-6 z-40 hidden lg:block overflow-y-auto">
+    <div class="mb-8 flex justify-between items-start">
+        <div>
+            <p class="text-[10px] font-black text-primary-gold uppercase tracking-[0.2em] mb-1">Purdue University</p>
+            <h1 class="text-xl font-black text-text-dark leading-tight">Tour Guide<br>Information System</h1>
+        </div>
+        <button id="close-menu" class="lg:hidden text-gray-400 text-2xl">&times;</button>
+    </div>
+
+    <div class="mb-8 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+        <div class="flex items-center space-x-3 mb-3">
+            <div class="w-12 h-12 rounded-full bg-primary-gold flex items-center justify-center text-white font-black text-lg shadow-inner" id="profile-initial">?</div>
+            <div>
+                <p id="guide-name" class="font-bold text-text-dark leading-tight">Loading...</p>
+                <p id="profile-status" class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Syncing Profile</p>
+            </div>
+        </div>
+        <div class="flex items-center text-[10px] text-status-green font-bold bg-white w-fit px-2 py-1 rounded-md border border-gray-100">
+            <span class="w-1.5 h-1.5 bg-status-green rounded-full mr-1.5 animate-pulse"></span> SYSTEM ONLINE
+        </div>
+    </div>
+
+    <div class="mb-8">
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 ml-2">Navigation</p>
+        <nav>
+            <a href="#" class="nav-button active">
+                <span class="mr-3"></span> Dashboard
+            </a>
+            <a href="#" class="nav-button">
+                <span class="mr-3"></span> Tour Schedule
+            </a>
+            <a href="#" class="nav-button">
+                <span class="mr-3"></span> Desk Schedule
+            </a>
+            <a href="#" class="nav-button">
+                <span class="mr-3"></span> Forms
+            </a>
+            <a href="#" class="nav-button">
+                <span class="mr-3"></span> Statistics
+            </a>
+        </nav>
+    </div>
+
+    <div class="pt-6 border-t border-gray-100 mt-auto">
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 ml-2">Weekly Desk Shifts</p>
+        <ul id="sidebar-desk-list" class="space-y-2 mb-6"></ul>
+        
+        <button onclick="fetchData(true)" class="w-full flex items-center justify-center p-3 rounded-xl text-xs text-primary-gold font-bold bg-primary-gold/5 hover:bg-primary-gold/10 transition-colors">
+            <svg class="w-3 h-3 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+            MANUAL RE-SYNC
+        </button>
+        <p class="text-[9px] text-gray-400 mt-2 text-center italic">Updated: <span id="last-update-time">---</span></p>
+    </div>
+</nav>
+
+<header class="lg:hidden p-4 bg-white shadow-md flex justify-between items-center z-20 sticky top-0">
+    <div>
+        <p class="text-[8px] font-bold text-primary-gold uppercase tracking-widest">TGIS Portal</p>
+        <div class="text-lg font-black text-text-dark leading-none">Dashboard</div>
+    </div>
+    <button id="mobile-menu-button" class="text-text-dark text-3xl p-2 focus:outline-none">☰</button>
+</header>
+
+<div class="content-area p-4 sm:p-8">
+    <div class="w-full bg-white shadow-2xl rounded-3xl overflow-hidden p-6 sm:p-10 border border-gray-100">
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+            <div class="space-y-6">
+                <div class="bg-primary-gold/10 border-2 border-primary-gold/40 rounded-2xl p-6 text-center">
+                    <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Total Tours</p>
+                    <h3 id="total-tours-count" class="text-5xl font-black text-text-dark">--</h3>
+                </div>
+                <div id="weekly-tour-card" class="bg-status-purple/10 border-2 border-status-purple/40 rounded-2xl p-6 text-center">
+                    <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Weekly Tour Slot</p>
+                    <h3 id="weekly-tour-day" class="text-2xl font-black text-status-purple">---</h3>
+                    <p id="weekly-tour-time" class="text-lg font-bold text-text-dark">--:--</p>
+                    <button onclick="openCoworkerModal('Weekly Tour')" class="mt-4 w-full py-2 bg-status-purple text-white rounded-xl text-xs font-bold">View Team</button>
+                </div>
+                <div class="bg-gray-50 border border-gray-200 rounded-2xl p-6">
+                    <p class="text-sm font-bold text-text-dark mb-4 flex items-center"><span class="w-2 h-2 bg-status-red rounded-full mr-2"></span> Saturday Tours</p>
+                    <ul id="saturday-tour-list" class="space-y-3"></ul>
+                    <button onclick="openCoworkerModal('Saturday Tour')" class="mt-4 w-full py-2 bg-gray-700 text-white rounded-xl text-xs font-bold">View Team</button>
+                </div>
+            </div>
+            <div class="xl:col-span-2 bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 flex flex-col min-h-[500px]">
+                <div id="calendar" class="flex-grow"></div>
+            </div>
+        </div>
+    </div> 
+</div>
+
+<div id="coworkerModal" class="fixed inset-0 bg-black/60 z-[120] hidden items-center justify-center p-4 backdrop-blur-md">
+    <div class="bg-white rounded-3xl max-w-sm w-full shadow-2xl p-6 animate-in zoom-in duration-200">
+        <h3 id="modalTitle" class="font-bold text-text-dark border-b pb-4 mb-4 uppercase text-xs tracking-widest text-center">Team Members</h3>
+        <div id="coworkerList" class="space-y-3"></div> 
+        <button onclick="closeModal()" class="mt-8 w-full py-3 bg-gray-900 text-white font-bold rounded-2xl">Close Window</button>
+    </div>
+</div>
+
+<script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbxJi017bePgUQiJzeAJVVJ5_YUnjlVGmb2p1qhEsfL_mc86qWRNiiWKun-6D6o_7GpJLw/exec';
+    const userName = new URLSearchParams(window.location.search).get('user');
+    let calendar;
+
+    // Mobile Nav UI
+    const menuBtn = document.getElementById('mobile-menu-button');
+    const closeBtn = document.getElementById('close-menu');
+    const sidebar = document.getElementById('sidebar');
+
+    menuBtn?.addEventListener('click', () => sidebar.classList.add('open'));
+    closeBtn?.addEventListener('click', () => sidebar.classList.remove('open'));
+
+    function showToast() {
+        const toast = document.getElementById('toast');
+        toast.style.opacity = '1'; toast.style.transform = 'translateY(0)';
+        setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(20px)'; }, 3000);
+    }
+
+    function closeModal() { document.getElementById('coworkerModal').classList.remove('modal-active'); }
+
+    // Utility function to determine the color class/code based on status
+    function getStatusClasses(status) {
+        switch(status.toLowerCase().trim()) {
+            case 'dropped':
+                return { tailwind: 'bg-status-red/10 border-status-red text-status-red', fc_color: '#EF4444' };
+            case 'not given':
+                return { tailwind: 'bg-status-purple/10 border-status-purple text-status-purple', fc_color: '#8B5CF6' };
+            case 'scheduled':
+            default:
+                return { tailwind: 'bg-status-green/10 border-status-green text-status-green', fc_color: '#10B981' };
+        }
+    }
+
+    // HELPER: Calculates End Time and handles time math
+    function calculateEndTime(startTimeStr, tourType) {
+        // startTimeStr is in format "h:mm AM/PM"
+        // 90 minutes for Daily/Weekly, 45 minutes for Program Day
+        const durationMinutes = (tourType.toLowerCase().includes('daily visit') || tourType.toLowerCase().includes('weekly tour')) ? 90 : 45;
+        
+        // Use a dummy date for time calculation
+        const dummyDate = new Date(`2000/01/01 ${startTimeStr}`); 
+        if (isNaN(dummyDate)) return "N/A";
+
+        dummyDate.setMinutes(dummyDate.getMinutes() + durationMinutes);
+
+        // Format back to "h:mm AM/PM"
+        return dummyDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    }
+
+    // HELPER: Determines the overall status for the group
+    function getGroupStatus(guides) {
+        if (!guides || guides.length === 0) {
+            return {
+                text: 'NOT ASSIGNED',
+                tailwind: 'bg-gray-200 border-gray-400 text-gray-700',
+                header: 'Tour Not Assigned',
+                isDefault: true,
+                fc_color: '#9CA3AF'
+            };
+        }
+        
+        const statuses = guides.map(g => g.status.toLowerCase().trim());
+
+        if (statuses.includes('dropped')) {
+            return {
+                text: `ALERT: ${statuses.filter(s => s === 'dropped').length} GUIDE(S) DROPPED`,
+                tailwind: 'bg-status-red/20 border-status-red text-status-red',
+                header: 'STATUS ALERT',
+                fc_color: '#EF4444'
+            };
+        }
+        if (statuses.includes('not given')) {
+            return {
+                text: `ALERT: ${statuses.filter(s => s === 'not given').length} GUIDE(S) NOT GIVEN`,
+                tailwind: 'bg-status-purple/20 border-status-purple text-status-purple',
+                header: 'STATUS ALERT',
+                fc_color: '#8B5CF6'
+            };
+        }
+        return {
+            text: 'FULLY SCHEDULED',
+            tailwind: 'bg-status-green/20 border-status-green text-status-green',
+            header: 'STATUS: OK',
+            fc_color: '#10B981'
+        };
+    }
+
+    async function fetchData(isManual = false) {
+        if (!userName) return;
+        const url = isManual ? `${scriptURL}?user=${userName}&refresh=true` : `${scriptURL}?user=${userName}`;
+        
+        try {
+            const res = await fetch(url);
+            const data = await res.json();
+            
+            document.getElementById('loading-overlay').classList.add('opacity-0');
+            setTimeout(() => document.getElementById('loading-overlay').style.display = 'none', 500);
+
+            if(isManual) showToast();
+
+            // Populate Sidebar Profile (using the flat list for total tours)
+            if (data.guide) {
+                document.getElementById('guide-name').innerText = data.guide.full_name;
+                document.getElementById('profile-status').innerText = data.guide.profile_status;
+                document.getElementById('profile-initial').innerText = data.guide.full_name.charAt(0);
+                document.getElementById('total-tours-count').innerText = data.userTours.length; 
+            }
+            
+            document.getElementById('last-update-time').innerText = data.lastUpdated || new Date().toLocaleTimeString();
+
+            // ----------------------------------------------------
+            // Update Dashboard Elements based on NEW GROUPED DATA
+            // ----------------------------------------------------
+            
+            // 1. Weekly Tour Slot (Find the current user's weekly tour)
+            const weeklyTour = data.userTours.find(t => t.TourType === "Weekly Tour");
+            const weeklyStatusInfo = weeklyTour ? getStatusClasses(weeklyTour.status) : { tailwind: 'border-status-purple/40', text: 'text-status-purple' };
+            
+            const weeklyTourCard = document.getElementById('weekly-tour-card');
+            if (weeklyTourCard) {
+                // Reset/apply border and text color based on status
+                weeklyTourCard.className = `bg-status-purple/10 border-2 rounded-2xl p-6 text-center ${weeklyStatusInfo.tailwind.replace(/bg-status-[\w]+\/\d+/, '').replace(/text-status-[\w]+/, '')}`;
+                
+                // Update text color for the title/day based on status
+                const weeklyTourDay = document.getElementById('weekly-tour-day');
+                const weeklyTourTime = document.getElementById('weekly-tour-time');
+
+                // If scheduled/default, use primary-gold/text-dark, otherwise use status color
+                if (weeklyStatusInfo.tailwind.includes('status-red') || weeklyStatusInfo.tailwind.includes('status-purple')) {
+                    weeklyTourDay.className = `text-2xl font-black ${weeklyStatusInfo.text}`;
+                } else {
+                    weeklyTourDay.className = `text-2xl font-black text-status-purple`; // default purple/original color
+                }
+                weeklyTourTime.className = `text-lg font-bold text-text-dark`; // Keep time dark
+            }
+
+            document.getElementById('weekly-tour-day').innerText = weeklyTour?.DayOfWeek || '---';
+            document.getElementById('weekly-tour-time').innerText = weeklyTour?.Time || '--:--';
+            
+            // 2. Saturday Tour List
+            document.getElementById('saturday-tour-list').innerHTML = data.userTours
+                .filter(t => t.TourType === "Saturday Tour")
+                .map(t => {
+                    const statusInfo = getStatusClasses(t.status);
+                    // Highlight the specific tour based on status
+                    const timeColorClass = statusInfo.tailwind.includes('text-status-red') || statusInfo.tailwind.includes('text-status-purple') ? statusInfo.text : 'text-primary-gold';
+
+                    return `<li class="flex justify-between text-[10px] p-2 rounded border font-bold tracking-tight ${statusInfo.tailwind}">
+                                <span>${t.DayOfWeek}</span>
+                                <span class="${timeColorClass}">${t.Time}</span>
+                            </li>`;
+                }).join('') || '<li class="text-xs italic text-gray-400">None</li>';
+
+            // Desk Shifts (No change needed)
+            document.getElementById('sidebar-desk-list').innerHTML = data.masterDeskSchedule
+                .map(s => `<li class="p-3 bg-gray-50 rounded-xl border border-gray-100 mb-2"><p class="text-[9px] font-black text-primary-gold mb-1 uppercase">${s.Desk}</p><p class="text-[11px] font-bold">${s.DayOfWeek}s: ${s.Time}</p></li>`).join('');
+
+            // 3. Update Calendar
+            const events = data.groupedTours
+                .filter(p => p.tour_type !== "Weekly Tour" && p.tour_type !== "Saturday Tour")
+                // --- CALENDAR FILTER APPLIED HERE ---
+                .filter(slot => 
+                    slot.guides.some(guide => guide.name === data.guide.full_name)
+                )
+                // ------------------------------------
+                .map(slot => {
+                    const groupStatus = getGroupStatus(slot.guides);
+                    
+                    return {
+                        title: `${slot.tour_type} (${slot.guides.length})`, // Show guide count (even if only one is the user)
+                        start: slot.date, 
+                        backgroundColor: groupStatus.fc_color, 
+                        borderColor: groupStatus.fc_color,
+                        extendedProps: {
+                            slotData: slot // Store the entire slot object for the modal
+                        }
+                    };
+                });
+
+            if (!calendar) {
+                calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+                    initialView: 'dayGridMonth',
+                    events: events,
+                    headerToolbar: { left: 'prev,next', center: 'title', right: 'today' },
+                    height: 'auto',
+                    eventClick: (info) => {
+                        const slot = info.event.extendedProps.slotData;
+                        if (slot) {
+                           openCoworkerModal(slot.tour_type, slot);
+                        }
+                    }
+                });
+                calendar.render();
+            } else {
+                calendar.removeAllEvents();
+                calendar.addEventSource(events);
+            }
+        } catch (e) { console.error("Sync failed", e); }
+    }
+
+    // This data structure is only used as a fallback for the "View Team" buttons that aren't linked to a calendar date
+    const hardcodedTeams = {
+        'Weekly Tour': ['Anushree Chanda', 'Beatriz Machado', 'Caroline Oconnor'],
+        'Saturday Tour': ['Gabe MacPhail', 'Joey Pelletier', 'Jonah Skarda'],
+        'Program Days': ['Lillie Recker', 'Logann Tuttle', 'Marley Sharpe']
+    };
+
+    function openCoworkerModal(role, slotData = null) {
+        let teamMembers = [];
+        let modalTitleText = `${role} Team`;
+        let modalContentHtml = ''; // Use a single variable to build the content
+
+        // 1. If slotData is provided (from the calendar click)
+        if (slotData) {
+            teamMembers = slotData.guides; 
+            
+            // Calculate dynamic end time
+            const endTimeStr = calculateEndTime(slotData.time, slotData.tour_type);
+            
+            // Determine group status for the callout
+            const groupStatus = getGroupStatus(slotData.guides);
+            
+            // Build the Tour Details section
+            const detailsHtml = `
+                <div class="text-left mb-6 space-y-2 text-sm text-gray-700">
+                    <p class="font-bold text-lg text-text-dark">${slotData.tour_type}</p>
+                    <p><span class="font-semibold">Date:</span> ${slotData.date}</p>
+                    <p><span class="font-semibold">Start Time:</span> ${slotData.time}</p>
+                    <p><span class="font-semibold">End Time:</span> ${endTimeStr}</p>
+                </div>
+            `;
+            
+            // Build the Status Callout section
+            const statusCalloutHtml = `
+                <div class="p-3 text-center rounded-xl font-bold uppercase tracking-widest text-xs border-2 mb-6 ${groupStatus.tailwind}">
+                    ${groupStatus.header}: ${groupStatus.text}
+                </div>
+            `;
+            
+            modalTitleText = `Tour Details`;
+            modalContentHtml += detailsHtml;
+            modalContentHtml += statusCalloutHtml;
+            
+        } else {
+            // 2. Fallback for "View Team" buttons (no specific date)
+            teamMembers = (hardcodedTeams[role] || hardcodedTeams['Program Days']).map(name => ({
+                name: name,
+                status: 'Scheduled' 
+            }));
+            
+            modalContentHtml += `<h4 class="text-sm font-semibold text-text-dark mb-4">${role} General Team Roster</h4>`;
+        }
+
+        document.getElementById('modalTitle').innerText = modalTitleText;
+        const listContainer = document.getElementById('coworkerList');
+        listContainer.innerHTML = '';
+        
+        // Append initial content (details/status/fallback header)
+        listContainer.innerHTML = modalContentHtml;
+
+        // Build Profile Cards List
+        let profileCardsHtml = teamMembers.map(guide => {
+            const statusInfo = getStatusClasses(guide.status);
+            const initial = guide.name.charAt(0);
+            
+            const statusTextColor = statusInfo.tailwind.includes('text-status-red') || statusInfo.tailwind.includes('text-status-purple') ? statusInfo.text : 'text-status-green';
+
+            return `<li class="flex items-center space-x-3 p-3 rounded-xl border ${statusInfo.tailwind}">
+                <div class="w-8 h-8 rounded-full bg-primary-gold text-white flex items-center justify-center text-xs font-bold">${initial}</div>
+                <div class="flex-grow">
+                    <span class="font-semibold text-sm text-text-dark">${guide.name}</span>
+                </div>
+                <span class="text-[10px] font-bold uppercase tracking-tight ${statusTextColor}">
+                    ${guide.status}
+                </span>
+            </li>`;
+        }).join('');
+
+        // Wrap profile cards in a <ul> and append them
+        listContainer.innerHTML += `<ul class="space-y-3">${profileCardsHtml}</ul>`;
+
+        document.getElementById('coworkerModal').classList.add('modal-active');
+        sidebar.classList.remove('open');
+    }
+
+    fetchData();
+    setInterval(() => fetchData(), 300000); 
+</script>
+</body>
+</html>
