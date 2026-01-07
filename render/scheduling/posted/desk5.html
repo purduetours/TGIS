@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TGIS Dashboard | Desk Schedule</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], },
+                    colors: {
+                        'primary-gold': '#CFB991',
+                        'text-dark': '#374151',
+                        'status-red': '#EF4444',
+                        'status-green': '#10B981',
+                        'status-purple': '#8B5CF6', 
+                        'desk-shift-blue': '#1D4ED8', // Bright Color for User's Shift
+                        
+                        // Faint Colors for Other Guides' Shifts
+                        'guide-bg-1': '#FEE2E2', // Red 100
+                        'guide-text-1': '#991B1B', // Red 800
+                        'guide-bg-2': '#FEF3C7', // Amber 100
+                        'guide-text-2': '#92400E', // Amber 800
+                        'guide-bg-3': '#D1FAE5', // Emerald 100
+                        'guide-text-3': '#065F46', // Emerald 800
+                        'guide-bg-4': '#DBEAFE', // Blue 100
+                        'guide-text-4': '#1E40AF', // Blue 800
+                        'guide-bg-5': '#F3E8FF', // Violet 100
+                        'guide-text-5': '#5B21B6', // Violet 800
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .content-area { margin-left: 18rem; }
+        @media (max-width: 1024px) { 
+            .content-area { margin-left: 0; }
+            #sidebar { transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+            #sidebar.open { transform: translateX(0); display: block !important; }
+        }
+        .modal-active { display: flex !important; }
+        .loader { border-top-color: #CFB991; animation: spinner 0.6s linear infinite; }
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .nav-button { transition: all 0.2s ease; display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem; color: #4B5563; margin-bottom: 0.5rem; }
+        .nav-button:hover { background-color: #F3F4F6; color: #111827; }
+        .nav-button.active { background-color: #CFB991; color: white; box-shadow: 0 4px 6px -1px rgba(207, 185, 145, 0.4); }
+        #coworkerList { max-height: 70vh; overflow-y: auto; } 
+        
+        /* New Style: Ensure fixed width for cells and allow horizontal scrolling */
+        #welcome-desk-body td, #front-desk-body td {
+            min-width: 120px; /* Adjust as needed for better visibility */
+            vertical-align: top;
+        }
+        #welcome-desk-body th, #front-desk-body th {
+             min-width: 120px;
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-gray-50 min-h-screen antialiased">
+
+<div id="loading-overlay" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center transition-opacity duration-500">
+    <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
+    <h2 class="text-text-dark font-bold text-lg">Syncing TGIS Data...</h2>
+</div>
+
+<nav id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white shadow-2xl border-r border-gray-100 p-6 z-40 hidden lg:block overflow-y-auto">
+    <div class="mb-8 flex justify-between items-start">
+        <div>
+            <p class="text-[10px] font-black text-primary-gold uppercase tracking-[0.2em] mb-1">Purdue University</p>
+            <h1 class="text-xl font-black text-text-dark leading-tight">Tour Guide<br>Information System</h1>
+        </div>
+        <button id="close-menu" class="lg:hidden text-gray-400 text-2xl">&times;</button>
+    </div>
+
+    <div class="mb-8 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+        <div class="flex items-center space-x-3 mb-3">
+            <div class="w-12 h-12 rounded-full bg-primary-gold flex items-center justify-center text-white font-black text-lg shadow-inner" id="profile-initial">?</div>
+            <div>
+                <p id="guide-name" class="font-bold text-text-dark leading-tight">Loading...</p>
+                <p id="profile-status" class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Syncing Profile</p>
+            </div>
+        </div>
+        <div class="flex items-center text-[10px] text-status-green font-bold bg-white w-fit px-2 py-1 rounded-md border border-gray-100">
+            <span class="w-1.5 h-1.5 bg-status-green rounded-full mr-1.5 animate-pulse"></span> SYSTEM ONLINE
+        </div>
+    </div>
+
+    <div class="mb-8">
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 ml-2">Navigation</p>
+        <nav>
+            <a href="index.html?user=" class="nav-button">
+                <span class="mr-3"></span> Dashboard
+            </a>
+            <a href="index.html?user=" class="nav-button">
+                <span class="mr-3"></span> Tour Schedule
+            </a>
+            <a href="desk_schedule.html?user=" class="nav-button active">
+                <span class="mr-3"></span> Desk Schedule
+            </a>
+            <a href="#" class="nav-button">
+                <span class="mr-3"></span> Forms
+            </a>
+            <a href="#" class="nav-button">
+                <span class="mr-3"></span> Statistics
+            </a>
+        </nav>
+    </div>
+
+    <div class="pt-6 border-t border-gray-100 mt-auto">
+        <p class="text-[9px] text-gray-400 mt-2 text-center italic">Updated: <span id="last-update-time">---</span></p>
+    </div>
+</nav>
+
+<header class="lg:hidden p-4 bg-white shadow-md flex justify-between items-center z-20 sticky top-0">
+    <div>
+        <p class="text-[8px] font-bold text-primary-gold uppercase tracking-widest">TGIS Portal</p>
+        <div class="text-lg font-black text-text-dark leading-none">Desk Schedule</div>
+    </div>
+    <button id="mobile-menu-button" class="text-text-dark text-3xl p-2 focus:outline-none">☰</button>
+</header>
+
+<div class="content-area p-4 sm:p-8">
+    <h2 class="text-2xl font-black text-text-dark mb-6">Desk Schedule Overview</h2>
+    
+    <div class="w-full bg-white shadow-2xl rounded-3xl overflow-hidden p-6 sm:p-10 border border-gray-100">
+        
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+            
+            <div id="current-shift-card" class="md:col-span-2 rounded-2xl p-6 text-center shadow-lg transition-all duration-300">
+                <p class="text-xs font-bold uppercase tracking-widest mb-1" id="current-shift-status-label">Checking Current Status...</p>
+                <h3 id="current-shift-details" class="text-3xl sm:text-4xl font-black leading-tight"></h3>
+            </div>
+            
+            <div class="bg-desk-shift-blue/10 border-2 border-desk-shift-blue/40 rounded-2xl p-6 text-center">
+                <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Total Weekly Shifts</p>
+                <h3 id="total-weekly-shifts" class="text-5xl font-black text-desk-shift-blue">--</h3>
+            </div>
+            
+            <div class="bg-desk-shift-blue/10 border-2 border-desk-shift-blue/40 rounded-2xl p-6 text-center">
+                <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Total Weekly Hours</p>
+                <h3 id="total-weekly-hours" class="text-5xl font-black text-desk-shift-blue">--</h3>
+            </div>
+            
+        </div>
+        
+        <div class="mb-10 p-6 bg-gray-50 rounded-2xl border border-gray-100">
+             <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">Your Complete Weekly Assignments</p>
+            <div id="user-shifts-summary" class="text-base font-bold text-text-dark min-h-[40px] flex items-center justify-start flex-col space-y-2">
+                <span class="text-sm text-gray-500 italic">No shifts currently loaded.</span>
+            </div>
+        </div>
+        
+        <h3 class="text-xl font-black text-desk-shift-blue mb-4">Master Weekly Desk Schedule (Mon-Fri)</h3>
+        
+        <div class="space-y-8">
+            <div id="welcome-desk-schedule">
+                <h4 class="text-lg font-bold text-text-dark border-b pb-2 mb-4">Welcome Desk</h4>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-0 bg-gray-50">Time</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monday</th>
+                                <th class="px-3 py-3 text-left text-xs font-xs font-medium text-gray-500 uppercase tracking-wider">Tuesday</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Wednesday</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thursday</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Friday</th>
+                            </tr>
+                        </thead>
+                        <tbody id="welcome-desk-body" class="bg-white divide-y divide-gray-200">
+                            <tr><td colspan="6" class="p-4 text-center text-sm text-gray-400">Loading schedule...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div id="front-desk-schedule">
+                <h4 class="text-lg font-bold text-text-dark border-b pb-2 mb-4">Front Desk</h4>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-0 bg-gray-50">Time</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monday</th>
+                                <th class="px-3 py-3 text-left text-xs font-xs font-medium text-gray-500 uppercase tracking-wider">Tuesday</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Wednesday</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thursday</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Friday</th>
+                            </tr>
+                        </thead>
+                        <tbody id="front-desk-body" class="bg-white divide-y divide-gray-200">
+                            <tr><td colspan="6" class="p-4 text-center text-sm text-gray-400">Loading schedule...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div> 
+</div>
+
+
+<script>
+    // UPDATED APPSCRIPT URL
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbyI4Ijf8wrQ9qTKm0VIb0TXlsbf0CPCIJWgkORswosHGBXFkhG7XEHVQmfUJzDXpWTDbw/exec';
+    const userName = new URLSearchParams(window.location.search).get('user');
+
+    // Simple Guide ID Hashmap for consistent color assignment
+    const guideColors = {};
+    const colorClasses = [
+        { bg: 'guide-bg-1', text: 'guide-text-1' },
+        { bg: 'guide-bg-2', text: 'guide-text-2' },
+        { bg: 'guide-bg-3', text: 'guide-text-3' },
+        { bg: 'guide-bg-4', text: 'guide-text-4' },
+        { bg: 'guide-bg-5', text: 'guide-text-5' }
+    ];
+    let colorIndex = 0;
+
+    // Utility to get the user name for navigation links
+    const updateNavLinks = (user) => {
+        document.querySelectorAll('a[href*="index.html"]').forEach(a => {
+            if (a.href.includes('?user=')) {
+                 a.href = `index.html?user=${user}`;
+            }
+        });
+        document.querySelector('a[href*="desk_schedule.html"]').href = `desk_schedule.html?user=${user}`;
+    };
+
+    // Mobile Nav UI
+    const menuBtn = document.getElementById('mobile-menu-button');
+    const closeBtn = document.getElementById('close-menu');
+    const sidebar = document.getElementById('sidebar');
+
+    menuBtn?.addEventListener('click', () => sidebar.classList.add('open'));
+    closeBtn?.addEventListener('click', () => sidebar.classList.remove('open'));
+
+    // Helper to format guide names for the cells with colors
+    function formatGuide(guideEmail) {
+        if (!guideEmail) return '';
+
+        // Determine if this is the logged-in user
+        const isUser = guideEmail === userName;
+        
+        let colorClass, textClass;
+
+        if (isUser) {
+            // Bright color for logged-in user
+            colorClass = 'bg-desk-shift-blue/90';
+            textClass = 'text-white';
+        } else {
+            // Assign a faint, consistent color for other guides
+            if (!guideColors[guideEmail]) {
+                guideColors[guideEmail] = colorClasses[colorIndex % colorClasses.length];
+                colorIndex++;
+            }
+            colorClass = `bg-${guideColors[guideEmail].bg}`;
+            textClass = `text-${guideColors[guideEmail].text}`;
+        }
+        
+        // Simple display name (e.g., jane.doe -> Jane D.)
+        const namePart = guideEmail.split('@')[0];
+        const nameParts = namePart.split('.');
+        const display = nameParts.length > 1 
+            ? `${nameParts[0].charAt(0).toUpperCase() + nameParts[0].slice(1)} ${nameParts[1].charAt(0).toUpperCase()}.` 
+            : nameParts[0].charAt(0).toUpperCase() + nameParts[0].slice(1);
+
+        return `<div class="p-1 rounded-lg text-xs leading-snug font-semibold ${colorClass} ${textClass}">${display}</div>`;
+    }
+    
+    // Helper to check for current shift (UNMODIFIED)
+    function checkCurrentShift(userShifts) {
+        const now = new Date();
+        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const currentDay = days[now.getDay()];
+        
+        const currentShift = userShifts.find(shift => {
+            if (shift.day_of_week !== currentDay) return false;
+
+            const dateStr = '2000/01/01';
+            const start = new Date(`${dateStr} ${shift.start_time}`);
+            const end = new Date(`${dateStr} ${shift.end_time}`);
+            
+            const nowCompare = new Date(`${dateStr} ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`);
+
+            return nowCompare >= start && nowCompare < end;
+        });
+
+        const card = document.getElementById('current-shift-card');
+        const statusLabel = document.getElementById('current-shift-status-label');
+        const details = document.getElementById('current-shift-details');
+
+        if (currentShift) {
+            card.classList.remove('bg-gray-100');
+            card.classList.add('bg-status-green/10', 'border-2', 'border-status-green/50');
+            statusLabel.classList.remove('text-gray-500');
+            statusLabel.classList.add('text-status-green');
+            
+            statusLabel.innerText = 'STATUS: CURRENTLY ON SHIFT';
+            details.innerHTML = `${currentShift.desk} ${currentShift.start_time} - ${currentShift.end_time}`;
+            details.classList.add('text-status-green');
+            details.classList.remove('text-gray-500');
+        } else {
+            card.classList.remove('bg-status-green/10', 'border-2', 'border-status-green/50');
+            card.classList.add('bg-gray-100');
+            statusLabel.classList.remove('text-status-green');
+            statusLabel.classList.add('text-gray-500');
+            
+            statusLabel.innerText = 'STATUS: OFF SHIFT';
+            details.innerText = 'No Shift Currently Scheduled';
+            details.classList.remove('text-status-green');
+            details.classList.add('text-gray-500');
+        }
+    }
+
+
+    // Function to process the raw, merged shift data and display it in the table
+    const buildTableBody = (deskName, bodyId, data) => {
+        const bodyElement = document.getElementById(bodyId);
+        const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+        let html = '';
+        
+        const sortedTimeSlots = data.masterTimeSlotKeys || []; 
+        const masterSchedule = data.masterDeskSchedule;
+
+        if (sortedTimeSlots.length === 0) {
+            bodyElement.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-sm text-gray-400">No time slots or ${deskName} shifts found in the database.</td></tr>`;
+            return;
+        }
+
+        // 2. Build Table Rows, iterating over the fixed 30-minute slots
+        sortedTimeSlots.forEach(timeKey => {
+            html += `<tr class="hover:bg-gray-50">`;
+            
+            // Time Column (Sticky to the left)
+            html += `<td class="px-3 py-2 whitespace-nowrap text-xs font-bold text-desk-shift-blue sticky left-0 bg-white">${timeKey}</td>`;
+            
+            days.forEach(day => {
+                const dayShifts = masterSchedule[day] || {};
+                const shiftData = dayShifts[timeKey];
+                let cellContent = '';
+                
+                if (shiftData) {
+                    const guides = shiftData.desk[deskName] || [];
+                    
+                    if (guides.length > 0) {
+                        // MODIFICATION: Use flex container to lay out guides horizontally
+                        cellContent = `<div class="flex flex-row space-x-1 justify-center items-start w-full">`; 
+                        
+                        // Sort the user's shift to appear first (leftmost)
+                        const sortedGuides = guides.sort((a, b) => (a === userName ? -1 : b === userName ? 1 : 0));
+                        
+                        sortedGuides.forEach(guideEmail => {
+                            cellContent += formatGuide(guideEmail);
+                        });
+                        cellContent += `</div>`;
+                        
+                    } else {
+                         // Unstaffed
+                        cellContent = `<div class="text-xs text-gray-400 italic text-center w-full">Open</div>`; 
+                    }
+                } else {
+                    // No shift block defined for this time/day
+                    cellContent = `<div class="text-xs text-gray-400 italic text-center w-full">--</div>`;
+                }
+                
+                // Add padding and align content
+                html += `<td class="p-2 align-top text-center">${cellContent}</td>`; 
+            });
+            
+            html += `</tr>`;
+        });
+        
+        bodyElement.innerHTML = html;
+    };
+
+
+    // Main function to fetch and display data
+    async function fetchData() {
+        if (!userName) {
+            document.getElementById('loading-overlay').classList.add('opacity-0');
+            setTimeout(() => document.getElementById('loading-overlay').style.display = 'none', 500);
+            return;
+        }
+        updateNavLinks(userName);
+
+        const url = `${scriptURL}?page=desk_schedule&user=${userName}&_t=${new Date().getTime()}`;
+        
+        try {
+            const res = await fetch(url);
+            const data = await res.json();
+            
+            // Store data globally for the 1-minute shift checker
+            window.deskData = data; 
+
+            document.getElementById('loading-overlay').classList.add('opacity-0');
+            setTimeout(() => document.getElementById('loading-overlay').style.display = 'none', 500);
+
+            // 1. Populate Profile Info
+            if (data.guide) {
+                document.getElementById('guide-name').innerText = data.guide.full_name;
+                document.getElementById('profile-status').innerText = data.guide.profile_status;
+                document.getElementById('profile-initial').innerText = data.guide.full_name.charAt(0);
+            }
+            document.getElementById('last-update-time').innerText = data.lastUpdated || new Date().toLocaleTimeString();
+
+            // 2. Calculate and Display Summary Cards
+            const userShifts = data.userDeskShifts || [];
+            let totalHours = 0;
+            
+            const userShiftsHTML = userShifts.map(shift => {
+                const hours = shift.duration_minutes / 60;
+                totalHours += hours;
+                
+                return `<p class="text-sm font-semibold text-text-dark text-left w-full">${shift.day_of_week}: ${shift.start_time} - ${shift.end_time} (${shift.desk})</p>`;
+            }).join('');
+
+            document.getElementById('total-weekly-shifts').innerText = userShifts.length;
+            document.getElementById('total-weekly-hours').innerText = totalHours.toFixed(1);
+            
+            document.getElementById('user-shifts-summary').innerHTML = userShiftsHTML || '<span class="text-sm text-gray-500 italic">No shifts assigned this week.</span>';
+            document.getElementById('user-shifts-summary').classList.remove('justify-center');
+
+            // 3. Current Shift Status
+            checkCurrentShift(userShifts);
+
+            // 4. Render Master Weekly Desk Schedule Table
+            buildTableBody('Welcome Desk', 'welcome-desk-body', data);
+            buildTableBody('Front Desk', 'front-desk-body', data);
+
+
+        } catch (e) { 
+            console.error("Desk Schedule Sync failed", e); 
+            document.getElementById('user-shifts-summary').innerHTML = '<span class="text-sm text-status-red italic">Error loading schedule data. Check console.</span>';
+        }
+    }
+
+    fetchData();
+    // Re-sync data every 5 minutes (300,000 milliseconds)
+    setInterval(() => fetchData(), 300000); 
+    // Also, update the Current Shift card every minute for real-time status 
+    setInterval(() => checkCurrentShift(window.deskData ? window.deskData.userDeskShifts : []), 60000);
+
+</script>
+</body>
+</html>
