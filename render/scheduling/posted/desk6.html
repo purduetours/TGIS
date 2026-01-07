@@ -305,7 +305,7 @@
             statusLabel.classList.remove('text-gray-500');
             statusLabel.classList.add('text-status-green');
             
-            statusLabel.innerText = 'STATUS: CURRENTLY ON SHIFT';
+            statusLabel.innerText = 'STATUS: CURRENTLY ON DESK';
             details.innerHTML = `${currentShift.desk} ${currentShift.start_time} - ${currentShift.end_time}`;
             details.classList.add('text-status-green');
             details.classList.remove('text-gray-500');
@@ -315,8 +315,8 @@
             statusLabel.classList.remove('text-status-green');
             statusLabel.classList.add('text-gray-500');
             
-            statusLabel.innerText = 'STATUS: OFF SHIFT';
-            details.innerText = 'No Shift Currently Scheduled';
+            statusLabel.innerText = 'STATUS: NOT WORKING';
+            details.innerText = 'No Current Shift';
             details.classList.remove('text-status-green');
             details.classList.add('text-gray-500');
         }
