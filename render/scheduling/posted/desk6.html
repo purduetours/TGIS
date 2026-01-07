@@ -68,7 +68,6 @@
             transform: translateY(-100%); /* Start off-screen */
             opacity: 0;
             display: flex;
-            align-items: center;
         }
         #alert-popup.show {
             transform: translateY(0); /* Slide in */
@@ -230,7 +229,7 @@
 
 <script>
     // UPDATED APPSCRIPT URL
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbyI4Ijf8wrQ9qTKm0VIb0TXlsbf0CPCIJWgkORswosHGBXFkhG7XEHVQmfUJzDXpWTDbw/exec';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbxfKcVOjsxVbW0yVqiaZ9bVA5WuHXduJrRloAXb1TE69xrJM2Yo6Y4ELOjMw7RH-z1qdg/exec';
     const userName = new URLSearchParams(window.location.search).get('user');
 
     // Simple Guide ID Hashmap for consistent color assignment
@@ -256,7 +255,7 @@
     const alertPopup = document.getElementById('alert-popup');
     const closeAlertBtn = document.getElementById('close-alert');
 
-    // Function to show the alert and hide it after 6 seconds (or immediately if user closes it)
+    // Function to show the alert and hide it after the specified duration
     function showAlert(duration = 10000) {
         // Show the alert by adding the 'show' class
         alertPopup.classList.add('show');
@@ -274,8 +273,6 @@
         alertPopup.classList.remove('show');
         setTimeout(() => { alertPopup.style.display = 'none'; }, 300);
     });
-
-    // We will call showAlert() at the end of the script execution to trigger the initial popup.
 
     // Utility to get the user name for navigation links
     const updateNavLinks = (user) => {
@@ -295,11 +292,17 @@
     menuBtn?.addEventListener('click', () => sidebar.classList.add('open'));
     closeBtn?.addEventListener('click', () => sidebar.classList.remove('open'));
 
-    // Helper to format guide names for the cells with colors
-    function formatGuide(guideEmail) {
-        if (!guideEmail) return '';
 
-        const isUser = guideEmail === userName;
+    // **********************************************
+    // REVISED: Helper to format guide names
+    // This now expects the clean DISPLAY NAME and the backend USERNAME/EMAIL
+    // **********************************************
+    function formatGuide(displayName, guideUsername) {
+        if (!displayName) return '';
+
+        // We use the original guideUsername (email) for checking if it's the logged-in user 
+        // and for color assignment consistency.
+        const isUser = guideUsername === userName;
         let colorClass, textClass;
 
         if (isUser) {
@@ -308,20 +311,16 @@
             textClass = 'text-white';
         } else {
             // Assign a faint, consistent, unique color for other guides
-            if (!guideColors[guideEmail]) {
-                guideColors[guideEmail] = colorClasses[colorIndex % colorClasses.length];
+            if (!guideColors[guideUsername]) {
+                guideColors[guideUsername] = colorClasses[colorIndex % colorClasses.length];
                 colorIndex++;
             }
-            colorClass = `bg-${guideColors[guideEmail].bg}`;
-            textClass = `text-${guideColors[guideEmail].text}`;
+            colorClass = `bg-${guideColors[guideUsername].bg}`;
+            textClass = `text-${guideColors[guideUsername].text}`;
         }
         
-        // Simple display name (e.g., jane.doe -> Jane D.)
-        const namePart = guideEmail.split('@')[0];
-        const nameParts = namePart.split('.');
-        const display = nameParts.length > 1 
-            ? `${nameParts[0].charAt(0).toUpperCase() + nameParts[0].slice(1)} ${nameParts[1].charAt(0).toUpperCase()}.` 
-            : nameParts[0].charAt(0).toUpperCase() + nameParts[0].slice(1);
+        // Display the clean Display Name directly
+        const display = displayName;
 
         return `<div class="p-1 rounded-lg text-xs leading-snug font-semibold ${colorClass} ${textClass}">${display}</div>`;
     }
@@ -372,7 +371,10 @@
     }
 
 
-    // Function to process the raw, merged shift data and display it in the table
+    // **********************************************
+    // REVISED: Function to process the raw, merged shift data and display it in the table
+    // This now iterates over guide objects { displayName, username }
+    // **********************************************
     const buildTableBody = (deskName, bodyId, data) => {
         const bodyElement = document.getElementById(bodyId);
         const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
@@ -399,17 +401,19 @@
                 let cellContent = '';
                 
                 if (shiftData) {
-                    const guides = shiftData.desk[deskName] || [];
+                    // The shiftData.desk[deskName] now contains an array of { displayName: 'Name', username: 'email' } objects
+                    const guideDetails = shiftData.desk[deskName] || [];
                     
-                    if (guides.length > 0) {
+                    if (guideDetails.length > 0) {
                         // Use flex container to lay out guides horizontally
                         cellContent = `<div class="flex flex-row space-x-1 justify-center items-start w-full">`; 
                         
-                        // Sort the user's shift to appear first (leftmost)
-                        const sortedGuides = guides.sort((a, b) => (a === userName ? -1 : b === userName ? 1 : 0));
+                        // Sort the user's shift to appear first (leftmost) based on username
+                        const sortedGuides = guideDetails.sort((a, b) => (a.username === userName ? -1 : b.username === userName ? 1 : 0));
                         
-                        sortedGuides.forEach(guideEmail => {
-                            cellContent += formatGuide(guideEmail);
+                        sortedGuides.forEach(guide => {
+                            // Pass both the Display Name and the Username (for coloring/matching)
+                            cellContent += formatGuide(guide.displayName, guide.username);
                         });
                         cellContent += `</div>`;
                         
@@ -518,7 +522,7 @@
     // **********************************************
     document.addEventListener('DOMContentLoaded', () => {
         // We ensure the DOM is ready before trying to show the alert
-        showAlert(7000); // Show for 7 seconds
+        showAlert(10000); // Show for 10 seconds
     });
 </script>
 </body>
