@@ -25,6 +25,7 @@
         }
     </script>
     <style>
+        /* FIX APPLIED HERE: Ensure content area correctly offsets sidebar */
         .content-area { margin-left: 18rem; }
         @media (max-width: 1024px) { 
             .content-area { margin-left: 0; }
@@ -123,7 +124,7 @@
                     <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Total Tours</p>
                     <h3 id="total-tours-count" class="text-5xl font-black text-text-dark">--</h3>
                 </div>
-                <div class="bg-status-purple/10 border-2 border-status-purple/40 rounded-2xl p-6 text-center">
+                <div id="weekly-tour-card" class="bg-status-purple/10 border-2 border-status-purple/40 rounded-2xl p-6 text-center">
                     <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Weekly Tour Slot</p>
                     <h3 id="weekly-tour-day" class="text-2xl font-black text-status-purple">---</h3>
                     <p id="weekly-tour-time" class="text-lg font-bold text-text-dark">--:--</p>
@@ -171,6 +172,19 @@
 
     function closeModal() { document.getElementById('coworkerModal').classList.remove('modal-active'); }
 
+    // Utility function to determine the color class/code based on status
+    function getStatusClasses(status) {
+        switch(status.toLowerCase().trim()) {
+            case 'dropped':
+                return { tailwind: 'bg-status-red/10 border-status-red text-status-red', fc_color: '#EF4444' };
+            case 'not given':
+                return { tailwind: 'bg-status-purple/10 border-status-purple text-status-purple', fc_color: '#8B5CF6' };
+            case 'scheduled':
+            default:
+                return { tailwind: 'bg-status-green/10 border-status-green text-status-green', fc_color: '#10B981' };
+        }
+    }
+
     async function fetchData(isManual = false) {
         if (!userName) return;
         const url = isManual ? `${scriptURL}?user=${userName}&refresh=true` : `${scriptURL}?user=${userName}`;
@@ -184,32 +198,86 @@
 
             if(isManual) showToast();
 
-            // Populate Sidebar Profile
+            // Populate Sidebar Profile (using the flat list for total tours)
             if (data.guide) {
                 document.getElementById('guide-name').innerText = data.guide.full_name;
                 document.getElementById('profile-status').innerText = data.guide.profile_status;
                 document.getElementById('profile-initial').innerText = data.guide.full_name.charAt(0);
-                document.getElementById('total-tours-count').innerText = data.guide.total_tours;
+                // Now using data.userTours.length (flat list) for the total tour count
+                document.getElementById('total-tours-count').innerText = data.userTours.length; 
             }
             
             document.getElementById('last-update-time').innerText = data.lastUpdated || new Date().toLocaleTimeString();
 
-            // Populate Dashboard Elements
-            const weekly = data.tours.find(t => t.tour_type === "Weekly Tour");
-            document.getElementById('weekly-tour-day').innerText = weekly?.day || '---';
-            document.getElementById('weekly-tour-time').innerText = weekly?.time || '--:--';
+            // ----------------------------------------------------
+            // Update Dashboard Elements based on NEW GROUPED DATA
+            // ----------------------------------------------------
+            
+            // 1. Weekly Tour Slot (Find the current user's weekly tour)
+            const weeklyTour = data.userTours.find(t => t.TourType === "Weekly Tour");
+            const weeklyStatusInfo = weeklyTour ? getStatusClasses(weeklyTour.status) : { tailwind: 'border-status-purple/40', text: 'text-status-purple' };
+            
+            const weeklyTourCard = document.getElementById('weekly-tour-card');
+            if (weeklyTourCard) {
+                // Reset/apply border and text color based on status
+                weeklyTourCard.className = `bg-status-purple/10 border-2 rounded-2xl p-6 text-center ${weeklyStatusInfo.tailwind.replace(/bg-status-[\w]+\/\d+/, '').replace(/text-status-[\w]+/, '')}`;
+                
+                // Update text color for the title/day based on status
+                const weeklyTourDay = document.getElementById('weekly-tour-day');
+                const weeklyTourTime = document.getElementById('weekly-tour-time');
 
-            document.getElementById('saturday-tour-list').innerHTML = data.tours
-                .filter(t => t.tour_type === "Saturday Tour")
-                .map(t => `<li class="flex justify-between text-[10px] bg-white p-2 rounded border border-gray-100 font-bold tracking-tight"><span>${t.day}</span><span class="text-primary-gold">${t.time}</span></li>`).join('') || '<li class="text-xs italic text-gray-400">None</li>';
+                // If scheduled/default, use primary-gold/text-dark, otherwise use status color
+                if (weeklyStatusInfo.tailwind.includes('status-red') || weeklyStatusInfo.tailwind.includes('status-purple')) {
+                    weeklyTourDay.className = `text-2xl font-black ${weeklyStatusInfo.text}`;
+                } else {
+                    weeklyTourDay.className = `text-2xl font-black text-status-purple`; // default purple/original color
+                }
+                weeklyTourTime.className = `text-lg font-bold text-text-dark`; // Keep time dark
+            }
 
-            document.getElementById('sidebar-desk-list').innerHTML = data.deskShifts
-                .map(s => `<li class="p-3 bg-gray-50 rounded-xl border border-gray-100 mb-2"><p class="text-[9px] font-black text-primary-gold mb-1 uppercase">${s.desk}</p><p class="text-[11px] font-bold">${s.day_of_week}s: ${s.start_time}-${s.end_time}</p></li>`).join('');
+            document.getElementById('weekly-tour-day').innerText = weeklyTour?.DayOfWeek || '---';
+            document.getElementById('weekly-tour-time').innerText = weeklyTour?.Time || '--:--';
+            
+            // 2. Saturday Tour List
+            document.getElementById('saturday-tour-list').innerHTML = data.userTours
+                .filter(t => t.TourType === "Saturday Tour")
+                .map(t => {
+                    const statusInfo = getStatusClasses(t.status);
+                    // Highlight the specific tour based on status
+                    const timeColorClass = statusInfo.tailwind.includes('text-status-red') || statusInfo.tailwind.includes('text-status-purple') ? statusInfo.text : 'text-primary-gold';
 
-            // Update Calendar
-            const events = data.tours.filter(t => t.tour_type !== "Weekly Tour" && t.tour_type !== "Saturday Tour").map(p => ({
-                title: p.tour_type, start: p.day, backgroundColor: '#10B981', borderColor: '#10B981'
-            }));
+                    return `<li class="flex justify-between text-[10px] p-2 rounded border font-bold tracking-tight ${statusInfo.tailwind}">
+                                <span>${t.DayOfWeek}</span>
+                                <span class="${timeColorClass}">${t.Time}</span>
+                            </li>`;
+                }).join('') || '<li class="text-xs italic text-gray-400">None</li>';
+
+            // Desk Shifts (No change needed)
+            document.getElementById('sidebar-desk-list').innerHTML = data.masterDeskSchedule
+                .map(s => `<li class="p-3 bg-gray-50 rounded-xl border border-gray-100 mb-2"><p class="text-[9px] font-black text-primary-gold mb-1 uppercase">${s.Desk}</p><p class="text-[11px] font-bold">${s.DayOfWeek}s: ${s.Time}</p></li>`).join('');
+
+            // 3. Update Calendar
+            const events = data.groupedTours
+                .filter(p => p.tour_type !== "Weekly Tour" && p.tour_type !== "Saturday Tour")
+                .map(slot => {
+                    // Determine the highest priority status for the calendar color: Dropped > Not Given > Scheduled
+                    let fc_color = '#10B981'; // Default: Scheduled (Green)
+                    if (slot.guides.some(g => g.status.toLowerCase().trim() === 'dropped')) {
+                        fc_color = '#EF4444'; // Dropped (Red)
+                    } else if (slot.guides.some(g => g.status.toLowerCase().trim() === 'not given')) {
+                        fc_color = '#8B5CF6'; // Not Given (Purple)
+                    }
+                    
+                    return {
+                        title: `${slot.tour_type} (${slot.guides.length})`, // Show guide count
+                        start: slot.date, 
+                        backgroundColor: fc_color, 
+                        borderColor: fc_color,
+                        extendedProps: {
+                            slotData: slot // Store the entire slot object for the modal
+                        }
+                    };
+                });
 
             if (!calendar) {
                 calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
@@ -217,7 +285,12 @@
                     events: events,
                     headerToolbar: { left: 'prev,next', center: 'title', right: 'today' },
                     height: 'auto',
-                    eventClick: () => openCoworkerModal('Program Days')
+                    eventClick: (info) => {
+                        const slot = info.event.extendedProps.slotData;
+                        if (slot) {
+                           openCoworkerModal(slot.tour_type, slot);
+                        }
+                    }
                 });
                 calendar.render();
             } else {
@@ -227,21 +300,48 @@
         } catch (e) { console.error("Sync failed", e); }
     }
 
-    const coworkerData = {
-        'Weekly Tour': ['Anushree Chanda', 'Beatriz Machado', 'Caroline Oconnor', 'Cole Schidler', 'Casey Wong'],
-        'Saturday Tour': ['Gabe MacPhail', 'Joey Pelletier', 'Jonah Skarda', 'Jacob Lavra', 'Kristina Vodraska'],
-        'Program Days': ['Lillie Recker', 'Logann Tuttle', 'Marley Sharpe', 'Matthew Majeski', 'Nick Steingraeber']
+    // This data structure is only used as a fallback for the "View Team" buttons that aren't linked to a calendar date
+    const hardcodedTeams = {
+        'Weekly Tour': ['Anushree Chanda', 'Beatriz Machado', 'Caroline Oconnor'],
+        'Saturday Tour': ['Gabe MacPhail', 'Joey Pelletier', 'Jonah Skarda'],
+        'Program Days': ['Lillie Recker', 'Logann Tuttle', 'Marley Sharpe']
     };
 
-    function openCoworkerModal(role) {
-        document.getElementById('modalTitle').innerText = `${role} Team`;
+    function openCoworkerModal(role, slotData = null) {
+        let teamMembers = [];
+        let modalTitleText = `${role} Team`;
+        
+        // 1. If slotData is provided (from the calendar click)
+        if (slotData) {
+            teamMembers = slotData.guides; // Array of {name, status} objects
+            modalTitleText = `${role} - ${slotData.date} ${slotData.time}`;
+        } else {
+            // 2. Fallback for "View Team" buttons (no specific date)
+            teamMembers = (hardcodedTeams[role] || hardcodedTeams['Program Days']).map(name => ({
+                name: name,
+                status: 'Scheduled' // Assume scheduled for general view
+            }));
+        }
+
+        document.getElementById('modalTitle').innerText = modalTitleText;
         const list = document.getElementById('coworkerList');
         list.innerHTML = '';
-        (coworkerData[role] || coworkerData['Program Days']).forEach(name => {
-            list.innerHTML += `<li class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
-                <div class="w-8 h-8 rounded-full bg-primary-gold text-white flex items-center justify-center text-xs font-bold">${name[0]}</div>
-                <span class="font-semibold text-text-dark text-sm">${name}</span></li>`;
+        
+        teamMembers.forEach(guide => {
+            const statusInfo = getStatusClasses(guide.status);
+            const initial = guide.name.charAt(0);
+            
+            list.innerHTML += `<li class="flex items-center space-x-3 p-3 rounded-xl border ${statusInfo.tailwind}">
+                <div class="w-8 h-8 rounded-full bg-primary-gold text-white flex items-center justify-center text-xs font-bold">${initial}</div>
+                <div class="flex-grow">
+                    <span class="font-semibold text-sm text-text-dark">${guide.name}</span>
+                </div>
+                <span class="text-[10px] font-bold uppercase tracking-tight ${statusInfo.tailwind.includes('text-status-red') || statusInfo.tailwind.includes('text-status-purple') ? statusInfo.text : 'text-status-green'}">
+                    ${guide.status}
+                </span>
+            </li>`;
         });
+
         document.getElementById('coworkerModal').classList.add('modal-active');
         sidebar.classList.remove('open');
     }
