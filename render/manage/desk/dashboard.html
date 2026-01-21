@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desk Dashboard | TGIS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], },
+                    colors: {
+                        'primary-gold': '#CFB991',
+                        'text-dark': '#374151',
+                        'status-red': '#EF4444',
+                        'status-green': '#10B981',
+                        'status-purple': '#8B5CF6', 
+                        'tour-active': '#8B5CF6',
+                        'tour-upcoming': '#CFB991',
+                    }
+                }
+            }
+        }
+
+        function updateDateTime() {
+            const now = new Date();
+            const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+            if(document.getElementById('current-date')) {
+                document.getElementById('current-date').textContent = now.toLocaleDateString('en-US', dateOptions);
+                document.getElementById('current-time').textContent = now.toLocaleTimeString('en-US', timeOptions);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+            // Polling: This would be where you fetch from Google Sheets every 5 seconds
+            setInterval(syncWithDatabase, 5000); 
+        });
+
+        function syncWithDatabase() {
+            console.log("Syncing with Google Sheet...");
+            // google.script.run.withSuccessHandler(updateUI).getLatestAssignments();
+        }
+    </script>
+    <style>
+        .content-area { margin-left: 18rem; }
+        @media (max-width: 1024px) { 
+            .content-area { margin-left: 0; }
+            #sidebar { transform: translateX(-100%); transition: transform 0.3s ease-in-out; display: block !important; }
+            #sidebar.open { transform: translateX(0); }
+        }
+        .nav-button { transition: all 0.2s ease; display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem; color: #4B5563; margin-bottom: 0.5rem; text-decoration: none; }
+        .nav-button:hover { background-color: #F3F4F6; color: #111827; }
+        .nav-button.active { background-color: #CFB991; color: white; box-shadow: 0 4px 6px -1px rgba(207, 185, 145, 0.4); }
+        
+        #assignment-modal { transition: opacity 0.2s ease-out; }
+        .modal-content { transition: transform 0.2s ease-out; }
+    </style>
+</head>
+
+<body class="font-sans bg-gray-50 min-h-screen antialiased">
+
+<nav id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white shadow-2xl border-r border-gray-100 p-6 z-50 hidden lg:block overflow-y-auto">
+    <div class="mb-8 flex justify-between items-start">
+        <div>
+            <p class="text-[10px] font-black text-primary-gold uppercase tracking-[0.2em] mb-1">Purdue University</p>
+            <h1 class="text-xl font-black text-text-dark leading-tight">Tour Guide<br>Information System</h1>
+        </div>
+        <button id="close-menu" class="lg:hidden text-gray-400 text-3xl">&times;</button>
+    </div>
+
+    <div class="mb-8 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+        <div class="flex items-center space-x-3 mb-3">
+            <div class="w-12 h-12 rounded-full bg-primary-gold flex items-center justify-center text-white font-black text-lg shadow-inner">D</div>
+            <div>
+                <p class="font-bold text-text-dark leading-tight">Desk Worker</p>
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Active Duty</p>
+            </div>
+        </div>
+        <div class="flex items-center text-[10px] text-status-green font-bold bg-white w-fit px-2 py-1 rounded-md border border-gray-100">
+            <span class="w-1.5 h-1.5 bg-status-green rounded-full mr-1.5 animate-pulse"></span> TGIS ONLINE
+        </div>
+    </div>
+
+    <nav>
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 ml-2">Navigation</p>
+        <a href="#" class="nav-button active">Dashboard</a>
+        <a href="#" class="nav-button">Tour Schedule</a>
+        <a href="#" class="nav-button">Desk Schedule</a>
+        <a href="#" class="nav-button">Forms</a>
+        <a href="#" class="nav-button">Statistics</a>
+    </nav>
+</nav>
+
+<header class="lg:hidden p-4 bg-white shadow-md flex justify-between items-center z-40 sticky top-0">
+    <div>
+        <p class="text-[8px] font-bold text-primary-gold uppercase tracking-widest">Purdue University</p>
+        <div class="text-lg font-black text-text-dark leading-none">TGIS Mobile</div>
+    </div>
+    <button id="mobile-menu-button" class="text-text-dark text-3xl p-2 focus:outline-none">☰</button>
+</header>
+
+<div class="content-area p-4 sm:p-8">
+    <h2 class="text-2xl font-black text-text-dark mb-6">Desk Operations: Day at a Glance</h2>
+    
+    <div class="max-w-full w-full bg-white shadow-2xl rounded-3xl overflow-hidden p-6 sm:p-10 border border-gray-100">
+
+        <p class="text-lg text-gray-500 mb-6 border-b pb-4">
+            <span id="current-date" class="font-medium"></span> | <span id="current-time" class="font-bold text-text-dark"></span>
+        </p>
+        
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+            <div class="bg-tour-upcoming/10 border-2 border-tour-upcoming/50 rounded-2xl p-6 text-center shadow-sm">
+                <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Upcoming</p>
+                <h4 class="text-4xl font-black text-tour-upcoming">9:30</h4>
+            </div>
+            <div class="bg-status-red/10 border-2 border-status-red/30 rounded-2xl p-6 text-center shadow-sm opacity-80">
+                <p class="text-xs font-bold text-status-red uppercase tracking-widest mb-1">Not Scheduled</p>
+                <h4 class="text-4xl font-black text-status-red/60">10:30</h4>
+            </div>
+            <div class="bg-status-red/10 border-2 border-status-red/30 rounded-2xl p-6 text-center shadow-sm opacity-80">
+                <p class="text-xs font-bold text-status-red uppercase tracking-widest mb-1">Not Scheduled</p>
+                <h4 class="text-4xl font-black text-status-red/60">1:30</h4>
+            </div>
+            <div class="bg-status-red/10 border-2 border-status-red/30 rounded-2xl p-6 text-center shadow-sm opacity-80">
+                <p class="text-xs font-bold text-status-red uppercase tracking-widest mb-1">Not Scheduled</p>
+                <h4 class="text-4xl font-black text-status-red/60">2:30</h4>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+            <div class="xl:col-span-1 space-y-6">
+                <h3 class="text-lg font-black text-text-dark uppercase tracking-tight">Desk Coverage</h3>
+                <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-100">
+                    <h4 class="text-xl font-bold text-text-dark mb-4 border-b pb-2">Front Desk</h4>
+                    <div class="p-3 bg-gray-50 rounded-lg border-l-4 border-primary-gold">
+                        <span class="block font-bold text-gray-800">Brooke Folkers</span>
+                        <span class="text-xs text-gray-500 font-semibold">8:00 AM - 12:00 PM</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="xl:col-span-2">
+                <h3 class="text-lg font-black text-text-dark mb-4 uppercase tracking-tight">Tour Guide Assignments</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    
+                    <div class="p-4 rounded-2xl shadow-sm border border-gray-200 bg-white">
+                        <div class="flex justify-between items-center mb-3">
+                            <h4 class="text-lg font-bold text-text-dark">9:30 AM</h4>
+                            <span class="text-[10px] font-black bg-tour-upcoming/20 text-tour-upcoming px-2 py-0.5 rounded-full">ACTIVE</span>
+                        </div>
+                        <ul class="space-y-2">
+                            <script>
+                                const guideList = ["Jude Hammers", "Ben Schoeph", "Joey Pelletier", "Sri Pinnamaraju", "Anna Thomas", "Ava Thompson"];
+                                guideList.forEach(name => {
+                                    const key = name.replace(/\s/g, '');
+                                    document.write(`
+                                        <li>
+                                            <button onclick="openAssignmentModal('${name}')" class="w-full flex items-center justify-between p-2 rounded-xl bg-gray-50 hover:bg-primary-gold hover:text-white transition-all group border border-transparent hover:border-primary-gold">
+                                                <span class="text-xs font-bold">${name}</span>
+                                                <span id="badge-${key}" class="text-[9px] font-black px-1.5 py-0.5 bg-white text-gray-400 rounded-md group-hover:text-primary-gold">0/10</span>
+                                            </button>
+                                        </li>
+                                    `);
+                                });
+                            </script>
+                        </ul>
+                    </div>
+
+                    <div class="p-4 rounded-2xl border border-dashed border-status-red/20 bg-status-red/5"><h4 class="text-lg font-bold text-status-red/40">10:30 AM</h4></div>
+                    <div class="p-4 rounded-2xl border border-dashed border-status-red/20 bg-status-red/5"><h4 class="text-lg font-bold text-status-red/40">1:30 PM</h4></div>
+                    <div class="p-4 rounded-2xl border border-dashed border-status-red/20 bg-status-red/5"><h4 class="text-lg font-bold text-status-red/40">2:30 PM</h4></div>
+                </div>
+            </div>
+        </div>
+    </div> 
+</div> 
+
+<div id="assignment-modal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-black/60 backdrop-blur-sm opacity-0">
+    <div class="modal-content scale-95 bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden">
+        <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+            <div>
+                <h3 id="modal-guide-name" class="text-xl font-black text-text-dark">Guide Name</h3>
+                <p class="text-xs font-bold text-primary-gold uppercase tracking-widest">Student Assignment</p>
+            </div>
+            <button id="close-modal" class="text-gray-400 hover:text-text-dark text-2xl font-bold">&times;</button>
+        </div>
+        <div class="p-6">
+            <div id="student-list" class="space-y-2 mb-6 max-h-48 overflow-y-auto">
+                <p class="text-sm text-gray-400 italic">No families checked in yet.</p>
+            </div>
+            <div class="border-t border-gray-100 pt-6">
+                <div class="flex gap-2">
+                    <input type="text" id="student-input" placeholder="Prospective Student Name" 
+                        class="flex-1 bg-gray-100 border-none rounded-xl px-4 py-3 text-sm font-semibold outline-none focus:ring-2 focus:ring-primary-gold">
+                    <button onclick="addStudent()" class="bg-primary-gold text-white px-6 py-3 rounded-xl font-bold shadow-md">Add</button>
+                </div>
+                <p class="mt-2 text-[10px] font-bold text-gray-400 uppercase text-center"><span id="modal-count">0</span> / 10 Cap</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let assignments = { "JudeHammers": [], "BenSchoeph": [], "JoeyPelletier": [], "SriPinnamaraju": [], "AnnaThomas": [], "AvaThompson": [] };
+    let activeGuide = "";
+
+    const menuBtn = document.getElementById('mobile-menu-button');
+    const closeMenu = document.getElementById('close-menu');
+    const sidebar = document.getElementById('sidebar');
+    const modal = document.getElementById('assignment-modal');
+    const closeModalBtn = document.getElementById('close-modal');
+
+    menuBtn.addEventListener('click', () => sidebar.classList.add('open'));
+    closeMenu.addEventListener('click', () => sidebar.classList.remove('open'));
+    closeModalBtn.addEventListener('click', closeModal);
+
+    function openAssignmentModal(name) {
+        activeGuide = name;
+        document.getElementById('modal-guide-name').innerText = name;
+        renderStudentList();
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        setTimeout(() => { modal.classList.add('opacity-100'); modal.querySelector('.modal-content').classList.replace('scale-95', 'scale-100'); }, 10);
+    }
+
+    function closeModal() {
+        modal.classList.remove('opacity-100');
+        setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 200);
+    }
+
+    function addStudent() {
+        const input = document.getElementById('student-input');
+        const name = input.value.trim();
+        const key = activeGuide.replace(/\s/g, '');
+        if (name && assignments[key].length < 10) {
+            assignments[key].push(name);
+            input.value = "";
+            renderStudentList();
+            updateBadge(key);
+            // google.script.run.addStudentToSheet("9:30", activeGuide, name);
+        }
+    }
+
+    function renderStudentList() {
+        const key = activeGuide.replace(/\s/g, '');
+        const listContainer = document.getElementById('student-list');
+        const list = assignments[key];
+        document.getElementById('modal-count').innerText = list.length;
+        if (list.length === 0) {
+            listContainer.innerHTML = `<p class="text-sm text-gray-400 italic">No families assigned yet.</p>`;
+        } else {
+            listContainer.innerHTML = list.map((s, i) => `
+                <div class="flex justify-between items-center bg-gray-50 p-2 rounded-lg border border-gray-100 text-sm font-bold text-gray-700">
+                    ${s} <button onclick="removeStudent(${i})" class="text-status-red px-2">×</button>
+                </div>
+            `).join('');
+        }
+    }
+
+    function removeStudent(index) {
+        const key = activeGuide.replace(/\s/g, '');
+        assignments[key].splice(index, 1);
+        renderStudentList();
+        updateBadge(key);
+    }
+
+    function updateBadge(key) {
+        const count = assignments[key].length;
+        const badge = document.getElementById(`badge-${key}`);
+        badge.innerText = `${count}/10`;
+        if (count >= 10) {
+            badge.classList.add('text-status-red', 'bg-status-red/10');
+            badge.classList.remove('text-gray-400');
+        } else {
+            badge.classList.remove('text-status-red', 'bg-status-red/10');
+            badge.classList.add('text-gray-400');
+        }
+    }
+</script>
+</body>
+</html>
