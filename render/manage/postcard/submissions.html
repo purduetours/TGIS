@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Postcard Tracker | TGIS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], },
+                    colors: {
+                        'primary-gold': '#CFB991',
+                        'text-dark': '#374151',
+                        'status-red': '#EF4444',
+                        'status-green': '#10B981',
+                        'status-purple': '#8B5CF6',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .content-area { margin-left: 18rem; }
+        @media (max-width: 1024px) { 
+            .content-area { margin-left: 0; } 
+            #sidebar { transform: translateX(-100%); transition: transform 0.3s ease-in-out; display: block !important; }
+            #sidebar.open { transform: translateX(0); }
+        }
+
+        .nav-button { transition: all 0.2s ease; display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem; color: #4B5563; margin-bottom: 0.5rem; text-decoration: none; }
+        .nav-button:hover { background-color: #F3F4F6; color: #111827; }
+        .nav-button.active { background-color: #CFB991; color: white; box-shadow: 0 4px 6px -1px rgba(207, 185, 145, 0.4); }
+
+        .tour-slot { height: 230px; }
+
+        @media print {
+            @page { size: landscape; margin: 0.2in; }
+            html, body { height: 100%; background: white !important; font-size: 10pt; }
+            #sidebar, header, .no-print { display: none !important; }
+            .content-area { margin: 0 !important; padding: 0 !important; width: 100% !important; }
+            
+            .main-grid { display: flex !important; flex-direction: row !important; width: 100% !important; gap: 5px !important; }
+            .day-column { flex: 1 !important; min-width: 0 !important; }
+            .tour-slot { 
+                height: 165px !important; 
+                border: 1px solid #eee !important;
+                margin-bottom: 4px !important;
+                box-shadow: none !important;
+            }
+            .signature-line {
+                display: block !important;
+                border-bottom: 1.5px solid black;
+                width: 60px;
+                height: 12px;
+            }
+            .acp-label { display: block !important; font-weight: 900; font-size: 8pt; color: black; }
+            .status-btn { display: none !important; }
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-gray-50 min-h-screen antialiased">
+
+<nav id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white shadow-2xl border-r border-gray-100 p-6 z-50 hidden lg:block overflow-y-auto">
+    <div class="mb-8 flex justify-between items-start">
+        <div>
+            <p class="text-[10px] font-black text-primary-gold uppercase tracking-[0.2em] mb-1">Purdue University</p>
+            <h1 class="text-xl font-black text-text-dark leading-tight">Tour Guide<br>Information System</h1>
+        </div>
+        <button id="close-menu" class="lg:hidden text-gray-400 text-3xl">&times;</button>
+    </div>
+
+    <div class="mb-8 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+        <div class="flex items-center space-x-3 mb-3">
+            <div class="w-12 h-12 rounded-full bg-primary-gold flex items-center justify-center text-white font-black text-lg shadow-inner">D</div>
+            <div>
+                <p class="font-bold text-text-dark leading-tight">Amanda Caroline Person</p>
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Boss</p>
+            </div>
+        </div>
+        <div class="flex items-center text-[10px] text-status-green font-bold bg-white w-fit px-2 py-1 rounded-md border border-gray-100">
+            <span class="w-1.5 h-1.5 bg-status-green rounded-full mr-1.5 animate-pulse"></span> TGIS ONLINE
+        </div>
+    </div>
+
+    <nav>
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 ml-2">Navigation</p>
+        <a href="#" class="nav-button">Dashboard</a>
+        <a href="#" class="nav-button active">Postcard Management</a>
+        <a href="#" class="nav-button">Tour Schedule</a>
+        <a href="#" class="nav-button">Desk Schedule</a>
+        <a href="#" class="nav-button">Forms</a>
+        <a href="#" class="nav-button">Statistics</a>
+    </nav>
+</nav>
+
+<div class="content-area p-4 sm:p-8">
+    <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+        <div>
+            <h2 class="text-2xl font-black text-text-dark">Postcard Sign-Off</h2>
+            <p class="text-[10px] font-bold text-gray-400 uppercase">Weekly Deadline: <span class="text-status-red">Friday @ 5:00 PM</span></p>
+        </div>
+        
+        <div class="flex gap-3 no-print">
+            <button class="bg-status-green text-white px-6 py-3 rounded-xl font-bold hover:shadow-lg transition-all flex items-center shadow-md">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+                Save Progress
+            </button>
+            <button onclick="window.print()" class="bg-primary-gold text-white px-6 py-3 rounded-xl font-bold hover:shadow-lg transition-all flex items-center shadow-md">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2h-6a2 2 0 002 2v4a2 2 0 002 2z"></path></svg>
+                Print Sheet
+            </button>
+        </div>
+    </div>
+
+    <div class="main-grid grid grid-cols-1 md:grid-cols-5 gap-4">
+        <script>
+            const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+            const times = ["9:30", "10:30", "1:30", "2:30"];
+            
+            const scheduleData = {
+                "Thursday-9:30": [
+                    { name: "Bailey B", acp: true }, { name: "Ben S", acp: true }, 
+                    { name: "Joey P", acp: true }, { name: "Ashley B", acp: false }, 
+                    { name: "Anna T", acp: true }, { name: "Ava T", acp: false }
+                ],
+                "Friday-9:30": [
+                    { name: "Abigail C", acp: false }, { name: "Hailey M", acp: false }, 
+                    { name: "Stephanie M", acp: true }, { name: "Cooper P", acp: false }, 
+                    { name: "Wil R", acp: false }, { name: "Natalie S", acp: true }
+                ],
+                "Friday-2:30": [
+                    { name: "Jacob L", acp: false }, { name: "Marley S", acp: false }, 
+                    { name: "Saanvi V", acp: false }, { name: "Will S", acp: false }, 
+                    { name: "Norah H", acp: false }, { name: "Cole S", acp: false }
+                ]
+            };
+
+            days.forEach(day => {
+                document.write(`<div class="day-column space-y-3">
+                    <div class="bg-text-dark py-2 rounded-lg text-center shadow-sm no-print">
+                        <h3 class="font-black text-white text-[10px] uppercase tracking-widest">${day}</h3>
+                    </div>
+                    <div class="hidden print:block text-center border-b-2 border-primary-gold mb-2">
+                         <h3 class="font-black text-text-dark text-xs uppercase">${day}</h3>
+                    </div>
+                `);
+
+                times.forEach(time => {
+                    const key = `${day}-${time}`;
+                    const guides = scheduleData[key];
+                    
+                    if (guides) {
+                        document.write(`
+                            <div class="tour-slot bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex flex-col">
+                                <p class="text-[9px] font-black text-primary-gold mb-2 border-b border-gray-50 pb-1">${time} TOUR</p>
+                                <div class="space-y-2 flex-grow">
+                                    ${guides.map(guide => `
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-[9px] font-bold text-gray-700 truncate mr-2 leading-tight">${guide.name}${guide.acp ? '' : ''}</span>
+                                            ${guide.acp ? `
+                                                <div class="acp-label hidden print:block">ACP</div>
+                                                <div class="no-print w-4 h-4 rounded bg-status-purple flex items-center justify-center">
+                                                    <svg class="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+                                                </div>
+                                            ` : `
+                                                <div class="signature-line hidden print:block"></div>
+                                                <button onclick="this.classList.toggle('bg-status-green')" class="status-btn no-print w-4 h-4 rounded border-2 border-gray-200 transition-colors flex-shrink-0"></button>
+                                            `}
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `);
+                    } else {
+                        document.write(`
+                            <div class="tour-slot bg-status-red/5 border-2 border-dashed border-status-red/10 flex items-center justify-center rounded-xl p-3">
+                                <p class="text-[9px] font-black text-status-red/30 uppercase tracking-tighter text-center">${time}<br>NOT ACTIVE</p>
+                            </div>
+                        `);
+                    }
+                });
+                document.write(`</div>`);
+            });
+        </script>
+    </div>
+</div>
+
+<script>
+    const menuBtn = document.getElementById('mobile-menu-button');
+    const closeMenu = document.getElementById('close-menu');
+    const sidebar = document.getElementById('sidebar');
+
+    if(menuBtn) menuBtn.addEventListener('click', () => sidebar.classList.add('open'));
+    if(closeMenu) closeMenu.addEventListener('click', () => sidebar.classList.remove('open'));
+</script>
+
+</body>
+</html>
