@@ -1,6 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Master Tour Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
   <style>
@@ -28,57 +31,51 @@
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
       <div class="card">
         <h3 class="text-slate-500 text-[10px] font-black mb-1 uppercase tracking-tighter">Morning Session</h3>
-        <h2 class="text-2xl font-black mb-6 text-white flex justify-between items-center">
-          9:30 AM <span class="text-xs bg-slate-700 px-2 py-1 rounded text-slate-400">9DV</span>
-        </h2>
+        <h2 class="text-2xl font-black mb-6 flex justify-between items-center">9:30 AM <span class="text-xs bg-slate-700 px-2 py-1 rounded text-slate-400 font-normal">9DV</span></h2>
         <ul id="list-9DV" class="space-y-3"></ul>
       </div>
 
       <div class="card">
         <h3 class="text-slate-500 text-[10px] font-black mb-1 uppercase tracking-tighter">Morning Session</h3>
-        <h2 class="text-2xl font-black mb-6 text-white flex justify-between items-center">
-          10:30 AM <span class="text-xs bg-slate-700 px-2 py-1 rounded text-slate-400">10DV</span>
-        </h2>
+        <h2 class="text-2xl font-black mb-6 flex justify-between items-center">10:30 AM <span class="text-xs bg-slate-700 px-2 py-1 rounded text-slate-400 font-normal">10DV</span></h2>
         <ul id="list-10DV" class="space-y-3"></ul>
       </div>
 
       <div class="card">
         <h3 class="text-slate-500 text-[10px] font-black mb-1 uppercase tracking-tighter">Afternoon Session</h3>
-        <h2 class="text-2xl font-black mb-6 text-white flex justify-between items-center">
-          1:30 PM <span class="text-xs bg-slate-700 px-2 py-1 rounded text-slate-400">1DV</span>
-        </h2>
+        <h2 class="text-2xl font-black mb-6 flex justify-between items-center">1:30 PM <span class="text-xs bg-slate-700 px-2 py-1 rounded text-slate-400 font-normal">1DV</span></h2>
         <ul id="list-1DV" class="space-y-3"></ul>
       </div>
 
       <div class="card">
         <h3 class="text-slate-500 text-[10px] font-black mb-1 uppercase tracking-tighter">Afternoon Session</h3>
-        <h2 class="text-2xl font-black mb-6 text-white flex justify-between items-center">
-          2:30 PM <span class="text-xs bg-slate-700 px-2 py-1 rounded text-slate-400">2DV</span>
-        </h2>
+        <h2 class="text-2xl font-black mb-6 flex justify-between items-center">2:30 PM <span class="text-xs bg-slate-700 px-2 py-1 rounded text-slate-400 font-normal">2DV</span></h2>
         <ul id="list-2DV" class="space-y-3"></ul>
       </div>
     </div>
   </div>
 
   <script>
-    // YOUR DEPLOYMENT URL
+    // 1. USE YOUR DEPLOYMENT URL HERE
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx_03tj35omjDBsw4ajl6qDSqfzOjc9_nsJUOXlFX-x-XWbFMbcdzBpRAGNgp_eoJ46/exec";
 
-    // Set default date to today's local date
+    // Initialize with today's date
     document.getElementById('datePicker').value = new Date().toISOString().split('T')[0];
 
     async function fetchData() {
       const selectedDate = document.getElementById('datePicker').value;
       const finalUrl = `${SCRIPT_URL}?page=master_dashboard&date=${selectedDate}`;
       
-      // Loading State
       const slotIds = ['list-9DV', 'list-10DV', 'list-1DV', 'list-2DV'];
       slotIds.forEach(id => {
-        document.getElementById(id).innerHTML = '<li class="text-slate-600 text-xs italic animate-pulse">Syncing data...</li>';
+        document.getElementById(id).innerHTML = '<li class="text-slate-600 text-xs italic animate-pulse">Syncing...</li>';
       });
 
       try {
+        // Fetch must handle Google's redirect to avoid CORS errors
         const response = await fetch(finalUrl);
+        if (!response.ok) throw new Error('Forbidden or Script Error');
+        
         const data = await response.json();
         
         if (data.tours) {
@@ -87,7 +84,7 @@
       } catch (err) {
         console.error("Connection Error:", err);
         slotIds.forEach(id => {
-          document.getElementById(id).innerHTML = '<li class="text-red-400 text-[10px]">Connection failed. Check SCRIPT_URL.</li>';
+          document.getElementById(id).innerHTML = '<li class="text-red-400 text-[10px]">Error: Deployment must be set to "Anyone".</li>';
         });
       }
     }
@@ -100,10 +97,10 @@
         const names = tours[typeKey] || [];
 
         if (names.length === 0) {
-          listElement.innerHTML = '<li class="text-slate-700 text-xs py-4 border-t border-slate-800/50">No assignments found</li>';
+          listElement.innerHTML = '<li class="text-slate-700 text-xs py-4 border-t border-slate-800/50">No assignments</li>';
         } else {
           listElement.innerHTML = names.map(name => `
-            <li class="guide-item p-4 rounded-2xl flex items-center justify-between group hover:bg-slate-700 transition-all border-l-4 border-l-transparent hover:border-l-amber-400">
+            <li class="guide-item p-4 rounded-2xl flex items-center justify-between group hover:bg-slate-700 transition-all border-l-4 border-l-transparent hover:border-l-amber-400 shadow-sm">
               <span class="font-bold text-sm text-slate-200 group-hover:text-amber-400">${name}</span>
               <div class="w-1.5 h-1.5 bg-amber-400 rounded-full shadow-[0_0_8px_rgba(251,191,36,0.6)]"></div>
             </li>
@@ -112,7 +109,7 @@
       }
     }
 
-    // Run initial fetch on load
+    // Load data on start
     fetchData();
   </script>
 </body>
