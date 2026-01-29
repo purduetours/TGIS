@@ -91,48 +91,47 @@
             }
         }
 
-        function renderTours(tours) {
-            const tourTypes = [
-                { code: '9DV', cardId: 'tour-930', listId: 'list-9DV' },
-                { code: '10DV', cardId: 'tour-1030', listId: 'list-10DV' },
-                { code: '1DV', cardId: 'tour-130', listId: 'list-1DV' },
-                { code: '2DV', cardId: 'tour-230', listId: 'list-2DV' }
-            ];
+     function renderTours(tours) {
+    const tourTypes = [
+        { code: '9DV', cardId: 'tour-930', listId: 'list-9DV' },
+        { code: '10DV', cardId: 'tour-1030', listId: 'list-10DV' },
+        { code: '1DV', cardId: 'tour-130', listId: 'list-1DV' },
+        { code: '2DV', cardId: 'tour-230', listId: 'list-2DV' }
+    ];
 
-            tourTypes.forEach(type => {
-                const guides = tours[type.code] || [];
-                const card = document.getElementById(type.cardId);
-                const list = document.getElementById(type.listId);
-                const statusText = card.querySelector('.status-text');
-                const timeText = card.querySelector('h4');
+    tourTypes.forEach(type => {
+        const guides = tours[type.code] || []; // If undefined, use empty array
+        const card = document.getElementById(type.cardId);
+        const list = document.getElementById(type.listId);
+        
+        if (!card || !list) return; // Safety check
 
-                if (guides.length > 0) {
-                    card.dataset.scheduled = "true";
-                    statusText.textContent = "Upcoming";
-                    card.className = "bg-tour-upcoming/10 border-2 border-tour-upcoming/50 rounded-2xl p-6 text-center shadow-sm";
-                    timeText.className = "text-4xl font-black text-tour-upcoming";
+        const statusText = card.querySelector('.status-text');
+        const timeText = card.querySelector('h4');
 
-                    list.innerHTML = guides.map(g => {
-                        const key = g.name.replace(/\s/g, '');
-                        if (!assignments[key]) assignments[key] = [];
-                        return `
-                            <li>
-                                <button onclick="openAssignmentModal('${g.name}')" class="w-full flex items-center justify-between p-2 rounded-xl bg-gray-50 hover:bg-primary-gold hover:text-white transition-all group border border-transparent hover:border-primary-gold">
-                                    <span class="text-xs font-bold">${g.name}</span>
-                                    <span id="badge-${key}" class="text-[9px] font-black px-1.5 py-0.5 bg-white text-gray-400 rounded-md group-hover:text-primary-gold">${assignments[key].length}/10</span>
-                                </button>
-                            </li>`;
-                    }).join('');
-                } else {
-                    card.dataset.scheduled = "false";
-                    statusText.textContent = "Not Scheduled";
-                    card.className = "bg-status-red/10 border-2 border-status-red/30 rounded-2xl p-6 text-center shadow-sm opacity-80";
-                    timeText.className = "text-4xl font-black text-status-red/60";
-                    list.innerHTML = `<p class="text-[10px] text-gray-400 italic text-center py-4">No assignments</p>`;
-                }
-            });
-            updateTourStatuses();
+        if (guides.length > 0) {
+            // Found tours! Update to Upcoming
+            card.dataset.scheduled = "true";
+            statusText.textContent = "Upcoming";
+            card.className = "bg-tour-upcoming/10 border-2 border-tour-upcoming/50 rounded-2xl p-6 text-center shadow-sm";
+            timeText.className = "text-4xl font-black text-tour-upcoming";
+
+            list.innerHTML = guides.map(g => {
+                const key = g.name.replace(/\s/g, '');
+                if (!assignments[key]) assignments[key] = [];
+                return `<li>...button code here...</li>`; 
+            }).join('');
+        } else {
+            // NO TOURS FOUND: Force the "Not Scheduled" state
+            card.dataset.scheduled = "false";
+            statusText.textContent = "Not Scheduled";
+            card.className = "bg-status-red/10 border-2 border-status-red/30 rounded-2xl p-6 text-center shadow-sm opacity-80";
+            timeText.className = "text-4xl font-black text-status-red/60";
+            list.innerHTML = `<p class="text-[10px] text-gray-400 italic text-center py-4">No assignments</p>`;
         }
+    });
+    updateTourStatuses();
+}
 
         document.addEventListener('DOMContentLoaded', () => {
             const dateInput = document.getElementById('date-selector');
