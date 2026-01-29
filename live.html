@@ -2,90 +2,117 @@
 <html>
 <head>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Inter', sans-serif; background-color: #0f172a; }
+    body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: white; }
     .card { background: #1e293b; border: 1px solid #334155; border-radius: 1.5rem; padding: 1.5rem; transition: all 0.3s ease; }
     .card:hover { border-color: #fbbf24; box-shadow: 0 0 20px rgba(251, 191, 36, 0.1); }
+    .guide-item { background: rgba(51, 65, 85, 0.5); border: 1px solid rgba(71, 85, 105, 0.5); }
   </style>
 </head>
-<body class="text-white min-h-screen p-6">
+<body class="p-6 min-h-screen">
 
   <div class="max-w-7xl mx-auto">
     <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
       <div>
-        <h1 class="text-4xl font-black text-amber-400 tracking-tight">MASTER DASHBOARD</h1>
-        <p class="text-slate-400 text-sm font-medium uppercase tracking-widest">Guide Assignment Live View</p>
+        <h1 class="text-4xl font-black text-amber-400 tracking-tight italic">MASTER DASHBOARD</h1>
+        <p class="text-slate-400 text-sm font-medium uppercase tracking-widest">Live Guide Tracking</p>
       </div>
-      <div class="flex items-center gap-4 bg-slate-800 p-2 rounded-2xl border border-slate-700">
-        <span class="pl-4 text-xs font-bold text-slate-400 uppercase">Select Date:</span>
+      <div class="flex items-center gap-4 bg-slate-800 p-2 rounded-2xl border border-slate-700 shadow-xl">
+        <span class="pl-4 text-xs font-bold text-slate-500 uppercase">Viewing Date:</span>
         <input type="date" id="datePicker" onchange="fetchData()" 
-               class="bg-slate-900 border-none rounded-xl px-4 py-2 text-amber-400 font-bold outline-none focus:ring-2 focus:ring-amber-400">
+               class="bg-slate-900 border-none rounded-xl px-4 py-2 text-amber-400 font-bold outline-none focus:ring-2 focus:ring-amber-400 transition-all">
       </div>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
       <div class="card">
-        <h3 class="text-slate-500 text-xs font-black mb-1 uppercase">Morning</h3>
-        <h2 class="text-2xl font-black mb-6">9:30 AM</h2>
+        <h3 class="text-slate-500 text-[10px] font-black mb-1 uppercase tracking-tighter">Morning Session</h3>
+        <h2 class="text-2xl font-black mb-6 text-white flex justify-between items-center">
+          9:30 AM <span class="text-xs bg-slate-700 px-2 py-1 rounded text-slate-400">9DV</span>
+        </h2>
         <ul id="list-9DV" class="space-y-3"></ul>
       </div>
 
       <div class="card">
-        <h3 class="text-slate-500 text-xs font-black mb-1 uppercase">Morning</h3>
-        <h2 class="text-2xl font-black mb-6">10:30 AM</h2>
+        <h3 class="text-slate-500 text-[10px] font-black mb-1 uppercase tracking-tighter">Morning Session</h3>
+        <h2 class="text-2xl font-black mb-6 text-white flex justify-between items-center">
+          10:30 AM <span class="text-xs bg-slate-700 px-2 py-1 rounded text-slate-400">10DV</span>
+        </h2>
         <ul id="list-10DV" class="space-y-3"></ul>
       </div>
 
       <div class="card">
-        <h3 class="text-slate-500 text-xs font-black mb-1 uppercase">Afternoon</h3>
-        <h2 class="text-2xl font-black mb-6">1:30 PM</h2>
+        <h3 class="text-slate-500 text-[10px] font-black mb-1 uppercase tracking-tighter">Afternoon Session</h3>
+        <h2 class="text-2xl font-black mb-6 text-white flex justify-between items-center">
+          1:30 PM <span class="text-xs bg-slate-700 px-2 py-1 rounded text-slate-400">1DV</span>
+        </h2>
         <ul id="list-1DV" class="space-y-3"></ul>
       </div>
 
       <div class="card">
-        <h3 class="text-slate-500 text-xs font-black mb-1 uppercase">Afternoon</h3>
-        <h2 class="text-2xl font-black mb-6">2:30 PM</h2>
+        <h3 class="text-slate-500 text-[10px] font-black mb-1 uppercase tracking-tighter">Afternoon Session</h3>
+        <h2 class="text-2xl font-black mb-6 text-white flex justify-between items-center">
+          2:30 PM <span class="text-xs bg-slate-700 px-2 py-1 rounded text-slate-400">2DV</span>
+        </h2>
         <ul id="list-2DV" class="space-y-3"></ul>
       </div>
     </div>
   </div>
 
   <script>
-    // Initialize date to today
+    // YOUR DEPLOYMENT URL
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx_03tj35omjDBsw4ajl6qDSqfzOjc9_nsJUOXlFX-x-XWbFMbcdzBpRAGNgp_eoJ46/exec";
+
+    // Set default date to today's local date
     document.getElementById('datePicker').value = new Date().toISOString().split('T')[0];
 
-    function fetchData() {
-      const date = document.getElementById('datePicker').value;
-      const ids = ['list-9DV', 'list-10DV', 'list-1DV', 'list-2DV'];
-      ids.forEach(id => document.getElementById(id).innerHTML = '<li class="text-slate-600 italic text-xs">Syncing...</li>');
+    async function fetchData() {
+      const selectedDate = document.getElementById('datePicker').value;
+      const finalUrl = `${SCRIPT_URL}?page=master_dashboard&date=${selectedDate}`;
+      
+      // Loading State
+      const slotIds = ['list-9DV', 'list-10DV', 'list-1DV', 'list-2DV'];
+      slotIds.forEach(id => {
+        document.getElementById(id).innerHTML = '<li class="text-slate-600 text-xs italic animate-pulse">Syncing data...</li>';
+      });
 
-      // Uses google.script.run to call getMasterData in Code.gs
-      google.script.run
-        .withSuccessHandler(drawUI)
-        .getMasterData(date);
+      try {
+        const response = await fetch(finalUrl);
+        const data = await response.json();
+        
+        if (data.tours) {
+          renderTours(data.tours);
+        }
+      } catch (err) {
+        console.error("Connection Error:", err);
+        slotIds.forEach(id => {
+          document.getElementById(id).innerHTML = '<li class="text-red-400 text-[10px]">Connection failed. Check SCRIPT_URL.</li>';
+        });
+      }
     }
 
-    function drawUI(data) {
-      const slots = { '9DV': 'list-9DV', '10DV': 'list-10DV', '1DV': 'list-1DV', '2DV': 'list-2DV' };
-      
-      for (let type in slots) {
-        const container = document.getElementById(slots[type]);
-        const guides = data[type] || [];
+    function renderTours(tours) {
+      const typeMapping = { '9DV': 'list-9DV', '10DV': 'list-10DV', '1DV': 'list-1DV', '2DV': 'list-2DV' };
 
-        if (guides.length === 0) {
-          container.innerHTML = '<li class="text-slate-700 text-xs py-4 border-t border-slate-700/50">No assignments</li>';
+      for (let typeKey in typeMapping) {
+        const listElement = document.getElementById(typeMapping[typeKey]);
+        const names = tours[typeKey] || [];
+
+        if (names.length === 0) {
+          listElement.innerHTML = '<li class="text-slate-700 text-xs py-4 border-t border-slate-800/50">No assignments found</li>';
         } else {
-          container.innerHTML = guides.map(name => `
-            <li class="bg-slate-700/30 p-4 rounded-2xl border border-slate-700 flex items-center justify-between hover:bg-slate-700 transition-colors">
-              <span class="font-bold text-sm">${name}</span>
-              <div class="w-2 h-2 bg-amber-400 rounded-full shadow-[0_0_8px_rgba(251,191,36,0.5)]"></div>
+          listElement.innerHTML = names.map(name => `
+            <li class="guide-item p-4 rounded-2xl flex items-center justify-between group hover:bg-slate-700 transition-all border-l-4 border-l-transparent hover:border-l-amber-400">
+              <span class="font-bold text-sm text-slate-200 group-hover:text-amber-400">${name}</span>
+              <div class="w-1.5 h-1.5 bg-amber-400 rounded-full shadow-[0_0_8px_rgba(251,191,36,0.6)]"></div>
             </li>
           `).join('');
         }
       }
     }
 
-    // Run immediately on load
+    // Run initial fetch on load
     fetchData();
   </script>
 </body>
