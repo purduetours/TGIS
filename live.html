@@ -75,21 +75,28 @@
             });
         }
 
-        async function syncWithDatabase() {
-            const selectedDate = document.getElementById('date-selector').value;
-            // We use user=DASHBOARD as a dummy to bypass the script's requirement check
-            const url = `${SCRIPT_URL}?user=DASHBOARD&page=master_dashboard&date=${selectedDate}`;
+async function syncWithDatabase() {
+    const selectedDate = document.getElementById('date-selector').value;
+    const url = `${SCRIPT_URL}?user=DASHBOARD&page=master_dashboard&date=${selectedDate}`;
 
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-                if (data.tours) {
-                    renderTours(data.tours);
-                }
-            } catch (err) {
-                console.error("Database Sync Failed:", err);
-            }
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        console.log("Response Data:", data);
+
+        if (data.tours) {
+            // Count how many tours were found in total
+            const totalFound = Object.values(data.tours).flat().length;
+            console.log(`Found ${totalFound} tours for ${selectedDate}`);
+            renderTours(data.tours);
+        } else if (data.error) {
+            alert("Script Error: " + data.error);
         }
+    } catch (err) {
+        console.error("Connection Failed. Check your SCRIPT_URL.");
+    }
+}
 
      function renderTours(tours) {
     const tourTypes = [
