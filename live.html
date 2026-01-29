@@ -98,7 +98,9 @@ async function syncWithDatabase() {
     }
 }
 
-     function renderTours(tours) {
+function renderTours(tours) {
+    console.log("6. Rendering started for:", tours);
+    
     const tourTypes = [
         { code: '9DV', cardId: 'tour-930', listId: 'list-9DV' },
         { code: '10DV', cardId: 'tour-1030', listId: 'list-10DV' },
@@ -107,29 +109,44 @@ async function syncWithDatabase() {
     ];
 
     tourTypes.forEach(type => {
-        const guides = tours[type.code] || []; // If undefined, use empty array
+        const guides = tours[type.code] || [];
         const card = document.getElementById(type.cardId);
         const list = document.getElementById(type.listId);
         
-        if (!card || !list) return; // Safety check
+        if (!card || !list) {
+            console.warn("Could not find elements for:", type.code);
+            return;
+        }
 
         const statusText = card.querySelector('.status-text');
         const timeText = card.querySelector('h4');
 
         if (guides.length > 0) {
-            // Found tours! Update to Upcoming
+            // Update Card to 'Scheduled' or 'Active'
             card.dataset.scheduled = "true";
             statusText.textContent = "Upcoming";
-            card.className = "bg-tour-upcoming/10 border-2 border-tour-upcoming/50 rounded-2xl p-6 text-center shadow-sm";
-            timeText.className = "text-4xl font-black text-tour-upcoming";
+            card.classList.remove('bg-status-red/10', 'border-status-red/30', 'opacity-80');
+            card.classList.add('bg-tour-upcoming/10', 'border-tour-upcoming/50');
+            timeText.classList.replace('text-status-red/60', 'text-tour-upcoming');
 
+            // Inject the Names
             list.innerHTML = guides.map(g => {
+                const safeName = g.name.replace(/'/g, "\\'"); // Handle names like O'Malley
                 const key = g.name.replace(/\s/g, '');
                 if (!assignments[key]) assignments[key] = [];
-                return `<li>...button code here...</li>`; 
+                
+                return `
+                    <li class="mb-2">
+                        <button onclick="openAssignmentModal('${safeName}')" class="w-full flex items-center justify-between p-2 rounded-xl bg-gray-50 hover:bg-primary-gold hover:text-white transition-all group border border-transparent hover:border-primary-gold">
+                            <span class="text-xs font-bold">${g.name}</span>
+                            <span id="badge-${key}" class="text-[9px] font-black px-1.5 py-0.5 bg-white text-gray-400 rounded-md group-hover:text-primary-gold">
+                                ${assignments[key].length}/10
+                            </span>
+                        </button>
+                    </li>`;
             }).join('');
         } else {
-            // NO TOURS FOUND: Force the "Not Scheduled" state
+            // Show 'Not Scheduled'
             card.dataset.scheduled = "false";
             statusText.textContent = "Not Scheduled";
             card.className = "bg-status-red/10 border-2 border-status-red/30 rounded-2xl p-6 text-center shadow-sm opacity-80";
@@ -137,7 +154,9 @@ async function syncWithDatabase() {
             list.innerHTML = `<p class="text-[10px] text-gray-400 italic text-center py-4">No assignments</p>`;
         }
     });
-    updateTourStatuses();
+    
+    // Call the time-based color switcher
+    if (typeof updateTourStatuses === "function") updateTourStatuses();
 }
 
         document.addEventListener('DOMContentLoaded', () => {
