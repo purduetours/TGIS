@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desk Dashboard | TGIS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <script>
+        // REPLACE THIS with your actual Google Apps Script Web App URL
+        const SCRIPT_URL = "YOUR_APPS_SCRIPT_WEB_APP_URL";
+
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], },
+                    colors: {
+                        'primary-gold': '#CFB991',
+                        'text-dark': '#374151',
+                        'status-red': '#EF4444',
+                        'status-green': '#10B981',
+                        'status-purple': '#8B5CF6', 
+                        'tour-active': '#8B5CF6',
+                        'tour-upcoming': '#CFB991',
+                    }
+                }
+            }
+        }
+
+        // Global state for student assignments (persists during session)
+        let assignments = {}; 
+        let activeGuide = "";
+
+        function updateDateTime() {
+            const now = new Date();
+            const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+            if(document.getElementById('current-date')) {
+                document.getElementById('current-date').textContent = now.toLocaleDateString('en-US', dateOptions);
+                document.getElementById('current-time').textContent = now.toLocaleTimeString('en-US', timeOptions);
+            }
+            updateTourStatuses();
+        }
+
+        function updateTourStatuses() {
+            const now = new Date();
+            const currentTime = now.getHours() * 60 + now.getMinutes();
+
+            const tourWindows = [
+                { id: "tour-930", start: 585, end: 675 },  // 9:45 - 11:15
+                { id: "tour-1030", start: 645, end: 735 }, // 10:45 - 12:15
+                { id: "tour-130", start: 825, end: 915 },  // 1:45 - 3:15
+                { id: "tour-230", start: 885, end: 975 }   // 2:45 - 4:15
+            ];
+
+            tourWindows.forEach(tour => {
+                const el = document.getElementById(tour.id);
+                if (!el || el.dataset.scheduled === "false") return;
+
+                const statusText = el.querySelector('.status-text');
+                const timeText = el.querySelector('h4');
+
+                if (currentTime >= tour.start && currentTime <= tour.end) {
+                    el.className = "bg-status-green/10 border-2 border-status-green rounded-2xl p-6 text-center shadow-sm transition-colors duration-500";
+                    timeText.className = "text-4xl font-black text-status-green";
+                    statusText.textContent = "ON TOUR";
+                    statusText.className = "status-text text-xs font-bold text-status-green uppercase tracking-widest mb-1";
+                } else if (currentTime > tour.end) {
+                    el.className = "bg-status-purple/10 border-2 border-status-purple rounded-2xl p-6 text-center shadow-sm transition-colors duration-500";
+                    timeText.className = "text-4xl font-black text-status-purple";
+                    statusText.textContent = "RETURNED";
+                    statusText.className = "status-text text-xs font-bold text-status-purple uppercase tracking-widest mb-1";
+                }
+            });
+        }
+
+        async function syncWithDatabase() {
+            const selectedDate = document.getElementById('date-selector').value;
+            // We use user=DASHBOARD as a dummy to bypass the script's requirement check
+            const url = `${SCRIPT_URL}?user=DASHBOARD&page=master_dashboard&date=${selectedDate}`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                if (data.tours) {
+                    renderTours(data.tours);
+                }
+            } catch (err) {
+                console.error("Database Sync Failed:", err);
+            }
+        }
+
+        function renderTours(tours) {
+            const tourTypes = [
+                { code: '9DV', cardId: 'tour-930', listId: 'list-9DV' },
+                { code: '10DV', cardId: 'tour-1030', listId: 'list-10DV' },
+                { code: '1DV', cardId: 'tour-130', listId: 'list-1DV' },
+                { code: '2DV', cardId: 'tour-230', listId: 'list-2DV' }
+            ];
+
+            tourTypes.forEach(type => {
+                const guides = tours[type.code] || [];
+                const card = document.getElementById(type.cardId);
+                const list = document.getElementById(type.listId);
+                const statusText = card.querySelector('.status-text');
+                const timeText = card.querySelector('h4');
+
+                if (guides.length > 0) {
+                    card.dataset.scheduled = "true";
+                    statusText.textContent = "Upcoming";
+                    card.className = "bg-tour-upcoming/10 border-2 border-tour-upcoming/50 rounded-2xl p-6 text-center shadow-sm";
+                    timeText.className = "text-4xl font-black text-tour-upcoming";
+
+                    list.innerHTML = guides.map(g => {
+                        const key = g.name.replace(/\s/g, '');
+                        if (!assignments[key]) assignments[key] = [];
+                        return `
+                            <li>
+                                <button onclick="openAssignmentModal('${g.name}')" class="w-full flex items-center justify-between p-2 rounded-xl bg-gray-50 hover:bg-primary-gold hover:text-white transition-all group border border-transparent hover:border-primary-gold">
+                                    <span class="text-xs font-bold">${g.name}</span>
+                                    <span id="badge-${key}" class="text-[9px] font-black px-1.5 py-0.5 bg-white text-gray-400 rounded-md group-hover:text-primary-gold">${assignments[key].length}/10</span>
+                                </button>
+                            </li>`;
+                    }).join('');
+                } else {
+                    card.dataset.scheduled = "false";
+                    statusText.textContent = "Not Scheduled";
+                    card.className = "bg-status-red/10 border-2 border-status-red/30 rounded-2xl p-6 text-center shadow-sm opacity-80";
+                    timeText.className = "text-4xl font-black text-status-red/60";
+                    list.innerHTML = `<p class="text-[10px] text-gray-400 italic text-center py-4">No assignments</p>`;
+                }
+            });
+            updateTourStatuses();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const dateInput = document.getElementById('date-selector');
+            dateInput.value = new Date().toISOString().split('T')[0];
+            
+            dateInput.addEventListener('change', syncWithDatabase);
+
+            updateDateTime();
+            syncWithDatabase(); 
+            setInterval(updateDateTime, 1000);
+            setInterval(syncWithDatabase, 10000); // Sync every 10 seconds
+        });
+
+        // Modal Logic
+        function openAssignmentModal(name) {
+            activeGuide = name;
+            document.getElementById('modal-guide-name').innerText = name;
+            renderStudentList();
+            const modal = document.getElementById('assignment-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => { modal.classList.add('opacity-100'); modal.querySelector('.modal-content').classList.replace('scale-95', 'scale-100'); }, 10);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('assignment-modal');
+            modal.classList.remove('opacity-100');
+            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 200);
+        }
+
+        function addStudent() {
+            const input = document.getElementById('student-input');
+            const name = input.value.trim();
+            const key = activeGuide.replace(/\s/g, '');
+            if (name && assignments[key].length < 10) {
+                assignments[key].push(name);
+                input.value = "";
+                renderStudentList();
+                updateBadge(key);
+            }
+        }
+
+        function renderStudentList() {
+            const key = activeGuide.replace(/\s/g, '');
+            const listContainer = document.getElementById('student-list');
+            const list = assignments[key];
+            document.getElementById('modal-count').innerText = list.length;
+            if (list.length === 0) {
+                listContainer.innerHTML = `<p class="text-sm text-gray-400 italic">No families assigned yet.</p>`;
+            } else {
+                listContainer.innerHTML = list.map((s, i) => `
+                    <div class="flex justify-between items-center bg-gray-50 p-2 rounded-lg border border-gray-100 text-sm font-bold text-gray-700">
+                        ${s} <button onclick="removeStudent(${i})" class="text-status-red px-2">×</button>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function removeStudent(index) {
+            const key = activeGuide.replace(/\s/g, '');
+            assignments[key].splice(index, 1);
+            renderStudentList();
+            updateBadge(key);
+        }
+
+        function updateBadge(key) {
+            const count = assignments[key].length;
+            const badge = document.getElementById(`badge-${key}`);
+            if(!badge) return;
+            badge.innerText = `${count}/10`;
+            if (count >= 10) {
+                badge.classList.add('text-status-red', 'bg-status-red/10');
+                badge.classList.remove('text-gray-400');
+            } else {
+                badge.classList.remove('text-status-red', 'bg-status-red/10');
+                badge.classList.add('text-gray-400');
+            }
+        }
+    </script>
+    <style>
+        .content-area { margin-left: 18rem; }
+        @media (max-width: 1024px) { 
+            .content-area { margin-left: 0; }
+            #sidebar { transform: translateX(-100%); transition: transform 0.3s ease-in-out; display: block !important; }
+            #sidebar.open { transform: translateX(0); }
+        }
+        .nav-button { transition: all 0.2s ease; display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem; color: #4B5563; margin-bottom: 0.5rem; text-decoration: none; }
+        .nav-button:hover { background-color: #F3F4F6; color: #111827; }
+        .nav-button.active { background-color: #CFB991; color: white; box-shadow: 0 4px 6px -1px rgba(207, 185, 145, 0.4); }
+        #assignment-modal { transition: opacity 0.2s ease-out; }
+        .modal-content { transition: transform 0.2s ease-out; }
+    </style>
+</head>
+
+<body class="font-sans bg-gray-50 min-h-screen antialiased">
+
+<nav id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white shadow-2xl border-r border-gray-100 p-6 z-50 hidden lg:block overflow-y-auto">
+    <div class="mb-8 flex justify-between items-start">
+        <div>
+            <p class="text-[10px] font-black text-primary-gold uppercase tracking-[0.2em] mb-1">Purdue University</p>
+            <h1 class="text-xl font-black text-text-dark leading-tight">Tour Guide<br>Information System</h1>
+        </div>
+    </div>
+
+    <div class="mb-8 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+        <div class="flex items-center space-x-3 mb-3">
+            <div class="w-12 h-12 rounded-full bg-primary-gold flex items-center justify-center text-white font-black text-lg shadow-inner">D</div>
+            <div>
+                <p class="font-bold text-text-dark leading-tight">Desk Worker</p>
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Active Duty</p>
+            </div>
+        </div>
+        <div class="flex items-center text-[10px] text-status-green font-bold bg-white w-fit px-2 py-1 rounded-md border border-gray-100">
+            <span class="w-1.5 h-1.5 bg-status-green rounded-full mr-1.5 animate-pulse"></span> TGIS ONLINE
+        </div>
+    </div>
+
+    <nav>
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 ml-2">Navigation</p>
+        <a href="#" class="nav-button active">Dashboard</a>
+        <a href="#" class="nav-button">Tour Schedule</a>
+        <a href="#" class="nav-button">Desk Schedule</a>
+    </nav>
+</nav>
+
+<div class="content-area p-4 sm:p-8">
+    <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
+        <h2 class="text-2xl font-black text-text-dark">Welcome Center Dashboard</h2>
+        <div class="flex items-center bg-white px-4 py-2 rounded-2xl shadow-sm border border-gray-100">
+            <span class="text-xs font-bold text-gray-400 uppercase mr-3">Viewing Date:</span>
+            <input type="date" id="date-selector" class="text-sm font-bold text-text-dark outline-none bg-transparent">
+        </div>
+    </div>
+    
+    <div class="max-w-full w-full bg-white shadow-2xl rounded-3xl overflow-hidden p-6 sm:p-10 border border-gray-100">
+
+        <p class="text-lg text-gray-500 mb-6 border-b pb-4">
+            <span id="current-date" class="font-medium"></span> | <span id="current-time" class="font-bold text-text-dark"></span>
+        </p>
+        
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+            <div id="tour-930" data-scheduled="false" class="bg-gray-100 border-2 border-gray-200 rounded-2xl p-6 text-center">
+                <p class="status-text text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Checking...</p>
+                <h4 class="text-4xl font-black text-gray-400">9:30</h4>
+            </div>
+            <div id="tour-1030" data-scheduled="false" class="bg-gray-100 border-2 border-gray-200 rounded-2xl p-6 text-center">
+                <p class="status-text text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Checking...</p>
+                <h4 class="text-4xl font-black text-gray-400">10:30</h4>
+            </div>
+            <div id="tour-130" data-scheduled="false" class="bg-gray-100 border-2 border-gray-200 rounded-2xl p-6 text-center">
+                <p class="status-text text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Checking...</p>
+                <h4 class="text-4xl font-black text-gray-400">1:30</h4>
+            </div>
+            <div id="tour-230" data-scheduled="false" class="bg-gray-100 border-2 border-gray-200 rounded-2xl p-6 text-center">
+                <p class="status-text text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Checking...</p>
+                <h4 class="text-4xl font-black text-gray-400">2:30</h4>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 xl:grid-cols-4 gap-8">
+            <div class="p-4 rounded-2xl shadow-sm border border-gray-200 bg-white">
+                <h4 class="text-lg font-bold text-text-dark mb-3 border-b pb-2">9:30 AM</h4>
+                <ul id="list-9DV" class="space-y-2"></ul>
+            </div>
+            <div class="p-4 rounded-2xl shadow-sm border border-gray-200 bg-white">
+                <h4 class="text-lg font-bold text-text-dark mb-3 border-b pb-2">10:30 AM</h4>
+                <ul id="list-10DV" class="space-y-2"></ul>
+            </div>
+            <div class="p-4 rounded-2xl shadow-sm border border-gray-200 bg-white">
+                <h4 class="text-lg font-bold text-text-dark mb-3 border-b pb-2">1:30 PM</h4>
+                <ul id="list-1DV" class="space-y-2"></ul>
+            </div>
+            <div class="p-4 rounded-2xl shadow-sm border border-gray-200 bg-white">
+                <h4 class="text-lg font-bold text-text-dark mb-3 border-b pb-2">2:30 PM</h4>
+                <ul id="list-2DV" class="space-y-2"></ul>
+            </div>
+        </div>
+    </div> 
+</div> 
+
+<div id="assignment-modal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-black/60 backdrop-blur-sm opacity-0">
+    <div class="modal-content scale-95 bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden">
+        <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+            <div>
+                <h3 id="modal-guide-name" class="text-xl font-black text-text-dark">Guide Name</h3>
+                <p class="text-xs font-bold text-primary-gold uppercase tracking-widest">Student Assignment</p>
+            </div>
+            <button onclick="closeModal()" class="text-gray-400 hover:text-text-dark text-2xl font-bold">&times;</button>
+        </div>
+        <div class="p-6">
+            <div id="student-list" class="space-y-2 mb-6 max-h-48 overflow-y-auto"></div>
+            <div class="border-t border-gray-100 pt-6">
+                <div class="flex gap-2">
+                    <input type="text" id="student-input" placeholder="Prospective Student Name" 
+                        class="flex-1 bg-gray-100 border-none rounded-xl px-4 py-3 text-sm font-semibold outline-none focus:ring-2 focus:ring-primary-gold">
+                    <button onclick="addStudent()" class="bg-primary-gold text-white px-6 py-3 rounded-xl font-bold shadow-md">Add</button>
+                </div>
+                <p class="mt-2 text-[10px] font-bold text-gray-400 uppercase text-center"><span id="modal-count">0</span> / 10 Cap</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
