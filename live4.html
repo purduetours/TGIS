@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Guide Portal | TGIS</title>
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="TGIS Portal">
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="manifest" href="manifest.json">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], },
+                    colors: {
+                        'primary-gold': '#CFB991',
+                        'text-dark': '#374151',
+                        'status-red': '#EF4444',
+                        'status-green': '#10B981',
+                        'status-purple': '#8B5CF6',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .content-area { margin-left: 18rem; }
+        @media (max-width: 1024px) { 
+            .content-area { margin-left: 0; } 
+            #sidebar { transform: translateX(-100%); transition: transform 0.3s ease-in-out; display: block !important; }
+            #sidebar.open { transform: translateX(0); }
+        }
+
+        .nav-button { transition: all 0.2s ease; display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem; color: #4B5563; margin-bottom: 0.5rem; text-decoration: none; }
+        .nav-button:hover { background-color: #F3F4F6; color: #111827; }
+        .nav-button.active { background-color: #CFB991; color: white; box-shadow: 0 4px 6px -1px rgba(207, 185, 145, 0.4); }
+
+        .stat-card { background: white; border: 1px solid #F3F4F6; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+        
+        /* iOS Notch Support */
+        body { padding-top: env(safe-area-inset-top); }
+    </style>
+</head>
+
+<body class="font-sans bg-gray-50 min-h-screen antialiased">
+
+<nav id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white shadow-2xl border-r border-gray-100 p-6 z-50 hidden lg:block overflow-y-auto">
+    <div class="mb-8 flex justify-between items-start">
+        <div>
+            <p class="text-[10px] font-black text-primary-gold uppercase tracking-[0.2em] mb-1">Purdue University</p>
+            <h1 class="text-xl font-black text-text-dark leading-tight">Tour Guide<br>Information System</h1>
+        </div>
+        <button id="close-menu" class="lg:hidden text-gray-400 text-3xl">&times;</button>
+    </div>
+
+    <div class="mb-8 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+        <div class="flex items-center space-x-3 mb-3">
+            <div class="w-12 h-12 rounded-full bg-primary-gold flex items-center justify-center text-white font-black text-lg shadow-inner" id="userInitial">J</div>
+            <div>
+                <p class="font-bold text-text-dark leading-tight" id="profileName">John Purdue</p>
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Gold Level Guide</p>
+            </div>
+        </div>
+        <div class="flex items-center text-[10px] text-status-green font-bold bg-white w-fit px-2 py-1 rounded-md border border-gray-100">
+            <span class="w-1.5 h-1.5 bg-status-green rounded-full mr-1.5 animate-pulse"></span> ONLINE
+        </div>
+    </div>
+
+    <nav>
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 ml-2">Navigation</p>
+        <a href="#" class="nav-button active">Personal Dashboard</a>
+        <a href="#" class="nav-button">Postcard Management</a>
+        <a href="#" class="nav-button">Master Schedule</a>
+        <a href="#" class="nav-button">Forms & Training</a>
+    </nav>
+</nav>
+
+<div class="content-area p-4 sm:p-8">
+    <header class="flex justify-between items-center mb-10">
+        <div>
+            <h2 class="text-2xl font-black text-text-dark">Hello, <span class="text-primary-gold" id="welcomeName">John</span></h2>
+            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Spring 2026 Semester Overview</p>
+        </div>
+        <button id="mobile-menu-button" class="lg:hidden p-2 bg-white rounded-xl shadow-sm border border-gray-100">
+            <svg class="w-6 h-6 text-text-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+        </button>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        <div class="stat-card p-6 rounded-3xl relative overflow-hidden">
+            <div class="absolute right-[-10%] top-[-20%] w-24 h-24 bg-primary-gold/5 rounded-full"></div>
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Total Semester Tours</p>
+            <h3 class="text-4xl font-black text-text-dark" id="semesterTotal">24</h3>
+        </div>
+        <div class="stat-card p-6 rounded-3xl">
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Weekly Completion</p>
+            <div class="flex items-center gap-4">
+                <h3 class="text-4xl font-black text-text-dark">85%</h3>
+                <div class="flex-grow bg-gray-100 h-2 rounded-full">
+                    <div class="bg-status-green h-2 rounded-full" style="width: 85%"></div>
+                </div>
+            </div>
+        </div>
+        <div class="stat-card p-6 rounded-3xl">
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Alerts</p>
+            <h3 class="text-4xl font-black text-status-red" id="alertCount">1</h3>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-2 space-y-6">
+            <h3 class="text-[10px] font-black text-text-dark uppercase tracking-widest ml-2">Upcoming This Week</h3>
+            
+            <div class="space-y-4" id="upcoming-tours">
+                <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="bg-gray-50 w-12 h-12 rounded-xl flex flex-col items-center justify-center border border-gray-100">
+                            <span class="text-[10px] font-black text-primary-gold uppercase">Oct</span>
+                            <span class="text-lg font-black text-text-dark leading-none">24</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-text-dark uppercase text-sm">9:30 AM Tour</h4>
+                            <p class="text-xs text-gray-400 font-semibold uppercase">Daily Visit (9DV)</p>
+                        </div>
+                    </div>
+                    <div class="bg-status-green/10 text-status-green text-[10px] font-black px-3 py-1 rounded-lg uppercase tracking-wider">
+                        Confirmed
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="bg-gray-50 w-12 h-12 rounded-xl flex flex-col items-center justify-center border border-gray-100">
+                            <span class="text-[10px] font-black text-primary-gold uppercase">Oct</span>
+                            <span class="text-lg font-black text-text-dark leading-none">27</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-text-dark uppercase text-sm">1:30 PM Tour</h4>
+                            <p class="text-xs text-gray-400 font-semibold uppercase">Daily Visit (1DV)</p>
+                        </div>
+                    </div>
+                    <div class="bg-gray-100 text-gray-400 text-[10px] font-black px-3 py-1 rounded-lg uppercase tracking-wider">
+                        Pending
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-6">
+            <h3 class="text-[10px] font-black text-text-dark uppercase tracking-widest ml-2">Important Alerts</h3>
+            <div class="bg-status-red/5 border-2 border-dashed border-status-red/20 p-6 rounded-3xl">
+                <div class="flex items-center gap-3 mb-4 text-status-red">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    <span class="font-black text-xs uppercase tracking-widest">Construction Notice</span>
+                </div>
+                <p class="text-sm text-gray-600 font-medium leading-relaxed">
+                    Construction near the PMU union building has rerouted the walking path. Please review the updated map in the Training tab before your next shift.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // PWA Service Worker Registration
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); });
+    }
+
+    // Sidebar Logic
+    const menuBtn = document.getElementById('mobile-menu-button');
+    const closeMenu = document.getElementById('close-menu');
+    const sidebar = document.getElementById('sidebar');
+
+    menuBtn.addEventListener('click', () => sidebar.classList.add('open'));
+    closeMenu.addEventListener('click', () => sidebar.classList.remove('open'));
+</script>
+
+</body>
+</html>
