@@ -1,7 +1,7 @@
 {
   "name": "Purdue Master Tour Dashboard",
   "short_name": "Master Tour",
-  "start_url": "index.html",
+  "start_url": "live3.html",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
