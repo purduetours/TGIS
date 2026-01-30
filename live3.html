@@ -1,20 +1,121 @@
-{
-  "name": "Purdue Tour Dashboard",
-  "short_name": "Master Tour",
-  "start_url": ".",
-  "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#0f172a",
-  "icons": [
-    {
-      "src": "https://via.placeholder.com/192/fbbf24/0f172a?text=MT",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "https://via.placeholder.com/512/fbbf24/0f172a?text=MT",
-      "sizes": "512x512",
-      "type": "image/png"
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Master Tour Dashboard</title>
+  
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Master Tour">
+  
+  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="manifest" href="manifest.json">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg-dark: #0f172a; }
+    body { 
+      font-family: 'Inter', sans-serif; 
+      background-color: var(--bg-dark); 
+      color: white; 
+      margin: 0;
+      padding-top: env(safe-area-inset-top); /* Fixes notch overlap */
     }
-  ]
-}
+    .card { background: #1e293b; border: 1px solid #334155; border-radius: 1.5rem; padding: 1.5rem; transition: all 0.3s ease; }
+    .card:hover { border-color: #fbbf24; box-shadow: 0 0 20px rgba(251, 191, 36, 0.1); }
+    .guide-item { background: rgba(51, 65, 85, 0.5); border: 1px solid rgba(71, 85, 105, 0.5); }
+    
+    /* Prevent the white flash on iOS startup */
+    html { background-color: var(--bg-dark); }
+  </style>
+</head>
+<body class="p-6 min-h-screen">
+
+  <div class="max-w-7xl mx-auto">
+    <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
+      <div>
+        <h1 class="text-4xl font-black text-amber-400 tracking-tight italic">MASTER DASHBOARD</h1>
+        <p class="text-slate-400 text-sm font-medium uppercase tracking-widest">Purdue Tours Live Tracking</p>
+      </div>
+      <div class="flex items-center gap-4 bg-slate-800 p-2 rounded-2xl border border-slate-700 shadow-xl">
+        <span class="pl-4 text-xs font-bold text-slate-500 uppercase">Select Date:</span>
+        <input type="date" id="datePicker" onchange="fetchData()" 
+               class="bg-slate-900 border-none rounded-xl px-4 py-2 text-amber-400 font-bold outline-none focus:ring-2 focus:ring-amber-400 transition-all">
+      </div>
+    </div>
+
+    <div id="dashboard-grid" class="grid grid-cols-1 md:grid-cols-4 gap-6 pb-20">
+      <div class="card">
+        <h3 class="text-slate-500 text-[10px] font-black mb-1 uppercase tracking-tighter">Morning</h3>
+        <h2 class="text-2xl font-black mb-6 flex justify-between items-center">9:30 AM <span class="text-xs text-slate-500 font-normal">9DV</span></h2>
+        <ul id="list-9DV" class="space-y-3"></ul>
+      </div>
+
+      <div class="card">
+        <h3 class="text-slate-500 text-[10px] font-black mb-1 uppercase tracking-tighter">Morning</h3>
+        <h2 class="text-2xl font-black mb-6 flex justify-between items-center">10:30 AM <span class="text-xs text-slate-500 font-normal">10DV</span></h2>
+        <ul id="list-10DV" class="space-y-3"></ul>
+      </div>
+
+      <div class="card">
+        <h3 class="text-slate-500 text-[10px] font-black mb-1 uppercase tracking-tighter">Afternoon</h3>
+        <h2 class="text-2xl font-black mb-6 flex justify-between items-center">1:30 PM <span class="text-xs text-slate-500 font-normal">1DV</span></h2>
+        <ul id="list-1DV" class="space-y-3"></ul>
+      </div>
+
+      <div class="card">
+        <h3 class="text-slate-500 text-[10px] font-black mb-1 uppercase tracking-tighter">Afternoon</h3>
+        <h2 class="text-2xl font-black mb-6 flex justify-between items-center">2:30 PM <span class="text-xs text-slate-500 font-normal">2DV</span></h2>
+        <ul id="list-2DV" class="space-y-3"></ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw1T8cINZZXSLKCfEF60J4Z4jaAlSuZXbrms6k7wNBabyT0MJmdDwR7FqOPVYbufFrVfA/exec";
+
+    // Register Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js');
+      });
+    }
+
+    document.getElementById('datePicker').value = new Date().toISOString().split('T')[0];
+
+    async function fetchData() {
+      const selectedDate = document.getElementById('datePicker').value;
+      const finalUrl = `${SCRIPT_URL}?page=master_dashboard&date=${selectedDate}`;
+      const slotIds = ['list-9DV', 'list-10DV', 'list-1DV', 'list-2DV'];
+      slotIds.forEach(id => document.getElementById(id).innerHTML = '<li class="text-slate-500 text-xs italic animate-pulse">Syncing...</li>');
+
+      try {
+        const response = await fetch(finalUrl);
+        const data = await response.json();
+        renderTours(data.tours || {});
+      } catch (err) {
+        slotIds.forEach(id => document.getElementById(id).innerHTML = '<li class="text-red-400 text-[10px]">Error loading</li>');
+      }
+    }
+
+    function renderTours(tours) {
+      const typeMapping = { '9DV': 'list-9DV', '10DV': 'list-10DV', '1DV': 'list-1DV', '2DV': 'list-2DV' };
+      for (let typeKey in typeMapping) {
+        const listElement = document.getElementById(typeMapping[typeKey]);
+        const names = tours[typeKey] || [];
+        listElement.innerHTML = names.length === 0 
+          ? '<li class="text-slate-700 text-xs py-4 italic border-t border-slate-800/50">No assignments</li>'
+          : names.map(name => `
+            <li class="guide-item p-4 rounded-2xl flex items-center justify-between group">
+              <span class="font-bold text-sm text-slate-200">${name}</span>
+              <div class="w-1.5 h-1.5 bg-amber-400 rounded-full"></div>
+            </li>
+          `).join('');
+      }
+    }
+    fetchData();
+  </script>
+</body>
+</html>
