@@ -39,7 +39,7 @@
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
             <div>
                 <p class="text-[10px] font-black text-primary-gold uppercase tracking-[0.2em]">Purdue University</p>
-                <h1 class="text-2xl font-black text-text-dark tracking-tighter">MASTER DASHBOARD</h1>
+                <h1 class="text-2xl font-black text-text-dark tracking-tighter">Welcome Center Dashboard</h1>
             </div>
             <div class="flex items-center bg-gray-100 px-4 py-2 rounded-2xl border border-gray-200 shadow-sm">
                 <span class="text-xs font-bold text-gray-400 uppercase mr-3">Date:</span>
@@ -150,29 +150,51 @@
             }
         }
 
-        function updateStatuses() {
-            const now = new Date();
-            const currentTime = now.getHours() * 60 + now.getMinutes();
+       function updateStatuses() {
+        const now = new Date();
+        const todayStr = now.toISOString().split('T')[0];
+        const selectedDate = document.getElementById('datePicker').value;
+        
+        // Convert current time to minutes for the "Today" check
+        const currentTime = now.getHours() * 60 + now.getMinutes();
 
-            const tourTimes = [
-                { id: 'status-930', key: '9DV', start: 570, end: 675 },  
-                { id: 'status-1030', key: '10DV', start: 630, end: 735 }, 
-                { id: 'status-130', key: '1DV', start: 810, end: 915 },  
-                { id: 'status-230', key: '2DV', start: 870, end: 975 }   
-            ];
+        const tourTimes = [
+            { id: 'status-930', key: '9DV', start: 570, end: 675 },  
+            { id: 'status-1030', key: '10DV', start: 630, end: 735 }, 
+            { id: 'status-130', key: '1DV', start: 810, end: 915 },  
+            { id: 'status-230', key: '2DV', start: 870, end: 975 }   
+        ];
 
-            tourTimes.forEach(tour => {
-                const el = document.getElementById(tour.id);
-                const label = el.querySelector('.status-label');
-                const timeText = el.querySelector('h4');
-                const isScheduled = currentToursData[tour.key] && currentToursData[tour.key].length > 0;
+        tourTimes.forEach(tour => {
+            const el = document.getElementById(tour.id);
+            const label = el.querySelector('.status-label');
+            const timeText = el.querySelector('h4');
+            const isScheduled = currentToursData[tour.key] && currentToursData[tour.key].length > 0;
 
-                if (!isScheduled) {
-                    el.className = "card-base bg-status-red/10 border-2 border-status-red/20 rounded-3xl p-6 text-center shadow-sm";
-                    timeText.className = "text-4xl font-black text-status-red/40";
-                    label.textContent = "NOT SCHEDULED";
-                    label.className = "status-label text-[10px] font-black text-status-red uppercase tracking-widest mb-1";
-                } else if (currentTime >= tour.start && currentTime <= tour.end) {
+            if (!isScheduled) {
+                // NOT SCHEDULED (Always Red if empty)
+                el.className = "card-base bg-status-red/10 border-2 border-status-red/20 rounded-3xl p-6 text-center shadow-sm";
+                timeText.className = "text-4xl font-black text-status-red/40";
+                label.textContent = "NOT SCHEDULED";
+                label.className = "status-label text-[10px] font-black text-status-red uppercase tracking-widest mb-1";
+            } 
+            else if (selectedDate < todayStr) {
+                // PAST DATE (Always Purple)
+                el.className = "card-base bg-status-purple/10 border-2 border-status-purple rounded-3xl p-6 text-center shadow-sm";
+                timeText.className = "text-4xl font-black text-status-purple";
+                label.textContent = "RETURNED";
+                label.className = "status-label text-[10px] font-black text-status-purple uppercase tracking-widest mb-1";
+            }
+            else if (selectedDate > todayStr) {
+                // FUTURE DATE (Always Gold)
+                el.className = "card-base bg-white border-2 border-primary-gold/30 rounded-3xl p-6 text-center shadow-sm";
+                timeText.className = "text-4xl font-black text-primary-gold";
+                label.textContent = "UPCOMING";
+                label.className = "status-label text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1";
+            }
+            else {
+                // TODAY (Live Logic)
+                if (currentTime >= tour.start && currentTime <= tour.end) {
                     el.className = "card-base bg-status-green/10 border-2 border-status-green rounded-3xl p-6 text-center shadow-sm";
                     timeText.className = "text-4xl font-black text-status-green";
                     label.textContent = "ON TOUR";
@@ -188,9 +210,9 @@
                     label.textContent = "UPCOMING";
                     label.className = "status-label text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1";
                 }
-            });
-        }
-
+            }
+        });
+    }
         fetchData();
         setInterval(updateStatuses, 30000);
         setInterval(fetchData, 300000);
