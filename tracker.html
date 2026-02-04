@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Tour Tracker | TGIS</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], },
+                    colors: {
+                        'primary-gold': '#CFB991',
+                        'text-dark': '#374151',
+                        'status-green': '#10B981',
+                        'status-red': '#EF4444',
+                        'purdue-black': '#000000',
+                        'bronze': '#CD7F32',
+                        'silver': '#C0C0C0',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .content-area { margin-left: 18rem; }
+        @media (max-width: 1024px) { 
+            .content-area { margin-left: 0; } 
+            #sidebar { transform: translateX(-100%); transition: transform 0.3s ease-in-out; display: block !important; }
+            #sidebar.open { transform: translateX(0); }
+        }
+        
+        .nav-button { transition: all 0.2s ease; display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem; color: #4B5563; margin-bottom: 0.5rem; text-decoration: none; }
+        .nav-button:hover { background-color: #F3F4F6; color: #111827; }
+        .nav-button.active { background-color: #CFB991; color: white; box-shadow: 0 4px 6px -1px rgba(207, 185, 145, 0.4); }
+
+        .custom-scroll::-webkit-scrollbar { width: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #CFB991; border-radius: 10px; }
+        .tab-active { border-bottom: 3px solid #CFB991; color: #374151; }
+        
+        body { padding-top: env(safe-area-inset-top); background-color: #F9FAFB; }
+    </style>
+</head>
+
+<body class="font-sans antialiased text-text-dark">
+
+<nav id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white shadow-2xl border-r border-gray-100 p-6 z-50 hidden lg:block overflow-y-auto">
+    <div class="mb-8 flex justify-between items-start">
+        <div>
+            <p class="text-[10px] font-black text-primary-gold uppercase tracking-[0.2em] mb-1">Purdue University</p>
+            <h1 class="text-xl font-black text-text-dark leading-tight">Tour Guide<br>Information System</h1>
+        </div>
+        <button id="close-menu" class="lg:hidden text-gray-400 text-3xl">&times;</button>
+    </div>
+
+    <div class="mb-8 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+        <div class="flex items-center space-x-3 mb-3">
+            <div class="w-12 h-12 rounded-full bg-primary-gold flex items-center justify-center text-white font-black text-lg shadow-inner">J</div>
+            <div>
+                <p class="font-bold text-text-dark leading-tight">John Purdue</p>
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Founder</p>
+            </div>
+        </div>
+    </div>
+
+    <nav>
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 ml-2">Navigation</p>
+        <a href="dashboard.html" class="nav-button">Personal Dashboard</a>
+        <a href="#" class="nav-button active">Tour Tracker</a>
+        <a href="#" class="nav-button">Master Schedule</a>
+        <a href="#" class="nav-button">Forms & Training</a>
+    </nav>
+</nav>
+
+<div class="content-area p-4 sm:p-8">
+    
+    <header class="flex lg:hidden justify-between items-center mb-6">
+        <h2 class="text-xl font-black text-text-dark uppercase italic">TGIS <span class="text-primary-gold">Tracker</span></h2>
+        <button id="mobile-menu-button" class="p-2 bg-white rounded-xl shadow-sm border border-gray-100">
+            <svg class="w-6 h-6 text-text-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+        </button>
+    </header>
+
+    <div class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+            <p class="text-[10px] font-black text-primary-gold uppercase tracking-[0.3em] mb-1">Tour Tracker</p>
+            <div class="flex items-end gap-4">
+                <h1 class="text-8xl font-black text-purdue-black tracking-tighter leading-none">68</h1>
+                <div class="pb-1">
+                    <p class="text-xl font-black text-text-dark uppercase italic leading-none">Tours</p>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Total Career Volume</p>
+                </div>
+            </div>
+        </div>
+        <div class="flex gap-4">
+            <div class="bg-white px-6 py-4 rounded-3xl border border-gray-100 shadow-sm text-center">
+                <p class="text-[10px] font-black text-gray-400 uppercase mb-1">Rank</p>
+                <p class="text-xl font-black text-text-dark">#14</p>
+            </div>
+            <div class="bg-white px-6 py-4 rounded-3xl border border-gray-100 shadow-sm text-center">
+                <p class="text-[10px] font-black text-gray-400 uppercase mb-1">This Semester</p>
+                <p class="text-xl font-black text-status-green">8</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <div class="lg:col-span-8 space-y-8">
+            <section class="bg-white rounded-[2rem] p-8 shadow-sm border border-gray-100">
+                <div class="flex justify-between items-end mb-6">
+                    <div>
+                        <h3 class="text-xs font-black uppercase tracking-widest mb-1">Century Club Progress</h3>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase">32 tours until the 100 milestone</p>
+                    </div>
+                    <span class="text-2xl font-black text-primary-gold">68%</span>
+                </div>
+                
+                <div class="relative w-full h-10 bg-gray-100 rounded-2xl mb-10 overflow-hidden border border-gray-50 shadow-inner">
+                    <div class="absolute top-0 left-0 h-full bg-gradient-to-r from-primary-gold to-[#E5D5B7] transition-all duration-1000" style="width: 68%;"></div>
+                    <div class="absolute top-0 left-[50%] h-full w-px bg-white/30"></div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-6">
+                    <div class="text-center">
+                        <div class="w-14 h-14 bg-bronze/10 rounded-full flex items-center justify-center mx-auto mb-3 border-2 border-bronze/20 ring-4 ring-white shadow-sm">
+                            <svg class="w-6 h-6 text-bronze" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                        </div>
+                        <p class="text-[10px] font-black uppercase">50 Tours</p>
+                        <p class="text-[8px] font-bold text-status-green uppercase tracking-tighter italic">Earned</p>
+                    </div>
+                    <div class="text-center opacity-40">
+                        <div class="w-14 h-14 bg-silver/20 rounded-full flex items-center justify-center mx-auto mb-3 border-2 border-dashed border-silver shadow-sm">
+                            <svg class="w-6 h-6 text-silver" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                        </div>
+                        <p class="text-[10px] font-black uppercase">100 Tours</p>
+                        <p class="text-[8px] font-bold text-gray-400 uppercase tracking-tighter italic">Locked</p>
+                    </div>
+                    <div class="text-center opacity-40">
+                        <div class="w-14 h-14 bg-primary-gold/10 rounded-full flex items-center justify-center mx-auto mb-3 border-2 border-dashed border-primary-gold/30 shadow-sm">
+                            <svg class="w-6 h-6 text-primary-gold" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                        </div>
+                        <p class="text-[10px] font-black uppercase">200 Tours</p>
+                        <p class="text-[8px] font-bold text-gray-400 uppercase tracking-tighter italic">Locked</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden">
+                <div class="p-6 border-b border-gray-50 bg-gray-50/30 flex justify-between items-center">
+                    <h3 class="text-xs font-black uppercase tracking-widest">Semester History</h3>
+                    <div class="px-3 py-1 bg-white border border-gray-200 rounded-full text-[9px] font-black uppercase text-gray-400">3 Total Semesters</div>
+                </div>
+                <div class="max-h-[300px] overflow-y-auto custom-scroll">
+                    <div class="divide-y divide-gray-50">
+                        <div class="px-8 py-5 flex items-center justify-between hover:bg-gray-50/50 transition-colors">
+                            <div class="flex items-center gap-4">
+                                <div class="w-2 h-2 rounded-full bg-status-green"></div>
+                                <span class="text-xs font-black uppercase tracking-tight">Spring 2026</span>
+                            </div>
+                            <span class="text-lg font-black tracking-tighter">08</span>
+                        </div>
+                        <div class="px-8 py-5 flex items-center justify-between hover:bg-gray-50/50 transition-colors">
+                            <div class="flex items-center gap-4">
+                                <div class="w-2 h-2 rounded-full bg-gray-200"></div>
+                                <span class="text-xs font-black uppercase tracking-tight text-gray-500">Fall 2025</span>
+                            </div>
+                            <span class="text-lg font-black tracking-tighter text-gray-500">14</span>
+                        </div>
+                        <div class="px-8 py-5 flex items-center justify-between hover:bg-gray-50/50 transition-colors">
+                            <div class="flex items-center gap-4">
+                                <div class="w-2 h-2 rounded-full bg-gray-200"></div>
+                                <span class="text-xs font-black uppercase tracking-tight text-gray-500">Spring 2025</span>
+                            </div>
+                            <span class="text-lg font-black tracking-tighter text-gray-500">22</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="lg:col-span-4">
+            <section class="bg-white rounded-[2rem] shadow-xl border border-gray-100 overflow-hidden sticky top-8">
+                <div class="flex border-b border-gray-100">
+                    <button onclick="switchTab('semester')" id="tab-semester" class="flex-1 py-5 text-[10px] font-black uppercase tracking-widest tab-active">This Semester</button>
+                    <button onclick="switchTab('career')" id="tab-career" class="flex-1 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400">Career</button>
+                </div>
+
+                <div class="p-4 space-y-3" id="leaderboard-content">
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                        <div class="flex items-center gap-4">
+                            <span class="text-xl font-black text-primary-gold">01</span>
+                            <span class="text-xs font-black uppercase tracking-tighter">Bailey B.</span>
+                        </div>
+                        <span class="text-lg font-black tracking-tighter">12</span>
+                    </div>
+                    <div class="flex items-center justify-between p-4 bg-white rounded-2xl border border-gray-100">
+                        <div class="flex items-center gap-4">
+                            <span class="text-xl font-black text-gray-300">02</span>
+                            <span class="text-xs font-black uppercase tracking-tighter">Wil R.</span>
+                        </div>
+                        <span class="text-lg font-black tracking-tighter">10</span>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-dashed border-gray-200">
+                        <div class="bg-purdue-black text-white p-5 rounded-3xl flex items-center justify-between shadow-lg ring-4 ring-primary-gold/10">
+                            <div class="flex items-center gap-4">
+                                <div class="text-center">
+                                    <p class="text-[8px] font-black text-primary-gold uppercase">Your Rank</p>
+                                    <p class="text-xl font-black italic">14th</p>
+                                </div>
+                                <div class="w-px h-8 bg-gray-800"></div>
+                                <p class="text-[10px] font-black uppercase tracking-[0.2em]">YOUR RANK</p>
+                            </div>
+                            <span class="text-2xl font-black text-primary-gold">08</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // Sidebar Logic
+    const menuBtn = document.getElementById('mobile-menu-button');
+    const closeMenu = document.getElementById('close-menu');
+    const sidebar = document.getElementById('sidebar');
+
+    menuBtn.addEventListener('click', () => sidebar.classList.add('open'));
+    closeMenu.addEventListener('click', () => sidebar.classList.remove('open'));
+
+    function switchTab(type) {
+        const semTab = document.getElementById('tab-semester');
+        const carTab = document.getElementById('tab-career');
+        
+        if (type === 'semester') {
+            semTab.classList.add('tab-active'); semTab.classList.remove('text-gray-400');
+            carTab.classList.remove('tab-active'); carTab.classList.add('text-gray-400');
+        } else {
+            carTab.classList.add('tab-active'); carTab.classList.remove('text-gray-400');
+            semTab.classList.remove('tab-active'); semTab.classList.add('text-gray-400');
+        }
+    }
+</script>
+
+</body>
+</html>
