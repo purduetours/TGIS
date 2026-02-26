@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tour Tracker | TGIS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], },
+                    colors: {
+                        'primary-gold': '#CFB991',
+                        'text-dark': '#374151',
+                        'status-green': '#10B981',
+                        'tgis-blue': '#1D4ED8',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Original Sidebar Layout Styles */
+        .content-area { margin-left: 18rem; }
+        @media (max-width: 1024px) { 
+            .content-area { margin-left: 0; }
+            #sidebar { transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+            #sidebar.open { transform: translateX(0); display: block !important; }
+        }
+        .nav-button { transition: all 0.2s ease; display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem; color: #4B5563; margin-bottom: 0.5rem; text-decoration: none; }
+        .nav-button:hover { background-color: #F3F4F6; color: #111827; }
+        .nav-button.active { background-color: #CFB991; color: white; box-shadow: 0 4px 6px -1px rgba(207, 185, 145, 0.4); }
+        .loader { border-top-color: #CFB991; animation: spinner 0.6s linear infinite; }
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans antialiased">
+
+<div id="loading-overlay" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center transition-opacity duration-500">
+    <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
+    <h2 class="text-text-dark font-bold text-lg">Connecting to TGIS...</h2>
+</div>
+
+<nav id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white shadow-2xl border-r border-gray-100 p-6 z-40 hidden lg:block overflow-y-auto">
+    <div class="mb-8 flex justify-between items-start">
+        <div>
+            <p class="text-[10px] font-black text-primary-gold uppercase tracking-[0.2em] mb-1">Purdue University</p>
+            <h1 class="text-xl font-black text-text-dark leading-tight">Tour Guide<br>Information System</h1>
+        </div>
+        <button id="close-menu" class="lg:hidden text-gray-400 text-2xl">&times;</button>
+    </div>
+
+    <div class="mb-8 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+        <div class="flex items-center space-x-3 mb-3">
+            <div class="w-12 h-12 rounded-full bg-primary-gold flex items-center justify-center text-white font-black text-lg shadow-inner" id="profile-initial">?</div>
+            <div>
+                <p id="sidebar-guide-name" class="font-bold text-text-dark leading-tight">Loading...</p>
+                <p id="profile-status" class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Syncing Profile</p>
+            </div>
+        </div>
+        <div class="flex items-center text-[10px] text-status-green font-bold bg-white w-fit px-2 py-1 rounded-md border border-gray-100">
+            <span class="w-1.5 h-1.5 bg-status-green rounded-full mr-1.5 animate-pulse"></span> TGIS ONLINE
+        </div>
+    </div>
+
+    <div class="mb-8">
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 ml-2">Navigation</p>
+        <nav>
+            <a href="index.html?user=" class="nav-button">Dashboard</a>
+            <a href="tour_tracker.html?user=" class="nav-button active">Tour Tracker</a>
+            <a href="desk_schedule.html?user=" class="nav-button">Desk Schedule</a>
+            <a href="#" class="nav-button">Forms</a>
+            <a href="#" class="nav-button">Statistics</a>
+        </nav>
+    </div>
+
+    <div class="pt-6 border-t border-gray-100 mt-auto">
+        <p class="text-[9px] text-gray-400 mt-2 text-center italic">Updated: <span id="last-update-time">---</span></p>
+    </div>
+</nav>
+
+<header class="lg:hidden p-4 bg-white shadow-md flex justify-between items-center z-20 sticky top-0">
+    <div>
+        <p class="text-[8px] font-bold text-primary-gold uppercase tracking-widest">Purdue University</p>
+        <div class="text-lg font-black text-text-dark leading-none">TGIS Mobile</div>
+    </div>
+    <button id="mobile-menu-button" class="text-text-dark text-3xl p-2 focus:outline-none">☰</button>
+</header>
+
+<div class="content-area p-4 sm:p-8">
+    <header class="mb-10">
+        <h1 class="text-3xl font-black text-text-dark">Tour Tracker Performance</h1>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        <div class="bg-white p-8 rounded-3xl shadow-xl border border-gray-100 text-center">
+            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Career Total</p>
+            <h2 id="career-total" class="text-6xl font-black text-text-dark">--</h2>
+        </div>
+        <div class="bg-white p-8 rounded-3xl shadow-xl border-4 border-status-green/30 text-center">
+            <p id="sem-label" class="text-xs font-bold text-status-green uppercase tracking-widest mb-2">Current Semester</p>
+            <h2 id="sem-total" class="text-6xl font-black text-status-green">--</h2>
+        </div>
+        <div class="bg-white p-8 rounded-3xl shadow-xl border border-gray-100 text-center">
+            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Global Rank</p>
+            <h2 id="user-rank" class="text-6xl font-black text-tgis-blue">--</h2>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="bg-white rounded-3xl shadow-xl p-6 border border-gray-100">
+            <h3 class="text-xl font-black text-text-dark mb-6 flex items-center">
+                <span class="mr-2">🏆</span> Top 10 Guides
+            </h3>
+            <div id="leaderboard-container" class="space-y-3"></div>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-xl p-6 border border-gray-100">
+            <h3 class="text-xl font-black text-text-dark mb-6">Semester History</h3>
+            <div id="history-container" class="space-y-4"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // URL and Navigation Config
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbytBDIlv8pB_SVEJy4cFic8kHw_E6iRCzDpWFmWZeQRseDOeQgtk1LPT0t6CHDkIdq0/exec'; // Replace with your actual URL
+    const userName = new URLSearchParams(window.location.search).get('user');
+
+    // Mobile Menu Logic
+    const menuBtn = document.getElementById('mobile-menu-button');
+    const closeBtn = document.getElementById('close-menu');
+    const sidebar = document.getElementById('sidebar');
+
+    menuBtn?.addEventListener('click', () => sidebar.classList.add('open'));
+    closeBtn?.addEventListener('click', () => sidebar.classList.remove('open'));
+
+    // Update Nav Links with Username
+    const updateNavLinks = (user) => {
+        document.querySelectorAll('.nav-button').forEach(a => {
+            if (a.href.includes('?user=')) {
+                const base = a.href.split('?')[0];
+                a.href = `${base}?user=${user}`;
+            }
+        });
+    };
+
+    async function init() {
+        if(!userName) {
+            document.getElementById('loading-overlay').style.display = 'none';
+            return;
+        }
+        updateNavLinks(userName);
+
+        try {
+            const res = await fetch(`${scriptURL}?user=${userName}`);
+            const data = await res.json();
+
+            // Populate Sidebar Profile
+            document.getElementById('sidebar-guide-name').innerText = data.profile.fullName;
+            document.getElementById('profile-status').innerText = data.profile.status || 'Tour Guide';
+            document.getElementById('profile-initial').innerText = data.profile.fullName.charAt(0);
+            document.getElementById('last-update-time').innerText = data.lastUpdated || new Date().toLocaleTimeString();
+
+            // Populate Main Stats
+            document.getElementById('career-total').innerText = data.stats.careerTotal;
+            document.getElementById('sem-total').innerText = data.stats.semesterTotal;
+            document.getElementById('sem-label').innerText = data.currentSemesterName;
+            document.getElementById('user-rank').innerText = `#${data.rank}`;
+
+            // Build Leaderboard
+            const lbContainer = document.getElementById('leaderboard-container');
+            lbContainer.innerHTML = data.leaderboard.map((entry, i) => `
+                <div class="flex items-center justify-between p-4 rounded-2xl ${entry.displayName.toLowerCase() === data.profile.displayName.toLowerCase() ? 'bg-primary-gold/20 ring-2 ring-primary-gold' : 'bg-gray-50'}">
+                    <div class="flex items-center space-x-4">
+                        <span class="font-black text-gray-400 w-6">#${i+1}</span>
+                        <span class="font-bold text-text-dark">${entry.displayName}</span>
+                    </div>
+                    <span class="font-black text-text-dark">${entry.careerTotal}</span>
+                </div>
+            `).join('');
+
+            // Build History
+            const histContainer = document.getElementById('history-container');
+            histContainer.innerHTML = [...data.stats.history].reverse().map(h => `
+                <div class="flex items-center">
+                    <div class="w-32 text-xs font-bold text-gray-500 uppercase">${h.semester}</div>
+                    <div class="flex-1 h-3 bg-gray-100 rounded-full overflow-hidden">
+                        <div class="h-full bg-primary-gold" style="width: ${Math.min((h.count / 40) * 100, 100)}%"></div>
+                    </div>
+                    <div class="w-10 text-right font-black text-text-dark ml-4">${h.count}</div>
+                </div>
+            `).join('');
+
+            // Hide Loading
+            document.getElementById('loading-overlay').classList.add('opacity-0');
+            setTimeout(() => document.getElementById('loading-overlay').style.display = 'none', 500);
+
+        } catch (e) {
+            console.error(e);
+            alert("Error syncing with TGIS database.");
+        }
+    }
+
+    init();
+</script>
+</body>
+</html>
