@@ -126,9 +126,9 @@
             <a href="#" class="nav-button">
                 <span class="mr-3"></span> Forms
             </a>
-            <a href="#" class="nav-button">
-                <span class="mr-3"></span> Statistics
-            </a>
+            <a href="https://purduetours.github.io/TGIS/render/manage/tracker2.html" id="tour-tracker-link" class="nav-button">
+    <span class="mr-3"></span> Tour Tracker
+</a>
         </nav>
     </div>
 
@@ -268,14 +268,24 @@
     });
 
     // update navigation with username passed through qualtrics
-    const updateNavLinks = (user) => {
-        document.querySelectorAll('a[href*="index.html"]').forEach(a => {
-            if (a.href.includes('?user=')) {
-                 a.href = `index.html?user=${user}`;
-            }
-        });
-        document.querySelector('a[href*="desk_schedule.html"]').href = `desk_schedule.html?user=${user}`;
-    };
+const updateNavLinks = (user) => {
+    // Handle standard index links
+    document.querySelectorAll('a[href*="index.html"]').forEach(a => {
+        if (a.href.includes('?user=')) {
+            a.href = `index.html?user=${user}`;
+        }
+    });
+
+    // Handle Desk Schedule link
+    const deskLink = document.querySelector('a[href*="desk_schedule.html"]');
+    if (deskLink) deskLink.href = `desk_schedule.html?user=${user}`;
+
+    // Handle the new Tour Tracker link
+    const trackerLink = document.getElementById('tour-tracker-link');
+    if (trackerLink) {
+        trackerLink.href = `https://purduetours.github.io/TGIS/render/manage/tracker2.html?user=${user}`;
+    }
+};
 
     // Mobile Nav UI
     const menuBtn = document.getElementById('mobile-menu-button');
