@@ -36,8 +36,6 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .loader { border-top-color: #CFB991; animation: spinner 0.6s linear infinite; }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
-        /* Toggle Switch Styling */
         .toggle-btn { transition: all 0.3s ease; }
         .toggle-btn.active { background-color: white; color: #374151; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
     </style>
@@ -53,7 +51,7 @@
     <div class="mb-8 flex justify-between items-start">
         <div>
             <p class="text-[10px] font-black text-primary-gold uppercase tracking-[0.2em] mb-1">Purdue University</p>
-            <h1 class="text-xl font-black text-text-dark leading-tight">TGIS Portal</h1>
+            <h1 class="text-xl font-black text-text-dark leading-tight text-nowrap">TGIS Portal</h1>
         </div>
         <button id="close-menu" class="lg:hidden text-gray-400 text-2xl">&times;</button>
     </div>
@@ -72,7 +70,7 @@
     </div>
 
     <div class="mb-8">
-        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 ml-2">Main Menu</p>
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 ml-2 text-nowrap">Main Menu</p>
         <div id="nav-tracker" class="nav-button active" onclick="switchView('tracker')">🏆 Tour Tracker</div>
         <div id="nav-desk" class="nav-button" onclick="switchView('desk')">🗓️ Desk Schedule</div>
     </div>
@@ -92,15 +90,15 @@
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
             <div class="bg-white p-8 rounded-3xl shadow-xl border border-gray-100 text-center">
-                <p class="text-xs font-bold text-gray-400 uppercase mb-2 tracking-widest">Career Total</p>
+                <p class="text-xs font-bold text-gray-400 uppercase mb-2 tracking-widest text-nowrap">Career Total</p>
                 <h2 id="career-total" class="text-6xl font-black text-text-dark">--</h2>
             </div>
             <div class="bg-white p-8 rounded-3xl shadow-xl border-4 border-status-green/30 text-center">
-                <p id="sem-label" class="text-xs font-bold text-status-green uppercase mb-2 tracking-widest">Current Semester</p>
+                <p id="sem-label" class="text-xs font-bold text-status-green uppercase mb-2 tracking-widest text-nowrap">Current Semester</p>
                 <h2 id="sem-total" class="text-6xl font-black text-status-green">--</h2>
             </div>
             <div class="bg-white p-8 rounded-3xl shadow-xl border border-gray-100 text-center">
-                <p class="text-xs font-bold text-gray-400 uppercase mb-2 tracking-widest">Global Rank</p>
+                <p class="text-xs font-bold text-gray-400 uppercase mb-2 tracking-widest text-nowrap">Global Rank</p>
                 <h2 id="user-rank" class="text-6xl font-black text-tgis-blue">--</h2>
             </div>
         </div>
@@ -113,8 +111,8 @@
                     </h3>
                     
                     <div class="bg-gray-100 p-1 rounded-xl flex w-full sm:w-auto">
-                        <button id="toggle-career" onclick="updateLeaderboard('career')" class="toggle-btn active flex-1 px-4 py-1.5 text-[10px] font-black uppercase rounded-lg tracking-widest">All Time</button>
-                        <button id="toggle-semester" onclick="updateLeaderboard('semester')" class="toggle-btn flex-1 px-4 py-1.5 text-[10px] font-black uppercase rounded-lg tracking-widest">Semester</button>
+                        <button id="toggle-career" onclick="updateLeaderboard('career')" class="toggle-btn active flex-1 px-4 py-1.5 text-[10px] font-black uppercase rounded-lg tracking-widest text-nowrap">All Time</button>
+                        <button id="toggle-semester" onclick="updateLeaderboard('semester')" class="toggle-btn flex-1 px-4 py-1.5 text-[10px] font-black uppercase rounded-lg tracking-widest text-nowrap">Semester</button>
                     </div>
                 </div>
                 <div id="leaderboard-container" class="space-y-3"></div>
@@ -129,7 +127,7 @@
 
     <div id="view-desk" class="view-section">
         <header class="mb-10">
-            <h1 class="text-3xl font-black text-text-dark">Desk Schedule</h1>
+            <h1 class="text-3xl font-black text-text-dark text-nowrap">Desk Schedule</h1>
         </header>
         <div class="bg-white p-12 rounded-3xl shadow-xl border border-gray-100 text-center">
             <p class="text-gray-400 italic">Desk schedule interface is ready for integration.</p>
@@ -153,20 +151,20 @@
     document.getElementById('mobile-menu-button').onclick = () => document.getElementById('sidebar').classList.add('open');
     document.getElementById('close-menu').onclick = () => document.getElementById('sidebar').classList.remove('open');
 
-    // NEW: Leaderboard Update Function
     function updateLeaderboard(mode) {
-        if (!cachedData) return;
+        if (!cachedData || !cachedData.fullList) return;
         
-        // UI Toggle
         document.getElementById('toggle-career').classList.toggle('active', mode === 'career');
         document.getElementById('toggle-semester').classList.toggle('active', mode === 'semester');
 
         const lbContainer = document.getElementById('leaderboard-container');
         
-        // Sort based on mode
-        const sortedData = [...cachedData.leaderboard].sort((a, b) => {
-            return mode === 'career' ? b.careerTotal - a.careerTotal : b.semesterTotal - a.semesterTotal;
-        });
+        // Use fullList instead of the pre-sliced Top 10
+        const sortedData = [...cachedData.fullList]
+            .sort((a, b) => {
+                return mode === 'career' ? b.careerTotal - a.careerTotal : b.semesterTotal - a.semesterTotal;
+            })
+            .slice(0, 10); // Grab Top 10 of THIS specific sort
 
         lbContainer.innerHTML = sortedData.map((entry, i) => `
             <div class="flex items-center justify-between p-4 rounded-2xl ${entry.displayName.toLowerCase() === cachedData.profile.displayName.toLowerCase() ? 'bg-primary-gold/20 ring-2 ring-primary-gold' : 'bg-gray-50'}">
@@ -189,6 +187,9 @@
             const res = await fetch(`${scriptURL}?user=${userName}`);
             cachedData = await res.json();
 
+            // Support both old and new data structures
+            cachedData.fullList = cachedData.fullList || cachedData.leaderboard;
+
             document.getElementById('sidebar-name').innerText = cachedData.profile.fullName;
             document.getElementById('sidebar-status').innerText = cachedData.profile.status;
             document.getElementById('profile-initial').innerText = cachedData.profile.fullName.charAt(0);
@@ -198,7 +199,6 @@
             document.getElementById('sem-label').innerText = cachedData.currentSemesterName;
             document.getElementById('user-rank').innerText = `#${cachedData.rank}`;
 
-            // Initial Leaderboard Load (Career)
             updateLeaderboard('career');
 
             const histContainer = document.getElementById('history-container');
