@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TGIS Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        'primary-gold': '#CFB991',
+                        'text-dark': '#374151',
+                        'status-green': '#10B981',
+                        'tgis-blue': '#1D4ED8',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .content-area { margin-left: 18rem; transition: all 0.3s ease; }
+        @media (max-width: 1024px) { .content-area { margin-left: 0; } }
+        .nav-button { cursor: pointer; display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem; color: #4B5563; margin-bottom: 0.5rem; transition: 0.2s; }
+        .nav-button:hover { background-color: #F3F4F6; }
+        .nav-button.active { background-color: #CFB991; color: white; box-shadow: 0 4px 6px -1px rgba(207, 185, 145, 0.4); }
+        .view-section { display: none; }
+        .view-section.active { display: block; animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans antialiased">
+
+<nav id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white shadow-2xl border-r p-6 z-40 hidden lg:block overflow-y-auto">
+    <div class="mb-8">
+        <p class="text-[10px] font-black text-primary-gold uppercase tracking-[0.2em] mb-1">Purdue University</p>
+        <h1 class="text-xl font-black text-text-dark leading-tight text-nowrap">TGIS Portal</h1>
+    </div>
+
+    <div class="mb-8 p-4 bg-gray-50 rounded-2xl border">
+        <div class="flex items-center space-x-3 mb-3">
+            <div id="profile-initial" class="w-10 h-10 rounded-full bg-primary-gold flex items-center justify-center text-white font-black">?</div>
+            <div>
+                <p id="sidebar-name" class="font-bold text-text-dark text-sm leading-tight">Loading...</p>
+                <p id="sidebar-status" class="text-[10px] font-bold text-gray-400 uppercase">Syncing...</p>
+            </div>
+        </div>
+    </div>
+
+    <nav id="main-nav">
+        <div class="nav-button active" onclick="switchView('tracker')">🏆 Tour Tracker</div>
+        <div class="nav-button" onclick="switchView('desk')">🗓️ Desk Schedule</div>
+    </nav>
+</nav>
+
+<div class="content-area p-4 sm:p-8">
+    
+    <div id="view-tracker" class="view-section active">
+        <h1 class="text-3xl font-black text-text-dark mb-8">Tour Tracker</h1>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <div class="bg-white p-6 rounded-3xl shadow-sm border text-center">
+                <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Career Total</p>
+                <h2 id="career-total" class="text-5xl font-black text-text-dark">--</h2>
+            </div>
+            <div class="bg-white p-6 rounded-3xl shadow-sm border text-center border-status-green/30">
+                <p id="sem-label" class="text-[10px] font-bold text-status-green uppercase mb-1">Semester</p>
+                <h2 id="sem-total" class="text-5xl font-black text-status-green">--</h2>
+            </div>
+            <div class="bg-white p-6 rounded-3xl shadow-sm border text-center">
+                <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Rank</p>
+                <h2 id="user-rank" class="text-5xl font-black text-tgis-blue">--</h2>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="bg-white rounded-3xl shadow-sm p-6 border"><h3 class="font-black mb-4">Leaderboard</h3><div id="leaderboard-container" class="space-y-2"></div></div>
+            <div class="bg-white rounded-3xl shadow-sm p-6 border"><h3 class="font-black mb-4">History</h3><div id="history-container" class="space-y-4"></div></div>
+        </div>
+    </div>
+
+    <div id="view-desk" class="view-section">
+        <h1 class="text-3xl font-black text-text-dark mb-8">Desk Schedule</h1>
+        <div class="bg-white rounded-3xl shadow-sm p-6 border">
+            <p class="text-gray-500 italic">Desk schedule interface loading here...</p>
+            </div>
+    </div>
+
+</div>
+
+<script>
+    const trackerURL = 'YOUR_TRACKER_APPSCRIPT_URL';
+    const userName = new URLSearchParams(window.location.search).get('user');
+    let cachedData = null;
+
+    function switchView(viewId) {
+        // Toggle Active Classes in Content
+        document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+        document.getElementById(`view-${viewId}`).classList.add('active');
+        
+        // Toggle Active Classes in Nav
+        document.querySelectorAll('.nav-button').forEach(btn => {
+            btn.classList.remove('active');
+            if(btn.innerText.toLowerCase().includes(viewId)) btn.classList.add('active');
+        });
+    }
+
+    async function loadData() {
+        if(!userName) return;
+        
+        try {
+            // Only fetch ONCE
+            const res = await fetch(`${trackerURL}?user=${userName}`);
+            cachedData = await res.json();
+
+            // Populate Everything at once
+            document.getElementById('sidebar-name').innerText = cachedData.profile.fullName;
+            document.getElementById('sidebar-status').innerText = cachedData.profile.status;
+            document.getElementById('profile-initial').innerText = cachedData.profile.fullName.charAt(0);
+            
+            // Populate Tracker
+            document.getElementById('career-total').innerText = cachedData.stats.careerTotal;
+            document.getElementById('sem-total').innerText = cachedData.stats.semesterTotal;
+            document.getElementById('sem-label').innerText = cachedData.currentSemesterName;
+            document.getElementById('user-rank').innerText = `#${cachedData.rank}`;
+
+            // Build Leaderboard
+            document.getElementById('leaderboard-container').innerHTML = cachedData.leaderboard.map((entry, i) => `
+                <div class="flex justify-between p-3 rounded-xl bg-gray-50 ${entry.displayName === cachedData.profile.displayName ? 'ring-2 ring-primary-gold' : ''}">
+                    <span class="text-sm font-bold">${i+1}. ${entry.displayName}</span>
+                    <span class="font-black">${entry.careerTotal}</span>
+                </div>
+            `).join('');
+
+        } catch (e) { console.error("Load failed", e); }
+    }
+
+    loadData();
+</script>
+</body>
+</html>
