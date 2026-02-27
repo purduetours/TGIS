@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TGIS Portal | Tour Tracker</title>
+    <title>TGIS Web 2.3 | Tour Tracker</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <script>
@@ -47,14 +47,14 @@
 
 <div id="loading-overlay" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center transition-opacity duration-500">
     <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
-    <h2 class="font-bold text-lg">Connecting to TGIS...</h2>
+    <h2 class="font-bold text-lg">Please wait. Connecting to TGIS...</h2>
 </div>
 
 <nav id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white shadow-2xl border-r border-gray-100 p-6 z-40 hidden lg:block overflow-y-auto">
     <div class="mb-8 flex justify-between items-start">
         <div>
             <p class="text-[10px] font-black text-primary-gold uppercase tracking-[0.2em] mb-1">Purdue University</p>
-            <h1 class="text-xl font-black leading-tight">TGIS Portal</h1>
+            <h1 class="text-xl font-black leading-tight">Tour Guide Information System</h1>
         </div>
         <button id="close-menu" class="lg:hidden text-gray-400 text-2xl">&times;</button>
     </div>
@@ -68,14 +68,14 @@
             </div>
         </div>
         <div class="flex items-center text-[10px] text-status-green font-bold bg-white w-fit px-2 py-1 rounded-md border border-gray-100">
-            <span class="w-1.5 h-1.5 bg-status-green rounded-full mr-1.5 animate-pulse"></span> ONLINE
+            <span class="w-1.5 h-1.5 bg-status-green rounded-full mr-1.5 animate-pulse"></span> TGIS ONLINE
         </div>
     </div>
 
     <div class="mb-8">
         <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 ml-2">Main Menu</p>
-        <div id="nav-tracker" class="nav-button active" onclick="switchView('tracker')">🏆 Tour Tracker</div>
-        <div id="nav-desk" class="nav-button" onclick="switchView('desk')">🗓️ Desk Schedule</div>
+        <div id="nav-tracker" class="nav-button active" onclick="switchView('tracker')">Tour Tracker</div>
+        <div id="nav-desk" class="nav-button" onclick="switchView('desk')">Desk Schedule</div>
     </div>
 </nav>
 
@@ -88,8 +88,8 @@
     
     <div id="view-tracker" class="view-section active">
         <header class="mb-8">
-            <h1 class="text-3xl font-black">Tour Performance</h1>
-            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Guide Achievements & Stats</p>
+            <h1 class="text-3xl font-black">Tour Tracker</h1>
+            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Last Updated: Now</p>
         </header>
 
         <div class="bg-white rounded-3xl shadow-xl p-6 border border-gray-100 mb-8">
@@ -112,7 +112,7 @@
                 <div class="flex-1 w-full">
                     <div class="flex justify-between items-end mb-2">
                         <div>
-                            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Progress to Next Rank</p>
+                            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Progress to Next Milestone</p>
                             <h4 id="next-milestone-name" class="font-bold text-lg">Calculating...</h4>
                         </div>
                         <p class="text-sm font-black text-primary-gold"><span id="tours-to-go">--</span> TOURS TO GO</p>
@@ -126,7 +126,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
             <div class="bg-white p-8 rounded-3xl shadow-xl border border-gray-100 text-center">
-                <p class="text-xs font-bold text-gray-400 uppercase mb-2 tracking-widest">Career Total</p>
+                <p class="text-xs font-bold text-gray-400 uppercase mb-2 tracking-widest">Career Tours</p>
                 <h2 id="career-total" class="text-6xl font-black">--</h2>
             </div>
             <div class="bg-white p-8 rounded-3xl shadow-xl border-4 border-status-green/30 text-center">
@@ -134,7 +134,7 @@
                 <h2 id="sem-total" class="text-6xl font-black text-status-green">--</h2>
             </div>
             <div class="bg-white p-8 rounded-3xl shadow-xl border border-gray-100 text-center">
-                <p class="text-xs font-bold text-gray-400 uppercase mb-2 tracking-widest">Global Rank</p>
+                <p class="text-xs font-bold text-gray-400 uppercase mb-2 tracking-widest">Current Rank</p>
                 <h2 id="user-rank" class="text-6xl font-black text-tgis-blue">--</h2>
             </div>
         </div>
@@ -143,7 +143,7 @@
             <div class="bg-white rounded-3xl shadow-xl p-6 border border-gray-100">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                     <h3 class="text-xl font-black flex items-center">
-                        <span class="mr-2">🏆</span> Leaderboard
+                        <span class="mr-2"></span> Leaderboard
                     </h3>
                     <div class="bg-gray-100 p-1 rounded-xl flex w-full sm:w-auto">
                         <button id="toggle-career" onclick="updateLeaderboard('career')" class="toggle-btn active flex-1 px-4 py-1.5 text-[10px] font-black uppercase rounded-lg tracking-widest">All Time</button>
@@ -165,7 +165,7 @@
             <h1 class="text-3xl font-black">Desk Schedule</h1>
         </header>
         <div class="bg-white p-12 rounded-3xl shadow-xl border border-gray-100 text-center">
-            <p class="text-gray-400 italic">Desk schedule interface is ready for integration.</p>
+            <p class="text-gray-400 italic">The desk schedule interface is pending integration. Please wait for the release of the TGIS app on March 9th, 2026.</p>
         </div>
     </div>
 </div>
