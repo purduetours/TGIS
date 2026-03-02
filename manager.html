@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manager Dashboard | TGIS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        'primary-gold': '#CFB991',
+                        'text-dark': '#374151',
+                        'tgis-blue': '#1D4ED8',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .loader { border-top-color: #CFB991; animation: spinner 0.6s linear infinite; }
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .milestone-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 4px; }
+        .bg-milestone-50 { background-color: #94a3b8; } /* Silver/Grey */
+        .bg-milestone-100 { background-color: #f59e0b; } /* Gold */
+        .bg-milestone-200 { background-color: #8b5cf6; } /* Purple/Diamond */
+        .active-milestone { box-shadow: 0 0 8px currentColor; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans antialiased text-text-dark">
+
+<div id="loading-overlay" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center transition-opacity duration-500">
+    <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
+    <h2 class="font-bold text-lg text-primary-gold uppercase tracking-widest">Loading Roster...</h2>
+</div>
+
+<div class="max-w-7xl mx-auto p-4 sm:p-8">
+    <header class="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <p class="text-[10px] font-black text-primary-gold uppercase tracking-[0.2em] mb-1">Purdue University</p>
+            <h1 class="text-4xl font-black italic uppercase">Manager Dashboard</h1>
+        </div>
+        
+        <div class="relative w-full md:w-96">
+            <input type="text" id="rosterSearch" placeholder="Search guides by name..." 
+                class="w-full pl-12 pr-4 py-3 rounded-2xl border border-gray-200 focus:ring-2 focus:ring-primary-gold focus:outline-none shadow-sm transition-all"
+                onkeyup="filterRoster()">
+            <span class="absolute left-4 top-3.5 opacity-30 text-xl">🔍</span>
+        </div>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div class="bg-white p-6 rounded-3xl border shadow-sm">
+            <p class="text-[10px] font-black text-gray-400 uppercase">Total Roster</p>
+            <h3 id="stat-total-guides" class="text-3xl font-black">--</h3>
+        </div>
+        <div class="bg-white p-6 rounded-3xl border shadow-sm">
+            <p class="text-[10px] font-black text-gray-400 uppercase text-nowrap">Semester Avg Tours</p>
+            <h3 id="stat-avg-tours" class="text-3xl font-black">--</h3>
+        </div>
+        <div class="bg-white p-6 rounded-3xl border shadow-sm border-primary-gold/30">
+            <p class="text-[10px] font-black text-primary-gold uppercase">Century Club</p>
+            <h3 id="stat-century-club" class="text-3xl font-black">--</h3>
+        </div>
+        <div class="bg-white p-6 rounded-3xl border shadow-sm">
+            <p class="text-[10px] font-black text-gray-400 uppercase">Golden Guides</p>
+            <h3 id="stat-golden-guides" class="text-3xl font-black">--</h3>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-gray-50 border-b border-gray-100">
+                        <th class="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Guide Name</th>
+                        <th class="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Semester</th>
+                        <th class="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Career</th>
+                        <th class="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Milestones</th>
+                        <th class="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="roster-body">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbytBDIlv8pB_SVEJy4cFic8kHw_E6iRCzDpWFmWZeQRseDOeQgtk1LPT0t6CHDkIdq0/exec';
+    let fullRoster = [];
+
+    async function init() {
+        try {
+            // We fetch the data (using a dummy user to trigger the fullList return)
+            const res = await fetch(`${scriptURL}?user=manager_admin`);
+            const data = await res.json();
+            
+            // Assuming your script returns the 'fullList' as requested in previous steps
+            fullRoster = data.fullList || [];
+
+            calculateQuickStats();
+            renderRoster(fullRoster);
+
+            document.getElementById('loading-overlay').classList.add('opacity-0');
+            setTimeout(() => document.getElementById('loading-overlay').style.display = 'none', 500);
+        } catch (e) {
+            console.error(e);
+            document.getElementById('loading-overlay').innerHTML = "<p class='font-bold text-red-500'>Failed to load manager data.</p>";
+        }
+    }
+
+    function calculateQuickStats() {
+        const total = fullRoster.length;
+        const semAvg = (fullRoster.reduce((acc, curr) => acc + curr.semesterTotal, 0) / total).toFixed(1);
+        const centuryCount = fullRoster.filter(g => g.careerTotal >= 100).length;
+        const goldenCount = fullRoster.filter(g => g.careerTotal >= 200).length;
+
+        document.getElementById('stat-total-guides').innerText = total;
+        document.getElementById('stat-avg-tours').innerText = semAvg;
+        document.getElementById('stat-century-club').innerText = centuryCount;
+        document.getElementById('stat-golden-guides').innerText = goldenCount;
+    }
+
+    function renderRoster(list) {
+        const body = document.getElementById('roster-body');
+        body.innerHTML = list.map(guide => `
+            <tr class="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                <td class="p-5">
+                    <div class="font-bold text-text-dark">${guide.displayName}</div>
+                </td>
+                <td class="p-5 text-center font-black text-status-green">${guide.semesterTotal}</td>
+                <td class="p-5 text-center font-black text-text-dark">${guide.careerTotal}</td>
+                <td class="p-5">
+                    <div class="flex items-center space-x-2">
+                        <span class="milestone-dot ${guide.careerTotal >= 50 ? 'bg-milestone-50 active-milestone text-blue-400' : 'bg-gray-200'}" title="Bell Tower Boss (50)"></span>
+                        <span class="milestone-dot ${guide.careerTotal >= 100 ? 'bg-milestone-100 active-milestone text-orange-400' : 'bg-gray-200'}" title="Century Club (100)"></span>
+                        <span class="milestone-dot ${guide.careerTotal >= 200 ? 'bg-milestone-200 active-milestone text-purple-500' : 'bg-gray-200'}" title="Golden Guide (200)"></span>
+                    </div>
+                </td>
+                <td class="p-5">
+                    <span class="px-3 py-1 bg-gray-100 rounded-full text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+                        ${guide.status || 'Tour Guide'}
+                    </span>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function filterRoster() {
+        const query = document.getElementById('rosterSearch').value.toLowerCase();
+        const filtered = fullRoster.filter(g => g.displayName.toLowerCase().includes(query));
+        renderRoster(filtered);
+    }
+
+    init();
+</script>
+</body>
+</html>
