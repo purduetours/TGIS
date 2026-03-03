@@ -11,31 +11,34 @@
         @media (max-width: 1024px) { .content-area { margin-left: 0; } }
         .loader { border-top-color: #CFB991; animation: spinner 0.6s linear infinite; }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .mini-badge { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; opacity: 0.15; filter: grayscale(1); border: 1px solid rgba(0,0,0,0.05); }
-        .mini-badge.active { filter: grayscale(0); opacity: 1; transform: scale(1.1); border: 1px solid rgba(207, 185, 145, 0.3); }
         
-        /* Modal Animation */
-        #history-modal { transition: opacity 0.25s ease; }
-        .modal-content { transform: scale(0.95); transition: transform 0.25s ease; }
-        #history-modal.active { display: flex !important; }
-        #history-modal.active .modal-content { transform: scale(1); }
+        .mini-badge { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; opacity: 0.15; filter: grayscale(1); transition: 0.3s; }
+        .mini-badge.active { filter: grayscale(0); opacity: 1; transform: scale(1.1); }
+        
+        /* Bar Chart Styling */
+        .history-bar { height: 8px; border-radius: 4px; background: #E5E7EB; overflow: hidden; position: relative; }
+        .history-fill { height: 100%; background: #CFB991; transition: width 1s ease-out; }
+        
+        .sort-icon { font-size: 0.8em; margin-left: 4px; opacity: 0.3; cursor: pointer; }
+        .sort-icon.active { opacity: 1; color: #CFB991; }
+        
+        .card-active { border: 2px solid #CFB991 !important; background: #FFFDF9 !important; }
     </style>
 </head>
 <body class="bg-gray-50 font-sans text-gray-800">
 
 <div id="history-modal" class="fixed inset-0 bg-black/60 z-[110] hidden items-center justify-center p-4 backdrop-blur-sm">
-    <div class="modal-content bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden">
-        <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+    <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden transform scale-95 transition-transform">
+        <div class="p-6 border-b border-gray-100 flex justify-between items-center">
             <div>
-                <h3 id="modal-name" class="text-xl font-black text-gray-900 leading-tight">Guide Name</h3>
-                <p id="modal-status" class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Status</p>
+                <h3 id="modal-name" class="text-xl font-black text-gray-900">Guide Name</h3>
+                <div id="modal-badges" class="flex space-x-2 mt-2"></div>
             </div>
-            <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
+            <button onclick="closeModal()" class="text-2xl font-bold text-gray-400">&times;</button>
         </div>
-        <div id="modal-body" class="p-6 max-h-[60vh] overflow-y-auto space-y-3">
-            </div>
-        <div class="p-6 bg-gray-50 border-t border-gray-100 flex justify-between items-center">
-            <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Career Total</span>
+        <div id="modal-body" class="p-6 max-h-[50vh] overflow-y-auto space-y-4"></div>
+        <div class="p-6 bg-gray-50 border-t flex justify-between items-center">
+            <span class="text-xs font-bold text-gray-400 uppercase">Career Total</span>
             <span id="modal-total" class="text-2xl font-black text-gray-900">0</span>
         </div>
     </div>
@@ -43,34 +46,60 @@
 
 <div id="loading-overlay" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center">
     <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
-    <h2 class="font-bold text-lg text-[#CFB991] uppercase tracking-widest">Loading Detailed Records...</h2>
+    <p class="font-bold text-[#CFB991] tracking-widest uppercase">Syncing Records...</p>
 </div>
 
 <nav class="fixed top-0 left-0 h-full w-72 bg-white shadow-2xl border-r border-gray-100 p-6 z-40 hidden lg:block">
     <div class="mb-8">
-        <p class="text-[10px] font-black text-[#CFB991] uppercase tracking-[0.2em] mb-1">Purdue University</p>
+        <p class="text-[10px] font-black text-[#CFB991] uppercase tracking-widest mb-1">Purdue University</p>
         <h1 class="text-xl font-black">TGIS Manager</h1>
     </div>
-    <div class="p-3 bg-[#CFB991] text-white rounded-xl font-bold text-sm shadow-lg shadow-[#CFB991]/30">📋 Master Roster</div>
+
+    <div class="mb-8 p-4 bg-gray-50 rounded-2xl border border-gray-100 flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center text-white font-black">M</div>
+        <div>
+            <p class="font-bold text-sm">Administrator</p>
+            <p class="text-[9px] font-bold text-gray-400 uppercase">System Access</p>
+        </div>
+    </div>
+
+    <div class="space-y-2">
+        <button onclick="clearFilters()" class="w-full flex items-center p-3 bg-[#CFB991] text-white rounded-xl font-bold text-sm shadow-lg">📋 Master Roster</button>
+    </div>
 </nav>
 
 <div class="content-area p-8">
     <header class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-            <h1 class="text-4xl font-black">Staff Roster</h1>
-            <p id="sem-label" class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1 italic">Fetching Data...</p>
+            <h1 class="text-4xl font-black text-gray-900">Staff Roster</h1>
+            <p id="sem-label" class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1 italic">Loading...</p>
         </div>
         <input type="text" id="managerSearch" onkeyup="filterRoster()" placeholder="Search names..." 
                class="bg-white border border-gray-200 py-3.5 px-6 rounded-2xl w-full md:w-80 shadow-sm outline-none focus:ring-2 focus:ring-[#CFB991]">
     </header>
 
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
+        <div onclick="filterByMilestone(50)" id="card-50" class="cursor-pointer bg-white p-6 rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition-all">
+            <p class="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1">🔔 Bell Tower (50+)</p>
+            <h3 id="stat-50" class="text-3xl font-black text-gray-900">0</h3>
+        </div>
+        <div onclick="filterByMilestone(100)" id="card-100" class="cursor-pointer bg-white p-6 rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition-all">
+            <p class="text-[10px] font-black text-orange-500 uppercase tracking-widest mb-1">💯 Century Club (100+)</p>
+            <h3 id="stat-100" class="text-3xl font-black text-gray-900">0</h3>
+        </div>
+        <div onclick="filterByMilestone(200)" id="card-200" class="cursor-pointer bg-white p-6 rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition-all">
+            <p class="text-[10px] font-black text-yellow-600 uppercase tracking-widest mb-1">✨ Golden Guide (200+)</p>
+            <h3 id="stat-200" class="text-3xl font-black text-gray-900">0</h3>
+        </div>
+    </div>
+
     <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
         <table class="w-full text-left">
             <thead>
                 <tr class="bg-gray-50 border-b border-gray-100 text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                    <th class="p-6">Name (Click for History)</th>
-                    <th class="p-6 text-center">Semester</th>
-                    <th class="p-6 text-center">Career Total</th>
+                    <th class="p-6 cursor-pointer" onclick="handleSort('displayName')">Guide Name <span id="sort-displayName" class="sort-icon">▼</span></th>
+                    <th class="p-6 text-center cursor-pointer" onclick="handleSort('semesterTotal')">Semester <span id="sort-semesterTotal" class="sort-icon">▼</span></th>
+                    <th class="p-6 text-center cursor-pointer" onclick="handleSort('careerTotal')">Career Total <span id="sort-careerTotal" class="sort-icon">▼</span></th>
                     <th class="p-6">Badges</th>
                 </tr>
             </thead>
@@ -81,35 +110,74 @@
 
 <script>
     const scriptURL = 'https://script.google.com/macros/s/AKfycbxh8JxZKbg9tutWgGP3OEXmihptDcQCuUgl11G0vvCOWr43mBsJeRWn5A8j2L-1mUVe/exec';
-    let fullData = [];
+    let rawData = [];
+    let currentData = [];
+    let sortConfig = { key: 'semesterTotal', direction: 'desc' };
+    let activeMilestoneFilter = null;
 
     async function init() {
         try {
             const response = await fetch(scriptURL, { cache: 'no-store' });
             const data = await response.json();
-            fullData = data.roster || [];
-            document.getElementById('sem-label').innerText = `Active Semester: ${data.currentSemester}`;
-            renderTable(fullData);
+            rawData = data.roster || [];
+            currentData = [...rawData];
+            document.getElementById('sem-label').innerText = `Active: ${data.currentSemester}`;
+            
+            updateMilestoneStats();
+            handleSort('semesterTotal', 'desc');
+
             document.getElementById('loading-overlay').classList.add('opacity-0');
             setTimeout(() => document.getElementById('loading-overlay').style.display = 'none', 500);
         } catch (e) { console.error(e); }
     }
 
-    function renderTable(list) {
+    function updateMilestoneStats() {
+        document.getElementById('stat-50').innerText = rawData.filter(g => g.careerTotal >= 50).length;
+        document.getElementById('stat-100').innerText = rawData.filter(g => g.careerTotal >= 100).length;
+        document.getElementById('stat-200').innerText = rawData.filter(g => g.careerTotal >= 200).length;
+    }
+
+    function handleSort(key, forceDir = null) {
+        if (forceDir) {
+            sortConfig.direction = forceDir;
+        } else {
+            sortConfig.direction = (sortConfig.key === key && sortConfig.direction === 'desc') ? 'asc' : 'desc';
+        }
+        sortConfig.key = key;
+
+        // Update Icons
+        document.querySelectorAll('.sort-icon').forEach(i => i.classList.remove('active'));
+        const icon = document.getElementById(`sort-${key}`);
+        if(icon) {
+            icon.classList.add('active');
+            icon.innerText = sortConfig.direction === 'desc' ? '▼' : '▲';
+        }
+
+        currentData.sort((a, b) => {
+            let valA = a[key];
+            let valB = b[key];
+            if (typeof valA === 'string') {
+                return sortConfig.direction === 'desc' ? valB.localeCompare(valA) : valA.localeCompare(valB);
+            }
+            return sortConfig.direction === 'desc' ? valB - valA : valA - valB;
+        });
+        renderTable();
+    }
+
+    function renderTable() {
         const body = document.getElementById('roster-body');
-        const sorted = [...list].sort((a, b) => b.semesterTotal - a.semesterTotal);
-        body.innerHTML = sorted.map((g, index) => `
-            <tr class="hover:bg-gray-50/50 transition-colors">
-                <td class="p-6 cursor-pointer" onclick="showHistory(${index})">
+        body.innerHTML = currentData.map(g => `
+            <tr class="hover:bg-gray-50/80 transition-colors">
+                <td class="p-6 cursor-pointer" onclick="showHistory('${g.displayName}')">
                     <div class="font-bold text-gray-900 text-lg hover:text-[#CFB991] transition-colors">${g.displayName}</div>
-                    <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">${g.status}</div>
+                    <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-0.5">${g.status}</div>
                 </td>
                 <td class="p-6 text-center">
                     <span class="inline-block px-4 py-1.5 bg-green-50 text-green-600 font-black rounded-full text-xs">${g.semesterTotal}</span>
                 </td>
                 <td class="p-6 text-center font-black text-xl text-gray-900">${g.careerTotal}</td>
                 <td class="p-6">
-                    <div class="flex items-center space-x-3">
+                    <div class="flex space-x-2">
                         <div class="mini-badge bg-blue-50 text-blue-500 ${g.careerTotal >= 50 ? 'active' : ''}">🔔</div>
                         <div class="mini-badge bg-orange-50 text-orange-500 ${g.careerTotal >= 100 ? 'active' : ''}">💯</div>
                         <div class="mini-badge bg-yellow-50 text-yellow-600 ${g.careerTotal >= 200 ? 'active' : ''}">✨</div>
@@ -119,36 +187,64 @@
         `).join('');
     }
 
-    function showHistory(index) {
-        // Since the displayed table might be filtered/sorted, we find the guide by name
-        const guide = fullData[index]; 
-        document.getElementById('modal-name').innerText = guide.displayName;
-        document.getElementById('modal-status').innerText = guide.status;
-        document.getElementById('modal-total').innerText = guide.careerTotal;
+    function showHistory(name) {
+        const g = rawData.find(x => x.displayName === name);
+        document.getElementById('modal-name').innerText = g.displayName;
+        document.getElementById('modal-total').innerText = g.careerTotal;
         
-        const historyHtml = guide.history.length > 0 
-            ? guide.history.map(h => `
-                <div class="flex justify-between items-center p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                    <span class="font-bold text-sm text-gray-600">${h.semester}</span>
-                    <span class="font-black text-lg text-gray-900">${h.count}</span>
+        // Modal Badges
+        document.getElementById('modal-badges').innerHTML = `
+            <div class="mini-badge bg-blue-50 text-blue-500 ${g.careerTotal >= 50 ? 'active' : ''}">🔔</div>
+            <div class="mini-badge bg-orange-50 text-orange-500 ${g.careerTotal >= 100 ? 'active' : ''}">💯</div>
+            <div class="mini-badge bg-yellow-50 text-yellow-600 ${g.careerTotal >= 200 ? 'active' : ''}">✨</div>
+        `;
+
+        // Bar Chart History
+        const maxTours = Math.max(...g.history.map(h => h.count), 5);
+        document.getElementById('modal-body').innerHTML = g.history.map(h => `
+            <div class="space-y-1">
+                <div class="flex justify-between text-[10px] font-black text-gray-400 uppercase">
+                    <span>${h.semester}</span>
+                    <span class="text-gray-900">${h.count} Tours</span>
                 </div>
-            `).join('')
-            : `<p class="text-center text-gray-400 py-4 italic">No historical data found.</p>`;
-            
-        document.getElementById('modal-body').innerHTML = historyHtml;
-        document.getElementById('history-modal').classList.add('active');
+                <div class="history-bar"><div class="history-fill" style="width: ${(h.count/maxTours)*100}%"></div></div>
+            </div>
+        `).join('');
+        
+        document.getElementById('history-modal').style.display = 'flex';
     }
 
-    function closeModal() { document.getElementById('history-modal').classList.remove('active'); }
+    function filterByMilestone(level) {
+        // Toggle off if already active
+        if (activeMilestoneFilter === level) {
+            clearFilters();
+            return;
+        }
+        
+        activeMilestoneFilter = level;
+        document.querySelectorAll('[id^="card-"]').forEach(c => c.classList.remove('card-active'));
+        document.getElementById(`card-${level}`).classList.add('card-active');
+        
+        currentData = rawData.filter(g => g.careerTotal >= level);
+        handleSort(sortConfig.key, sortConfig.direction);
+    }
 
-    // Close modal if clicking outside the box
-    window.onclick = (e) => { if(e.target.id === 'history-modal') closeModal(); }
+    function clearFilters() {
+        activeMilestoneFilter = null;
+        document.querySelectorAll('[id^="card-"]').forEach(c => c.classList.remove('card-active'));
+        document.getElementById('managerSearch').value = '';
+        currentData = [...rawData];
+        handleSort('semesterTotal', 'desc');
+    }
 
     function filterRoster() {
         const term = document.getElementById('managerSearch').value.toLowerCase();
-        const filtered = fullData.filter(g => g.displayName.toLowerCase().includes(term));
-        renderTable(filtered);
+        currentData = rawData.filter(g => g.displayName.toLowerCase().includes(term));
+        renderTable();
     }
+
+    function closeModal() { document.getElementById('history-modal').style.display = 'none'; }
+    window.onclick = (e) => { if(e.target.id === 'history-modal') closeModal(); }
 
     init();
 </script>
