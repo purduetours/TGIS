@@ -30,8 +30,7 @@
         .loader { border-top-color: #CFB991; animation: spinner 0.6s linear infinite; }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        /* Badge Styles */
-        .mini-badge { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; filter: grayscale(1); opacity: 0.15; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 1px solid rgba(0,0,0,0.05); }
+        .mini-badge { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; filter: grayscale(1); opacity: 0.15; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 1px solid rgba(0,0,0,0.05); }
         .mini-badge.active { filter: grayscale(0); opacity: 1; transform: scale(1.1); box-shadow: 0 4px 10px rgba(207, 185, 145, 0.4); border: 1px solid rgba(207, 185, 145, 0.3); }
         
         .roster-row { transition: background-color 0.2s; }
@@ -42,27 +41,27 @@
 
 <div id="loading-overlay" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center transition-opacity duration-500">
     <div id="loader-visual" class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
-    <h2 id="loading-text" class="font-bold text-lg text-primary-gold uppercase tracking-widest text-center px-6">Accessing Staff Database...</h2>
+    <h2 id="loading-text" class="font-bold text-lg text-primary-gold uppercase tracking-widest text-center px-6 text-nowrap">Syncing Staff Records...</h2>
 </div>
 
 <nav id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white shadow-2xl border-r border-gray-100 p-6 z-40 hidden lg:block overflow-y-auto">
     <div class="mb-8">
         <p class="text-[10px] font-black text-primary-gold uppercase tracking-[0.2em] mb-1">Purdue University</p>
-        <h1 class="text-xl font-black leading-tight text-nowrap">TGIS Manager</h1>
+        <h1 class="text-xl font-black leading-tight">TGIS Manager</h1>
     </div>
 
     <div class="mb-8 p-4 bg-gray-50 rounded-2xl border border-gray-100">
-        <div class="flex items-center space-x-3 mb-1">
-            <div class="w-10 h-10 rounded-full bg-text-dark flex items-center justify-center text-white font-black shadow-inner">M</div>
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-full bg-text-dark flex items-center justify-center text-white font-black shadow-inner text-sm">M</div>
             <div>
-                <p class="font-bold text-sm leading-tight">Admin Dashboard</p>
-                <p class="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">System Access</p>
+                <p class="font-bold text-sm leading-tight">Admin Console</p>
+                <p class="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">Manager Access</p>
             </div>
         </div>
     </div>
 
     <div class="mb-8">
-        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 ml-2">Main Controls</p>
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 ml-2 text-nowrap">Dashboard Views</p>
         <div class="flex items-center p-3 bg-primary-gold text-white rounded-xl font-bold text-sm shadow-lg shadow-primary-gold/30 cursor-default">
             <span class="mr-3">📋</span> Master Roster
         </div>
@@ -78,11 +77,11 @@
     <header class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
             <h1 class="text-4xl font-black text-text-dark tracking-tight">Staff Roster</h1>
-            <p id="sem-label" class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1 italic">Initializing connection...</p>
+            <p id="sem-label" class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1 italic">Connecting to Google Sheets...</p>
         </div>
         
         <div class="relative w-full md:w-96">
-            <input type="text" id="managerSearch" onkeyup="filterRoster()" placeholder="Search names or roles..." 
+            <input type="text" id="managerSearch" onkeyup="filterRoster()" placeholder="Search guide names..." 
                 class="w-full bg-white border border-gray-200 py-3.5 pl-12 pr-4 rounded-2xl focus:ring-2 focus:ring-primary-gold outline-none shadow-sm transition-all font-medium">
             <span class="absolute left-4 top-4 opacity-30 text-xl">🔍</span>
         </div>
@@ -90,15 +89,15 @@
 
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
         <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Active Guides</p>
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total Guides</p>
             <h3 id="stat-total" class="text-3xl font-black text-text-dark">--</h3>
         </div>
-        <div class="bg-white p-6 rounded-3xl shadow-sm border-4 border-status-green/20">
-            <p class="text-[10px] font-black text-status-green uppercase tracking-widest mb-1">Average / Semester</p>
+        <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Avg Tours / Sem</p>
             <h3 id="stat-avg" class="text-3xl font-black text-status-green">--</h3>
         </div>
         <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Milestone Achievers</p>
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Milestone Earners</p>
             <h3 id="stat-milestones" class="text-3xl font-black text-primary-gold">--</h3>
         </div>
     </div>
@@ -108,7 +107,7 @@
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-gray-50 border-b border-gray-100">
-                        <th class="p-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Guide & Designation</th>
+                        <th class="p-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Guide Name</th>
                         <th class="p-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Semester</th>
                         <th class="p-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Career Total</th>
                         <th class="p-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Milestones</th>
@@ -122,24 +121,26 @@
 </div>
 
 <script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbzND3oRV3-hXpY8ImNJrIHIkPn8Zii4fTDRG6czZHZOg3TU1QXTXzUjPoSESratsFCV/exec';
+    // Your NEW Deployment URL
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbyNr05sEEYCKFotmrHB-02GhuMWbupohCXGrej0VT7UhCokbybtd2PGUmVM3wfiU7Ub/exec';
     let fullData = [];
 
     async function init() {
         try {
-            const response = await fetch(scriptURL);
-            if (!response.ok) throw new Error("Could not reach Google Script.");
+            // Added cache: 'no-store' to ensure we bypass browser caching of old 0 values
+            const response = await fetch(scriptURL, { cache: 'no-store' });
+            if (!response.ok) throw new Error("Network response was not ok");
             
             const data = await response.json();
             if (data.error) throw new Error(data.error);
 
             fullData = data.roster || [];
-            document.getElementById('sem-label').innerText = `Current Tracking: ${data.currentSemester}`;
+            document.getElementById('sem-label').innerText = `Data for: ${data.currentSemester}`;
 
             calculateStats(fullData);
             renderTable(fullData);
 
-            // Smooth exit for loader
+            // Exit Loader
             document.getElementById('loading-overlay').classList.add('opacity-0');
             setTimeout(() => document.getElementById('loading-overlay').style.display = 'none', 500);
 
@@ -168,7 +169,8 @@
 
     function renderTable(guides) {
         const body = document.getElementById('roster-body');
-        // Default sort: Semester Activity
+        
+        // Default Sort: Most active this semester at the top
         const sorted = [...guides].sort((a, b) => b.semesterTotal - a.semesterTotal);
 
         body.innerHTML = sorted.map(g => `
@@ -187,9 +189,9 @@
                 </td>
                 <td class="p-6">
                     <div class="flex items-center space-x-3">
-                        <div class="mini-badge bg-blue-50 text-blue-500 ${g.careerTotal >= 50 ? 'active' : ''}" title="Bell Tower Boss (50)">🔔</div>
-                        <div class="mini-badge bg-orange-50 text-orange-500 ${g.careerTotal >= 100 ? 'active' : ''}" title="Century Club (100)">💯</div>
-                        <div class="mini-badge bg-yellow-50 text-yellow-600 ${g.careerTotal >= 200 ? 'active' : ''}" title="Golden Guide (200)">✨</div>
+                        <div class="mini-badge bg-blue-50 text-blue-500 ${g.careerTotal >= 50 ? 'active' : ''}" title="Bell Tower Boss (50+)">🔔</div>
+                        <div class="mini-badge bg-orange-50 text-orange-500 ${g.careerTotal >= 100 ? 'active' : ''}" title="Century Club (100+)">💯</div>
+                        <div class="mini-badge bg-yellow-50 text-yellow-600 ${g.careerTotal >= 200 ? 'active' : ''}" title="Golden Guide (200+)">✨</div>
                     </div>
                 </td>
             </tr>
@@ -207,8 +209,8 @@
 
     // Mobile Navigation logic
     document.getElementById('mobile-menu-button').onclick = () => document.getElementById('sidebar').classList.add('open');
-    const closeBtn = document.createElement('button'); // Added logic for a mobile close trigger if needed
-
+    
+    // Auto-init
     init();
 </script>
 </body>
