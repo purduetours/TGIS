@@ -200,7 +200,7 @@
         `;
 
         // Bar Chart History
-        const maxTours = Math.max(...g.history.map(h => h.count), 5);
+        const maxTours = g.history.length > 0 ? Math.max(...g.history.map(h => h.count), 5) : 5;
         document.getElementById('modal-body').innerHTML = g.history.map(h => `
             <div class="space-y-1">
                 <div class="flex justify-between text-[10px] font-black text-gray-400 uppercase">
@@ -211,22 +211,26 @@
             </div>
         `).join('');
         
+        // --- NEW: Impersonate Button Logic ---
+        // Generates the link: purduetours.github.io/TGIS/unifiedall.html?user={username}
+        const impersonateUrl = `https://purduetours.github.io/TGIS/unifiedall.html?user=${g.username}`;
+        
+        // Add the button to the footer of the modal
+        const footer = document.querySelector('#history-modal .bg-gray-50.border-t');
+        footer.innerHTML = `
+            <div class="w-full flex flex-col space-y-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold text-gray-400 uppercase">Career Total</span>
+                    <span class="text-2xl font-black text-gray-900">${g.careerTotal}</span>
+                </div>
+                <a href="${impersonateUrl}" target="_blank" 
+                   class="w-full text-center bg-gray-900 text-white py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-gray-800 transition-colors shadow-lg">
+                   👤 Impersonate Student View
+                </a>
+            </div>
+        `;
+        
         document.getElementById('history-modal').style.display = 'flex';
-    }
-
-    function filterByMilestone(level) {
-        // Toggle off if already active
-        if (activeMilestoneFilter === level) {
-            clearFilters();
-            return;
-        }
-        
-        activeMilestoneFilter = level;
-        document.querySelectorAll('[id^="card-"]').forEach(c => c.classList.remove('card-active'));
-        document.getElementById(`card-${level}`).classList.add('card-active');
-        
-        currentData = rawData.filter(g => g.careerTotal >= level);
-        handleSort(sortConfig.key, sortConfig.direction);
     }
 
     function clearFilters() {
