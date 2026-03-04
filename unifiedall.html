@@ -232,63 +232,58 @@
     const userName = new URLSearchParams(window.location.search).get('user');
     let cachedData = null;
 
-    // View Switcher
+    // Fixed View Switcher
     function switchView(viewId) {
-    // 1. Section Toggle
-    document.querySelectorAll('.view-section').forEach(v => {
-        v.classList.remove('active');
-        setTimeout(() => v.style.display = 'none', 300); // Wait for fade out
-    });
-    
-    const target = document.getElementById(`view-${viewId}`);
-    target.style.display = 'block';
-    setTimeout(() => target.classList.add('active'), 50);
+        // 1. Section Toggle Logic
+        const sections = document.querySelectorAll('.view-section');
+        sections.forEach(v => {
+            v.classList.remove('active');
+            v.style.display = 'none';
+        });
+        
+        const target = document.getElementById(`view-${viewId}`);
+        if (target) {
+            target.style.display = 'block';
+            // Small timeout to allow display:block to register before adding opacity class
+            setTimeout(() => target.classList.add('active'), 10);
+        }
 
-    // 2. Desktop Sidebar Sync
-    document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
-    if(document.getElementById(`nav-${viewId}`)) {
-        document.getElementById(`nav-${viewId}`).classList.add('active');
+        // 2. Desktop Sidebar Sync
+        document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
+        const desktopBtn = document.getElementById(`nav-${viewId}`);
+        if(desktopBtn) desktopBtn.classList.add('active');
+
+        // 3. Mobile Bottom Nav Sync
+        document.querySelectorAll('.mobile-nav-item').forEach(btn => btn.classList.remove('active'));
+        const mobileBtn = document.getElementById(`mobile-nav-${viewId}`);
+        if(mobileBtn) mobileBtn.classList.add('active');
+
+        // 4. Close Sidebar if open (mobile)
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar) sidebar.classList.remove('open');
+
+        // 5. Haptic Feedback
+        if (window.navigator.vibrate) window.navigator.vibrate(5);
     }
 
-    // 3. Mobile Bottom Nav Sync
-    document.querySelectorAll('.mobile-nav-item').forEach(btn => btn.classList.remove('active'));
-    const mobileBtn = document.getElementById(`mobile-nav-${viewId}`);
-    if(mobileBtn) mobileBtn.classList.add('active');
-
-    // 4. Close Sidebar if open (mobile)
-    document.getElementById('sidebar').classList.remove('open');
-
-    // 5. Haptic Feedback (Optional)
-    if (window.navigator.vibrate) window.navigator.vibrate(5);
-}
-
-    // Sidebar Controls
-    document.getElementById('mobile-menu-button').onclick = () => document.getElementById('sidebar').classList.add('open');
-    document.getElementById('close-menu').onclick = () => document.getElementById('sidebar').classList.remove('open');
+    // Sidebar Controls - Added safety checks
+    const mobileBtn = document.getElementById('mobile-menu-button');
+    if(mobileBtn) mobileBtn.onclick = () => document.getElementById('sidebar').classList.add('open');
+    
+    const closeBtn = document.getElementById('close-menu');
+    if(closeBtn) closeBtn.onclick = () => document.getElementById('sidebar').classList.remove('open');
 
     // Milestones Logic
     function handleMilestones(total) {
         const careerTotal = total || 0;
-        
-        // Light up badges
         if (careerTotal >= 50)  document.getElementById('badge-50').classList.add('badge-active');
         if (careerTotal >= 100) document.getElementById('badge-100').classList.add('badge-active');
         if (careerTotal >= 200) document.getElementById('badge-200').classList.add('badge-active');
 
-        // Progress Calculation
-        let nextGoal = 50;
-        let goalName = "Bell Tower Boss";
-
-        if (careerTotal >= 200) {
-            nextGoal = careerTotal;
-            goalName = "Maximum Rank Achieved!";
-        } else if (careerTotal >= 100) {
-            nextGoal = 200;
-            goalName = "Golden Guide";
-        } else if (careerTotal >= 50) {
-            nextGoal = 100;
-            goalName = "Century Club";
-        }
+        let nextGoal = 50, goalName = "Bell Tower Boss";
+        if (careerTotal >= 200) { nextGoal = careerTotal; goalName = "Maximum Rank Achieved!"; }
+        else if (careerTotal >= 100) { nextGoal = 200; goalName = "Golden Guide"; }
+        else if (careerTotal >= 50) { nextGoal = 100; goalName = "Century Club"; }
 
         const toursRemaining = Math.max(0, nextGoal - careerTotal);
         const progressPercent = careerTotal >= 200 ? 100 : (careerTotal / nextGoal) * 100;
@@ -301,7 +296,6 @@
     // Leaderboard Toggle Logic
     function updateLeaderboard(mode) {
         if (!cachedData || !cachedData.fullList) return;
-        
         document.getElementById('toggle-career').classList.toggle('active', mode === 'career');
         document.getElementById('toggle-semester').classList.toggle('active', mode === 'semester');
 
@@ -332,22 +326,17 @@
             cachedData = await res.json();
             cachedData.fullList = cachedData.fullList || cachedData.leaderboard;
 
-            // 1. Sidebar & Header
             document.getElementById('sidebar-name').innerText = cachedData.profile.fullName;
             document.getElementById('sidebar-status').innerText = cachedData.profile.status;
             document.getElementById('profile-initial').innerText = cachedData.profile.fullName.charAt(0);
-
-            // 2. Dashboard Stats
             document.getElementById('career-total').innerText = cachedData.stats.careerTotal;
             document.getElementById('sem-total').innerText = cachedData.stats.semesterTotal;
             document.getElementById('sem-label').innerText = cachedData.currentSemesterName;
             document.getElementById('user-rank').innerText = `#${cachedData.rank}`;
 
-            // 3. Milestones & Leaderboard
             handleMilestones(cachedData.stats.careerTotal);
             updateLeaderboard('career');
 
-            // 4. History
             const histContainer = document.getElementById('history-container');
             histContainer.innerHTML = [...cachedData.stats.history].reverse().map(h => `
                 <div class="flex items-center">
@@ -359,7 +348,6 @@
                 </div>
             `).join('');
 
-            // Success Transition
             document.getElementById('loading-overlay').classList.add('opacity-0');
             setTimeout(() => document.getElementById('loading-overlay').style.display = 'none', 500);
 
@@ -371,5 +359,7 @@
 
     init();
 </script>
+
+    
 </body>
 </html>
