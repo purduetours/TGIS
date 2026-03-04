@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TGIS Manager | Unified</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .content-area { margin-left: 18rem; transition: all 0.3s ease; }
+        @media (max-width: 1024px) { 
+            .content-area { margin-left: 0; } 
+            #sidebar { transform: translateX(-100%); transition: transform 0.3s ease; display: block !important; }
+            #sidebar.open { transform: translateX(0); }
+        }
+        
+        /* Postcard Specifics */
+        .tour-slot { height: 230px; }
+        .loader { border-top-color: #CFB991; animation: spinner 0.6s linear infinite; }
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .mini-badge { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; opacity: 0.15; filter: grayscale(1); transition: 0.3s; }
+        .mini-badge.active { filter: grayscale(0); opacity: 1; transform: scale(1.1); }
+        
+        .sort-icon { font-size: 0.8em; margin-left: 4px; opacity: 0.2; }
+        .sort-icon.active { opacity: 1; color: #CFB991; }
+        
+        .card-active { border: 2px solid #CFB991 !important; background: #FFFDF9 !important; }
+
+        @media print {
+            @page { size: landscape; margin: 0.2in; }
+            #sidebar, header, .no-print, .manager-only { display: none !important; }
+            .content-area { margin: 0 !important; padding: 0 !important; width: 100% !important; }
+            #view-postcards { display: block !important; }
+            .tour-slot { height: 165px !important; border: 1px solid #eee !important; margin-bottom: 4px !important; }
+            .signature-line { display: block !important; border-bottom: 1.5px solid black; width: 60px; height: 12px; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+<div id="history-modal" class="fixed inset-0 bg-black/60 z-[110] hidden items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden">
+        <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+            <h3 id="modal-name" class="text-xl font-black">Guide Name</h3>
+            <button onclick="closeModal()" class="text-2xl font-bold text-gray-400">&times;</button>
+        </div>
+        <div id="modal-body" class="p-6 max-h-[50vh] overflow-y-auto space-y-4"></div>
+        <div id="modal-footer" class="p-6 bg-gray-50 border-t"></div>
+    </div>
+</div>
+
+<div id="loading-overlay" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center">
+    <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
+    <h2 class="font-bold text-lg text-[#CFB991] uppercase tracking-widest">Syncing TGIS...</h2>
+</div>
+
+<nav id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white shadow-2xl border-r border-gray-100 p-6 z-50">
+    <div class="mb-8">
+        <p class="text-[10px] font-black text-[#CFB991] uppercase tracking-widest mb-1">Purdue University</p>
+        <h1 class="text-xl font-black">TGIS Manager</h1>
+    </div>
+
+    <div class="mb-8 p-4 bg-gray-50 rounded-2xl border border-gray-100 flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center text-white font-black">A</div>
+        <div>
+            <p class="font-bold text-sm">Amanda Caroline</p>
+            <p class="text-[9px] font-bold text-gray-400 uppercase">Boss Mode</p>
+        </div>
+    </div>
+
+    <div class="space-y-2 no-print">
+        <button onclick="switchTab('view-roster')" id="btn-roster" class="nav-btn w-full flex items-center p-3 bg-[#CFB991] text-white rounded-xl font-bold text-sm shadow-lg">📋 Master Roster</button>
+        <button onclick="switchTab('view-postcards')" id="btn-postcards" class="nav-btn w-full flex items-center p-3 text-gray-400 hover:bg-gray-50 rounded-xl font-bold text-sm">✉️ Postcard Tracker</button>
+    </div>
+</nav>
+
+<div class="content-area p-8">
+    
+    <div id="view-roster" class="tab-content">
+        <header class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div>
+                <h1 class="text-4xl font-black">Staff Roster</h1>
+                <p id="sem-label" class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1 italic">Active Semester</p>
+            </div>
+            <input type="text" id="managerSearch" onkeyup="filterRoster()" placeholder="Search names..." class="bg-white border border-gray-200 py-3.5 px-6 rounded-2xl w-full md:w-80 shadow-sm outline-none focus:ring-2 focus:ring-[#CFB991]">
+        </header>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10 manager-only">
+            <div onclick="filterByMilestone(50)" id="card-50" class="cursor-pointer bg-white p-6 rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition-all">
+                <p class="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1">🔔 50+ Tours</p>
+                <h3 id="stat-50" class="text-3xl font-black text-gray-900">0</h3>
+            </div>
+            <div onclick="filterByMilestone(100)" id="card-100" class="cursor-pointer bg-white p-6 rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition-all">
+                <p class="text-[10px] font-black text-orange-500 uppercase tracking-widest mb-1">💯 100+ Tours</p>
+                <h3 id="stat-100" class="text-3xl font-black text-gray-900">0</h3>
+            </div>
+            <div onclick="filterByMilestone(200)" id="card-200" class="cursor-pointer bg-white p-6 rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition-all">
+                <p class="text-[10px] font-black text-yellow-600 uppercase tracking-widest mb-1">✨ 200+ Tours</p>
+                <h3 id="stat-200" class="text-3xl font-black text-gray-900">0</h3>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="bg-gray-50 border-b border-gray-100 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                        <th class="p-6 cursor-pointer" onclick="handleSort('displayName')">Guide Name <span id="sort-displayName" class="sort-icon">▼</span></th>
+                        <th class="p-6 text-center cursor-pointer" onclick="handleSort('semesterTotal')">Semester <span id="sort-semesterTotal" class="sort-icon">▼</span></th>
+                        <th class="p-6 text-center cursor-pointer" onclick="handleSort('careerTotal')">Total <span id="sort-careerTotal" class="sort-icon">▼</span></th>
+                        <th class="p-6">Badges</th>
+                    </tr>
+                </thead>
+                <tbody id="roster-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="view-postcards" class="tab-content hidden">
+        <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+            <div>
+                <h2 class="text-4xl font-black text-text-dark">Postcard Sign-Off</h2>
+                <p class="text-[10px] font-bold text-gray-400 uppercase">Deadline: <span class="text-status-red">Friday @ 5:00 PM</span></p>
+            </div>
+            <div class="flex gap-3 no-print">
+                <button onclick="window.print()" class="bg-primary-gold text-white px-6 py-3 rounded-xl font-bold hover:shadow-lg transition-all flex items-center shadow-md">
+                    Print Sheet
+                </button>
+            </div>
+        </div>
+
+        <div class="main-grid grid grid-cols-1 md:grid-cols-5 gap-4" id="postcard-grid">
+            </div>
+    </div>
+
+</div>
+
+<script>
+    const scriptURL = 'REPLACE_WITH_YOUR_DEPLOY_URL';
+    let rawData = [];
+    let currentData = [];
+    let sortConfig = { key: 'semesterTotal', direction: 'desc' };
+    let activeMilestoneFilter = null;
+
+    // --- TAB SWITCHING LOGIC ---
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+        document.getElementById(tabId).classList.remove('hidden');
+
+        document.querySelectorAll('.nav-btn').forEach(b => {
+            b.classList.remove('bg-[#CFB991]', 'text-white', 'shadow-lg');
+            b.classList.add('text-gray-400');
+        });
+        const activeBtnId = tabId === 'view-roster' ? 'btn-roster' : 'btn-postcards';
+        document.getElementById(activeBtnId).classList.add('bg-[#CFB991]', 'text-white', 'shadow-lg');
+    }
+
+    // --- INITIALIZATION ---
+    async function init() {
+        try {
+            const response = await fetch(scriptURL);
+            const data = await response.json();
+            rawData = data.roster || [];
+            currentData = [...rawData];
+            document.getElementById('sem-label').innerText = data.currentSemester;
+            
+            renderPostcards(); // Generate the postcard grid
+            updateMilestoneStats();
+            applyAllFilters();
+
+            document.getElementById('loading-overlay').classList.add('opacity-0');
+            setTimeout(() => document.getElementById('loading-overlay').style.display = 'none', 500);
+        } catch (e) { console.error(e); }
+    }
+
+    // --- POSTCARD GENERATOR (Using your logic) ---
+    function renderPostcards() {
+        const grid = document.getElementById('postcard-grid');
+        const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+        const times = ["9:30", "10:30", "1:30", "2:30"];
+        
+        // This is your static data for now as requested
+        const scheduleData = { "Monday-9:30": [{name: "Ella B.", acp: true}, {name: "Cate G.", acp: true}] /* ... etc ... */ };
+
+        let html = '';
+        days.forEach(day => {
+            html += `<div class="day-column space-y-3">
+                <div class="bg-text-dark py-2 rounded-lg text-center no-print">
+                    <h3 class="font-black text-white text-[10px] uppercase tracking-widest">${day}</h3>
+                </div>`;
+            
+            times.forEach(time => {
+                const guides = scheduleData[`${day}-${time}`] || null;
+                if (guides) {
+                    html += `<div class="tour-slot bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
+                        <p class="text-[9px] font-black text-[#CFB991] mb-2">${time} TOUR</p>
+                        ${guides.map(g => `<div class="flex justify-between text-[9px] font-bold mb-1">
+                            <span>${g.name}</span>
+                            <div class="w-3 h-3 rounded border border-gray-200"></div>
+                        </div>`).join('')}
+                    </div>`;
+                } else {
+                    html += `<div class="tour-slot bg-gray-100/50 border-2 border-dashed border-gray-200 flex items-center justify-center rounded-xl p-3">
+                        <p class="text-[9px] font-black text-gray-300 text-center uppercase">${time}<br>Inactive</p>
+                    </div>`;
+                }
+            });
+            html += `</div>`;
+        });
+        grid.innerHTML = html;
+    }
+
+    // --- MASTER ROSTER LOGIC (Badge filtering, Sorting, etc) ---
+    function updateMilestoneStats() {
+        document.getElementById('stat-50').innerText = rawData.filter(g => g.careerTotal >= 50).length;
+        document.getElementById('stat-100').innerText = rawData.filter(g => g.careerTotal >= 100).length;
+        document.getElementById('stat-200').innerText = rawData.filter(g => g.careerTotal >= 200).length;
+    }
+
+    function applyAllFilters() {
+        const term = document.getElementById('managerSearch').value.toLowerCase();
+        let filtered = rawData.filter(g => g.displayName.toLowerCase().includes(term));
+        if (activeMilestoneFilter) filtered = filtered.filter(g => g.careerTotal >= activeMilestoneFilter);
+        
+        filtered.sort((a, b) => b[sortConfig.key] - a[sortConfig.key]);
+        currentData = filtered;
+        renderRoster();
+    }
+
+    function renderRoster() {
+        const body = document.getElementById('roster-body');
+        body.innerHTML = currentData.map(g => `
+            <tr class="hover:bg-gray-50 border-b border-gray-50">
+                <td class="p-6 cursor-pointer font-bold" onclick="showHistory('${g.displayName}')">${g.displayName}</td>
+                <td class="p-6 text-center"><span class="bg-green-50 text-green-600 px-3 py-1 rounded-full text-xs font-black">${g.semesterTotal}</span></td>
+                <td class="p-6 text-center font-black">${g.careerTotal}</td>
+                <td class="p-6">
+                    <div class="flex space-x-2">
+                        <div class="mini-badge bg-blue-50 text-blue-500 ${g.careerTotal >= 50 ? 'active' : ''}">🔔</div>
+                        <div class="mini-badge bg-orange-50 text-orange-500 ${g.careerTotal >= 100 ? 'active' : ''}">💯</div>
+                        <div class="mini-badge bg-yellow-50 text-yellow-600 ${g.careerTotal >= 200 ? 'active' : ''}">✨</div>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    // (Include showHistory, closeModal, and filterByMilestone from previous version here)
+
+    init();
+</script>
+</body>
+</html>
