@@ -41,37 +41,6 @@
         
         /* Badge Glow Effect */
         .badge-active { opacity: 1 !important; filter: grayscale(0) !important; filter: drop-shadow(0 0 8px rgba(207, 185, 145, 0.6)); }
-
-        /* Bottom Nav Active State */
-.mobile-nav-item { color: #9CA3AF; transition: all 0.2s ease; }
-.mobile-nav-item.active { color: #CFB991; }
-
-/* The "App" Glass Effect */
-.glass-nav {
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-/* Prevent gray highlight on tap */
-* { -webkit-tap-highlight-color: transparent; }
-
-/* Smooth Section Transitions */
-.view-section { 
-    display: none; 
-    opacity: 0;
-    transform: translateY(10px);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.view-section.active { 
-    display: block; 
-    opacity: 1; 
-    transform: translateY(0); 
-}
-
-
-        
     </style>
     <meta name="apple-mobile-web-app-capable" content="yes">
 
@@ -117,29 +86,10 @@
     </div>
 </nav>
 
-<header class="lg:hidden sticky top-0 z-40 bg-gray-50/80 backdrop-blur-md p-4 flex justify-between items-center border-b border-gray-100">
-    <div class="flex items-center gap-2">
-        <div class="w-7 h-7 rounded-lg bg-black flex items-center justify-center text-[10px] text-white font-black">P</div>
-        <span class="text-sm font-black tracking-tighter uppercase">TGIS Mobile</span>
-    </div>
-    <div id="mobile-status" class="text-[9px] font-bold bg-green-100 text-green-700 px-2 py-1 rounded-full animate-pulse">LIVE DATA</div>
+<header class="lg:hidden p-4 bg-white shadow-md flex justify-between items-center z-20 sticky top-0">
+    <div class="text-lg font-black">TGIS Mobile</div>
+    <button id="mobile-menu-button" class="text-3xl p-2">☰</button>
 </header>
-
-<div class="lg:hidden fixed bottom-6 left-6 right-6 z-50 px-8 py-3 glass-nav shadow-2xl rounded-3xl flex justify-between items-center">
-    <button onclick="switchView('tracker')" id="mobile-nav-tracker" class="mobile-nav-item active flex flex-col items-center gap-1">
-        <span class="text-xl">🏠</span>
-        <span class="text-[9px] font-black uppercase">Home</span>
-    </button>
-    
-    <button class="relative -top-8 bg-primary-gold w-14 h-14 rounded-full shadow-lg shadow-primary-gold/40 flex items-center justify-center border-4 border-gray-50 active:scale-90 transition-transform">
-        <span class="text-white text-3xl font-light">+</span>
-    </button>
-
-    <button onclick="switchView('desk')" id="mobile-nav-desk" class="mobile-nav-item flex flex-col items-center gap-1">
-        <span class="text-xl">📅</span>
-        <span class="text-[9px] font-black uppercase">Schedule</span>
-    </button>
-</div>
 
 <div class="content-area p-4 sm:p-8">
     
@@ -232,58 +182,42 @@
     const userName = new URLSearchParams(window.location.search).get('user');
     let cachedData = null;
 
-    // Fixed View Switcher
+    // View Switcher
     function switchView(viewId) {
-        // 1. Section Toggle Logic
-        const sections = document.querySelectorAll('.view-section');
-        sections.forEach(v => {
-            v.classList.remove('active');
-            v.style.display = 'none';
-        });
-        
-        const target = document.getElementById(`view-${viewId}`);
-        if (target) {
-            target.style.display = 'block';
-            // Small timeout to allow display:block to register before adding opacity class
-            setTimeout(() => target.classList.add('active'), 10);
-        }
-
-        // 2. Desktop Sidebar Sync
+        document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+        document.getElementById(`view-${viewId}`).classList.add('active');
         document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
-        const desktopBtn = document.getElementById(`nav-${viewId}`);
-        if(desktopBtn) desktopBtn.classList.add('active');
-
-        // 3. Mobile Bottom Nav Sync
-        document.querySelectorAll('.mobile-nav-item').forEach(btn => btn.classList.remove('active'));
-        const mobileBtn = document.getElementById(`mobile-nav-${viewId}`);
-        if(mobileBtn) mobileBtn.classList.add('active');
-
-        // 4. Close Sidebar if open (mobile)
-        const sidebar = document.getElementById('sidebar');
-        if (sidebar) sidebar.classList.remove('open');
-
-        // 5. Haptic Feedback
-        if (window.navigator.vibrate) window.navigator.vibrate(5);
+        document.getElementById(`nav-${viewId}`).classList.add('active');
+        if (window.innerWidth < 1024) document.getElementById('sidebar').classList.remove('open');
     }
 
-    // Sidebar Controls - Added safety checks
-    const mobileBtn = document.getElementById('mobile-menu-button');
-    if(mobileBtn) mobileBtn.onclick = () => document.getElementById('sidebar').classList.add('open');
-    
-    const closeBtn = document.getElementById('close-menu');
-    if(closeBtn) closeBtn.onclick = () => document.getElementById('sidebar').classList.remove('open');
+    // Sidebar Controls
+    document.getElementById('mobile-menu-button').onclick = () => document.getElementById('sidebar').classList.add('open');
+    document.getElementById('close-menu').onclick = () => document.getElementById('sidebar').classList.remove('open');
 
     // Milestones Logic
     function handleMilestones(total) {
         const careerTotal = total || 0;
+        
+        // Light up badges
         if (careerTotal >= 50)  document.getElementById('badge-50').classList.add('badge-active');
         if (careerTotal >= 100) document.getElementById('badge-100').classList.add('badge-active');
         if (careerTotal >= 200) document.getElementById('badge-200').classList.add('badge-active');
 
-        let nextGoal = 50, goalName = "Bell Tower Boss";
-        if (careerTotal >= 200) { nextGoal = careerTotal; goalName = "Maximum Rank Achieved!"; }
-        else if (careerTotal >= 100) { nextGoal = 200; goalName = "Golden Guide"; }
-        else if (careerTotal >= 50) { nextGoal = 100; goalName = "Century Club"; }
+        // Progress Calculation
+        let nextGoal = 50;
+        let goalName = "Bell Tower Boss";
+
+        if (careerTotal >= 200) {
+            nextGoal = careerTotal;
+            goalName = "Maximum Rank Achieved!";
+        } else if (careerTotal >= 100) {
+            nextGoal = 200;
+            goalName = "Golden Guide";
+        } else if (careerTotal >= 50) {
+            nextGoal = 100;
+            goalName = "Century Club";
+        }
 
         const toursRemaining = Math.max(0, nextGoal - careerTotal);
         const progressPercent = careerTotal >= 200 ? 100 : (careerTotal / nextGoal) * 100;
@@ -296,6 +230,7 @@
     // Leaderboard Toggle Logic
     function updateLeaderboard(mode) {
         if (!cachedData || !cachedData.fullList) return;
+        
         document.getElementById('toggle-career').classList.toggle('active', mode === 'career');
         document.getElementById('toggle-semester').classList.toggle('active', mode === 'semester');
 
@@ -326,17 +261,22 @@
             cachedData = await res.json();
             cachedData.fullList = cachedData.fullList || cachedData.leaderboard;
 
+            // 1. Sidebar & Header
             document.getElementById('sidebar-name').innerText = cachedData.profile.fullName;
             document.getElementById('sidebar-status').innerText = cachedData.profile.status;
             document.getElementById('profile-initial').innerText = cachedData.profile.fullName.charAt(0);
+
+            // 2. Dashboard Stats
             document.getElementById('career-total').innerText = cachedData.stats.careerTotal;
             document.getElementById('sem-total').innerText = cachedData.stats.semesterTotal;
             document.getElementById('sem-label').innerText = cachedData.currentSemesterName;
             document.getElementById('user-rank').innerText = `#${cachedData.rank}`;
 
+            // 3. Milestones & Leaderboard
             handleMilestones(cachedData.stats.careerTotal);
             updateLeaderboard('career');
 
+            // 4. History
             const histContainer = document.getElementById('history-container');
             histContainer.innerHTML = [...cachedData.stats.history].reverse().map(h => `
                 <div class="flex items-center">
@@ -348,6 +288,7 @@
                 </div>
             `).join('');
 
+            // Success Transition
             document.getElementById('loading-overlay').classList.add('opacity-0');
             setTimeout(() => document.getElementById('loading-overlay').style.display = 'none', 500);
 
@@ -359,7 +300,5 @@
 
     init();
 </script>
-
-    
 </body>
 </html>
