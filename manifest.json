@@ -1,7 +1,7 @@
 {
   "name": "Purdue TGIS 2.3 App",
   "short_name": "TGIS Mobile",
-  "start_url": "unifiedall.html",
+  "start_url": "app.html",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
