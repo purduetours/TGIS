@@ -46,6 +46,12 @@
     flex-shrink: 0; /* Prevents the menu from being squished */
     padding-bottom: env(safe-area-inset-bottom);
 }
+
+        @media (max-width: 1024px) { 
+            .content-area { margin-left: 0; }
+            #sidebar { transform: translateX(-100%); transition: transform 0.3s ease; }
+            #sidebar.open { transform: translateX(0); display: block !important; }
+        }
         
         .nav-button { cursor: pointer; display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem; color: #4B5563; margin-bottom: 0.5rem; transition: 0.2s; }
         .nav-button:hover { background-color: #F3F4F6; }
@@ -112,12 +118,6 @@
     <button id="mobile-menu-button" class="text-3xl p-2">☰</button>
 </header>
 
-<div class="lg:hidden fixed bottom-6 left-6 right-6 z-50 bg-white/90 backdrop-blur-md shadow-2xl rounded-3xl border border-gray-100 p-3 flex justify-around items-center">
-    <button onclick="switchView('home')" class="flex flex-col items-center"><span class="text-xl">🏠</span><span class="text-[8px] font-black uppercase">Home</span></button>
-    <button onclick="switchView('tracker')" class="flex flex-col items-center"><span class="text-xl">📊</span><span class="text-[8px] font-black uppercase">Stats</span></button>
-    <button onclick="switchView('families')" class="flex flex-col items-center"><span class="text-xl">🏆</span><span class="text-[8px] font-black uppercase">Family</span></button>
-    <button onclick="switchView('desk')" class="flex flex-col items-center"><span class="text-xl">📅</span><span class="text-[8px] font-black uppercase">Desk</span></button>
-</div>
 
 <div class="content-area p-4 sm:p-8">
     
