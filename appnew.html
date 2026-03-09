@@ -46,12 +46,7 @@
     flex-shrink: 0; /* Prevents the menu from being squished */
     padding-bottom: env(safe-area-inset-bottom);
 }
-        .content-area { margin-left: 18rem; transition: all 0.3s ease; padding-bottom: 100px; }
-        @media (max-width: 1024px) { 
-            .content-area { margin-left: 0; }
-            #sidebar { transform: translateX(-100%); transition: transform 0.3s ease; }
-            #sidebar.open { transform: translateX(0); display: block !important; }
-        }
+        
         .nav-button { cursor: pointer; display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem; color: #4B5563; margin-bottom: 0.5rem; transition: 0.2s; }
         .nav-button:hover { background-color: #F3F4F6; }
         .nav-button.active { background-color: #CFB991; color: white; box-shadow: 0 4px 6px -1px rgba(207, 185, 145, 0.4); }
