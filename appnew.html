@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TGIS Web 2.3</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TGIS Web 2.3 | Tour Tracker</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <script>
@@ -22,70 +22,89 @@
         }
     </script>
     <style>
-        /* Layout Fixes */
-        body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-        .content-area { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; margin-left: 18rem; }
-        
+        body { 
+    display: flex; 
+    flex-direction: column; 
+    height: 100vh; 
+    overflow: hidden; 
+}
+
+        .content-area { 
+    flex: 1; 
+    overflow-y: auto; 
+    -webkit-overflow-scrolling: touch; 
+    padding-bottom: 2rem;
+}
+
+        .bottom-nav-dedicated {
+    height: 75px;
+    background: white;
+    border-top: 1px solid #F3F4F6;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-shrink: 0; /* Prevents the menu from being squished */
+    padding-bottom: env(safe-area-inset-bottom);
+}
+        .content-area { margin-left: 18rem; transition: all 0.3s ease; padding-bottom: 100px; }
         @media (max-width: 1024px) { 
             .content-area { margin-left: 0; }
             #sidebar { transform: translateX(-100%); transition: transform 0.3s ease; }
             #sidebar.open { transform: translateX(0); display: block !important; }
         }
-
-        /* Dedicated Bottom Nav */
-        .bottom-nav-dedicated {
-            height: 75px;
-            background: white;
-            border-top: 1px solid #F3F4F6;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            padding-bottom: env(safe-area-inset-bottom); /* Handles iPhone notch/home bar */
-            flex-shrink: 0;
-        }
-
         .nav-button { cursor: pointer; display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem; color: #4B5563; margin-bottom: 0.5rem; transition: 0.2s; }
-        .nav-button.active { background-color: #CFB991; color: white; }
-        
+        .nav-button:hover { background-color: #F3F4F6; }
+        .nav-button.active { background-color: #CFB991; color: white; box-shadow: 0 4px 6px -1px rgba(207, 185, 145, 0.4); }
         .view-section { display: none; }
         .view-section.active { display: block; animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
         .loader { border-top-color: #CFB991; animation: spinner 0.6s linear infinite; }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .toggle-btn { transition: all 0.3s ease; }
+        .toggle-btn.active { background-color: white; color: #374151; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .badge-active { opacity: 1 !important; filter: grayscale(0) !important; filter: drop-shadow(0 0 8px rgba(207, 185, 145, 0.6)); }
 
-        /* Podium */
-        .podium-container { display: flex; align-items: flex-end; justify-content: center; gap: 8px; height: 160px; }
-        .podium-base { width: 65px; display: flex; flex-direction: column; align-items: center; border-radius: 8px 8px 0 0; }
-        .rank-1 { height: 130px; background: #CFB991; }
-        .rank-2 { height: 90px; background: #E5E7EB; }
-        .rank-3 { height: 70px; background: #FFEDD5; }
-        .rank-4 { height: 45px; background: #f3f4f6; border: 1px dashed #ccc; }
+        /* Family Podium Styles */
+        .podium-container { display: flex; align-items: flex-end; justify-content: center; gap: 8px; height: 200px; }
+        .podium-base { width: 70px; display: flex; flex-direction: column; align-items: center; border-radius: 12px 12px 0 0; }
+        .rank-1 { height: 150px; background: #CFB991; border: 2px solid #b39a6d; }
+        .rank-2 { height: 110px; background: #E5E7EB; border: 2px solid #D1D5DB; }
+        .rank-3 { height: 80px; background: #FFEDD5; border: 2px solid #FED7AA; }
+        .rank-4 { height: 50px; background: #f3f4f6; border: 1px dashed #ccc; }
     </style>
+    <meta name="apple-mobile-web-app-capable" content="yes">
 </head>
-<body class="bg-gray-50 text-text-dark">
+<body class="bg-gray-50 font-sans antialiased text-text-dark">
 
 <div id="loading-overlay" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center transition-opacity duration-500">
     <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
-    <h2 class="font-bold text-lg text-nowrap">Syncing TGIS 2.3...</h2>
+    <h2 class="font-bold text-lg">Loading TGIS 2.3 ...</h2>
 </div>
 
 <nav id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white shadow-2xl border-r border-gray-100 p-6 z-40 hidden lg:block overflow-y-auto">
-    <div class="mb-8">
-        <p class="text-[10px] font-black text-primary-gold uppercase tracking-[0.2em] mb-1">Purdue University</p>
-        <h1 class="text-xl font-black leading-tight">TGIS Mobile</h1>
+    <div class="mb-8 flex justify-between items-start">
+        <div>
+            <p class="text-[10px] font-black text-primary-gold uppercase tracking-[0.2em] mb-1">Purdue University</p>
+            <h1 class="text-xl font-black leading-tight">Tour Guide Information System</h1>
+        </div>
+        <button id="close-menu" class="lg:hidden text-gray-400 text-2xl">&times;</button>
     </div>
-    <div class="mb-8 p-4 bg-gray-50 rounded-2xl">
-        <div class="flex items-center space-x-3">
-            <div id="profile-initial" class="w-10 h-10 rounded-full bg-primary-gold flex items-center justify-center text-white font-black text-lg">?</div>
+
+    <div class="mb-8 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+        <div class="flex items-center space-x-3 mb-3">
+            <div id="profile-initial" class="w-12 h-12 rounded-full bg-primary-gold flex items-center justify-center text-white font-black text-lg shadow-inner">?</div>
             <div>
-                <p id="sidebar-name" class="font-bold text-sm">Loading...</p>
-                <p id="sidebar-status" class="text-[10px] font-bold text-gray-400 uppercase">Guide</p>
+                <p id="sidebar-name" class="font-bold leading-tight">Loading...</p>
+                <p id="sidebar-status" class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Syncing...</p>
             </div>
         </div>
+        <div class="flex items-center text-[10px] text-status-green font-bold bg-white w-fit px-2 py-1 rounded-md border border-gray-100">
+            <span class="w-1.5 h-1.5 bg-status-green rounded-full mr-1.5 animate-pulse"></span> TGIS ONLINE
+        </div>
     </div>
-    <div class="space-y-1">
+
+    <div class="mb-8">
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 ml-2">Main Menu</p>
         <div id="nav-home" class="nav-button active" onclick="switchView('home')">Home</div>
         <div id="nav-tracker" class="nav-button" onclick="switchView('tracker')">Tour Tracker</div>
         <div id="nav-families" class="nav-button" onclick="switchView('families')">Family Points</div>
@@ -93,21 +112,30 @@
     </div>
 </nav>
 
-<div class="content-area p-6 sm:p-8">
+<header class="lg:hidden p-4 bg-white shadow-md flex justify-between items-center z-20 sticky top-0">
+    <div class="text-lg font-black">TGIS Mobile</div>
+    <button id="mobile-menu-button" class="text-3xl p-2">☰</button>
+</header>
+
+<div class="lg:hidden fixed bottom-6 left-6 right-6 z-50 bg-white/90 backdrop-blur-md shadow-2xl rounded-3xl border border-gray-100 p-3 flex justify-around items-center">
+    <button onclick="switchView('home')" class="flex flex-col items-center"><span class="text-xl">🏠</span><span class="text-[8px] font-black uppercase">Home</span></button>
+    <button onclick="switchView('tracker')" class="flex flex-col items-center"><span class="text-xl">📊</span><span class="text-[8px] font-black uppercase">Stats</span></button>
+    <button onclick="switchView('families')" class="flex flex-col items-center"><span class="text-xl">🏆</span><span class="text-[8px] font-black uppercase">Family</span></button>
+    <button onclick="switchView('desk')" class="flex flex-col items-center"><span class="text-xl">📅</span><span class="text-[8px] font-black uppercase">Desk</span></button>
+</div>
+
+<div class="content-area p-4 sm:p-8">
     
     <div id="view-home" class="view-section active">
         <header class="mb-8">
-            <h1 class="text-3xl font-black italic">Welcome, <span id="welcome-name" class="text-primary-gold">Guide</span></h1>
-            <p id="live-clock" class="text-sm font-bold text-gray-400 uppercase mt-1">Loading...</p>
+            <h1 class="text-4xl font-black">Welcome, <span id="welcome-name" class="text-primary-gold text-nowrap">Guide</span></h1>
+            <p id="live-clock" class="text-lg font-bold text-gray-400 uppercase mt-2">Loading...</p>
         </header>
-        <div class="grid grid-cols-2 gap-4">
-            <div class="bg-white p-6 rounded-3xl border border-gray-100 text-center shadow-sm">
-                <span class="text-2xl block mb-2">🔄</span>
-                <span class="text-[10px] font-black uppercase">Sub Request</span>
-            </div>
-            <div class="bg-white p-6 rounded-3xl border border-gray-100 text-center shadow-sm">
-                <span class="text-2xl block mb-2">📚</span>
-                <span class="text-[10px] font-black uppercase">Handbook</span>
+        <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 mb-6">
+            <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Today's Quick Links</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="p-4 bg-gray-50 rounded-2xl text-center font-bold text-sm">Request Sub</div>
+                <div class="p-4 bg-gray-50 rounded-2xl text-center font-bold text-sm">Handbook</div>
             </div>
         </div>
     </div>
@@ -176,6 +204,7 @@
                 </div>
                 <div id="leaderboard-container" class="space-y-3"></div>
             </div>
+
             <div class="bg-white rounded-3xl shadow-xl p-6 border border-gray-100">
                 <h3 class="text-xl font-black mb-6">Semester History</h3>
                 <div id="history-container" class="space-y-4"></div>
@@ -184,10 +213,10 @@
     </div>
 
     <div id="view-families" class="view-section">
-        <h1 class="text-3xl font-black mb-8 italic">Family Leaderboard</h1>
-        <div class="bg-white rounded-3xl shadow-xl p-6 border border-gray-100">
+        <h1 class="text-3xl font-black mb-8">Family Points</h1>
+        <div class="bg-white rounded-3xl shadow-xl p-8 border border-gray-100">
             <div id="podium-display" class="podium-container mb-10"></div>
-            <div id="family-list-container" class="space-y-3"></div>
+            <div id="family-list-container" class="space-y-4"></div>
         </div>
     </div>
 
@@ -201,36 +230,34 @@
     </div>
 </div>
 
-<div class="lg:hidden bottom-nav-dedicated">
-    <button onclick="switchView('home')" class="flex flex-col items-center opacity-60 active:opacity-100"><span class="text-xl">🏠</span><span class="text-[9px] font-black uppercase">Home</span></button>
-    <button onclick="switchView('tracker')" class="flex flex-col items-center opacity-60 active:opacity-100"><span class="text-xl">📊</span><span class="text-[9px] font-black uppercase">Stats</span></button>
-    <button onclick="switchView('families')" class="flex flex-col items-center opacity-60 active:opacity-100"><span class="text-xl">🏆</span><span class="text-[9px] font-black uppercase">Family</span></button>
-    <button onclick="switchView('desk')" class="flex flex-col items-center opacity-60 active:opacity-100"><span class="text-xl">📅</span><span class="text-[9px] font-black uppercase">Desk</span></button>
-</div>
-
 <script>
     const scriptURL = 'https://script.google.com/macros/s/AKfycbytBDIlv8pB_SVEJy4cFic8kHw_E6iRCzDpWFmWZeQRseDOeQgtk1LPT0t6CHDkIdq0/exec';
     const userName = new URLSearchParams(window.location.search).get('user');
     let cachedData = null;
 
+    // Static Family Data
     const familyData = [
-        { name: "Marley", points: 84 }, { name: "Jacob", points: 82 },
-        { name: "Samantha", points: 82 }, { name: "Kristina", points: 46 }
+        { name: "Marley", points: 84 },
+        { name: "Jacob", points: 82 },
+        { name: "Samantha", points: 82 },
+        { name: "Kristina", points: 46 }
     ];
+function switchView(viewId) {
+    // 1. Hide all sections, show the active one
+    document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+    document.getElementById(`view-${viewId}`).classList.add('active');
 
-    function switchView(viewId) {
-        document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
-        document.getElementById(`view-${viewId}`).classList.add('active');
-        document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
-        const activeNav = document.getElementById(`nav-${viewId}`);
-        if(activeNav) activeNav.classList.add('active');
-        // Scroll back to top of the content area
-        document.querySelector('.content-area').scrollTop = 0;
-    }
+    // 2. Update the Desktop Sidebar active state
+    document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
+    const activeNav = document.getElementById(`nav-${viewId}`);
+    if(activeNav) activeNav.classList.add('active');
 
+    // 3. IMPORTANT: Reset scroll position of the content area
+    document.querySelector('.content-area').scrollTop = 0;
+}
     function updateClock() {
         const now = new Date();
-        document.getElementById('live-clock').innerText = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        document.getElementById('live-clock').innerText = now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
     }
     setInterval(updateClock, 1000);
 
@@ -239,38 +266,46 @@
         const pOrder = [sorted[1], sorted[0], sorted[2]];
         document.getElementById('podium-display').innerHTML = pOrder.map((f, i) => `
             <div class="podium-base rank-${[2, 1, 3][i]}">
-                <span class="text-[10px] font-black mb-1">${f.points}</span>
-                <span class="font-bold text-[9px] uppercase">${f.name}</span>
+                <span class="text-xs font-black mb-1">${f.points}</span>
+                <span class="font-bold text-[10px] uppercase">${f.name}</span>
             </div>
         `).join('');
         document.getElementById('family-list-container').innerHTML = sorted.map((f, i) => `
-            <div class="flex justify-between p-4 bg-gray-50 rounded-2xl text-xs font-bold">
+            <div class="flex justify-between p-4 bg-gray-50 rounded-2xl font-bold">
                 <span>#${i+1} ${f.name} Family</span>
                 <span class="text-primary-gold">${f.points} PTS</span>
             </div>
         `).join('');
     }
 
-    // Tracker Logics (Kept Original)
+    // Sidebar Controls
+    document.getElementById('mobile-menu-button').onclick = () => document.getElementById('sidebar').classList.add('open');
+    document.getElementById('close-menu').onclick = () => document.getElementById('sidebar').classList.remove('open');
+
+    // Milestones Logic (Original)
     function handleMilestones(total) {
         const careerTotal = total || 0;
         if (careerTotal >= 50)  document.getElementById('badge-50').classList.add('badge-active');
         if (careerTotal >= 100) document.getElementById('badge-100').classList.add('badge-active');
         if (careerTotal >= 200) document.getElementById('badge-200').classList.add('badge-active');
         let nextGoal = 50;
-        if (careerTotal >= 200) { nextGoal = careerTotal; }
-        else if (careerTotal >= 100) { nextGoal = 200; }
-        else if (careerTotal >= 50) { nextGoal = 100; }
-        document.getElementById('next-milestone-name').innerText = careerTotal >= 200 ? "Maximum Rank!" : "Next Milestone";
+        let goalName = "Bell Tower Boss";
+        if (careerTotal >= 200) { nextGoal = careerTotal; goalName = "Maximum Rank!"; }
+        else if (careerTotal >= 100) { nextGoal = 200; goalName = "Golden Guide"; }
+        else if (careerTotal >= 50) { nextGoal = 100; goalName = "Century Club"; }
+        document.getElementById('next-milestone-name').innerText = goalName;
         document.getElementById('tours-to-go').innerText = Math.max(0, nextGoal - careerTotal);
         document.getElementById('milestone-progress-bar').style.width = (careerTotal >= 200 ? 100 : (careerTotal / nextGoal) * 100) + "%";
     }
 
+    // Leaderboard Logic (Original)
     function updateLeaderboard(mode) {
         if (!cachedData || !cachedData.fullList) return;
+        document.getElementById('toggle-career').classList.toggle('active', mode === 'career');
+        document.getElementById('toggle-semester').classList.toggle('active', mode === 'semester');
         const sortedData = [...cachedData.fullList].sort((a, b) => mode === 'career' ? b.careerTotal - a.careerTotal : b.semesterTotal - a.semesterTotal).slice(0, 10);
         document.getElementById('leaderboard-container').innerHTML = sortedData.map((entry, i) => `
-            <div class="flex items-center justify-between p-4 rounded-2xl bg-gray-50">
+            <div class="flex items-center justify-between p-4 rounded-2xl ${entry.displayName.toLowerCase() === cachedData.profile.displayName.toLowerCase() ? 'bg-primary-gold/20 ring-2 ring-primary-gold' : 'bg-gray-50'}">
                 <div class="flex items-center space-x-4">
                     <span class="font-black text-gray-300 w-6">#${i+1}</span>
                     <span class="font-bold">${entry.displayName}</span>
@@ -285,16 +320,33 @@
         try {
             const res = await fetch(`${scriptURL}?user=${userName}`);
             cachedData = await res.json();
+            cachedData.fullList = cachedData.fullList || cachedData.leaderboard;
+
             document.getElementById('sidebar-name').innerText = cachedData.profile.fullName;
+            document.getElementById('sidebar-status').innerText = cachedData.profile.status;
+            document.getElementById('profile-initial').innerText = cachedData.profile.fullName.charAt(0);
             document.getElementById('welcome-name').innerText = cachedData.profile.displayName;
+
             document.getElementById('career-total').innerText = cachedData.stats.careerTotal;
             document.getElementById('sem-total').innerText = cachedData.stats.semesterTotal;
+            document.getElementById('sem-label').innerText = cachedData.currentSemesterName;
             document.getElementById('user-rank').innerText = `#${cachedData.rank}`;
-            
+
             handleMilestones(cachedData.stats.careerTotal);
             updateLeaderboard('career');
             renderFamilyUI();
             updateClock();
+
+            const histContainer = document.getElementById('history-container');
+            histContainer.innerHTML = [...cachedData.stats.history].reverse().map(h => `
+                <div class="flex items-center">
+                    <div class="w-24 text-[10px] font-black text-gray-400 uppercase tracking-tighter">${h.semester}</div>
+                    <div class="flex-1 h-2.5 bg-gray-100 rounded-full overflow-hidden mx-3">
+                        <div class="h-full bg-primary-gold" style="width: ${Math.min((h.count / 40) * 100, 100)}%"></div>
+                    </div>
+                    <div class="w-8 text-right font-black text-xs">${h.count}</div>
+                </div>
+            `).join('');
 
             document.getElementById('loading-overlay').classList.add('opacity-0');
             setTimeout(() => document.getElementById('loading-overlay').style.display = 'none', 500);
@@ -302,5 +354,23 @@
     }
     init();
 </script>
+    <div class="lg:hidden bottom-nav-dedicated">
+    <button onclick="switchView('home')" class="flex flex-col items-center">
+        <span class="text-xl">🏠</span>
+        <span class="text-[9px] font-black uppercase">Home</span>
+    </button>
+    <button onclick="switchView('tracker')" class="flex flex-col items-center">
+        <span class="text-xl">📊</span>
+        <span class="text-[9px] font-black uppercase">Stats</span>
+    </button>
+    <button onclick="switchView('families')" class="flex flex-col items-center">
+        <span class="text-xl">🏆</span>
+        <span class="text-[9px] font-black uppercase">Family</span>
+    </button>
+    <button onclick="switchView('desk')" class="flex flex-col items-center">
+        <span class="text-xl">📅</span>
+        <span class="text-[9px] font-black uppercase">Desk</span>
+    </button>
+</div>
 </body>
 </html>
