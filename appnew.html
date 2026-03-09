@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TGIS Web 2.3 | Tour Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        'primary-gold': '#CFB991',
+                        'text-dark': '#374151',
+                        'status-green': '#10B981',
+                        'tgis-blue': '#1D4ED8',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .content-area { margin-left: 18rem; transition: all 0.3s ease; }
+        @media (max-width: 1024px) { 
+            .content-area { margin-left: 0; }
+            #sidebar { transform: translateX(-100%); transition: transform 0.3s ease; }
+            #sidebar.open { transform: translateX(0); display: block !important; }
+        }
+        .nav-button { cursor: pointer; display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem; color: #4B5563; margin-bottom: 0.5rem; transition: 0.2s; }
+        .nav-button:hover { background-color: #F3F4F6; }
+        .nav-button.active { background-color: #CFB991; color: white; box-shadow: 0 4px 6px -1px rgba(207, 185, 145, 0.4); }
+        .view-section { display: none; }
+        .view-section.active { display: block; animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .loader { border-top-color: #CFB991; animation: spinner 0.6s linear infinite; }
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .toggle-btn { transition: all 0.3s ease; }
+        .toggle-btn.active { background-color: white; color: #374151; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        
+        /* Badge Glow Effect */
+        .badge-active { opacity: 1 !important; filter: grayscale(0) !important; filter: drop-shadow(0 0 8px rgba(207, 185, 145, 0.6)); }
+    </style>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+<meta name="apple-mobile-web-app-title" content="TGIS Mobile">
+
+<link rel="apple-touch-icon" href="tgisicon.png">
+
+<link rel="apple-touch-icon" sizes="152x152" href="tgisicon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="tgisicon.png">
+</head>
+<body class="bg-gray-50 font-sans antialiased text-text-dark">
+
+<div id="loading-overlay" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center transition-opacity duration-500">
+    <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
+    <h2 class="font-bold text-lg">Loading TGIS 2.3 ...</h2>
+</div>
+
+<nav id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white shadow-2xl border-r border-gray-100 p-6 z-40 hidden lg:block overflow-y-auto">
+    <div class="mb-8 flex justify-between items-start">
+        <div>
+            <p class="text-[10px] font-black text-primary-gold uppercase tracking-[0.2em] mb-1">Purdue University</p>
+            <h1 class="text-xl font-black leading-tight">Tour Guide Information System</h1>
+        </div>
+        <button id="close-menu" class="lg:hidden text-gray-400 text-2xl">&times;</button>
+    </div>
+
+    <div class="mb-8 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+        <div class="flex items-center space-x-3 mb-3">
+            <div id="profile-initial" class="w-12 h-12 rounded-full bg-primary-gold flex items-center justify-center text-white font-black text-lg shadow-inner">?</div>
+            <div>
+                <p id="sidebar-name" class="font-bold leading-tight">Loading...</p>
+                <p id="sidebar-status" class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Syncing...</p>
+            </div>
+        </div>
+        <div class="flex items-center text-[10px] text-status-green font-bold bg-white w-fit px-2 py-1 rounded-md border border-gray-100">
+            <span class="w-1.5 h-1.5 bg-status-green rounded-full mr-1.5 animate-pulse"></span> TGIS ONLINE
+        </div>
+    </div>
+
+    <div class="mb-8">
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 ml-2">Main Menu</p>
+        <div id="nav-home" class="nav-button active" onclick="switchView('home')">Dashboard</div>
+        <div id="nav-tracker" class="nav-button" onclick="switchView('tracker')">Tour Tracker</div>
+        <div id="nav-desk" class="nav-button" onclick="switchView('desk')">Desk Schedule</div>
+    </div>
+</nav>
+
+<header class="lg:hidden p-4 bg-white shadow-md flex justify-between items-center z-20 sticky top-0">
+    <div class="text-lg font-black">TGIS Mobile</div>
+    <button id="mobile-menu-button" class="text-3xl p-2">☰</button>
+</header>
+
+<div class="content-area p-4 sm:p-8">
+    
+    <div id="view-tracker" class="view-section active">
+        <header class="mb-8">
+            <h1 class="text-3xl font-black">Tour Tracker</h1>
+            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Last Updated: Now</p>
+        </header>
+
+        <div class="bg-white rounded-3xl shadow-xl p-6 border border-gray-100 mb-8">
+            <div class="flex flex-col xl:flex-row items-center gap-8">
+                <div class="flex gap-4 shrink-0">
+                    <div id="badge-50" class="flex flex-col items-center opacity-20 grayscale transition-all duration-1000">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-gold to-yellow-600 flex items-center justify-center text-white text-2xl shadow-lg">🔔</div>
+                        <p class="text-[9px] font-black mt-2 uppercase text-center">Bell Tower Boss</p>
+                    </div>
+                    <div id="badge-100" class="flex flex-col items-center opacity-20 grayscale transition-all duration-1000">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-gold to-yellow-600 flex items-center justify-center text-white text-2xl shadow-lg">💯</div>
+                        <p class="text-[9px] font-black mt-2 uppercase text-center">Century Club</p>
+                    </div>
+                    <div id="badge-200" class="flex flex-col items-center opacity-20 grayscale transition-all duration-1000">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-gold to-yellow-600 flex items-center justify-center text-white text-2xl shadow-lg">✨</div>
+                        <p class="text-[9px] font-black mt-2 uppercase text-center">Golden Guide</p>
+                    </div>
+                </div>
+
+                <div class="flex-1 w-full">
+                    <div class="flex justify-between items-end mb-2">
+                        <div>
+                            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Progress to Next Milestone</p>
+                            <h4 id="next-milestone-name" class="font-bold text-lg">Calculating...</h4>
+                        </div>
+                        <p class="text-sm font-black text-primary-gold"><span id="tours-to-go">--</span> TOURS TO GO</p>
+                    </div>
+                    <div class="w-full h-4 bg-gray-100 rounded-full overflow-hidden border border-gray-50">
+                        <div id="milestone-progress-bar" class="h-full bg-primary-gold transition-all duration-[1.5s] ease-out" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <div class="bg-white p-8 rounded-3xl shadow-xl border border-gray-100 text-center">
+                <p class="text-xs font-bold text-gray-400 uppercase mb-2 tracking-widest">Career Tours</p>
+                <h2 id="career-total" class="text-6xl font-black">--</h2>
+            </div>
+            <div class="bg-white p-8 rounded-3xl shadow-xl border-4 border-status-green/30 text-center">
+                <p id="sem-label" class="text-xs font-bold text-status-green uppercase mb-2 tracking-widest">Current Semester</p>
+                <h2 id="sem-total" class="text-6xl font-black text-status-green">--</h2>
+            </div>
+            <div class="bg-white p-8 rounded-3xl shadow-xl border border-gray-100 text-center">
+                <p class="text-xs font-bold text-gray-400 uppercase mb-2 tracking-widest">Current Rank</p>
+                <h2 id="user-rank" class="text-6xl font-black text-tgis-blue">--</h2>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="bg-white rounded-3xl shadow-xl p-6 border border-gray-100">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                    <h3 class="text-xl font-black flex items-center">
+                        <span class="mr-2"></span> Leaderboard
+                    </h3>
+                    <div class="bg-gray-100 p-1 rounded-xl flex w-full sm:w-auto">
+                        <button id="toggle-career" onclick="updateLeaderboard('career')" class="toggle-btn active flex-1 px-4 py-1.5 text-[10px] font-black uppercase rounded-lg tracking-widest">All Time</button>
+                        <button id="toggle-semester" onclick="updateLeaderboard('semester')" class="toggle-btn flex-1 px-4 py-1.5 text-[10px] font-black uppercase rounded-lg tracking-widest">Semester</button>
+                    </div>
+                </div>
+                <div id="leaderboard-container" class="space-y-3"></div>
+            </div>
+
+            <div class="bg-white rounded-3xl shadow-xl p-6 border border-gray-100">
+                <h3 class="text-xl font-black mb-6">Semester History</h3>
+                <div id="history-container" class="space-y-4"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-desk" class="view-section">
+        <header class="mb-10 text-nowrap">
+            <h1 class="text-3xl font-black">Desk Schedule</h1>
+        </header>
+        <div class="bg-white p-12 rounded-3xl shadow-xl border border-gray-100 text-center">
+            <p class="text-gray-400 italic">The desk schedule interface is pending integration. Please wait for the release of the TGIS app on March 9th, 2026.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbytBDIlv8pB_SVEJy4cFic8kHw_E6iRCzDpWFmWZeQRseDOeQgtk1LPT0t6CHDkIdq0/exec';
+    const userName = new URLSearchParams(window.location.search).get('user');
+    let cachedData = null;
+
+    // View Switcher
+    function switchView(viewId) {
+        document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+        document.getElementById(`view-${viewId}`).classList.add('active');
+        document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`nav-${viewId}`).classList.add('active');
+        if (window.innerWidth < 1024) document.getElementById('sidebar').classList.remove('open');
+    }
+
+    // Sidebar Controls
+    document.getElementById('mobile-menu-button').onclick = () => document.getElementById('sidebar').classList.add('open');
+    document.getElementById('close-menu').onclick = () => document.getElementById('sidebar').classList.remove('open');
+
+    // Milestones Logic
+    function handleMilestones(total) {
+        const careerTotal = total || 0;
+        
+        // Light up badges
+        if (careerTotal >= 50)  document.getElementById('badge-50').classList.add('badge-active');
+        if (careerTotal >= 100) document.getElementById('badge-100').classList.add('badge-active');
+        if (careerTotal >= 200) document.getElementById('badge-200').classList.add('badge-active');
+
+        // Progress Calculation
+        let nextGoal = 50;
+        let goalName = "Bell Tower Boss";
+
+        if (careerTotal >= 200) {
+            nextGoal = careerTotal;
+            goalName = "Maximum Rank Achieved!";
+        } else if (careerTotal >= 100) {
+            nextGoal = 200;
+            goalName = "Golden Guide";
+        } else if (careerTotal >= 50) {
+            nextGoal = 100;
+            goalName = "Century Club";
+        }
+
+        const toursRemaining = Math.max(0, nextGoal - careerTotal);
+        const progressPercent = careerTotal >= 200 ? 100 : (careerTotal / nextGoal) * 100;
+
+        document.getElementById('next-milestone-name').innerText = goalName;
+        document.getElementById('tours-to-go').innerText = toursRemaining;
+        document.getElementById('milestone-progress-bar').style.width = progressPercent + "%";
+    }
+
+    // Leaderboard Toggle Logic
+    function updateLeaderboard(mode) {
+        if (!cachedData || !cachedData.fullList) return;
+        
+        document.getElementById('toggle-career').classList.toggle('active', mode === 'career');
+        document.getElementById('toggle-semester').classList.toggle('active', mode === 'semester');
+
+        const lbContainer = document.getElementById('leaderboard-container');
+        const sortedData = [...cachedData.fullList]
+            .sort((a, b) => mode === 'career' ? b.careerTotal - a.careerTotal : b.semesterTotal - a.semesterTotal)
+            .slice(0, 10);
+
+        lbContainer.innerHTML = sortedData.map((entry, i) => `
+            <div class="flex items-center justify-between p-4 rounded-2xl ${entry.displayName.toLowerCase() === cachedData.profile.displayName.toLowerCase() ? 'bg-primary-gold/20 ring-2 ring-primary-gold' : 'bg-gray-50'}">
+                <div class="flex items-center space-x-4">
+                    <span class="font-black text-gray-300 w-6">#${i+1}</span>
+                    <span class="font-bold">${entry.displayName}</span>
+                </div>
+                <span class="font-black text-primary-gold">${mode === 'career' ? entry.careerTotal : entry.semesterTotal}</span>
+            </div>
+        `).join('');
+    }
+
+    async function init() {
+        if(!userName) {
+            document.getElementById('loading-overlay').innerHTML = "<p class='font-bold'>Error: User Parameter Missing</p>";
+            return;
+        }
+
+        try {
+            const res = await fetch(`${scriptURL}?user=${userName}`);
+            cachedData = await res.json();
+            cachedData.fullList = cachedData.fullList || cachedData.leaderboard;
+
+            // 1. Sidebar & Header
+            document.getElementById('sidebar-name').innerText = cachedData.profile.fullName;
+            document.getElementById('sidebar-status').innerText = cachedData.profile.status;
+            document.getElementById('profile-initial').innerText = cachedData.profile.fullName.charAt(0);
+
+            // 2. Dashboard Stats
+            document.getElementById('career-total').innerText = cachedData.stats.careerTotal;
+            document.getElementById('sem-total').innerText = cachedData.stats.semesterTotal;
+            document.getElementById('sem-label').innerText = cachedData.currentSemesterName;
+            document.getElementById('user-rank').innerText = `#${cachedData.rank}`;
+
+            // 3. Milestones & Leaderboard
+            handleMilestones(cachedData.stats.careerTotal);
+            updateLeaderboard('career');
+
+            // 4. History
+            const histContainer = document.getElementById('history-container');
+            histContainer.innerHTML = [...cachedData.stats.history].reverse().map(h => `
+                <div class="flex items-center">
+                    <div class="w-24 text-[10px] font-black text-gray-400 uppercase tracking-tighter">${h.semester}</div>
+                    <div class="flex-1 h-2.5 bg-gray-100 rounded-full overflow-hidden mx-3">
+                        <div class="h-full bg-primary-gold transition-all duration-1000" style="width: ${Math.min((h.count / 40) * 100, 100)}%"></div>
+                    </div>
+                    <div class="w-8 text-right font-black text-xs">${h.count}</div>
+                </div>
+            `).join('');
+
+            // Success Transition
+            document.getElementById('loading-overlay').classList.add('opacity-0');
+            setTimeout(() => document.getElementById('loading-overlay').style.display = 'none', 500);
+
+        } catch (e) {
+            console.error(e);
+            document.getElementById('loading-overlay').innerHTML = "<p class='font-bold text-red-500'>Connection Failed</p>";
+        }
+    }
+
+    init();
+</script>
+</body>
+</html>
