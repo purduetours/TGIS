@@ -29,11 +29,13 @@
     overflow: hidden; 
 }
 
-        .content-area { 
+.content-area { 
     flex: 1; 
     overflow-y: auto; 
     -webkit-overflow-scrolling: touch; 
     padding-bottom: 2rem;
+    margin-left: 18rem; /* <--- ADD THIS LINE */
+    transition: margin 0.3s ease; /* Keeps the movement smooth */
 }
 
         .bottom-nav-dedicated {
