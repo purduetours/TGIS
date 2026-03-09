@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TGIS Web 2.3 | Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TGIS Web 2.3 | Tour Tracker</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <script>
@@ -16,7 +16,6 @@
                         'text-dark': '#374151',
                         'status-green': '#10B981',
                         'tgis-blue': '#1D4ED8',
-                        'purdue-black': '#000000',
                     }
                 }
             }
@@ -29,179 +28,180 @@
             #sidebar { transform: translateX(-100%); transition: transform 0.3s ease; }
             #sidebar.open { transform: translateX(0); display: block !important; }
         }
-        
-        /* Navigation Styles */
         .nav-button { cursor: pointer; display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem; color: #4B5563; margin-bottom: 0.5rem; transition: 0.2s; }
         .nav-button:hover { background-color: #F3F4F6; }
         .nav-button.active { background-color: #CFB991; color: white; box-shadow: 0 4px 6px -1px rgba(207, 185, 145, 0.4); }
-        
-        .mobile-nav-item { flex: 1; text-align: center; color: #9CA3AF; transition: 0.3s; }
-        .mobile-nav-item.active { color: #CFB991; }
-
-        /* View Control */
         .view-section { display: none; }
         .view-section.active { display: block; animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        /* Podium UI */
-        .podium-container { display: flex; align-items: flex-end; justify-content: center; gap: 8px; padding-top: 20px; }
-        .podium-base { width: 70px; display: flex; flex-direction: column; align-items: center; border-radius: 12px 12px 0 0; position: relative; }
-        .rank-1 { height: 140px; background: #CFB991; border: 2px solid #b39a6d; }
-        .rank-2 { height: 100px; background: #E5E7EB; border: 2px solid #D1D5DB; }
-        .rank-3 { height: 75px; background: #FFEDD5; border: 2px solid #FED7AA; }
-        .rank-4 { height: 50px; background: #f3f4f6; border: 1px dashed #ccc; }
-
         .loader { border-top-color: #CFB991; animation: spinner 0.6s linear infinite; }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .toggle-btn { transition: all 0.3s ease; }
+        .toggle-btn.active { background-color: white; color: #374151; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .badge-active { opacity: 1 !important; filter: grayscale(0) !important; filter: drop-shadow(0 0 8px rgba(207, 185, 145, 0.6)); }
+
+        /* Family Podium Styles */
+        .podium-container { display: flex; align-items: flex-end; justify-content: center; gap: 8px; height: 200px; }
+        .podium-base { width: 70px; display: flex; flex-direction: column; align-items: center; border-radius: 12px 12px 0 0; }
+        .rank-1 { height: 150px; background: #CFB991; border: 2px solid #b39a6d; }
+        .rank-2 { height: 110px; background: #E5E7EB; border: 2px solid #D1D5DB; }
+        .rank-3 { height: 80px; background: #FFEDD5; border: 2px solid #FED7AA; }
+        .rank-4 { height: 50px; background: #f3f4f6; border: 1px dashed #ccc; }
     </style>
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
 <body class="bg-gray-50 font-sans antialiased text-text-dark">
 
 <div id="loading-overlay" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center transition-opacity duration-500">
     <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
-    <h2 class="font-bold text-lg text-purdue-black">TGIS 2.3</h2>
+    <h2 class="font-bold text-lg">Loading TGIS 2.3 ...</h2>
 </div>
 
-<nav id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white shadow-2xl border-r border-gray-100 p-6 z-40 hidden lg:block">
-    <div class="mb-8">
-        <p class="text-[10px] font-black text-primary-gold uppercase tracking-[0.2em] mb-1">Purdue University</p>
-        <h1 class="text-xl font-black leading-tight">TGIS Mobile</h1>
+<nav id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white shadow-2xl border-r border-gray-100 p-6 z-40 hidden lg:block overflow-y-auto">
+    <div class="mb-8 flex justify-between items-start">
+        <div>
+            <p class="text-[10px] font-black text-primary-gold uppercase tracking-[0.2em] mb-1">Purdue University</p>
+            <h1 class="text-xl font-black leading-tight">Tour Guide Information System</h1>
+        </div>
+        <button id="close-menu" class="lg:hidden text-gray-400 text-2xl">&times;</button>
     </div>
 
     <div class="mb-8 p-4 bg-gray-50 rounded-2xl border border-gray-100">
-        <div class="flex items-center space-x-3">
-            <div id="profile-initial" class="w-10 h-10 rounded-full bg-primary-gold flex items-center justify-center text-white font-black">?</div>
+        <div class="flex items-center space-x-3 mb-3">
+            <div id="profile-initial" class="w-12 h-12 rounded-full bg-primary-gold flex items-center justify-center text-white font-black text-lg shadow-inner">?</div>
             <div>
-                <p id="sidebar-name" class="font-bold text-sm leading-tight">Loading...</p>
+                <p id="sidebar-name" class="font-bold leading-tight">Loading...</p>
                 <p id="sidebar-status" class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Syncing...</p>
             </div>
         </div>
+        <div class="flex items-center text-[10px] text-status-green font-bold bg-white w-fit px-2 py-1 rounded-md border border-gray-100">
+            <span class="w-1.5 h-1.5 bg-status-green rounded-full mr-1.5 animate-pulse"></span> TGIS ONLINE
+        </div>
     </div>
 
-    <div class="space-y-1">
-        <div id="nav-home" class="nav-button active" onclick="switchView('home')">🏠 Dashboard</div>
-        <div id="nav-tracker" class="nav-button" onclick="switchView('tracker')">📊 Tour Tracker</div>
-        <div id="nav-families" class="nav-button" onclick="switchView('families')">🏆 Family Points</div>
-        <div id="nav-desk" class="nav-button" onclick="switchView('desk')">📅 Desk Schedule</div>
+    <div class="mb-8">
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 ml-2">Main Menu</p>
+        <div id="nav-home" class="nav-button active" onclick="switchView('home')">Home</div>
+        <div id="nav-tracker" class="nav-button" onclick="switchView('tracker')">Tour Tracker</div>
+        <div id="nav-families" class="nav-button" onclick="switchView('families')">Family Points</div>
+        <div id="nav-desk" class="nav-button" onclick="switchView('desk')">Desk Schedule</div>
     </div>
 </nav>
 
-<header class="lg:hidden p-4 bg-white shadow-sm flex justify-between items-center z-20 sticky top-0">
-    <div class="text-lg font-black tracking-tighter italic text-purdue-black underline decoration-primary-gold decoration-4">TGIS 2.3</div>
-    <div class="flex items-center text-[10px] font-bold text-status-green bg-green-50 px-2 py-1 rounded-full border border-green-100">
-        <span class="w-1.5 h-1.5 bg-status-green rounded-full mr-1.5 animate-pulse"></span> ONLINE
-    </div>
+<header class="lg:hidden p-4 bg-white shadow-md flex justify-between items-center z-20 sticky top-0">
+    <div class="text-lg font-black">TGIS Mobile</div>
+    <button id="mobile-menu-button" class="text-3xl p-2">☰</button>
 </header>
 
 <div class="lg:hidden fixed bottom-6 left-6 right-6 z-50 bg-white/90 backdrop-blur-md shadow-2xl rounded-3xl border border-gray-100 p-3 flex justify-around items-center">
-    <button onclick="switchView('home')" id="m-nav-home" class="mobile-nav-item active">
-        <div class="text-xl">🏠</div>
-        <div class="text-[9px] font-black uppercase mt-0.5">Home</div>
-    </button>
-    <button onclick="switchView('tracker')" id="m-nav-tracker" class="mobile-nav-item">
-        <div class="text-xl">📊</div>
-        <div class="text-[9px] font-black uppercase mt-0.5">Stats</div>
-    </button>
-    <button onclick="switchView('families')" id="m-nav-families" class="mobile-nav-item">
-        <div class="text-xl">🏆</div>
-        <div class="text-[9px] font-black uppercase mt-0.5">Family</div>
-    </button>
-    <button onclick="switchView('desk')" id="m-nav-desk" class="mobile-nav-item">
-        <div class="text-xl">📅</div>
-        <div class="text-[9px] font-black uppercase mt-0.5">Desk</div>
-    </button>
+    <button onclick="switchView('home')" class="flex flex-col items-center"><span class="text-xl">🏠</span><span class="text-[8px] font-black uppercase">Home</span></button>
+    <button onclick="switchView('tracker')" class="flex flex-col items-center"><span class="text-xl">📊</span><span class="text-[8px] font-black uppercase">Stats</span></button>
+    <button onclick="switchView('families')" class="flex flex-col items-center"><span class="text-xl">🏆</span><span class="text-[8px] font-black uppercase">Family</span></button>
+    <button onclick="switchView('desk')" class="flex flex-col items-center"><span class="text-xl">📅</span><span class="text-[8px] font-black uppercase">Desk</span></button>
 </div>
 
-<div class="content-area p-6 sm:p-8">
+<div class="content-area p-4 sm:p-8">
     
     <div id="view-home" class="view-section active">
         <header class="mb-8">
-            <h1 class="text-3xl font-black">Boiler up, <span id="welcome-name" class="text-primary-gold">Guide</span>!</h1>
-            <p id="live-clock" class="text-sm font-bold text-gray-400 uppercase tracking-widest mt-1">Loading...</p>
+            <h1 class="text-4xl font-black">Welcome, <span id="welcome-name" class="text-primary-gold text-nowrap">Guide</span></h1>
+            <p id="live-clock" class="text-lg font-bold text-gray-400 uppercase mt-2">Loading...</p>
         </header>
-
-        <div class="grid grid-cols-1 gap-4 mb-6">
-            <div class="bg-purdue-black p-6 rounded-[2rem] text-white shadow-xl relative overflow-hidden">
-                <div class="absolute -right-4 -bottom-4 text-8xl opacity-10 font-black italic">TGIS</div>
-                <p class="text-[10px] font-black text-primary-gold uppercase tracking-widest mb-4">Quick Look</p>
-                <div class="flex justify-between items-end">
-                    <div>
-                        <p class="text-3xl font-black italic" id="home-career">--</p>
-                        <p class="text-[10px] font-bold opacity-60 uppercase">Career Tours</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-3xl font-black italic text-primary-gold" id="home-rank">--</p>
-                        <p class="text-[10px] font-bold opacity-60 uppercase">Campus Rank</p>
-                    </div>
-                </div>
+        <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 mb-6">
+            <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Today's Quick Links</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="p-4 bg-gray-50 rounded-2xl text-center font-bold text-sm">Request Sub</div>
+                <div class="p-4 bg-gray-50 rounded-2xl text-center font-bold text-sm">Handbook</div>
             </div>
-        </div>
-
-        <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100">
-            <h3 class="text-xs font-black uppercase text-gray-400 mb-4 tracking-widest">Daily Focus</h3>
-            <p class="text-sm font-medium text-gray-600 italic leading-relaxed">"Ever True: Share a personal story about why you chose Purdue while walking past the Union today."</p>
         </div>
     </div>
 
     <div id="view-tracker" class="view-section">
-        <h1 class="text-3xl font-black mb-8">Tour Tracker</h1>
-        <div class="bg-white rounded-[2rem] shadow-xl p-6 border border-gray-100 mb-6">
-            <div class="flex gap-4 justify-around mb-6">
-                <div id="badge-50" class="opacity-20 grayscale transition-all duration-1000 flex flex-col items-center">
-                    <div class="w-14 h-14 rounded-2xl bg-primary-gold flex items-center justify-center text-xl">🔔</div>
-                    <p class="text-[8px] font-black mt-1">BELL BOSS</p>
+        <header class="mb-8">
+            <h1 class="text-3xl font-black">Tour Tracker</h1>
+            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Last Updated: Now</p>
+        </header>
+
+        <div class="bg-white rounded-3xl shadow-xl p-6 border border-gray-100 mb-8">
+            <div class="flex flex-col xl:flex-row items-center gap-8">
+                <div class="flex gap-4 shrink-0">
+                    <div id="badge-50" class="flex flex-col items-center opacity-20 grayscale transition-all duration-1000">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-gold to-yellow-600 flex items-center justify-center text-white text-2xl shadow-lg">🔔</div>
+                        <p class="text-[9px] font-black mt-2 uppercase text-center">Bell Tower Boss</p>
+                    </div>
+                    <div id="badge-100" class="flex flex-col items-center opacity-20 grayscale transition-all duration-1000">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-gold to-yellow-600 flex items-center justify-center text-white text-2xl shadow-lg">💯</div>
+                        <p class="text-[9px] font-black mt-2 uppercase text-center">Century Club</p>
+                    </div>
+                    <div id="badge-200" class="flex flex-col items-center opacity-20 grayscale transition-all duration-1000">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-gold to-yellow-600 flex items-center justify-center text-white text-2xl shadow-lg">✨</div>
+                        <p class="text-[9px] font-black mt-2 uppercase text-center">Golden Guide</p>
+                    </div>
                 </div>
-                <div id="badge-100" class="opacity-20 grayscale transition-all duration-1000 flex flex-col items-center">
-                    <div class="w-14 h-14 rounded-2xl bg-primary-gold flex items-center justify-center text-xl">💯</div>
-                    <p class="text-[8px] font-black mt-1">CENTURY</p>
+
+                <div class="flex-1 w-full">
+                    <div class="flex justify-between items-end mb-2">
+                        <div>
+                            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Progress to Next Milestone</p>
+                            <h4 id="next-milestone-name" class="font-bold text-lg">Calculating...</h4>
+                        </div>
+                        <p class="text-sm font-black text-primary-gold"><span id="tours-to-go">--</span> TOURS TO GO</p>
+                    </div>
+                    <div class="w-full h-4 bg-gray-100 rounded-full overflow-hidden border border-gray-50">
+                        <div id="milestone-progress-bar" class="h-full bg-primary-gold transition-all duration-[1.5s] ease-out" style="width: 0%"></div>
+                    </div>
                 </div>
-                <div id="badge-200" class="opacity-20 grayscale transition-all duration-1000 flex flex-col items-center">
-                    <div class="w-14 h-14 rounded-2xl bg-primary-gold flex items-center justify-center text-xl">✨</div>
-                    <p class="text-[8px] font-black mt-1">GOLDEN</p>
-                </div>
-            </div>
-            <div class="w-full h-3 bg-gray-100 rounded-full overflow-hidden">
-                <div id="milestone-progress-bar" class="h-full bg-primary-gold transition-all duration-[1.5s]" style="width: 0%"></div>
-            </div>
-            <div class="flex justify-between mt-2 text-[10px] font-black text-primary-gold uppercase">
-                <span id="next-milestone-name">Loading...</span>
-                <span><span id="tours-to-go">--</span> to go</span>
             </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-4 mb-6">
-            <div class="bg-white p-6 rounded-[2rem] shadow-md border border-gray-100 text-center">
-                <p class="text-[10px] font-black text-gray-400 uppercase">Career</p>
-                <h2 id="career-total" class="text-4xl font-black mt-1">--</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <div class="bg-white p-8 rounded-3xl shadow-xl border border-gray-100 text-center">
+                <p class="text-xs font-bold text-gray-400 uppercase mb-2 tracking-widest">Career Tours</p>
+                <h2 id="career-total" class="text-6xl font-black">--</h2>
             </div>
-            <div class="bg-white p-6 rounded-[2rem] shadow-md border-2 border-status-green text-center">
-                <p class="text-[10px] font-black text-status-green uppercase">Semester</p>
-                <h2 id="sem-total" class="text-4xl font-black mt-1 text-status-green">--</h2>
+            <div class="bg-white p-8 rounded-3xl shadow-xl border-4 border-status-green/30 text-center">
+                <p id="sem-label" class="text-xs font-bold text-status-green uppercase mb-2 tracking-widest">Current Semester</p>
+                <h2 id="sem-total" class="text-6xl font-black text-status-green">--</h2>
+            </div>
+            <div class="bg-white p-8 rounded-3xl shadow-xl border border-gray-100 text-center">
+                <p class="text-xs font-bold text-gray-400 uppercase mb-2 tracking-widest">Current Rank</p>
+                <h2 id="user-rank" class="text-6xl font-black text-tgis-blue">--</h2>
             </div>
         </div>
 
-        <div id="leaderboard-container" class="space-y-2 bg-white p-4 rounded-[2rem] border border-gray-100">
-            <h3 class="text-xs font-black uppercase text-gray-400 mb-2 px-2">Top 10 Guides</h3>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="bg-white rounded-3xl shadow-xl p-6 border border-gray-100">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                    <h3 class="text-xl font-black flex items-center">Leaderboard</h3>
+                    <div class="bg-gray-100 p-1 rounded-xl flex w-full sm:w-auto">
+                        <button id="toggle-career" onclick="updateLeaderboard('career')" class="toggle-btn active flex-1 px-4 py-1.5 text-[10px] font-black uppercase rounded-lg tracking-widest">All Time</button>
+                        <button id="toggle-semester" onclick="updateLeaderboard('semester')" class="toggle-btn flex-1 px-4 py-1.5 text-[10px] font-black uppercase rounded-lg tracking-widest">Semester</button>
+                    </div>
+                </div>
+                <div id="leaderboard-container" class="space-y-3"></div>
             </div>
+
+            <div class="bg-white rounded-3xl shadow-xl p-6 border border-gray-100">
+                <h3 class="text-xl font-black mb-6">Semester History</h3>
+                <div id="history-container" class="space-y-4"></div>
+            </div>
+        </div>
     </div>
 
     <div id="view-families" class="view-section">
-        <h1 class="text-3xl font-black mb-8 italic">Family Points</h1>
-        <div class="bg-white rounded-[2.5rem] shadow-2xl p-6 border border-gray-100 mb-6">
-            <div id="podium-display" class="podium-container mb-8">
-                </div>
-            <div id="family-list-container" class="space-y-3">
-                </div>
+        <h1 class="text-3xl font-black mb-8">Family Points</h1>
+        <div class="bg-white rounded-3xl shadow-xl p-8 border border-gray-100">
+            <div id="podium-display" class="podium-container mb-10"></div>
+            <div id="family-list-container" class="space-y-4"></div>
         </div>
     </div>
 
-    <div id="view-desk" class="view-section text-center">
-        <h1 class="text-3xl font-black mb-10">Desk Schedule</h1>
-        <div class="bg-white p-10 rounded-[2rem] shadow-xl border border-dashed border-gray-300">
-            <p class="text-gray-400 text-sm italic italic leading-relaxed">Desk schedule integration coming March 9, 2026. Stay tuned!</p>
+    <div id="view-desk" class="view-section">
+        <header class="mb-10 text-nowrap">
+            <h1 class="text-3xl font-black">Desk Schedule</h1>
+        </header>
+        <div class="bg-white p-12 rounded-3xl shadow-xl border border-gray-100 text-center">
+            <p class="text-gray-400 italic">The desk schedule interface is pending integration. Please wait for the release of the TGIS app on March 9th, 2026.</p>
         </div>
     </div>
 </div>
@@ -220,20 +220,12 @@
     ];
 
     function switchView(viewId) {
-        // Desktop Sidebar
-        document.querySelectorAll('.nav-button').forEach(btn => {
-            btn.classList.remove('active');
-            if(btn.id === `nav-${viewId}`) btn.classList.add('active');
-        });
-        // Mobile Nav
-        document.querySelectorAll('.mobile-nav-item').forEach(btn => {
-            btn.classList.remove('active');
-            if(btn.id === `m-nav-${viewId}`) btn.classList.add('active');
-        });
-        // Section toggle
         document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
         document.getElementById(`view-${viewId}`).classList.add('active');
-        window.scrollTo(0,0);
+        document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
+        const activeNav = document.getElementById(`nav-${viewId}`);
+        if(activeNav) activeNav.classList.add('active');
+        if (window.innerWidth < 1024) document.getElementById('sidebar').classList.remove('open');
     }
 
     function updateClock() {
@@ -245,21 +237,53 @@
     function renderFamilyUI() {
         const sorted = [...familyData].sort((a, b) => b.points - a.points);
         const pOrder = [sorted[1], sorted[0], sorted[2]];
-        
         document.getElementById('podium-display').innerHTML = pOrder.map((f, i) => `
             <div class="podium-base rank-${[2, 1, 3][i]}">
-                <span class="text-[10px] font-black mb-1">${f.points}</span>
-                <span class="font-bold text-[10px] truncate w-full text-center">${f.name}</span>
+                <span class="text-xs font-black mb-1">${f.points}</span>
+                <span class="font-bold text-[10px] uppercase">${f.name}</span>
             </div>
         `).join('');
-
         document.getElementById('family-list-container').innerHTML = sorted.map((f, i) => `
-            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
-                <div class="flex items-center gap-3">
-                    <span class="text-xs font-black text-gray-300">#${i+1}</span>
-                    <span class="text-sm font-bold uppercase">${f.name}</span>
+            <div class="flex justify-between p-4 bg-gray-50 rounded-2xl font-bold">
+                <span>#${i+1} ${f.name} Family</span>
+                <span class="text-primary-gold">${f.points} PTS</span>
+            </div>
+        `).join('');
+    }
+
+    // Sidebar Controls
+    document.getElementById('mobile-menu-button').onclick = () => document.getElementById('sidebar').classList.add('open');
+    document.getElementById('close-menu').onclick = () => document.getElementById('sidebar').classList.remove('open');
+
+    // Milestones Logic (Original)
+    function handleMilestones(total) {
+        const careerTotal = total || 0;
+        if (careerTotal >= 50)  document.getElementById('badge-50').classList.add('badge-active');
+        if (careerTotal >= 100) document.getElementById('badge-100').classList.add('badge-active');
+        if (careerTotal >= 200) document.getElementById('badge-200').classList.add('badge-active');
+        let nextGoal = 50;
+        let goalName = "Bell Tower Boss";
+        if (careerTotal >= 200) { nextGoal = careerTotal; goalName = "Maximum Rank!"; }
+        else if (careerTotal >= 100) { nextGoal = 200; goalName = "Golden Guide"; }
+        else if (careerTotal >= 50) { nextGoal = 100; goalName = "Century Club"; }
+        document.getElementById('next-milestone-name').innerText = goalName;
+        document.getElementById('tours-to-go').innerText = Math.max(0, nextGoal - careerTotal);
+        document.getElementById('milestone-progress-bar').style.width = (careerTotal >= 200 ? 100 : (careerTotal / nextGoal) * 100) + "%";
+    }
+
+    // Leaderboard Logic (Original)
+    function updateLeaderboard(mode) {
+        if (!cachedData || !cachedData.fullList) return;
+        document.getElementById('toggle-career').classList.toggle('active', mode === 'career');
+        document.getElementById('toggle-semester').classList.toggle('active', mode === 'semester');
+        const sortedData = [...cachedData.fullList].sort((a, b) => mode === 'career' ? b.careerTotal - a.careerTotal : b.semesterTotal - a.semesterTotal).slice(0, 10);
+        document.getElementById('leaderboard-container').innerHTML = sortedData.map((entry, i) => `
+            <div class="flex items-center justify-between p-4 rounded-2xl ${entry.displayName.toLowerCase() === cachedData.profile.displayName.toLowerCase() ? 'bg-primary-gold/20 ring-2 ring-primary-gold' : 'bg-gray-50'}">
+                <div class="flex items-center space-x-4">
+                    <span class="font-black text-gray-300 w-6">#${i+1}</span>
+                    <span class="font-bold">${entry.displayName}</span>
                 </div>
-                <span class="text-sm font-black text-primary-gold">${f.points} PTS</span>
+                <span class="font-black text-primary-gold">${mode === 'career' ? entry.careerTotal : entry.semesterTotal}</span>
             </div>
         `).join('');
     }
@@ -271,36 +295,31 @@
             cachedData = await res.json();
             cachedData.fullList = cachedData.fullList || cachedData.leaderboard;
 
-            // Global Profile
-            document.getElementById('sidebar-name').innerText = cachedData.profile.displayName;
-            document.getElementById('profile-initial').innerText = cachedData.profile.displayName.charAt(0);
-            
-            // Dashboard
+            document.getElementById('sidebar-name').innerText = cachedData.profile.fullName;
+            document.getElementById('sidebar-status').innerText = cachedData.profile.status;
+            document.getElementById('profile-initial').innerText = cachedData.profile.fullName.charAt(0);
             document.getElementById('welcome-name').innerText = cachedData.profile.displayName;
-            document.getElementById('home-career').innerText = cachedData.stats.careerTotal;
-            document.getElementById('home-rank').innerText = `#${cachedData.rank}`;
 
-            // Tracker Stats
             document.getElementById('career-total').innerText = cachedData.stats.careerTotal;
             document.getElementById('sem-total').innerText = cachedData.stats.semesterTotal;
-            
-            // Milestones logic
-            const total = cachedData.stats.careerTotal;
-            if (total >= 50) document.getElementById('badge-50').classList.add('badge-active');
-            if (total >= 100) document.getElementById('badge-100').classList.add('badge-active');
-            if (total >= 200) document.getElementById('badge-200').classList.add('badge-active');
+            document.getElementById('sem-label').innerText = cachedData.currentSemesterName;
+            document.getElementById('user-rank').innerText = `#${cachedData.rank}`;
 
-            // Leaderboard
-            const sortedLB = [...cachedData.fullList].sort((a, b) => b.careerTotal - a.careerTotal).slice(0, 10);
-            document.getElementById('leaderboard-container').innerHTML += sortedLB.map((e, i) => `
-                <div class="flex justify-between p-3 rounded-xl ${e.displayName === cachedData.profile.displayName ? 'bg-primary-gold text-white' : 'bg-gray-50'}">
-                    <span class="text-xs font-bold">${i+1}. ${e.displayName}</span>
-                    <span class="text-xs font-black">${e.careerTotal}</span>
+            handleMilestones(cachedData.stats.careerTotal);
+            updateLeaderboard('career');
+            renderFamilyUI();
+            updateClock();
+
+            const histContainer = document.getElementById('history-container');
+            histContainer.innerHTML = [...cachedData.stats.history].reverse().map(h => `
+                <div class="flex items-center">
+                    <div class="w-24 text-[10px] font-black text-gray-400 uppercase tracking-tighter">${h.semester}</div>
+                    <div class="flex-1 h-2.5 bg-gray-100 rounded-full overflow-hidden mx-3">
+                        <div class="h-full bg-primary-gold" style="width: ${Math.min((h.count / 40) * 100, 100)}%"></div>
+                    </div>
+                    <div class="w-8 text-right font-black text-xs">${h.count}</div>
                 </div>
             `).join('');
-
-            updateClock();
-            renderFamilyUI();
 
             document.getElementById('loading-overlay').classList.add('opacity-0');
             setTimeout(() => document.getElementById('loading-overlay').style.display = 'none', 500);
