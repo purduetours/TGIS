@@ -74,6 +74,19 @@
         .rank-2 { height: 110px; background: #E5E7EB; border: 2px solid #D1D5DB; }
         .rank-3 { height: 80px; background: #FFEDD5; border: 2px solid #FED7AA; }
         .rank-4 { height: 50px; background: #f3f4f6; border: 1px dashed #ccc; }
+
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes pulse-soft { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+        .loader { 
+            border-top-color: #CFB991; 
+            border-left-color: #CFB991; /* Adding a second side makes it look more "active" */
+            animation: spinner 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite; 
+        }
+
+        .loading-text {
+            animation: pulse-soft 2s ease-in-out infinite;
+        }
     </style>
     <meta name="apple-mobile-web-app-capable" content="yes">
 
@@ -89,8 +102,15 @@
 <body class="bg-gray-50 font-sans antialiased text-text-dark">
 
 <div id="loading-overlay" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center transition-opacity duration-500">
-    <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
-    <h2 class="font-bold text-lg">Loading TGIS 2.3 ...</h2>
+    <div class="relative flex items-center justify-center mb-6">
+        <div class="loader ease-linear rounded-full border-4 border-gray-100 h-16 w-16"></div>
+        <div class="absolute text-xl">🚂</div>
+    </div>
+    
+    <div class="text-center loading-text">
+        <h2 class="font-black text-xl tracking-tight text-gray-800">TGIS 2.3</h2>
+        <p class="text-[10px] font-bold text-primary-gold uppercase tracking-[0.3em] mt-1">Retrieving Tour Data</p>
+    </div>
 </div>
 
 <nav id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white shadow-2xl border-r border-gray-100 p-6 z-40 hidden lg:block overflow-y-auto">
