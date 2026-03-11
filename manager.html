@@ -90,126 +90,147 @@
 </div>
 
 <script>
-const scriptURL = 'https://script.google.com/macros/s/AKfycbz-RvNHk8SpTjtKt_r00cTmkH6DWtQeApayShxo9iDHsn7TyrhgQXWL2H-1ChBFfnaV/exec';
-let tourData = [];
-let currentMonday = getMonday(new Date());
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbz-RvNHk8SpTjtKt_r00cTmkH6DWtQeApayShxo9iDHsn7TyrhgQXWL2H-1ChBFfnaV/exec';
+    let tourData = [];
+    let rawData = [];
+    let currentMonday = getMonday(new Date());
 
-function getMonday(d) {
-    d = new Date(d);
-    const day = d.getDay();
-    const diff = d.getDate() - day + (day === 0 ? -6 : 1); 
-    return new Date(d.setDate(diff));
-}
+    // Helper to find the Monday of whatever week is selected
+    function getMonday(d) {
+        d = new Date(d);
+        const day = d.getDay();
+        const diff = d.getDate() - day + (day === 0 ? -6 : 1); 
+        const monday = new Date(d.setDate(diff));
+        monday.setHours(0,0,0,0);
+        return monday;
+    }
 
-function changeWeek(days) {
-    currentMonday.setDate(currentMonday.getDate() + days);
-    updateDatePickerDisplay();
-    renderSchedule();
-}
-
-function jumpToDate(dateStr) {
-    currentMonday = getMonday(new Date(dateStr));
-    renderSchedule();
-}
-
-function updateDatePickerDisplay() {
-    document.getElementById('schedule-date-picker').value = currentMonday.toISOString().split('T')[0];
-}
-
-function switchTab(tabName) {
-    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-    document.getElementById(`tab-${tabName}`).classList.add('active');
-    document.body.classList.toggle('control-mode', tabName === 'control');
-    
-    if(tabName === 'schedule') {
+    function changeWeek(days) {
+        currentMonday.setDate(currentMonday.getDate() + days);
         updateDatePickerDisplay();
         renderSchedule();
     }
-}
 
-async function init() {
-    try {
-        const response = await fetch(scriptURL);
-        const data = await response.json();
-        tourData = data.tours || [];
+    function jumpToDate(dateStr) {
+        if(!dateStr) return;
+        // Replace hyphens with slashes to prevent timezone shifting on some browsers
+        currentMonday = getMonday(new Date(dateStr.replace(/-/g, '\/')));
+        renderSchedule();
+    }
+
+    function updateDatePickerDisplay() {
+        const picker = document.getElementById('schedule-date-picker');
+        if(picker) picker.value = currentMonday.toISOString().split('T')[0];
+    }
+
+    function switchTab(tabName) {
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        document.getElementById(`tab-${tabName}`).classList.add('active');
+        document.body.classList.toggle('control-mode', tabName === 'control');
         
-        // Ensure dates are actual Date objects for comparison
-        tourData.forEach(t => {
-            if (t.date) t.dateObj = new Date(t.date);
-        });
+        if(tabName === 'schedule') {
+            updateDatePickerDisplay();
+            renderSchedule();
+        }
+    }
 
-        document.getElementById('loading-overlay').classList.add('opacity-0');
-        setTimeout(() => document.getElementById('loading-overlay').style.display = 'none', 500);
-        
-        updateDatePickerDisplay();
-    } catch (e) { console.error("Init failed:", e); }
-}
+    async function init() {
+        const overlay = document.getElementById('loading-overlay');
+        try {
+            const response = await fetch(scriptURL);
+            const data = await response.json();
+            
+            rawData = data.roster || [];
+            tourData = data.tours || [];
+            
+            // Clean up dates from the Google Sheet
+            tourData.forEach(t => {
+                if (t.date) {
+                    t.dateObj = new Date(t.date);
+                    t.dateObj.setHours(0,0,0,0);
+                }
+            });
 
-function renderSchedule() {
-    const container = document.getElementById('schedule-container');
-    const slots = [
-        { code: '9DV', time: '9:30 AM' },
-        { code: '0DV', time: '10:30 AM' },
-        { code: '1DV', time: '1:30 PM' },
-        { code: '2DV', time: '2:30 PM' }
-    ];
+            // Optional: Render roster if the container exists
+            // renderRoster(rawData); 
 
-    let html = '';
+            updateDatePickerDisplay();
+        } catch (e) { 
+            console.error("TGIS Init Error:", e);
+        } finally {
+            // This hides the loader even if the fetch fails
+            overlay.classList.add('opacity-0');
+            setTimeout(() => overlay.style.display = 'none', 500);
+        }
+    }
 
-    for (let i = 0; i < 5; i++) {
-        const workDate = new Date(currentMonday);
-        workDate.setDate(currentMonday.getDate() + i);
-        
-        const dateString = workDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        const dayName = workDate.toLocaleDateString('en-US', { weekday: 'long' });
+    function renderSchedule() {
+        const container = document.getElementById('schedule-container');
+        if(!container) return;
 
-        html += `
-            <div class="day-column">
-                <div class="text-center mb-4">
-                    <h3 class="font-black text-gray-900 uppercase tracking-tighter leading-none">${dayName}</h3>
-                    <span class="text-[10px] font-bold text-primary-gold uppercase">${dateString}</span>
-                </div>
-                ${slots.map(slot => {
-                    // 1. Get all entries for THIS date and THIS slot
-                    const entriesInSlot = tourData.filter(t => {
-                        return t.type === slot.code && 
-                               t.dateObj && 
-                               t.dateObj.toDateString() === workDate.toDateString();
-                    });
+        const slots = [
+            { code: '9DV', time: '9:30 AM' },
+            { code: '0DV', time: '10:30 AM' },
+            { code: '1DV', time: '1:30 PM' },
+            { code: '2DV', time: '2:30 PM' }
+        ];
 
-                    // 2. Check if ANY entry in this slot is "N/A"
-                    const isCancelled = entriesInSlot.some(g => String(g.guide).toUpperCase() === 'N/A');
+        let html = '';
 
-                    if (isCancelled) {
+        for (let i = 0; i < 5; i++) {
+            const workDate = new Date(currentMonday);
+            workDate.setDate(currentMonday.getDate() + i);
+            workDate.setHours(0,0,0,0);
+            
+            const dateString = workDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            const dayName = workDate.toLocaleDateString('en-US', { weekday: 'long' });
+
+            html += `
+                <div class="day-column">
+                    <div class="text-center mb-4">
+                        <h3 class="font-black text-gray-900 uppercase tracking-tighter leading-none">${dayName}</h3>
+                        <span class="text-[10px] font-bold text-[#CFB991] uppercase">${dateString}</span>
+                    </div>
+                    ${slots.map(slot => {
+                        const entriesInSlot = tourData.filter(t => {
+                            return t.type === slot.code && 
+                                   t.dateObj && 
+                                   t.dateObj.getTime() === workDate.getTime();
+                        });
+
+                        // Filter out "N/A" entries
+                        const isCancelled = entriesInSlot.some(g => String(g.guide).trim().toUpperCase() === 'N/A');
+
+                        if (isCancelled) {
+                            return `
+                                <div class="tour-slot opacity-50 border-dashed border-gray-200 bg-gray-50">
+                                    <p class="tour-time-label">${slot.time}</p>
+                                    <span class="text-[9px] text-gray-400 font-bold italic">NO TOUR SCHEDULED</span>
+                                </div>
+                            `;
+                        }
+
                         return `
-                            <div class="tour-slot opacity-50 border-dashed border-gray-200">
+                            <div class="tour-slot">
                                 <p class="tour-time-label">${slot.time}</p>
-                                <span class="text-[9px] text-gray-400 font-bold italic">NO TOUR SCHEDULED</span>
+                                <div class="flex flex-col">
+                                    ${entriesInSlot.length > 0 ? entriesInSlot.map(g => `
+                                        <span class="guide-name-pill ${g.status === 'DROP' ? 'status-drop' : ''}">
+                                            ${g.guide} ${g.status === 'DROP' ? '⚠️' : ''}
+                                        </span>
+                                    `).join('') : '<span class="text-[9px] text-gray-300 italic">No guides assigned</span>'}
+                                </div>
                             </div>
                         `;
-                    }
-
-                    return `
-                        <div class="tour-slot">
-                            <p class="tour-time-label">${slot.time}</p>
-                            <div class="flex flex-col">
-                                ${entriesInSlot.length > 0 ? entriesInSlot.map(g => `
-                                    <span class="guide-name-pill ${g.status === 'DROP' ? 'status-drop' : ''}">
-                                        ${g.guide} ${g.status === 'DROP' ? '⚠️' : ''}
-                                    </span>
-                                `).join('') : '<span class="text-[9px] text-gray-300 italic">No guides assigned</span>'}
-                            </div>
-                        </div>
-                    `;
-                }).join('')}
-            </div>
-        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+        container.innerHTML = html;
     }
-    container.innerHTML = html;
-}
 
-init();
-
+    // Launch!
+    init();
 </script>
 </body>
 </html>
