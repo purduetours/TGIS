@@ -66,6 +66,21 @@
         .tour-slot { height: 190px !important; } /* Slightly shorter for paper */
         @page { size: landscape; margin: 1cm; }
     }
+
+    /* Hide scrollbars but keep the container functional */
+.flex.flex-col.gap-1.overflow-y-auto {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;  /* IE and Edge */
+}
+
+.flex.flex-col.gap-1.overflow-y-auto::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+}
+
+/* Ensure the tour-slot itself doesn't show a scrollbar if content overflows */
+.tour-slot {
+    overflow: hidden !important;
+}
 </style>
 
 
@@ -222,6 +237,7 @@
     const container = document.getElementById('schedule-container');
     if(!container) return;
 
+    // Defined slot codes and their associated background colors
     const slots = [
         { code: '9DV', time: '9:30 AM', color: 'bg-slot-9DV' },
         { code: '0DV', time: '10:30 AM', color: 'bg-slot-0DV' },
@@ -231,6 +247,7 @@
 
     let html = '';
 
+    // Loop through Monday to Friday (5 days)
     for (let i = 0; i < 5; i++) {
         const workDate = new Date(currentMonday);
         workDate.setDate(currentMonday.getDate() + i);
@@ -246,20 +263,22 @@
                     <span class="text-[10px] font-bold text-[#CFB991] uppercase">${dateString}</span>
                 </div>
                 ${slots.map(slot => {
+                    // Filter tour data for the specific day and time code
                     const entriesInSlot = tourData.filter(t => {
                         return t.type === slot.code && 
                                t.dateObj && 
                                t.dateObj.getTime() === workDate.getTime();
                     });
 
+                    // Check if the slot is marked as N/A or #N/A in the database
                     const isCancelled = entriesInSlot.some(g => {
                         const val = String(g.guide).trim().toUpperCase();
                         return val === 'N/A' || val === '#N/A';
                     });
 
-                    // Base classes for every slot
                     let slotClasses = `tour-slot ${slot.color}`;
                     
+                    // Case 1: The Tour is explicitly cancelled/inactive
                     if (isCancelled) {
                         return `
                             <div class="${slotClasses} opacity-60 border-dashed items-center justify-center">
@@ -269,10 +288,11 @@
                         `;
                     }
 
+                    // Case 2: Standard Active Tour Slot
                     return `
                         <div class="${slotClasses}">
                             <p class="tour-time-label">${slot.time}</p>
-                            <div class="flex flex-col gap-1 overflow-y-auto">
+                            <div class="flex flex-col gap-1 overflow-y-auto h-full">
                                 ${entriesInSlot.length > 0 ? entriesInSlot.map(g => `
                                     <span class="guide-name-pill ${g.status === 'DROP' ? 'status-drop' : ''} shadow-sm">
                                         ${g.guide} ${g.status === 'DROP' ? '⚠️' : ''}
