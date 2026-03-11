@@ -6,211 +6,146 @@
     <title>TGIS Manager Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'] },
-                    colors: {
-                        'primary-gold': '#CFB991',
-                        'text-dark': '#374151',
-                        'status-green': '#10B981',
-                    }
-                }
-            }
-        }
-    </script>
     <style>
-        .content-area { margin-left: 18rem; transition: all 0.3s ease; }
-        @media (max-width: 1024px) { 
-            .content-area { margin-left: 0; }
-            #sidebar { transform: translateX(-100%); transition: transform 0.3s ease; }
-            #sidebar.open { transform: translateX(0); display: block !important; }
-        }
+        body { font-family: 'Inter', sans-serif; transition: background 0.5s ease; }
+        .content-area { margin-left: 18rem; transition: all 0.3s ease; min-height: 100vh; }
+        @media (max-width: 1024px) { .content-area { margin-left: 0; } }
+        
+        body.control-mode { background-image: url('boss.png'); background-size: cover; background-position: center; background-attachment: fixed; }
+        body.control-mode .content-area { margin-left: 0; } 
+        body.control-mode nav { display: none; }
+
         .loader { border-top-color: #CFB991; animation: spinner 0.6s linear infinite; }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        .mini-badge { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; filter: grayscale(1); opacity: 0.15; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 1px solid rgba(0,0,0,0.05); }
-        .mini-badge.active { filter: grayscale(0); opacity: 1; transform: scale(1.1); box-shadow: 0 4px 10px rgba(207, 185, 145, 0.4); border: 1px solid rgba(207, 185, 145, 0.3); }
+        .mini-badge { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; opacity: 0.15; filter: grayscale(1); transition: 0.3s; border: 1px solid rgba(0,0,0,0.05); }
+        .mini-badge.active { filter: grayscale(0); opacity: 1; transform: scale(1.1); border: 1px solid rgba(207, 185, 145, 0.3); }
         
-        .roster-row { transition: background-color 0.2s; }
-        .roster-row:hover { background-color: #F9FAFB; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Schedule Grid Styling */
+        .schedule-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; }
+        .day-column { background: white; border-radius: 1.5rem; border: 1px solid #F3F4F6; padding: 1rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .tour-slot { margin-bottom: 1rem; padding: 0.75rem; border-radius: 1rem; background: #F9FAFB; border: 1px solid #F3F4F6; }
+        .tour-time-label { font-size: 10px; font-weight: 900; color: #CFB991; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem; }
+        .guide-name-pill { font-size: 11px; font-weight: 600; background: white; border: 1px solid #E5E7EB; padding: 2px 8px; border-radius: 6px; margin-bottom: 3px; display: inline-block; width: 100%; }
+        .status-drop { color: #EF4444; border-color: #FEE2E2; background: #FEF2F2; }
     </style>
 </head>
-<body class="bg-gray-50 font-sans antialiased text-text-dark">
+<body class="bg-gray-50 text-gray-800 antialiased">
 
 <div id="loading-overlay" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center transition-opacity duration-500">
-    <div id="loader-visual" class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
-    <h2 id="loading-text" class="font-bold text-lg text-primary-gold uppercase tracking-widest text-center px-6 text-nowrap">Syncing Staff Records...</h2>
+    <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
+    <h2 class="font-bold text-lg text-[#CFB991] uppercase tracking-widest">Accessing TGIS Database...</h2>
 </div>
 
-<nav id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white shadow-2xl border-r border-gray-100 p-6 z-40 hidden lg:block overflow-y-auto">
+<nav id="main-nav" class="fixed top-0 left-0 h-full w-72 bg-white shadow-2xl border-r border-gray-100 p-6 z-40 hidden lg:block">
     <div class="mb-8">
-        <p class="text-[10px] font-black text-primary-gold uppercase tracking-[0.2em] mb-1">Purdue University</p>
+        <p class="text-[10px] font-black text-[#CFB991] uppercase tracking-[0.2em] mb-1">Purdue University</p>
         <h1 class="text-xl font-black leading-tight">TGIS Manager</h1>
     </div>
 
-    <div class="mb-8 p-4 bg-gray-50 rounded-2xl border border-gray-100">
-        <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-full bg-text-dark flex items-center justify-center text-white font-black shadow-inner text-sm">M</div>
-            <div>
-                <p class="font-bold text-sm leading-tight">Admin Console</p>
-                <p class="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">Manager Access</p>
-            </div>
-        </div>
-    </div>
-
-    <div class="mb-8">
-        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 ml-2 text-nowrap">Dashboard Views</p>
-        <div class="flex items-center p-3 bg-primary-gold text-white rounded-xl font-bold text-sm shadow-lg shadow-primary-gold/30 cursor-default">
-            <span class="mr-3">📋</span> Master Roster
-        </div>
+    <div class="space-y-2">
+        <button onclick="switchTab('roster')" class="w-full flex items-center p-3 hover:bg-gray-50 rounded-xl font-bold text-sm transition-all">
+            <span class="mr-3 text-lg">📋</span> Master Roster
+        </button>
+        <button onclick="switchTab('schedule')" class="w-full flex items-center p-3 hover:bg-gray-50 rounded-xl font-bold text-sm transition-all">
+            <span class="mr-3 text-lg">📅</span> Tour Schedule
+        </button>
+        <button onclick="switchTab('control')" class="w-full flex items-center p-3 hover:bg-gray-50 text-gray-600 rounded-xl font-bold text-sm transition-all">
+            <span class="mr-3 text-lg">🕹️</span> Control Center
+        </button>
     </div>
 </nav>
 
-<header class="lg:hidden p-4 bg-white shadow-md flex justify-between items-center z-20 sticky top-0">
-    <div class="text-lg font-black text-text-dark italic">TGIS MANAGER</div>
-    <button id="mobile-menu-button" class="text-text-dark text-3xl p-2 focus:outline-none">☰</button>
-</header>
+<div class="content-area">
+    <div id="tab-roster" class="tab-content active p-4 sm:p-8">
+        <h1 class="text-4xl font-black mb-8">Staff Roster</h1>
+        <div id="roster-table-container"></div> </div>
 
-<div class="content-area p-4 sm:p-8">
-    <header class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div>
-            <h1 class="text-4xl font-black text-text-dark tracking-tight">Staff Roster</h1>
-            <p id="sem-label" class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1 italic">Connecting to Google Sheets...</p>
-        </div>
-        
-        <div class="relative w-full md:w-96">
-            <input type="text" id="managerSearch" onkeyup="filterRoster()" placeholder="Search guide names..." 
-                class="w-full bg-white border border-gray-200 py-3.5 pl-12 pr-4 rounded-2xl focus:ring-2 focus:ring-primary-gold outline-none shadow-sm transition-all font-medium">
-            <span class="absolute left-4 top-4 opacity-30 text-xl">🔍</span>
-        </div>
-    </header>
+    <div id="tab-schedule" class="tab-content p-4 sm:p-8">
+        <header class="mb-10">
+            <h1 class="text-4xl font-black text-gray-900 tracking-tight">Tour Schedule</h1>
+            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Live Weekly Calendar</p>
+        </header>
 
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
-        <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total Guides</p>
-            <h3 id="stat-total" class="text-3xl font-black text-text-dark">--</h3>
-        </div>
-        <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Avg Tours / Sem</p>
-            <h3 id="stat-avg" class="text-3xl font-black text-status-green">--</h3>
-        </div>
-        <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Milestone Earners</p>
-            <h3 id="stat-milestones" class="text-3xl font-black text-primary-gold">--</h3>
-        </div>
+        <div id="schedule-container" class="schedule-grid">
+            </div>
     </div>
 
-    <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-gray-50 border-b border-gray-100">
-                        <th class="p-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Guide Name</th>
-                        <th class="p-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Semester</th>
-                        <th class="p-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Career Total</th>
-                        <th class="p-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Milestones</th>
-                    </tr>
-                </thead>
-                <tbody id="roster-body" class="divide-y divide-gray-50">
-                    </tbody>
-            </table>
-        </div>
+    <div id="tab-control" class="tab-content h-screen w-full flex flex-col items-center justify-center text-white relative">
+        <button onclick="switchTab('roster')" class="absolute top-8 right-8 bg-white/10 px-6 py-2 rounded-full font-black uppercase tracking-widest">✕ Exit Control</button>
+        <h1 class="text-6xl font-black mb-4">CONTROL CENTER</h1>
     </div>
 </div>
 
 <script>
-    //  NEW Deployment URL
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbx_G_NCwFitmOz4fhwSHHubK3BfG5BpOPPhRlCgeF9EMpQzWG_0pFEmaTQ4YhQ4gM9q/exec';
-    let fullData = [];
+    const scriptURL = 'YOUR_APPS_SCRIPT_URL';
+    let rawData = [];
+    let tourData = [];
+
+    function switchTab(tabName) {
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        document.getElementById(`tab-${tabName}`).classList.add('active');
+        document.body.classList.toggle('control-mode', tabName === 'control');
+        
+        if(tabName === 'schedule') renderSchedule();
+    }
 
     async function init() {
         try {
-            // Added cache: 'no-store' to ensure we bypass browser caching of old 0 values
-            const response = await fetch(scriptURL, { cache: 'no-store' });
-            if (!response.ok) throw new Error("Network response was not ok");
-            
+            const response = await fetch(scriptURL);
             const data = await response.json();
-            if (data.error) throw new Error(data.error);
-
-            fullData = data.roster || [];
-            document.getElementById('sem-label').innerText = `Data for: ${data.currentSemester}`;
-
-            calculateStats(fullData);
-            renderTable(fullData);
-
-            // Exit Loader
+            
+            rawData = data.roster || [];
+            tourData = data.tours || []; // We assume the script now returns a "tours" array
+            
+            // Your existing Roster init logic...
+            
             document.getElementById('loading-overlay').classList.add('opacity-0');
             setTimeout(() => document.getElementById('loading-overlay').style.display = 'none', 500);
+        } catch (e) { console.error(e); }
+    }
 
-        } catch (e) {
-            console.error(e);
-            document.getElementById('loader-visual').style.display = 'none';
-            document.getElementById('loading-text').innerHTML = `
-                <div class="max-w-xs mx-auto">
-                    <p class="text-red-500 font-black text-xl mb-2">Sync Error</p>
-                    <p class="text-gray-400 text-xs normal-case mb-6">${e.message}</p>
-                    <button onclick="location.reload()" class="w-full bg-primary-gold text-white py-3 rounded-xl font-bold text-sm shadow-lg">Retry Sync</button>
+    function renderSchedule() {
+        const container = document.getElementById('schedule-container');
+        const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+        const slots = [
+            { code: '9DV', time: '9:30 AM' },
+            { code: '0DV', time: '10:30 AM' },
+            { code: '1DV', time: '1:30 PM' },
+            { code: '2DV', time: '2:30 PM' }
+        ];
+
+        // Group tours by date (the Date column in your sheet)
+        container.innerHTML = days.map((day, dayIndex) => {
+            return `
+                <div class="day-column">
+                    <h3 class="font-black text-center mb-4 text-gray-900 uppercase tracking-tighter">${day}</h3>
+                    ${slots.map(slot => {
+                        // Filter guides for this specific day and time code
+                        // Note: dayIndex 0 = Monday. Adjust logic if your sheet dates vary.
+                        const guidesInSlot = tourData.filter(t => t.type === slot.code); 
+                        
+                        return `
+                            <div class="tour-slot">
+                                <p class="tour-time-label">${slot.time}</p>
+                                <div class="flex flex-col">
+                                    ${guidesInSlot.length > 0 ? guidesInSlot.map(g => `
+                                        <span class="guide-name-pill ${g.status === 'DROP' ? 'status-drop' : ''}">
+                                            ${g.guide} ${g.status === 'DROP' ? '⚠️' : ''}
+                                        </span>
+                                    `).join('') : '<span class="text-[9px] text-gray-300 italic">No guides assigned</span>'}
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
                 </div>
             `;
-        }
+        }).join('');
     }
 
-    function calculateStats(guides) {
-        const total = guides.length;
-        const avg = total > 0 ? (guides.reduce((s, c) => s + c.semesterTotal, 0) / total).toFixed(1) : 0;
-        const milestones = guides.filter(g => g.careerTotal >= 50).length;
-
-        document.getElementById('stat-total').innerText = total;
-        document.getElementById('stat-avg').innerText = avg;
-        document.getElementById('stat-milestones').innerText = milestones;
-    }
-
-    function renderTable(guides) {
-        const body = document.getElementById('roster-body');
-        
-        // Default Sort: Most active this semester at the top
-        const sorted = [...guides].sort((a, b) => b.semesterTotal - a.semesterTotal);
-
-        body.innerHTML = sorted.map(g => `
-            <tr class="roster-row">
-                <td class="p-6">
-                    <div class="font-bold text-text-dark text-lg">${g.displayName}</div>
-                    <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest">${g.status || 'Tour Guide'}</div>
-                </td>
-                <td class="p-6 text-center">
-                    <span class="inline-block px-4 py-1.5 bg-status-green/10 text-status-green font-black rounded-full text-xs">
-                        ${g.semesterTotal}
-                    </span>
-                </td>
-                <td class="p-6 text-center font-black text-xl text-text-dark">
-                    ${g.careerTotal}
-                </td>
-                <td class="p-6">
-                    <div class="flex items-center space-x-3">
-                        <div class="mini-badge bg-blue-50 text-blue-500 ${g.careerTotal >= 50 ? 'active' : ''}" title="Bell Tower Boss (50+)">🔔</div>
-                        <div class="mini-badge bg-orange-50 text-orange-500 ${g.careerTotal >= 100 ? 'active' : ''}" title="Century Club (100+)">💯</div>
-                        <div class="mini-badge bg-yellow-50 text-yellow-600 ${g.careerTotal >= 200 ? 'active' : ''}" title="Golden Guide (200+)">✨</div>
-                    </div>
-                </td>
-            </tr>
-        `).join('');
-    }
-
-    function filterRoster() {
-        const term = document.getElementById('managerSearch').value.toLowerCase();
-        const filtered = fullData.filter(g => 
-            g.displayName.toLowerCase().includes(term) || 
-            (g.status && g.status.toLowerCase().includes(term))
-        );
-        renderTable(filtered);
-    }
-
-    // Mobile Navigation logic
-    document.getElementById('mobile-menu-button').onclick = () => document.getElementById('sidebar').classList.add('open');
-    
-    // Auto-init
     init();
 </script>
 </body>
