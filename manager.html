@@ -6,65 +6,70 @@
     <title>TGIS Manager Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; transition: background 0.5s ease; }
-        .content-area { margin-left: 18rem; transition: all 0.3s ease; min-height: 100vh; }
-        @media (max-width: 1024px) { .content-area { margin-left: 0; } }
-        
-        body.control-mode { background-image: url('boss.png'); background-size: cover; background-position: center; background-attachment: fixed; }
-        body.control-mode .content-area { margin-left: 0; } 
-        body.control-mode nav { display: none; }
 
-        .loader { border-top-color: #CFB991; animation: spinner 0.6s linear infinite; }
-        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
-        .mini-badge { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; opacity: 0.15; filter: grayscale(1); transition: 0.3s; border: 1px solid rgba(0,0,0,0.05); }
-        .mini-badge.active { filter: grayscale(0); opacity: 1; transform: scale(1.1); border: 1px solid rgba(207, 185, 145, 0.3); }
-        
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
 
-        /* Ensure a neat grid by forcing every slot to be the same height */
-/* 6 guides (approx 30px each) + label = ~220px */
-.tour-slot { 
-    height: 220px; 
-    overflow: hidden; 
-    display: flex; 
-    flex-direction: column;
-    padding: 0.75rem;
-    border-radius: 1rem;
-    border: 1px solid #F3F4F6;
-    transition: transform 0.2s;
-}
+<style>
+    body { font-family: 'Inter', sans-serif; transition: background 0.5s ease; }
+    .content-area { margin-left: 18rem; transition: all 0.3s ease; min-height: 100vh; }
+    @media (max-width: 1024px) { .content-area { margin-left: 0; } }
+    
+    body.control-mode { background-image: url('boss.png'); background-size: cover; background-position: center; background-attachment: fixed; }
+    body.control-mode .content-area { margin-left: 0; } 
+    body.control-mode nav { display: none; }
 
-/* Color Coding for Times */
-.bg-slot-9DV { background-color: #f0f7ff; border-color: #bae6fd; } /* Light Blue */
-.bg-slot-0DV { background-color: #fdf2f8; border-color: #fbcfe8; } /* Light Pink */
-.bg-slot-1DV { background-color: #f0fdf4; border-color: #bbf7d0; } /* Light Green */
-.bg-slot-2DV { background-color: #fffbeb; border-color: #fef3c7; } /* Light Yellow */
+    .loader { border-top-color: #CFB991; animation: spinner 0.6s linear infinite; }
+    @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    
+    .mini-badge { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; opacity: 0.15; filter: grayscale(1); transition: 0.3s; border: 1px solid rgba(0,0,0,0.05); }
+    .mini-badge.active { filter: grayscale(0); opacity: 1; transform: scale(1.1); border: 1px solid rgba(207, 185, 145, 0.3); }
+    
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
 
-/* Print Formatting */
-@media print {
-    nav, #loading-overlay, .no-print { display: none !important; }
-    .content-area { margin-left: 0 !important; padding: 0 !important; }
-    body { background: white !important; }
-    .schedule-grid { 
-        display: grid !important; 
-        grid-template-columns: repeat(5, 1fr) !important; 
-        gap: 5px !important;
+    /* --- SCHEDULE GRID STYLING --- */
+    .schedule-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; }
+    .day-column { background: white; border-radius: 1.5rem; border: 1px solid #F3F4F6; padding: 1rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+    
+    /* Forced Height for Neat Grid (matches 6 guide names) */
+    .tour-slot { 
+        height: 220px; 
+        margin-bottom: 1rem; 
+        padding: 0.75rem; 
+        border-radius: 1rem; 
+        border: 1px solid #F3F4F6; 
+        display: flex;
+        flex-direction: column;
+        transition: all 0.2s ease;
     }
-    @page { size: landscape; margin: 0.5cm; }
-    .tour-slot { height: 180px !important; border: 1px solid #ddd !important; }
-}
 
-        /* Schedule Grid Styling */
-        .schedule-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; }
-        .day-column { background: white; border-radius: 1.5rem; border: 1px solid #F3F4F6; padding: 1rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-        .tour-slot { margin-bottom: 1rem; padding: 0.75rem; border-radius: 1rem; background: #F9FAFB; border: 1px solid #F3F4F6; }
-        .tour-time-label { font-size: 10px; font-weight: 900; color: #CFB991; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem; }
-        .guide-name-pill { font-size: 11px; font-weight: 600; background: white; border: 1px solid #E5E7EB; padding: 2px 8px; border-radius: 6px; margin-bottom: 3px; display: inline-block; width: 100%; }
-        .status-drop { color: #EF4444; border-color: #FEE2E2; background: #FEF2F2; }
-    </style>
+    .tour-time-label { font-size: 10px; font-weight: 900; color: #CFB991; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+    .guide-name-pill { font-size: 11px; font-weight: 600; background: white; border: 1px solid #E5E7EB; padding: 4px 8px; border-radius: 6px; margin-bottom: 3px; display: inline-block; width: 100%; }
+    .status-drop { color: #EF4444; border-color: #FEE2E2; background: #FEF2F2; }
+
+    /* Time Slot Color Coding */
+    .bg-slot-9DV { background-color: #f0f7ff; border-color: #bae6fd; } /* Blue */
+    .bg-slot-0DV { background-color: #fdf2f8; border-color: #fbcfe8; } /* Pink */
+    .bg-slot-1DV { background-color: #f0fdf4; border-color: #bbf7d0; } /* Green */
+    .bg-slot-2DV { background-color: #fffbeb; border-color: #fef3c7; } /* Yellow */
+
+    /* --- PRINT LOGIC --- */
+    @media print {
+        nav, #loading-overlay, .no-print, header button, header .flex { display: none !important; }
+        .content-area { margin-left: 0 !important; padding: 0 !important; }
+        body { background: white !important; }
+        .schedule-grid { 
+            display: grid !important; 
+            grid-template-columns: repeat(5, 1fr) !important; 
+            gap: 10px !important;
+        }
+        .day-column { box-shadow: none !important; border: 1px solid #eee !important; }
+        .tour-slot { height: 190px !important; } /* Slightly shorter for paper */
+        @page { size: landscape; margin: 1cm; }
+    }
+</style>
+
+
+    
 </head>
 <body class="bg-gray-50 text-gray-800 antialiased">
 
