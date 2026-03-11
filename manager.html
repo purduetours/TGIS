@@ -53,42 +53,63 @@
     .bg-slot-2DV { background-color: #fffbeb; border-color: #fef3c7; } /* Yellow */
 
     /* --- PRINT LOGIC --- */
-   @media print {
-    /* Hide all UI elements */
-    nav, #loading-overlay, .no-print, header button, header .flex { display: none !important; }
+  @media print {
+    /* 1. Hide everything except the schedule */
+    nav, #loading-overlay, .no-print, header button, header .flex, 
+    #tab-control, #tab-roster, #main-nav { 
+        display: none !important; 
+    }
     
-    /* Reset layout for paper */
-    .content-area { margin-left: 0 !important; padding: 0 !important; width: 100% !important; }
-    body { background: white !important; }
-    
-    /* Force 5-column landscape grid */
+    /* 2. Reset the layout to fill the paper */
+    .content-area { 
+        margin-left: 0 !important; 
+        padding: 0 !important; 
+        width: 100% !important; 
+    }
+    body { 
+        background: white !important; 
+        overflow: visible !important; 
+    }
+
+    /* 3. Force 5 columns across the page */
     .schedule-grid { 
         display: grid !important; 
         grid-template-columns: repeat(5, 1fr) !important; 
-        gap: 8px !important;
+        gap: 5px !important;
         width: 100% !important;
     }
 
-    /* Shrink slots to ensure they all fit on one height-wise */
-    .day-column { box-shadow: none !important; border: 1px solid #ddd !important; padding: 5px !important; }
+    /* 4. Formatting the boxes for sign-in */
+    .day-column { 
+        box-shadow: none !important; 
+        border: 1px solid #eee !important; 
+        padding: 4px !important; 
+    }
     .tour-slot { 
-        height: 180px !important; /* Shorter for print to fit all 4 rows */
-        margin-bottom: 5px !important;
-        padding: 4px !important;
+        height: 180px !important; /* Shorter to ensure all 4 rows fit on one page */
+        margin-bottom: 4px !important;
+        border: 1px solid #ddd !important;
     }
 
+    /* 5. Handling Names and Initials */
     .guide-name-pill {
-        border: none !important;
-        border-bottom: 1px solid #000 !important;
-        border-radius: 0 !important;
-        padding: 0 !important;
-        margin-bottom: 2px !important;
         display: flex !important;
         justify-content: space-between !important;
-        font-size: 9px !important;
+        background: transparent !important;
+        border: none !important;
+        border-bottom: 1px solid #eee !important;
+        border-radius: 0 !important;
+        padding: 0 !important;
     }
 
-    /* Page setup */
+    /* 6. Show the Initials/ACP only now */
+    .print-only-initials {
+        display: inline-block !important;
+        min-width: 40px;
+        text-align: right;
+        font-weight: bold;
+    }
+
     @page { 
         size: landscape; 
         margin: 0.5cm; 
@@ -261,7 +282,7 @@
     renderSchedule();
 }
 
-  function renderSchedule() {
+function renderSchedule() {
     const container = document.getElementById('schedule-container');
     if(!container) return;
 
@@ -300,11 +321,9 @@
                         return val === 'N/A' || val === '#N/A';
                     });
 
-                    let slotClasses = `tour-slot ${slot.color}`;
-                    
                     if (isCancelled) {
                         return `
-                            <div class="${slotClasses} opacity-60 border-dashed items-center justify-center">
+                            <div class="tour-slot ${slot.color} opacity-60 border-dashed items-center justify-center">
                                 <p class="tour-time-label">${slot.time}</p>
                                 <span class="text-[9px] text-gray-500 font-extrabold italic uppercase text-center">No Tour Active</span>
                             </div>
@@ -312,22 +331,21 @@
                     }
 
                     return `
-                        <div class="${slotClasses}">
+                        <div class="tour-slot ${slot.color}">
                             <p class="tour-time-label">${slot.time}</p>
-                            <div class="flex flex-col gap-1 overflow-y-auto h-full">
+                            <div class="flex flex-col gap-1 overflow-hidden h-full">
                                 ${entriesInSlot.length > 0 ? entriesInSlot.map(g => {
-                                    // Logic for Initials vs ACP
                                     const isSpecial = String(g.guide).includes('`');
                                     const cleanName = String(g.guide).replace('`', '');
                                     const initialText = isSpecial ? 'ACP' : '_______';
 
                                     return `
-                                        <div class="guide-name-pill ${g.status === 'DROP' ? 'status-drop' : ''} shadow-sm flex justify-between items-center px-2">
-                                            <span class="truncate pr-1">${cleanName} ${g.status === 'DROP' ? '⚠️' : ''}</span>
-                                            <span class="text-[8px] font-mono text-gray-400">${initialText}</span>
+                                        <div class="guide-name-pill ${g.status === 'DROP' ? 'status-drop' : ''} flex justify-between items-center px-2">
+                                            <span class="truncate pr-1 text-[10px]">${cleanName} ${g.status === 'DROP' ? '⚠️' : ''}</span>
+                                            <span class="print-only-initials text-[9px] font-mono font-bold">${initialText}</span>
                                         </div>
                                     `;
-                                }).join('') : '<span class="text-[9px] text-gray-400 italic py-1 text-center">No guides assigned</span>'}
+                                }).join('') : '<span class="text-[8px] text-gray-400 italic text-center py-1">No guides assigned</span>'}
                             </div>
                         </div>
                     `;
