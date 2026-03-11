@@ -65,19 +65,25 @@
         <div id="roster-table-container"></div> </div>
 
 <div id="tab-schedule" class="tab-content p-4 sm:p-8">
-    <header class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div>
-            <h1 class="text-4xl font-black text-gray-900 tracking-tight">Tour Schedule</h1>
-            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Live Weekly Calendar</p>
-        </div>
-        
+   <header class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
+    <div>
+        <h1 class="text-4xl font-black text-gray-900 tracking-tight">Tour Schedule</h1>
+        <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Live Weekly Calendar</p>
+    </div>
+    
+    <div class="flex items-center gap-2">
+        <button onclick="jumpToToday()" class="bg-white border border-gray-200 px-4 py-2 rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-gray-50 transition-all shadow-sm">
+            Today
+        </button>
+
         <div class="flex items-center bg-white border border-gray-200 rounded-2xl p-2 shadow-sm">
             <button onclick="changeWeek(-7)" class="p-2 hover:bg-gray-50 rounded-xl transition-colors">◀</button>
             <input type="date" id="schedule-date-picker" onchange="jumpToDate(this.value)" 
-                   class="mx-2 font-bold text-sm outline-none bg-transparent">
+                   class="mx-2 font-bold text-sm outline-none bg-transparent cursor-pointer">
             <button onclick="changeWeek(7)" class="p-2 hover:bg-gray-50 rounded-xl transition-colors">▶</button>
         </div>
-    </header>
+    </div>
+</header>
 
     <div id="schedule-container" class="schedule-grid">
         </div>
@@ -164,70 +170,77 @@
         }
     }
 
-    function renderSchedule() {
-        const container = document.getElementById('schedule-container');
-        if(!container) return;
+    function jumpToToday() {
+    currentMonday = getMonday(new Date());
+    updateDatePickerDisplay();
+    renderSchedule();
+}
 
-        const slots = [
-            { code: '9DV', time: '9:30 AM' },
-            { code: '0DV', time: '10:30 AM' },
-            { code: '1DV', time: '1:30 PM' },
-            { code: '2DV', time: '2:30 PM' }
-        ];
+   function renderSchedule() {
+    const container = document.getElementById('schedule-container');
+    if(!container) return;
 
-        let html = '';
+    const slots = [
+        { code: '9DV', time: '9:30 AM' },
+        { code: '0DV', time: '10:30 AM' },
+        { code: '1DV', time: '1:30 PM' },
+        { code: '2DV', time: '2:30 PM' }
+    ];
 
-        for (let i = 0; i < 5; i++) {
-            const workDate = new Date(currentMonday);
-            workDate.setDate(currentMonday.getDate() + i);
-            workDate.setHours(0,0,0,0);
-            
-            const dateString = workDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-            const dayName = workDate.toLocaleDateString('en-US', { weekday: 'long' });
+    let html = '';
 
-            html += `
-                <div class="day-column">
-                    <div class="text-center mb-4">
-                        <h3 class="font-black text-gray-900 uppercase tracking-tighter leading-none">${dayName}</h3>
-                        <span class="text-[10px] font-bold text-[#CFB991] uppercase">${dateString}</span>
-                    </div>
-                    ${slots.map(slot => {
-                        const entriesInSlot = tourData.filter(t => {
-                            return t.type === slot.code && 
-                                   t.dateObj && 
-                                   t.dateObj.getTime() === workDate.getTime();
-                        });
+    for (let i = 0; i < 5; i++) {
+        const workDate = new Date(currentMonday);
+        workDate.setDate(currentMonday.getDate() + i);
+        workDate.setHours(0,0,0,0);
+        
+        const dateString = workDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const dayName = workDate.toLocaleDateString('en-US', { weekday: 'long' });
 
-                        // Filter out "N/A" entries
-                        const isCancelled = entriesInSlot.some(g => String(g.guide).trim().toUpperCase() === 'N/A');
+        html += `
+            <div class="day-column flex flex-col gap-3"> <div class="text-center mb-2">
+                    <h3 class="font-black text-gray-900 uppercase tracking-tighter leading-none">${dayName}</h3>
+                    <span class="text-[10px] font-bold text-[#CFB991] uppercase">${dateString}</span>
+                </div>
+                ${slots.map(slot => {
+                    const entriesInSlot = tourData.filter(t => {
+                        return t.type === slot.code && 
+                               t.dateObj && 
+                               t.dateObj.getTime() === workDate.getTime();
+                    });
 
-                        if (isCancelled) {
-                            return `
-                                <div class="tour-slot opacity-50 border-dashed border-gray-200 bg-gray-50">
-                                    <p class="tour-time-label">${slot.time}</p>
-                                    <span class="text-[9px] text-gray-400 font-bold italic">NO TOUR SCHEDULED</span>
-                                </div>
-                            `;
-                        }
+                    // Check for N/A or #N/A
+                    const isCancelled = entriesInSlot.some(g => {
+                        const val = String(g.guide).trim().toUpperCase();
+                        return val === 'N/A' || val === '#N/A';
+                    });
 
+                    if (isCancelled) {
                         return `
-                            <div class="tour-slot">
+                            <div class="tour-slot opacity-60 border-dashed border-gray-300 bg-gray-50 flex flex-col justify-center min-h-[80px]">
                                 <p class="tour-time-label">${slot.time}</p>
-                                <div class="flex flex-col">
-                                    ${entriesInSlot.length > 0 ? entriesInSlot.map(g => `
-                                        <span class="guide-name-pill ${g.status === 'DROP' ? 'status-drop' : ''}">
-                                            ${g.guide} ${g.status === 'DROP' ? '⚠️' : ''}
-                                        </span>
-                                    `).join('') : '<span class="text-[9px] text-gray-300 italic">No guides assigned</span>'}
-                                </div>
+                                <span class="text-[10px] text-gray-400 font-extrabold italic uppercase tracking-tight">No Tour Active</span>
                             </div>
                         `;
-                    }).join('')}
-                </div>
-            `;
-        }
-        container.innerHTML = html;
+                    }
+
+                    return `
+                        <div class="tour-slot flex flex-col min-h-[80px] transition-all hover:border-[#CFB991]/30">
+                            <p class="tour-time-label">${slot.time}</p>
+                            <div class="flex flex-col gap-1"> ${entriesInSlot.length > 0 ? entriesInSlot.map(g => `
+                                    <span class="guide-name-pill ${g.status === 'DROP' ? 'status-drop' : ''} shadow-sm">
+                                        ${g.guide} ${g.status === 'DROP' ? '⚠️' : ''}
+                                    </span>
+                                `).join('') : '<span class="text-[9px] text-gray-300 italic py-2">No guides assigned</span>'}
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        `;
     }
+    container.innerHTML = html;
+}
 
     // Launch!
     init();
