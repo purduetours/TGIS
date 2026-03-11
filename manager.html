@@ -64,15 +64,24 @@
         <h1 class="text-4xl font-black mb-8">Staff Roster</h1>
         <div id="roster-table-container"></div> </div>
 
-    <div id="tab-schedule" class="tab-content p-4 sm:p-8">
-        <header class="mb-10">
+<div id="tab-schedule" class="tab-content p-4 sm:p-8">
+    <header class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
             <h1 class="text-4xl font-black text-gray-900 tracking-tight">Tour Schedule</h1>
             <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Live Weekly Calendar</p>
-        </header>
+        </div>
+        
+        <div class="flex items-center bg-white border border-gray-200 rounded-2xl p-2 shadow-sm">
+            <button onclick="changeWeek(-7)" class="p-2 hover:bg-gray-50 rounded-xl transition-colors">◀</button>
+            <input type="date" id="schedule-date-picker" onchange="jumpToDate(this.value)" 
+                   class="mx-2 font-bold text-sm outline-none bg-transparent">
+            <button onclick="changeWeek(7)" class="p-2 hover:bg-gray-50 rounded-xl transition-colors">▶</button>
+        </div>
+    </header>
 
-        <div id="schedule-container" class="schedule-grid">
-            </div>
-    </div>
+    <div id="schedule-container" class="schedule-grid">
+        </div>
+</div>
 
     <div id="tab-control" class="tab-content h-screen w-full flex flex-col items-center justify-center text-white relative">
         <button onclick="switchTab('roster')" class="absolute top-8 right-8 bg-white/10 px-6 py-2 rounded-full font-black uppercase tracking-widest">✕ Exit Control</button>
@@ -80,73 +89,124 @@
     </div>
 </div>
 
-<script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbz-RvNHk8SpTjtKt_r00cTmkH6DWtQeApayShxo9iDHsn7TyrhgQXWL2H-1ChBFfnaV/exec';
-    let rawData = [];
-    let tourData = [];
+const scriptURL = 'https://script.google.com/macros/s/AKfycbz-RvNHk8SpTjtKt_r00cTmkH6DWtQeApayShxo9iDHsn7TyrhgQXWL2H-1ChBFfnaV/exec';
+let tourData = [];
+let currentMonday = getMonday(new Date());
 
-    function switchTab(tabName) {
-        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-        document.getElementById(`tab-${tabName}`).classList.add('active');
-        document.body.classList.toggle('control-mode', tabName === 'control');
+function getMonday(d) {
+    d = new Date(d);
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1); 
+    return new Date(d.setDate(diff));
+}
+
+function changeWeek(days) {
+    currentMonday.setDate(currentMonday.getDate() + days);
+    updateDatePickerDisplay();
+    renderSchedule();
+}
+
+function jumpToDate(dateStr) {
+    currentMonday = getMonday(new Date(dateStr));
+    renderSchedule();
+}
+
+function updateDatePickerDisplay() {
+    document.getElementById('schedule-date-picker').value = currentMonday.toISOString().split('T')[0];
+}
+
+function switchTab(tabName) {
+    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+    document.getElementById(`tab-${tabName}`).classList.add('active');
+    document.body.classList.toggle('control-mode', tabName === 'control');
+    
+    if(tabName === 'schedule') {
+        updateDatePickerDisplay();
+        renderSchedule();
+    }
+}
+
+async function init() {
+    try {
+        const response = await fetch(scriptURL);
+        const data = await response.json();
+        tourData = data.tours || [];
         
-        if(tabName === 'schedule') renderSchedule();
-    }
+        // Ensure dates are actual Date objects for comparison
+        tourData.forEach(t => {
+            if (t.date) t.dateObj = new Date(t.date);
+        });
 
-    async function init() {
-        try {
-            const response = await fetch(scriptURL);
-            const data = await response.json();
-            
-            rawData = data.roster || [];
-            tourData = data.tours || []; // We assume the script now returns a "tours" array
-            
-            // Your existing Roster init logic...
-            
-            document.getElementById('loading-overlay').classList.add('opacity-0');
-            setTimeout(() => document.getElementById('loading-overlay').style.display = 'none', 500);
-        } catch (e) { console.error(e); }
-    }
+        document.getElementById('loading-overlay').classList.add('opacity-0');
+        setTimeout(() => document.getElementById('loading-overlay').style.display = 'none', 500);
+        
+        updateDatePickerDisplay();
+    } catch (e) { console.error("Init failed:", e); }
+}
 
-    function renderSchedule() {
-        const container = document.getElementById('schedule-container');
-        const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-        const slots = [
-            { code: '9DV', time: '9:30 AM' },
-            { code: '0DV', time: '10:30 AM' },
-            { code: '1DV', time: '1:30 PM' },
-            { code: '2DV', time: '2:30 PM' }
-        ];
+function renderSchedule() {
+    const container = document.getElementById('schedule-container');
+    const slots = [
+        { code: '9DV', time: '9:30 AM' },
+        { code: '0DV', time: '10:30 AM' },
+        { code: '1DV', time: '1:30 PM' },
+        { code: '2DV', time: '2:30 PM' }
+    ];
 
-        // Group tours by date (the Date column in your sheet)
-        container.innerHTML = days.map((day, dayIndex) => {
-            return `
-                <div class="day-column">
-                    <h3 class="font-black text-center mb-4 text-gray-900 uppercase tracking-tighter">${day}</h3>
-                    ${slots.map(slot => {
-                        // Filter guides for this specific day and time code
-                        // Note: dayIndex 0 = Monday. Adjust logic if your sheet dates vary.
-                        const guidesInSlot = tourData.filter(t => t.type === slot.code); 
-                        
+    let html = '';
+
+    for (let i = 0; i < 5; i++) {
+        const workDate = new Date(currentMonday);
+        workDate.setDate(currentMonday.getDate() + i);
+        
+        const dateString = workDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const dayName = workDate.toLocaleDateString('en-US', { weekday: 'long' });
+
+        html += `
+            <div class="day-column">
+                <div class="text-center mb-4">
+                    <h3 class="font-black text-gray-900 uppercase tracking-tighter leading-none">${dayName}</h3>
+                    <span class="text-[10px] font-bold text-primary-gold uppercase">${dateString}</span>
+                </div>
+                ${slots.map(slot => {
+                    // 1. Get all entries for THIS date and THIS slot
+                    const entriesInSlot = tourData.filter(t => {
+                        return t.type === slot.code && 
+                               t.dateObj && 
+                               t.dateObj.toDateString() === workDate.toDateString();
+                    });
+
+                    // 2. Check if ANY entry in this slot is "N/A"
+                    const isCancelled = entriesInSlot.some(g => String(g.guide).toUpperCase() === 'N/A');
+
+                    if (isCancelled) {
                         return `
-                            <div class="tour-slot">
+                            <div class="tour-slot opacity-50 border-dashed border-gray-200">
                                 <p class="tour-time-label">${slot.time}</p>
-                                <div class="flex flex-col">
-                                    ${guidesInSlot.length > 0 ? guidesInSlot.map(g => `
-                                        <span class="guide-name-pill ${g.status === 'DROP' ? 'status-drop' : ''}">
-                                            ${g.guide} ${g.status === 'DROP' ? '⚠️' : ''}
-                                        </span>
-                                    `).join('') : '<span class="text-[9px] text-gray-300 italic">No guides assigned</span>'}
-                                </div>
+                                <span class="text-[9px] text-gray-400 font-bold italic">NO TOUR SCHEDULED</span>
                             </div>
                         `;
-                    }).join('')}
-                </div>
-            `;
-        }).join('');
-    }
+                    }
 
-    init();
-</script>
+                    return `
+                        <div class="tour-slot">
+                            <p class="tour-time-label">${slot.time}</p>
+                            <div class="flex flex-col">
+                                ${entriesInSlot.length > 0 ? entriesInSlot.map(g => `
+                                    <span class="guide-name-pill ${g.status === 'DROP' ? 'status-drop' : ''}">
+                                        ${g.guide} ${g.status === 'DROP' ? '⚠️' : ''}
+                                    </span>
+                                `).join('') : '<span class="text-[9px] text-gray-300 italic">No guides assigned</span>'}
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        `;
+    }
+    container.innerHTML = html;
+}
+
+init();
 </body>
 </html>
