@@ -38,6 +38,14 @@
     transition: margin 0.3s ease; /* Keeps the movement smooth */
 }
 
+        @keyframes pulse-subtle {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.01); }
+}
+.animate-pulse-subtle {
+    animation: pulse-subtle 3s ease-in-out infinite;
+}
+
         .bottom-nav-dedicated {
     height: 75px;
     background: white;
@@ -152,19 +160,52 @@
 
 <div class="content-area p-4 sm:p-8">
     
-    <div id="view-home" class="view-section active">
-        <header class="mb-8">
-            <h1 class="text-4xl font-black">Welcome, <span id="welcome-name" class="text-primary-gold text-nowrap">Guide</span></h1>
-            <p id="live-clock" class="text-lg font-bold text-gray-400 uppercase mt-2">Loading...</p>
-        </header>
-        <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 mb-6">
-            <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Quick Links</h3>
-            <div class="grid grid-cols-2 gap-4">
-                <div class="p-4 bg-gray-50 rounded-2xl text-center font-bold text-sm">Coming Soon</div>
-                <div class="p-4 bg-gray-50 rounded-2xl text-center font-bold text-sm">Tour Guide Handbook</div>
+   <div id="view-home" class="view-section active">
+    <header class="mb-8">
+        <h1 class="text-4xl font-black">Welcome, <span id="welcome-name" class="text-primary-gold text-nowrap">Guide</span></h1>
+        <p id="live-clock" class="text-lg font-bold text-gray-400 uppercase mt-2">Loading...</p>
+    </header>
+
+    <div class="mb-6 bg-red-600 rounded-2xl p-4 shadow-lg flex items-center gap-4 animate-pulse-subtle border-b-4 border-red-800">
+        <div class="text-3xl">⚠️</div>
+        <div>
+            <h3 class="text-white font-black uppercase tracking-tighter leading-tight">Purdue's For Me Day</h3>
+            <p class="text-red-100 text-xs font-bold uppercase tracking-widest">Expect large crowds. Use extra caution on tour paths.</p>
+        </div>
+    </div>
+
+    <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 mb-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest">Latest Announcements</h3>
+            <span class="bg-primary-gold/10 text-primary-gold text-[10px] font-black px-2 py-1 rounded-md uppercase">New</span>
+        </div>
+        <div class="space-y-4">
+            <div class="flex gap-4 items-start">
+                <div class="w-2 h-2 rounded-full bg-primary-gold mt-1.5 shrink-0"></div>
+                <div>
+                    <p class="font-bold text-sm">Spring Banquet RSVP</p>
+                    <p class="text-xs text-gray-500">Please remember to RSVP for the Spring Banquet by Friday evening via the GroupMe link.</p>
+                </div>
+            </div>
+            <hr class="border-gray-50">
+            <div class="flex gap-4 items-start">
+                <div class="w-2 h-2 rounded-full bg-gray-200 mt-1.5 shrink-0"></div>
+                <div>
+                    <p class="font-bold text-sm text-gray-400">Construction Update</p>
+                    <p class="text-xs text-gray-400 uppercase font-black">Resolved</p>
+                </div>
             </div>
         </div>
     </div>
+
+    <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 mb-6">
+        <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Quick Links</h3>
+        <div class="grid grid-cols-2 gap-4">
+            <div class="p-4 bg-gray-50 rounded-2xl text-center font-bold text-sm">Coming Soon</div>
+            <a href="#" class="p-4 bg-gray-50 rounded-2xl text-center font-bold text-sm hover:bg-gray-100 transition-colors">Tour Guide Handbook</a>
+        </div>
+    </div>
+</div>
 
     <div id="view-tracker" class="view-section">
         <header class="mb-8">
