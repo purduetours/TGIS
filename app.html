@@ -109,15 +109,31 @@
 </head>
 <body class="bg-gray-50 font-sans antialiased text-text-dark">
 
-<div id="loading-overlay" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center transition-opacity duration-500">
-    <div class="relative flex items-center justify-center mb-6">
-        <div class="loader ease-linear rounded-full border-4 border-gray-100 h-16 w-16"></div>
-        <div class="absolute text-xl">🚂</div>
+<div id="loading-overlay" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center transition-opacity duration-500 p-6">
+    <div id="loader-content" class="flex flex-col items-center">
+        <div class="relative flex items-center justify-center mb-6">
+            <div class="loader ease-linear rounded-full border-4 border-gray-100 h-16 w-16"></div>
+            <div class="absolute text-xl">🚂</div>
+        </div>
+        <div class="text-center loading-text">
+            <h2 class="font-black text-xl tracking-tight text-gray-800">TGIS 2.3</h2>
+            <p class="text-[10px] font-bold text-primary-gold uppercase tracking-[0.3em] mt-1">Please wait...</p>
+        </div>
     </div>
-    
-    <div class="text-center loading-text">
-        <h2 class="font-black text-xl tracking-tight text-gray-800">TGIS 2.3</h2>
-        <p class="text-[10px] font-bold text-primary-gold uppercase tracking-[0.3em] mt-1">Please wait...</p>
+
+    <div id="error-content" class="hidden flex flex-col items-center text-center max-w-xs">
+        <div class="text-4xl mb-4">⚠️</div>
+        <h2 class="font-black text-xl text-gray-800 uppercase tracking-tight">Connection Failed</h2>
+        <p class="text-xs font-bold text-gray-400 mt-2 leading-relaxed">We couldn't reach the TGIS server. Check your connection and try again.</p>
+        
+        <div class="mt-6 bg-gray-50 p-3 rounded-xl border border-gray-100 w-full">
+            <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Error Code</p>
+            <p id="error-code-display" class="text-sm font-mono font-bold text-red-500">UNKNOWN_ERR</p>
+        </div>
+
+        <button onclick="window.location.reload()" class="mt-6 bg-primary-black text-white px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest shadow-lg">
+            Retry Connection
+        </button>
     </div>
 </div>
 
@@ -506,13 +522,39 @@ function switchView(viewId) {
         `).join('');
     }
 
-    async function init() {
-        if(!userName) return;
+async function init() {
+        if(!userName) {
+            showError("MISSING_USER_PARAM");
+            return;
+        }
+
+        // Setup the 10-second timeout controller
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => {
+            controller.abort();
+            showError("TIMEOUT_10S");
+        }, 10000); // 10000ms = 10 seconds
+
         try {
-            const res = await fetch(`${scriptURL}?user=${userName}`);
+            const res = await fetch(`${scriptURL}?user=${userName}`, { signal: controller.signal });
+            
+            if (!res.ok) {
+                showError(`HTTP_${res.status}`);
+                return;
+            }
+
             cachedData = await res.json();
+            clearTimeout(timeoutId); // Stop the timeout timer since we succeeded
+
+            // Check if profile actually exists in the response
+            if (!cachedData || !cachedData.profile) {
+                showError("PROFILE_NOT_FOUND");
+                return;
+            }
+
             cachedData.fullList = cachedData.fullList || cachedData.leaderboard;
 
+            // Update UI Elements
             document.getElementById('sidebar-name').innerText = cachedData.profile.fullName;
             document.getElementById('sidebar-status').innerText = cachedData.profile.status;
             document.getElementById('profile-initial').innerText = cachedData.profile.fullName.charAt(0);
@@ -539,10 +581,27 @@ function switchView(viewId) {
                 </div>
             `).join('');
 
+            // Hide overlay
             document.getElementById('loading-overlay').classList.add('opacity-0');
             setTimeout(() => document.getElementById('loading-overlay').style.display = 'none', 500);
-        } catch (e) { console.error(e); }
+
+        } catch (e) {
+            console.error(e);
+            if (e.name === 'AbortError') {
+                // Handled by the timeoutId already
+            } else {
+                showError(e.message.toUpperCase().replace(/\s+/g, '_'));
+            }
+        }
     }
+
+    // Helper function to swap loader for error message
+    function showError(code) {
+        document.getElementById('loader-content').classList.add('hidden');
+        document.getElementById('error-content').classList.remove('hidden');
+        document.getElementById('error-code-display').innerText = code;
+    }
+
     init();
 </script>
     <div class="lg:hidden bottom-nav-dedicated">
