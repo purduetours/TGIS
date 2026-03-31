@@ -55,6 +55,7 @@
     /* --- PRINT LOGIC --- */
   /* --- UPDATED PRINT LOGIC --- */
 @media print {
+    /* Hide UI elements */
     nav, #loading-overlay, .no-print, header, #tab-control, #tab-roster { 
         display: none !important; 
     }
@@ -63,47 +64,46 @@
         margin-left: 0 !important; 
         padding: 0 !important; 
         width: 100% !important; 
-        /* Scaled to fit one page. Adjust 0.8 to 0.7 if content is still clipping */
-        transform: scale(0.85);
-        transform-origin: top left;
     }
 
     body { 
         background: white !important; 
-        overflow: visible !important; 
     }
 
-    /* Target the new dynamic print header */
-    #print-only-header {
-        display: block !important;
-        text-align: center;
-        margin-bottom: 20px;
-    }
-
+    /* Force the grid to fit the page width */
     .schedule-grid { 
         display: grid !important; 
         grid-template-columns: repeat(5, 1fr) !important; 
-        gap: 8px !important;
-        width: 115% !important; /* Compels width to fill the landscape void after scaling */
+        gap: 4px !important;
+        width: 100% !important;
     }
 
     .day-column { 
         box-shadow: none !important; 
-        border: 1px solid #000 !important; 
-        padding: 6px !important; 
+        border: 1px solid #e5e7eb !important; 
+        padding: 4px !important;
+        break-inside: avoid;
     }
 
+    /* Adjusted height to ensure 6 guide pills + Header fit in the slot */
     .tour-slot { 
-        height: 190px !important; 
-        border: 1px solid #ccc !important;
+        height: 165px !important; 
+        margin-bottom: 4px !important;
+        padding: 4px !important;
+        border: 1px solid #ddd !important;
+    }
+
+    .guide-name-pill {
+        margin-bottom: 1px !important;
+        padding: 1px 4px !important;
+        font-size: 9px !important; /* Slightly smaller to guarantee fit */
     }
 
     @page { 
         size: landscape; 
-        margin: 0.3cm; 
+        margin: 0.5cm; 
     }
 }
-
 /* Hide the print header on the web screen */
 <div id="print-only-header">
     <h1 class="text-3xl font-black uppercase tracking-tighter">Postcard Sign Off</h1>
@@ -161,9 +161,9 @@
         <div id="roster-table-container"></div> </div>
 
 <div id="tab-schedule" class="tab-content p-4 sm:p-8">
- <div id="print-only-header">
-    <h1 class="text-3xl font-black uppercase tracking-tighter">Postcard Sign Off</h1>
-    <p id="print-date-range" class="text-lg font-bold text-gray-600"></p>
+<div id="print-header" class="hidden print:block text-center mb-4">
+    <h1 class="text-3xl font-black uppercase tracking-tight">Postcard Sign Off</h1>
+    <p id="print-date-range" class="text-sm font-bold text-gray-600 uppercase tracking-widest"></p>
 </div>
    <header class="mb-10 flex flex-col md:flex-row md:items-stretch justify-between gap-4 no-print">
     <div>
@@ -183,7 +183,7 @@
             <button onclick="changeWeek(7)" class="p-2 hover:bg-gray-50 rounded-xl">▶</button>
         </div>
 
-        <button onclick="prepareAndPrint()" class="bg-gray-900 hover:bg-black text-white h-[46px] px-6 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all shadow-md">
+       <button onclick="prepareAndPrint()" class="bg-gray-900 hover:bg-black text-white h-[46px] px-6 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all shadow-md">
     Print Postcards
 </button>
     </div>
@@ -207,29 +207,29 @@
 
 
     function prepareAndPrint() {
-    const headerRange = document.getElementById('print-date-range');
+    const printDateDisplay = document.getElementById('print-date-range');
     
-    // 1. Calculate the Friday of the following week
-    // currentMonday is the Monday of the week being viewed
+    // 1. Calculate the Friday of the NEXT week
+    // (currentMonday + 11 days = Friday of following week)
     const nextFriday = new Date(currentMonday);
-    nextFriday.setDate(currentMonday.getDate() + 11); // +4 is Friday of current week, +11 is Friday of next
+    nextFriday.setDate(currentMonday.getDate() + 11);
     
-    const fridayString = nextFriday.toLocaleDateString('en-US', { 
+    const dueDateString = nextFriday.toLocaleDateString('en-US', { 
+        weekday: 'long',
         month: 'long', 
-        day: 'numeric', 
-        year: 'numeric' 
+        day: 'numeric' 
     });
 
-    // 2. Calculate current week range for the header
+    // 2. Calculate the current week range for the header
     const weekEnd = new Date(currentMonday);
     weekEnd.setDate(currentMonday.getDate() + 4);
     
     const rangeString = `${currentMonday.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
 
-    // 3. Set the text
-    headerRange.innerHTML = `Week of ${rangeString} | <span style="color:red">DUE BY FRIDAY, ${fridayString.toUpperCase()}</span>`;
+    // 3. Update the hidden print header
+    printDateDisplay.innerHTML = `Week of ${rangeString} <span class="mx-4">|</span> <span style="color:red">Postcards Due: Friday, ${dueDateString.toUpperCase()}</span>`;
 
-    // 4. Trigger Print
+    // 4. Fire the print dialog
     window.print();
 }
 
