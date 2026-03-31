@@ -183,9 +183,9 @@
             <button onclick="changeWeek(7)" class="p-2 hover:bg-gray-50 rounded-xl">▶</button>
         </div>
 
-        <button onclick="window.print()" class="bg-gray-900 hover:bg-black text-white h-[46px] px-6 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all shadow-md">
-            Print Postcards
-        </button>
+        <button onclick="prepareAndPrint()" class="bg-gray-900 hover:bg-black text-white h-[46px] px-6 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all shadow-md">
+    Print Postcards
+</button>
     </div>
 </header>
 
@@ -204,6 +204,34 @@
     let tourData = [];
     let rawData = [];
     let currentMonday = getMonday(new Date());
+
+
+    function prepareAndPrint() {
+    const headerRange = document.getElementById('print-date-range');
+    
+    // 1. Calculate the Friday of the following week
+    // currentMonday is the Monday of the week being viewed
+    const nextFriday = new Date(currentMonday);
+    nextFriday.setDate(currentMonday.getDate() + 11); // +4 is Friday of current week, +11 is Friday of next
+    
+    const fridayString = nextFriday.toLocaleDateString('en-US', { 
+        month: 'long', 
+        day: 'numeric', 
+        year: 'numeric' 
+    });
+
+    // 2. Calculate current week range for the header
+    const weekEnd = new Date(currentMonday);
+    weekEnd.setDate(currentMonday.getDate() + 4);
+    
+    const rangeString = `${currentMonday.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+
+    // 3. Set the text
+    headerRange.innerHTML = `Week of ${rangeString} | <span style="color:red">DUE BY FRIDAY, ${fridayString.toUpperCase()}</span>`;
+
+    // 4. Trigger Print
+    window.print();
+}
 
     // Helper to find the Monday of whatever week is selected
     function getMonday(d) {
