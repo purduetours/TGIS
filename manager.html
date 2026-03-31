@@ -53,68 +53,62 @@
     .bg-slot-2DV { background-color: #fffbeb; border-color: #fef3c7; } /* Yellow */
 
     /* --- PRINT LOGIC --- */
-  @media print {
-    /* 1. Hide everything except the schedule */
-    nav, #loading-overlay, .no-print, header button, header .flex, 
-    #tab-control, #tab-roster, #main-nav { 
+  /* --- UPDATED PRINT LOGIC --- */
+@media print {
+    nav, #loading-overlay, .no-print, header, #tab-control, #tab-roster { 
         display: none !important; 
     }
-    
-    /* 2. Reset the layout to fill the paper */
+
     .content-area { 
         margin-left: 0 !important; 
         padding: 0 !important; 
         width: 100% !important; 
+        /* Scaled to fit one page. Adjust 0.8 to 0.7 if content is still clipping */
+        transform: scale(0.85);
+        transform-origin: top left;
     }
+
     body { 
         background: white !important; 
         overflow: visible !important; 
     }
 
-    /* 3. Force 5 columns across the page */
+    /* Target the new dynamic print header */
+    #print-only-header {
+        display: block !important;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
     .schedule-grid { 
         display: grid !important; 
         grid-template-columns: repeat(5, 1fr) !important; 
-        gap: 5px !important;
-        width: 100% !important;
+        gap: 8px !important;
+        width: 115% !important; /* Compels width to fill the landscape void after scaling */
     }
 
-    /* 4. Formatting the boxes for sign-in */
     .day-column { 
         box-shadow: none !important; 
-        border: 1px solid #eee !important; 
-        padding: 4px !important; 
+        border: 1px solid #000 !important; 
+        padding: 6px !important; 
     }
+
     .tour-slot { 
-        height: 180px !important; /* Shorter to ensure all 4 rows fit on one page */
-        margin-bottom: 4px !important;
-        border: 1px solid #ddd !important;
-    }
-
-    /* 5. Handling Names and Initials */
-    .guide-name-pill {
-        display: flex !important;
-        justify-content: space-between !important;
-        background: transparent !important;
-        border: none !important;
-        border-bottom: 1px solid #eee !important;
-        border-radius: 0 !important;
-        padding: 0 !important;
-    }
-
-    /* 6. Show the Initials/ACP only now */
-    .print-only-initials {
-        display: inline-block !important;
-        min-width: 40px;
-        text-align: right;
-        font-weight: bold;
+        height: 190px !important; 
+        border: 1px solid #ccc !important;
     }
 
     @page { 
         size: landscape; 
-        margin: 0.5cm; 
+        margin: 0.3cm; 
     }
 }
+
+/* Hide the print header on the web screen */
+<div id="print-only-header">
+    <h1 class="text-3xl font-black uppercase tracking-tighter">Postcard Sign Off</h1>
+    <p id="print-date-range" class="text-lg font-bold text-gray-600"></p>
+</div>
 
     /* Hide scrollbars but keep the container functional */
 .flex.flex-col.gap-1.overflow-y-auto {
