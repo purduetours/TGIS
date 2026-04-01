@@ -52,6 +52,33 @@
     margin-bottom: 2px;
 }
 
+        /* Compact Hero Date Badge */
+.hero-date-badge {
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(4px);
+    border-radius: 1rem;
+    padding: 0.75rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.hero-month {
+    font-size: 0.7rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    opacity: 0.8;
+}
+
+.hero-day {
+    font-size: 1.75rem;
+    font-weight: 900;
+    line-height: 1;
+}
+
 .day-number {
     font-size: 1.5rem;
     font-weight: 900;
@@ -647,38 +674,35 @@ function switchView(viewId) {
         // --- RENDER UPCOMING ---
         upcoming.forEach((tour, index) => {
             if (index === 0) {
-    const month = tour.dateObj.toLocaleDateString('en-US', { month: 'long' });
+    const month = tour.dateObj.toLocaleDateString('en-US', { month: 'short' });
     const day = tour.dateObj.getDate();
     const weekday = tour.dateObj.toLocaleDateString('en-US', { weekday: 'long' });
 
     html += `
-    <div class="relative overflow-hidden ${tour.color} rounded-[2.8rem] p-9 shadow-2xl mb-10 text-white border-b-[12px] border-black/20">
-        <div class="absolute -right-10 -top-10 opacity-10 text-[14rem] font-black rotate-12 pointer-events-none">🚂</div>
+    <div class="relative overflow-hidden ${tour.color} rounded-[2.5rem] p-7 shadow-xl mb-8 text-white">
+        <div class="absolute -right-4 -bottom-4 opacity-10 text-[8rem] font-black rotate-12 pointer-events-none">🚂</div>
         
-        <div class="relative z-10">
-            <div class="up-next-badge">
-                <span class="relative flex h-2 w-2">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
-                </span>
-                UP NEXT
-            </div>
-
-            <div class="mt-8">
-                <p class="text-white/70 font-black uppercase tracking-[0.2em] text-[11px] mb-1">${weekday}, ${month} ${day}</p>
-                <h2 class="text-7xl font-black tracking-tighter leading-none">${tour.time}</h2>
-                <p class="text-2xl font-bold opacity-90 mt-2 italic">${tour.name}</p>
-            </div>
-
-            <div class="mt-10 pt-6 border-t border-white/20 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center text-xl">📍</div>
-                    <p class="font-bold text-sm">Meeting: Schleman Steps</p>
+        <div class="relative z-10 flex items-center justify-between">
+            <div>
+                <div class="up-next-badge mb-4">
+                    <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+                    </span>
+                    UP NEXT
                 </div>
+                <h2 class="text-5xl font-black tracking-tighter leading-none">${tour.time}</h2>
+                <p class="text-lg font-bold opacity-90 mt-1 italic">${tour.name}</p>
+                <p class="text-[10px] font-black uppercase tracking-[0.2em] mt-3 opacity-70">${weekday}</p>
+            </div>
+
+            <div class="hero-date-badge shadow-lg">
+                <span class="hero-month">${month}</span>
+                <span class="hero-day">${day}</span>
             </div>
         </div>
     </div>
-    <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-6 ml-4">Upcoming Assignments</h3>`;
+    <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-4 ml-4">Upcoming Assignments</h3>`;
 } else {
                 // STANDARD LIST ITEM
                 html += renderTourRow(tour);
