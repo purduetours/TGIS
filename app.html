@@ -818,16 +818,7 @@ async function init() {
 
             cachedData = await res.json();
             // Inside init() after getting cachedData
-if (cachedData.tours) {
-    // Render the full schedule page
-    updateScheduleView(cachedData.tours, cachedData.profile.displayName);
-    
-    // NEW: Render the single next tour on the Home screen
-    renderHomeHero(cachedData.tours.filter(tour => {
-        const cleanName = tour.guide.replace(/[*~`]/g, '').trim();
-        return cleanName.toLowerCase() === cachedData.profile.displayName.toLowerCase();
-    }));
-}
+
             clearTimeout(timeoutId); // Stop the timeout timer since we succeeded
 
             // Check if profile actually exists in the response
@@ -837,6 +828,17 @@ if (cachedData.tours) {
             }
 
             cachedData.fullList = cachedData.fullList || cachedData.leaderboard;
+
+            if (cachedData.tours) {
+    // Render the full schedule page
+    updateScheduleView(cachedData.tours, cachedData.profile.displayName);
+    
+    // NEW: Render the single next tour on the Home screen
+    renderHomeHero(cachedData.tours.filter(tour => {
+        const cleanName = tour.guide.replace(/[*~`]/g, '').trim();
+        return cleanName.toLowerCase() === cachedData.profile.displayName.toLowerCase();
+    }));
+}
 
             // Update UI Elements
             document.getElementById('sidebar-name').innerText = cachedData.profile.fullName;
