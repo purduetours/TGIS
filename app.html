@@ -242,11 +242,12 @@
     <div class="mb-8">
         <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 ml-2">Main Menu</p>
         <div id="nav-home" class="nav-button active" onclick="switchView('home')">Home</div>
+        <div id="nav-schedule" class="nav-button" onclick="switchView('schedule')">Schedule</div>
         <div id="nav-tracker" class="nav-button" onclick="switchView('tracker')">Tour Tracker</div>
         <div id="nav-families" class="nav-button" onclick="switchView('families')">Family Points</div>
         <div id="nav-desk" class="nav-button" onclick="switchView('desk')">Desk Schedule</div>
         <div id="nav-forms" class="nav-button" onclick="switchView('forms')">Required Forms</div>
-        <div id="nav-schedule" class="nav-button" onclick="switchView('schedule')">Schedule</div>
+        
 
     </div>
 </nav>
@@ -450,7 +451,7 @@
     <div id="view-schedule" class="view-section">
         <header class="mb-8">
             <h1 class="text-4xl font-black tracking-tight text-gray-900">My Schedule</h1>
-            <p class="text-[10px] font-bold text-primary-gold uppercase tracking-[0.3em] mt-1">Tour Assignment Portal</p>
+            <p class="text-[10px] font-bold text-primary-gold uppercase tracking-[0.3em] mt-1">Click on a tour to see more information</p>
         </header>
 
         <div id="schedule-container" class="space-y-4">
@@ -702,7 +703,7 @@ function switchView(viewId) {
             </div>
         </div>
     </div>
-    <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-4 ml-4">Upcoming Assignments</h3>`;
+    <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-4 ml-4">Upcoming Tours</h3>`;
 } else {
                 // STANDARD LIST ITEM
                 html += renderTourRow(tour);
@@ -839,6 +840,10 @@ async function init() {
         <span class="text-xl">🏠</span>
         <span class="text-[9px] font-black uppercase">Home</span>
     </button>
+    <button onclick="switchView('schedule')" class="flex flex-col items-center">
+        <span class="text-xl">📅</span>
+        <span class="text-[9px] font-black uppercase">Schedule</span>
+    </button>
     <button onclick="switchView('tracker')" class="flex flex-col items-center">
         <span class="text-xl">📊</span>
         <span class="text-[9px] font-black uppercase">Tracker</span>
@@ -855,10 +860,7 @@ async function init() {
         <span class="text-xl">📝</span>
         <span class="text-[9px] font-black uppercase">Forms</span>
     </button>
-    <button onclick="switchView('schedule')" class="flex flex-col items-center">
-        <span class="text-xl">📅</span>
-        <span class="text-[9px] font-black uppercase">Schedule</span>
-    </button>
+    
     
 </div>
 </body>
