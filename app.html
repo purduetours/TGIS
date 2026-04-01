@@ -473,6 +473,17 @@
 <script>
     const scriptURL = 'https://script.google.com/macros/s/AKfycbyqIgk-V7XABUMluhLwjGudlHwkgldwRaBlAN6dFdbI1gNL-_cvN5PNTek2cfqNtc3j/exec';
     const userName = new URLSearchParams(window.location.search).get('user');
+    const TOUR_MAP = {
+    '9DV': { time: '9:30 AM', name: 'Daily Visit', color: 'bg-status-green', text: 'text-green-700' },
+    '0DV': { time: '10:30 AM', name: 'Daily Visit', color: 'bg-status-green', text: 'text-green-700' },
+    '1DV': { time: '1:30 PM', name: 'Daily Visit', color: 'bg-status-green', text: 'text-green-700' },
+    '2DV': { time: '2:30 PM', name: 'Daily Visit', color: 'bg-status-green', text: 'text-green-700' },
+    '0GV': { time: '10:30 AM', name: 'Group Visit', color: 'bg-blue-500', text: 'text-blue-700' },
+    '8PA': { time: '8:15 AM', name: 'Program Day (Academic)', color: 'bg-purple-600', text: 'text-purple-700' },
+    '1PF': { time: '11:00 AM', name: 'Program Day (Full)', color: 'bg-purple-600', text: 'text-purple-700' },
+    '1PA': { time: '1:30 PM', name: 'Program Day (Academic)', color: 'bg-purple-600', text: 'text-purple-700' },
+    '2PA': { time: '2:30 PM', name: 'Program Day (Academic)', color: 'bg-purple-600', text: 'text-purple-700' }
+    };
     let cachedData = null;
 
     // Static Family Data
@@ -559,67 +570,79 @@ function switchView(viewId) {
     const container = document.getElementById('schedule-container');
     if (!container) return;
 
-    // 1. Filter and Clean Names
+    const now = new Date();
+    now.setHours(0, 0, 0, 0); // Reset time for accurate "Today" comparison
+
+    // 1. Clean and Match
     const myTours = allTours.filter(tour => {
         if (!tour.guide) return false;
-        // Strip *, ~, `, and whitespace
         const cleanName = tour.guide.replace(/[*~`]/g, '').trim();
         return cleanName.toLowerCase() === currentUserDisplayName.toLowerCase();
+    }).map(tour => {
+        // Attach the mapping info to the tour object
+        const info = TOUR_MAP[tour.type] || { time: tour.time, name: tour.type, color: 'bg-gray-500', text: 'text-gray-700' };
+        return { ...tour, ...info, dateObj: new Date(tour.date) };
     });
 
-    if (myTours.length === 0) {
-        container.innerHTML = `
-            <div class="bg-gray-100 border-2 border-dashed border-gray-200 p-12 rounded-[2rem] text-center">
-                <p class="text-gray-400 font-black text-xs uppercase tracking-[0.2em]">No Tours Assigned Yet</p>
-            </div>`;
-        return;
-    }
+    // 2. Split into Upcoming and History
+    const upcoming = myTours.filter(t => t.dateObj >= now).sort((a, b) => a.dateObj - b.dateObj);
+    const history = myTours.filter(t => t.dateObj < now).sort((a, b) => b.dateObj - a.dateObj);
 
-    // 2. Map and Build HTML
     let html = '';
-    myTours.forEach((tour, index) => {
-        const isNext = index === 0;
-        const dateObj = new Date(tour.date);
-        const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
-        const dayNum = dateObj.getDate();
 
-        if (isNext) {
-            // THE HERO CARD
-            html += `
-            <div class="bg-primary-black rounded-[2.5rem] p-8 shadow-2xl border-b-8 border-primary-gold relative overflow-hidden mb-8 animate-pulse-subtle">
-                <div class="absolute -right-8 -bottom-8 text-white/[0.03] text-[10rem] font-black rotate-12 pointer-events-none">🚂</div>
-                <div class="relative z-10">
-                    <span class="bg-primary-gold text-black text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest">Next Assignment</span>
-                    <h2 class="text-white text-5xl font-black mt-6">${tour.time}</h2>
-                    <p class="text-primary-gold text-xl font-bold italic">${tour.type}</p>
-                    <div class="mt-8 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-4 flex items-center gap-4">
-                        <div class="w-10 h-10 bg-primary-gold rounded-xl flex items-center justify-center text-xl shadow-lg shadow-primary-gold/20">📍</div>
-                        <div>
-                            <p class="text-[9px] font-black text-gray-500 uppercase tracking-widest text-left">Meeting Point</p>
-                            <p class="text-white font-bold text-sm">Schleman Hall Steps</p>
+    if (upcoming.length > 0) {
+        // --- RENDER UPCOMING ---
+        upcoming.forEach((tour, index) => {
+            if (index === 0) {
+                // HERO CARD FOR NEXT TOUR
+                html += `
+                <div class="relative overflow-hidden ${tour.color} rounded-[2.5rem] p-8 shadow-xl mb-8 text-white">
+                    <div class="absolute -right-8 -bottom-8 opacity-10 text-[10rem] font-black rotate-12">🚂</div>
+                    <div class="relative z-10">
+                        <span class="bg-white/20 backdrop-blur-md text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest">Next Up</span>
+                        <h2 class="text-6xl font-black mt-4">${tour.time}</h2>
+                        <p class="text-xl font-bold opacity-90">${tour.name}</p>
+                        <div class="mt-6 flex items-center gap-2 font-black uppercase text-[10px] tracking-widest">
+                            <span>📅 ${tour.dateObj.toLocaleDateString('en-US', {month: 'long', day: 'numeric'})}</span>
                         </div>
                     </div>
                 </div>
-            </div>
-            <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-4 ml-2">Remaining Week</h3>`;
-        } else {
-            // THE STANDARD ROWS
-            html += `
-            <div class="bg-white p-5 rounded-[2rem] shadow-sm border border-gray-100 flex items-center gap-6 mb-4">
-                <div class="w-16 h-16 bg-gray-50 rounded-2xl flex flex-col items-center justify-center border border-gray-100 shrink-0">
-                    <span class="text-[9px] font-black text-gray-400 uppercase">${dayName}</span>
-                    <span class="text-2xl font-black text-gray-800">${dayNum}</span>
-                </div>
-                <div class="flex-1 text-left">
-                    <p class="text-[10px] font-black text-primary-gold uppercase tracking-widest mb-1">${tour.type}</p>
-                    <h4 class="text-lg font-black text-gray-800 leading-tight">Daily Visit</h4>
-                    <p class="text-xs font-bold text-gray-400 uppercase mt-0.5">${tour.time}</p>
-                </div>
-            </div>`;
-        }
-    });
+                <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-4 ml-2">Upcoming Schedule</h3>`;
+            } else {
+                // STANDARD LIST ITEM
+                html += renderTourRow(tour);
+            }
+        });
+    } else {
+        // --- RENDER HISTORY IF NO UPCOMING ---
+        html += `
+        <div class="bg-gray-50 border-2 border-dashed border-gray-200 rounded-[2rem] p-8 text-center mb-8">
+            <p class="text-gray-400 font-black text-[10px] uppercase tracking-widest">No Upcoming Tours Found</p>
+        </div>
+        <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-4 ml-2">Tour History</h3>`;
+        history.forEach(tour => html += renderTourRow(tour, true));
+    }
 
     container.innerHTML = html;
+}
+
+// Helper function to keep code clean
+function renderTourRow(tour, isHistory = false) {
+    const opacity = isHistory ? 'opacity-60' : '';
+    return `
+    <div class="bg-white p-5 rounded-[2rem] shadow-sm border border-gray-100 flex items-center gap-6 mb-4 ${opacity}">
+        <div class="w-16 h-16 bg-gray-50 rounded-2xl flex flex-col items-center justify-center border border-gray-100 shrink-0">
+            <span class="text-[9px] font-black text-gray-400 uppercase">${tour.dateObj.toLocaleDateString('en-US', {weekday: 'short'})}</span>
+            <span class="text-2xl font-black text-gray-800">${tour.dateObj.getDate()}</span>
+        </div>
+        <div class="flex-1">
+            <div class="flex items-center gap-2 mb-1">
+                <span class="w-2 h-2 rounded-full ${tour.color}"></span>
+                <p class="text-[9px] font-black ${tour.text} uppercase tracking-widest">${tour.name}</p>
+            </div>
+            <h4 class="text-lg font-black text-gray-800">${tour.time}</h4>
+        </div>
+    </div>`;
 }
 
 async function init() {
