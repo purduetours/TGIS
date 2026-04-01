@@ -29,6 +29,59 @@
     overflow: hidden; 
 }
 
+        /* Schedule Specific Polish */
+.date-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 4.5rem;
+    height: 4.5rem;
+    border-radius: 1.25rem;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    line-height: 1;
+}
+
+.month-label {
+    font-size: 0.65rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #9ca3af;
+    margin-bottom: 2px;
+}
+
+.day-number {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #111827;
+}
+
+.weekday-label {
+    font-size: 0.6rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #6b7280;
+    margin-top: 2px;
+}
+
+/* Glassmorphism Badge for Up Next */
+.up-next-badge {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 0.4rem 0.8rem;
+    border-radius: 99px;
+    font-size: 0.65rem;
+    font-weight: 900;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
 .content-area { 
     flex: 1; 
     overflow-y: auto; 
@@ -594,21 +647,39 @@ function switchView(viewId) {
         // --- RENDER UPCOMING ---
         upcoming.forEach((tour, index) => {
             if (index === 0) {
-                // HERO CARD FOR NEXT TOUR
-                html += `
-                <div class="relative overflow-hidden ${tour.color} rounded-[2.5rem] p-8 shadow-xl mb-8 text-white">
-                    <div class="absolute -right-8 -bottom-8 opacity-10 text-[10rem] font-black rotate-12">🚂</div>
-                    <div class="relative z-10">
-                        <span class="bg-white/20 backdrop-blur-md text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest">Next Up</span>
-                        <h2 class="text-6xl font-black mt-4">${tour.time}</h2>
-                        <p class="text-xl font-bold opacity-90">${tour.name}</p>
-                        <div class="mt-6 flex items-center gap-2 font-black uppercase text-[10px] tracking-widest">
-                            <span>📅 ${tour.dateObj.toLocaleDateString('en-US', {month: 'long', day: 'numeric'})}</span>
-                        </div>
-                    </div>
+    const month = tour.dateObj.toLocaleDateString('en-US', { month: 'long' });
+    const day = tour.dateObj.getDate();
+    const weekday = tour.dateObj.toLocaleDateString('en-US', { weekday: 'long' });
+
+    html += `
+    <div class="relative overflow-hidden ${tour.color} rounded-[2.8rem] p-9 shadow-2xl mb-10 text-white border-b-[12px] border-black/20">
+        <div class="absolute -right-10 -top-10 opacity-10 text-[14rem] font-black rotate-12 pointer-events-none">🚂</div>
+        
+        <div class="relative z-10">
+            <div class="up-next-badge">
+                <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+                </span>
+                UP NEXT
+            </div>
+
+            <div class="mt-8">
+                <p class="text-white/70 font-black uppercase tracking-[0.2em] text-[11px] mb-1">${weekday}, ${month} ${day}</p>
+                <h2 class="text-7xl font-black tracking-tighter leading-none">${tour.time}</h2>
+                <p class="text-2xl font-bold opacity-90 mt-2 italic">${tour.name}</p>
+            </div>
+
+            <div class="mt-10 pt-6 border-t border-white/20 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center text-xl">📍</div>
+                    <p class="font-bold text-sm">Meeting: Schleman Steps</p>
                 </div>
-                <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-4 ml-2">Upcoming Schedule</h3>`;
-            } else {
+            </div>
+        </div>
+    </div>
+    <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-6 ml-4">Upcoming Assignments</h3>`;
+} else {
                 // STANDARD LIST ITEM
                 html += renderTourRow(tour);
             }
@@ -628,19 +699,28 @@ function switchView(viewId) {
 
 // Helper function to keep code clean
 function renderTourRow(tour, isHistory = false) {
-    const opacity = isHistory ? 'opacity-60' : '';
+    const opacity = isHistory ? 'opacity-50 grayscale' : '';
+    const dateObj = new Date(tour.date);
+    
+    // Date formatting
+    const month = dateObj.toLocaleDateString('en-US', { month: 'short' });
+    const day = dateObj.getDate();
+    const weekday = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
+
     return `
-    <div class="bg-white p-5 rounded-[2rem] shadow-sm border border-gray-100 flex items-center gap-6 mb-4 ${opacity}">
-        <div class="w-16 h-16 bg-gray-50 rounded-2xl flex flex-col items-center justify-center border border-gray-100 shrink-0">
-            <span class="text-[9px] font-black text-gray-400 uppercase">${tour.dateObj.toLocaleDateString('en-US', {weekday: 'short'})}</span>
-            <span class="text-2xl font-black text-gray-800">${tour.dateObj.getDate()}</span>
+    <div class="bg-white p-5 rounded-[2.2rem] shadow-sm border border-gray-100 flex items-center gap-5 mb-4 ${opacity}">
+        <div class="date-stack shrink-0">
+            <span class="month-label">${month}</span>
+            <span class="day-number">${day}</span>
+            <span class="weekday-label">${weekday}</span>
         </div>
+        
         <div class="flex-1">
             <div class="flex items-center gap-2 mb-1">
                 <span class="w-2 h-2 rounded-full ${tour.color}"></span>
-                <p class="text-[9px] font-black ${tour.text} uppercase tracking-widest">${tour.name}</p>
+                <p class="text-[10px] font-black ${tour.text} uppercase tracking-widest">${tour.name}</p>
             </div>
-            <h4 class="text-lg font-black text-gray-800">${tour.time}</h4>
+            <h4 class="text-xl font-black text-gray-900 tracking-tight">${tour.time}</h4>
         </div>
     </div>`;
 }
