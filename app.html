@@ -259,29 +259,36 @@
 
 <div class="content-area p-4 sm:p-8">
     
-   <div id="view-home" class="view-section active">
-    <header class="mb-8">
-        <h1 class="text-4xl font-black">Welcome, <span id="welcome-name" class="text-primary-gold text-nowrap">Guide</span></h1>
-        <p id="live-clock" class="text-lg font-bold text-gray-400 uppercase mt-2">Loading...</p>
+<div id="view-home" class="view-section">
+    <header class="mb-4">
+        <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] ml-2">Next Tour</h3>
     </header>
-<div class="space-y-3 mb-6">
-    <div class="bg-red-600 rounded-2xl p-4 shadow-lg flex items-center gap-4 animate-pulse border-b-4 border-red-800">
-        <div class="text-3xl">⚠️</div>
-        <div>
-            <h3 class="text-white font-black uppercase tracking-tighter leading-tight text-sm">Introducing Purdue (April 1)</h3>
-            <p class="text-red-100 text-[10px] font-bold uppercase tracking-widest leading-tight">
-                No joke. Expect large crowds. Be prepared to make adjustments to your tour route.
-            </p>
+    
+    <div id="home-next-tour-container" class="mb-10">
+        <div class="h-32 bg-gray-50 rounded-[2.5rem] border-2 border-dashed border-gray-200 animate-pulse flex items-center justify-center">
+            <p class="text-gray-400 text-[10px] font-black uppercase tracking-widest">Finding your next tour...</p>
         </div>
     </div>
 
-    <div class="bg-yellow-400 rounded-2xl p-4 shadow-lg flex items-center gap-4 animate-pulse-subtle border-b-4 border-yellow-600 text-black">
-        <div class="text-3xl">🛑</div>
-        <div>
-            <h3 class="font-black uppercase tracking-tighter leading-tight text-sm">DO NOT ENTER FORD</h3>
-            <p class="text-yellow-900 text-[10px] font-bold uppercase tracking-widest leading-tight">
-                Please do not enter the dining court for any reason unless for extreme weather.
-            </p>
+    <header class="mb-4">
+        <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] ml-2">Announcements</h3>
+    </header>
+
+    <div class="space-y-3 mb-8">
+        <div class="bg-red-600 rounded-[2rem] p-5 shadow-lg flex items-center gap-4 border-b-4 border-red-800">
+            <div class="text-2xl">⚠️</div>
+            <div>
+                <h3 class="text-white font-black uppercase tracking-tighter text-sm">Introducing Purdue (April 1)</h3>
+                <p class="text-red-100 text-[10px] font-bold uppercase tracking-widest">No joke. Expect large crowds. Be prepared to make adjustments to your tour route. </p>
+            </div>
+        </div>
+
+        <div class="bg-yellow-400 rounded-[2rem] p-5 shadow-lg flex items-center gap-4 border-b-4 border-yellow-600 text-black">
+            <div class="text-2xl">🛑</div>
+            <div>
+                <h3 class="font-black uppercase tracking-tighter text-sm">DO NOT ENTER FORD</h3>
+                <p class="text-yellow-900 text-[10px] font-bold uppercase tracking-widest">Do not enter the dining court for any reason except for extreme weather.</p>
+            </div>
         </div>
     </div>
 </div>
@@ -609,6 +616,45 @@ function switchView(viewId) {
         `).join('');
     }
 
+    function renderHomeHero(myTours) {
+    const container = document.getElementById('home-next-tour-container');
+    const now = new Date();
+    now.setHours(0,0,0,0);
+
+    // Find the very first upcoming tour
+    const upcoming = myTours.filter(t => new Date(t.date) >= now).sort((a,b) => new Date(a.date) - new Date(b.date));
+
+    if (upcoming.length > 0) {
+        const tour = upcoming[0];
+        const tourDate = new Date(tour.date);
+        const info = TOUR_MAP[tour.type] || { color: 'bg-gray-500', name: tour.type };
+        
+        const month = tourDate.toLocaleDateString('en-US', { month: 'short' });
+        const day = tourDate.getDate();
+        const weekday = tourDate.toLocaleDateString('en-US', { weekday: 'long' });
+
+        container.innerHTML = `
+        <div class="relative overflow-hidden ${info.color} rounded-[2.5rem] p-6 shadow-xl text-white">
+            <div class="relative z-10 flex items-center justify-between">
+                <div>
+                    <h2 class="text-4xl font-black tracking-tighter leading-none">${tour.time}</h2>
+                    <p class="text-sm font-bold opacity-90 mt-1 italic">${info.name}</p>
+                    <p class="text-[9px] font-black uppercase tracking-[0.2em] mt-2 opacity-70">${weekday}</p>
+                </div>
+                <div class="hero-date-badge bg-black/20 backdrop-blur-md rounded-2xl p-3 flex flex-col items-center min-w-[60px]">
+                    <span class="text-[9px] font-black uppercase opacity-80">${month}</span>
+                    <span class="text-xl font-black">${day}</span>
+                </div>
+            </div>
+        </div>`;
+    } else {
+        container.innerHTML = `
+        <div class="bg-gray-50 border-2 border-dashed border-gray-200 rounded-[2.5rem] p-8 text-center">
+            <p class="text-gray-400 font-black text-[10px] uppercase tracking-widest">No tours scheduled today</p>
+        </div>`;
+    }
+}
+
     // Sidebar Controls
     document.getElementById('mobile-menu-button').onclick = () => document.getElementById('sidebar').classList.add('open');
     document.getElementById('close-menu').onclick = () => document.getElementById('sidebar').classList.remove('open');
@@ -771,6 +817,17 @@ async function init() {
             }
 
             cachedData = await res.json();
+            // Inside init() after getting cachedData
+if (cachedData.tours) {
+    // Render the full schedule page
+    updateScheduleView(cachedData.tours, cachedData.profile.displayName);
+    
+    // NEW: Render the single next tour on the Home screen
+    renderHomeHero(cachedData.tours.filter(tour => {
+        const cleanName = tour.guide.replace(/[*~`]/g, '').trim();
+        return cleanName.toLowerCase() === cachedData.profile.displayName.toLowerCase();
+    }));
+}
             clearTimeout(timeoutId); // Stop the timeout timer since we succeeded
 
             // Check if profile actually exists in the response
