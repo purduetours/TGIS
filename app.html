@@ -500,9 +500,16 @@
 
         <div class="bg-white rounded-[2.5rem] p-8 border border-gray-100 shadow-sm self-start">
             <div class="flex items-center justify-between mb-6">
-                <h3 class="font-black uppercase tracking-widest text-xs text-gray-400">Monthly View</h3>
-                <span class="text-xs font-black uppercase text-primary-gold" id="calendar-month-name">October 2023</span>
+                <h3 class="font-black uppercase tracking-widest text-[10px] text-gray-400">Monthly View</h3>
+                <div class="flex items-center gap-4">
+                    <button onclick="changeMonth(-1)" class="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-full transition-colors text-lg font-black text-primary-gold">←</button>
+                    <span class="text-xs font-black uppercase text-primary-gold min-w-[120px] text-center" id="calendar-month-name">October 2023</span>
+                    <button onclick="changeMonth(1)" class="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-full transition-colors text-lg font-black text-primary-gold">→</button>
+                </div>
             </div>
+
+
+            
             
             <div class="grid grid-cols-7 gap-2 mb-2">
                 <div class="text-center text-[10px] font-black text-gray-300">S</div>
@@ -630,6 +637,8 @@
     '2PA': { time: '2:30 PM', name: 'Program Day (Academic)', color: 'bg-purple-600', text: 'text-purple-700', duration: 105}
     };
     let cachedData = null;
+    let calendarViewDate = new Date(); // Tracks displayed month
+    let selectedCalendarDate = null;   // Tracks clicked day
 
     // Static Family Data
     const familyData = [
@@ -816,80 +825,92 @@ function renderHomeNextTour(myTours) {
         `).join('');
     }
 
-    function updateScheduleView(myTours, displayName) {
+   function changeMonth(offset) {
+    calendarViewDate.setMonth(calendarViewDate.getMonth() + offset);
+    const myTours = window.currentMyTours || []; 
+    updateScheduleView(myTours);
+}
+
+function selectDate(dateString, myTours) {
+    // Toggle filter: if clicking the same date, clear it. Otherwise, set it.
+    selectedCalendarDate = (selectedCalendarDate === dateString) ? null : dateString;
+    updateScheduleView(myTours);
+}
+
+function updateScheduleView(myTours, displayName) {
+    window.currentMyTours = myTours; // Store for the nav buttons
     const listContainer = document.getElementById('schedule-list-container');
     const calendarGrid = document.getElementById('calendar-grid');
     const monthLabel = document.getElementById('calendar-month-name');
     if (!listContainer || !calendarGrid) return;
 
-    // 1. Set the Calendar Header
-    const now = new Date();
-    const monthName = now.toLocaleString('default', { month: 'long' });
-    if (monthLabel) monthLabel.innerText = `${monthName} ${now.getFullYear()}`;
+    // 1. Update Month Label
+    const monthName = calendarViewDate.toLocaleString('default', { month: 'long' });
+    if (monthLabel) monthLabel.innerText = `${monthName} ${calendarViewDate.getFullYear()}`;
 
-    // 2. RENDER COMPACT CARDS
-    listContainer.innerHTML = '';
-    
-    // Sort tours by date so the list stays chronological
-    const sortedTours = [...myTours].sort((a, b) => new Date(a.date) - new Date(b.date));
+    // 2. Filter and Sort the List
+    let filteredTours = [...myTours];
+    if (selectedCalendarDate) {
+        filteredTours = myTours.filter(t => new Date(t.date).toDateString() === selectedCalendarDate);
+    }
+    filteredTours.sort((a, b) => new Date(a.date) - new Date(b.date));
 
-    sortedTours.forEach((tour, index) => {
+    // 3. Render the List Side
+    listContainer.innerHTML = selectedCalendarDate 
+        ? `<div class="mb-4 flex items-center justify-between">
+            <p class="text-[10px] font-black uppercase text-primary-gold font-black">Date: ${new Date(selectedCalendarDate).toLocaleDateString()}</p>
+            <button onclick="selectDate(null, window.currentMyTours)" class="text-[10px] font-black uppercase text-gray-400 underline">Clear Filter</button>
+           </div>`
+        : '';
+
+    if (filteredTours.length === 0) {
+        listContainer.innerHTML += `<p class="text-gray-400 text-[10px] font-black uppercase py-20 text-center tracking-widest">No tours scheduled</p>`;
+    }
+
+    filteredTours.forEach(tour => {
         const info = TOUR_MAP[tour.type] || { color: 'bg-gray-500', name: tour.type };
-        const tourDate = new Date(tour.date);
-        const day = tourDate.getDate();
-        const monthShort = tourDate.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
-
+        const d = new Date(tour.date);
         listContainer.innerHTML += `
-            <div id="tour-card-${day}" class="bg-white p-4 rounded-3xl border border-gray-100 shadow-sm flex items-center justify-between group hover:border-primary-gold transition-all duration-300">
+            <div class="bg-white p-4 rounded-3xl border border-gray-100 shadow-sm flex items-center justify-between hover:border-primary-gold transition-colors">
                 <div class="flex items-center gap-4">
                     <div class="w-12 h-12 ${info.color} rounded-2xl flex flex-col items-center justify-center text-white shrink-0 shadow-sm">
-                        <span class="text-[9px] font-black leading-none opacity-80">${monthShort}</span>
-                        <span class="text-lg font-black leading-none">${day}</span>
+                        <span class="text-[9px] font-black leading-none opacity-80">${d.toLocaleDateString('en-US', {month:'short'}).toUpperCase()}</span>
+                        <span class="text-lg font-black leading-none">${d.getDate()}</span>
                     </div>
                     <div>
-                        <h4 class="font-black text-sm uppercase tracking-tighter text-gray-900">${tour.time || info.time}</h4>
+                        <h4 class="font-black text-sm uppercase tracking-tighter">${tour.time || info.time}</h4>
                         <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">${info.name}</p>
                     </div>
-                </div>
-                <div class="text-gray-200 group-hover:text-primary-gold transition-colors">
-                    <span class="text-xl font-bold">→</span>
                 </div>
             </div>
         `;
     });
 
-    // 3. RENDER CALENDAR INTERFACE
-    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).getDay();
+    // 4. Render Calendar Grid
+    const year = calendarViewDate.getFullYear();
+    const month = calendarViewDate.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const firstDay = new Date(year, month, 1).getDay();
 
     calendarGrid.innerHTML = '';
-    
-    // Spacers for start of month
-    for (let i = 0; i < firstDay; i++) {
-        calendarGrid.innerHTML += `<div></div>`;
-    }
+    for (let i = 0; i < firstDay; i++) calendarGrid.innerHTML += `<div></div>`;
 
-    // Days of the month
     for (let day = 1; day <= daysInMonth; day++) {
-        const dateToCheck = new Date(now.getFullYear(), now.getMonth(), day).toDateString();
-        
-        // This is the fix: It checks YOUR personal tours only
-        const hasTour = sortedTours.some(t => new Date(t.date).toDateString() === dateToCheck);
-        
-        const activeClass = hasTour 
-            ? 'bg-primary-gold text-black shadow-md scale-105 border-2 border-white' 
-            : 'text-gray-400 bg-gray-50/50 hover:bg-gray-100';
-        
+        const dateObj = new Date(year, month, day);
+        const dateString = dateObj.toDateString();
+        const hasTour = myTours.some(t => new Date(t.date).toDateString() === dateString);
+        const isSelected = selectedCalendarDate === dateString;
+
+        let styleClass = "text-gray-400 bg-gray-50/50 hover:bg-gray-100";
+        if (hasTour) styleClass = "bg-primary-gold text-black font-black shadow-md scale-105 border-2 border-white";
+        if (isSelected) styleClass = "bg-black text-white ring-4 ring-primary-gold/30 scale-110 z-10";
+
         calendarGrid.innerHTML += `
-            <div onclick="document.getElementById('tour-card-${day}')?.scrollIntoView({behavior:'smooth', block:'center'})" 
-                 class="calendar-day cursor-pointer ${activeClass} transition-all active:scale-95">
+            <div onclick="selectDate('${dateString}', window.currentMyTours)" 
+                 class="calendar-day cursor-pointer ${styleClass} transition-all active:scale-95">
                 ${day}
             </div>
         `;
-    }
-
-    if (sortedTours.length === 0) {
-        listContainer.innerHTML = '<p class="text-gray-400 text-xs font-bold uppercase tracking-widest text-center py-10">No tours found for this month</p>';
     }
 }
 // Helper function to keep code clean
