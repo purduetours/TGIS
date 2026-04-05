@@ -534,6 +534,20 @@
     </div>
 </div>
 
+<div id="view-welcome-center" class="view-section hidden p-10">
+    <header class="mb-10 flex justify-between items-end">
+        <div>
+            <h1 class="text-6xl font-black tracking-tighter">Welcome Center</h1>
+            <p id="welcome-date-display" class="text-primary-gold font-bold uppercase tracking-[0.3em] mt-2">October 24, 2023</p>
+        </div>
+        <div class="bg-black text-white px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-xs">
+            Live Dashboard
+        </div>
+    </header>
+
+    <div id="welcome-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+        </div>
+</div>
 
     
 
@@ -647,6 +661,76 @@
         { name: "Samantha", points: 104 },
         { name: "Kristina", points: 76 }
     ];
+function renderWelcomeCenter(allTours) {
+    const grid = document.getElementById('welcome-grid');
+    const dateDisplay = document.getElementById('welcome-date-display');
+    if (!grid) return;
+
+    const now = new Date();
+    const todayStr = now.toDateString();
+    dateDisplay.innerText = now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }).toUpperCase();
+
+    grid.innerHTML = '';
+
+    // Loop through every possible tour in your map
+    Object.keys(TOUR_MAP).forEach(typeCode => {
+        const info = TOUR_MAP[typeCode];
+        
+        // Find everyone assigned to THIS tour type TODAY
+        const assignedGuides = allTours.filter(t => 
+            t.type === typeCode && 
+            new Date(t.date).toDateString() === todayStr
+        );
+
+        // Determine Status
+        let statusColor = "bg-gray-100 border-gray-200 text-gray-400 opacity-50"; // DEFAULT: Red (Not Scheduled)
+        let statusLabel = "Not Scheduled";
+        let dotColor = "bg-red-500";
+
+        if (assignedGuides.length > 0) {
+            // It is scheduled!
+            statusColor = "bg-white border-status-green text-gray-900 shadow-xl ring-2 ring-status-green/20";
+            statusLabel = "Scheduled";
+            dotColor = "bg-status-green";
+
+            // Check if it's CURRENTLY on tour
+            const start = parse12Hour(info.time);
+            const startTime = new Date();
+            startTime.setHours(start.hours, start.minutes, 0);
+            const endTime = new Date(startTime.getTime() + info.duration * 60000);
+
+            if (now >= startTime && now <= endTime) {
+                statusColor = "bg-purple-600 border-purple-800 text-white shadow-2xl scale-105 z-10";
+                statusLabel = "ON TOUR";
+                dotColor = "bg-white animate-ping";
+            }
+        }
+
+        const guideList = assignedGuides.length > 0 
+            ? assignedGuides.map(g => `<div class="font-bold text-sm">👤 ${g.guide}</div>`).join('')
+            : '<div class="text-xs italic opacity-50 text-red-500 font-bold">No Guides Assigned</div>';
+
+        grid.innerHTML += `
+            <div class="rounded-[2.5rem] border-2 p-8 transition-all duration-500 ${statusColor}">
+                <div class="flex justify-between items-start mb-6">
+                    <div>
+                        <p class="text-[10px] font-black uppercase tracking-[0.2em] opacity-60 mb-1">${info.name}</p>
+                        <h2 class="text-4xl font-black tracking-tighter">${info.time}</h2>
+                    </div>
+                    <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-black/10 text-[10px] font-black uppercase">
+                        <span class="w-2 h-2 rounded-full ${dotColor}"></span>
+                        ${statusLabel}
+                    </div>
+                </div>
+
+                <div class="space-y-2 mt-6 pt-6 border-t border-current/10">
+                    <p class="text-[10px] font-black uppercase tracking-widest opacity-60 mb-2">Assigned Personnel</p>
+                    ${guideList}
+                </div>
+            </div>
+        `;
+    });
+}
 function switchView(viewId) {
     // 1. Hide all sections, show the active one
     document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
@@ -928,6 +1012,37 @@ function updateScheduleView(myTours, displayName) {
         `;
     }
 }
+
+
+function updateNavigation(profile) {
+    const nav = document.getElementById('bottom-nav');
+    const isGuide = profile.rank === 'Tour Guide';
+    
+    // We add a check: hidden on mobile (hidden lg:flex handles the desktop part)
+    // and hidden if they are just a Tour Guide
+    nav.innerHTML = `
+        <button onclick="showView('home')" class="flex flex-col items-center">
+            <span class="text-xl">🏠</span>
+            <span class="text-[9px] font-black uppercase tracking-tighter">Home</span>
+        </button>
+        <button onclick="showView('schedule')" class="flex flex-col items-center">
+            <span class="text-xl">📅</span>
+            <span class="text-[9px] font-black uppercase tracking-tighter">Schedule</span>
+        </button>
+        ${!isGuide ? `
+        <button onclick="showView('welcome-center')" class="hidden lg:flex flex-col items-center">
+            <span class="text-xl">🖥️</span>
+            <span class="text-[9px] font-black uppercase tracking-tighter">Welcome</span>
+        </button>
+        ` : ''}
+        <button onclick="showView('profile')" class="flex flex-col items-center">
+            <span class="text-xl">👤</span>
+            <span class="text-[9px] font-black uppercase tracking-tighter">Profile</span>
+        </button>
+    `;
+}
+
+    
 // Helper function to keep code clean
 function renderTourRow(tour, isHistory = false) {
     const opacity = isHistory ? 'opacity-50 grayscale' : '';
@@ -1030,6 +1145,7 @@ async function init() {
     // 4. Add the two new Lock Logic lines
     checkTourLock(myTours); 
     setInterval(() => checkTourLock(myTours), 60000); 
+    renderWelcomeCenter(cachedData.tours);
 }
 
             // Hide overlay
