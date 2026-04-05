@@ -1169,6 +1169,24 @@ async function init() {
         }
     }
 
+    function showView(viewId) {
+    // 1. Hide all views
+    const views = ['home', 'schedule', 'profile', 'welcome-center'];
+    views.forEach(v => {
+        const el = document.getElementById('view-' + v);
+        if (el) el.classList.add('hidden');
+    });
+
+    // 2. Show selected view
+    const activeView = document.getElementById('view-' + viewId);
+    if (activeView) activeView.classList.remove('hidden');
+
+    // 3. Update Nav Colors (Optional)
+    document.querySelectorAll('#bottom-nav button').forEach(btn => {
+        btn.classList.remove('text-primary-gold');
+        btn.classList.add('text-gray-400');
+    });
+}
     // Helper function to swap loader for error message
     function showError(code) {
         document.getElementById('loader-content').classList.add('hidden');
