@@ -848,30 +848,45 @@ function updateScheduleView(myTours, displayName) {
     const monthName = calendarViewDate.toLocaleString('default', { month: 'long' });
     if (monthLabel) monthLabel.innerText = `${monthName} ${calendarViewDate.getFullYear()}`;
 
-    // 2. Filter and Sort the List
+    // 2. Filter the List
     let filteredTours = [...myTours];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset time to midnight for accurate day comparison
+
     if (selectedCalendarDate) {
+        // If a specific day is clicked, show tours for THAT day (even if past)
         filteredTours = myTours.filter(t => new Date(t.date).toDateString() === selectedCalendarDate);
+    } else {
+        // DEFAULT VIEW: Only show tours where the date is TODAY or in the FUTURE
+        filteredTours = myTours.filter(t => {
+            const tourDate = new Date(t.date);
+            tourDate.setHours(0, 0, 0, 0);
+            return tourDate >= today;
+        });
     }
+    
+    // Sort chronologically
     filteredTours.sort((a, b) => new Date(a.date) - new Date(b.date));
 
     // 3. Render the List Side
     listContainer.innerHTML = selectedCalendarDate 
         ? `<div class="mb-4 flex items-center justify-between">
-            <p class="text-[10px] font-black uppercase text-primary-gold font-black">Date: ${new Date(selectedCalendarDate).toLocaleDateString()}</p>
-            <button onclick="selectDate(null, window.currentMyTours)" class="text-[10px] font-black uppercase text-gray-400 underline">Clear Filter</button>
+            <p class="text-[10px] font-black uppercase text-primary-gold">Viewing: ${new Date(selectedCalendarDate).toLocaleDateString()}</p>
+            <button onclick="selectDate(null, window.currentMyTours)" class="text-[10px] font-black uppercase text-gray-400 underline">Show All Upcoming</button>
            </div>`
-        : '';
+        : `<div class="mb-4">
+            <p class="text-[10px] font-black uppercase text-gray-400 tracking-[0.2em]">Upcoming Assignments</p>
+           </div>`;
 
     if (filteredTours.length === 0) {
-        listContainer.innerHTML += `<p class="text-gray-400 text-[10px] font-black uppercase py-20 text-center tracking-widest">No tours scheduled</p>`;
+        listContainer.innerHTML += `<p class="text-gray-400 text-[10px] font-black uppercase py-20 text-center tracking-widest">No upcoming tours</p>`;
     }
 
     filteredTours.forEach(tour => {
         const info = TOUR_MAP[tour.type] || { color: 'bg-gray-500', name: tour.type };
         const d = new Date(tour.date);
         listContainer.innerHTML += `
-            <div class="bg-white p-4 rounded-3xl border border-gray-100 shadow-sm flex items-center justify-between hover:border-primary-gold transition-colors">
+            <div class="bg-white p-4 rounded-3xl border border-gray-100 shadow-sm flex items-center justify-between hover:border-primary-gold transition-colors mb-3">
                 <div class="flex items-center gap-4">
                     <div class="w-12 h-12 ${info.color} rounded-2xl flex flex-col items-center justify-center text-white shrink-0 shadow-sm">
                         <span class="text-[9px] font-black leading-none opacity-80">${d.toLocaleDateString('en-US', {month:'short'}).toUpperCase()}</span>
@@ -886,7 +901,7 @@ function updateScheduleView(myTours, displayName) {
         `;
     });
 
-    // 4. Render Calendar Grid
+    // 4. Render Calendar Grid (Always shows all tours for the month)
     const year = calendarViewDate.getFullYear();
     const month = calendarViewDate.getMonth();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
