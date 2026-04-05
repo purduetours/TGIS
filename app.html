@@ -660,31 +660,31 @@ function checkTourLock(myTours) {
         const info = TOUR_MAP[tour.type] || { color: 'bg-gray-500', name: tour.type };
         const tourDate = new Date(tour.date);
         
-        // Formatting for clarity
-        const dayName = tourDate.toLocaleDateString('en-US', { weekday: 'long' });
-        const dateStr = tourDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        // Date Components
+        const month = tourDate.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
+        const dayNum = tourDate.getDate();
+        const dayName = tourDate.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
 
         container.innerHTML = `
-            <div class="${info.color} rounded-[2rem] p-6 shadow-lg border-b-4 border-black/20 text-white relative overflow-hidden">
-                <div class="absolute right-0 top-0 opacity-10 text-6xl font-black p-4 rotate-12">📅</div>
+            <div class="${info.color} rounded-[2rem] p-4 shadow-lg border-b-4 border-black/20 text-white flex items-center gap-5">
                 
-                <div class="relative z-10 flex flex-col gap-1">
-                    <div class="flex items-center gap-2 mb-1">
-                        <span class="bg-black/20 text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-widest leading-relaxed">
+                <div class="bg-white/20 backdrop-blur-md rounded-2xl w-16 h-16 flex flex-col items-center justify-center shrink-0 border border-white/10">
+                    <span class="text-[9px] font-black tracking-widest opacity-80 mb-0.5">${month}</span>
+                    <span class="text-xl font-black leading-none">${dayNum}</span>
+                    <span class="text-[9px] font-black tracking-widest opacity-80 mt-1">${dayName}</span>
+                </div>
+
+                <div class="flex flex-col justify-center">
+                    <div class="flex items-center gap-2 mb-0.5">
+                        <span class="bg-black/20 text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-[0.15em]">
                             ${info.name}
                         </span>
                     </div>
-                    
-                    <h2 class="text-4xl font-black tracking-tighter leading-none mb-1">
+                    <h2 class="text-2xl font-black tracking-tighter uppercase italic">
                         ${tour.time}
                     </h2>
-                    
-                    <div class="flex items-center gap-2">
-                        <p class="text-sm font-bold uppercase tracking-widest opacity-90">
-                            ${dayName}, ${dateStr}
-                        </p>
-                    </div>
                 </div>
+
             </div>`;
     } else {
         container.innerHTML = `
