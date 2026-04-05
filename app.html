@@ -260,69 +260,37 @@
 
 <div class="content-area p-4 sm:p-8">
     
-   <div id="view-home" class="view-section active">
-    <header class="mb-8">
-        <h1 class="text-4xl font-black">Welcome, <span id="welcome-name" class="text-primary-gold text-nowrap">Guide</span></h1>
-        <p id="live-clock" class="text-lg font-bold text-gray-400 uppercase mt-2">Loading...</p>
-    </header>
-<div class="space-y-3 mb-6">
-    <div class="bg-red-600 rounded-2xl p-4 shadow-lg flex items-center gap-4 animate-pulse border-b-4 border-red-800">
-        <div class="text-3xl">⚠️</div>
-        <div>
-            <h3 class="text-white font-black uppercase tracking-tighter leading-tight text-sm">Introducing Purdue (April 3)</h3>
-            <p class="text-red-100 text-[10px] font-bold uppercase tracking-widest leading-tight">
-                Expect large crowds. Be prepared to make adjustments to your tour route.
-            </p>
+
+    <div id="view-home" class="view-section">
+    <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] ml-2 mb-3">Next Tour</h3>
+    <div id="home-next-tour-container" class="mb-8">
+        <div class="bg-gray-50 border-2 border-dashed border-gray-200 rounded-[2rem] p-5 flex items-center justify-center">
+            <p class="text-gray-400 text-[10px] font-black uppercase tracking-widest">No tours scheduled</p>
         </div>
     </div>
 
-    <div class="bg-yellow-400 rounded-2xl p-4 shadow-lg flex items-center gap-4 animate-pulse-subtle border-b-4 border-yellow-600 text-black">
-        <div class="text-3xl">🛑</div>
-        <div>
-            <h3 class="font-black uppercase tracking-tighter leading-tight text-sm">DO NOT ENTER FORD</h3>
-            <p class="text-yellow-900 text-[10px] font-bold uppercase tracking-widest leading-tight">
-                Please do not enter the dining court for any reason unless for extreme weather.
-            </p>
+    <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] ml-2 mb-3">Announcements</h3>
+    <div class="space-y-3">
+        <div class="bg-red-600 rounded-[2rem] p-5 shadow-lg flex items-center gap-4 animate-pulse border-b-4 border-red-800">
+            <div class="text-2xl">⚠️</div>
+            <div>
+                <h3 class="text-white font-black uppercase tracking-tighter leading-tight text-sm">Purdue's For Me (March 23)</h3>
+                <p class="text-red-100 text-[10px] font-bold uppercase tracking-widest leading-tight">Expect large crowds. Be prepared for route changes.</p>
+            </div>
+        </div>
+
+        <div class="bg-yellow-400 rounded-[2rem] p-5 shadow-lg flex items-center gap-4 border-b-4 border-yellow-600 text-black">
+            <div class="text-2xl">🛑</div>
+            <div>
+                <h3 class="font-black uppercase tracking-tighter leading-tight text-sm">DO NOT ENTER FORD</h3>
+                <p class="text-yellow-900 text-[10px] font-bold uppercase tracking-widest leading-tight">No entry allowed unless for extreme weather.</p>
+            </div>
         </div>
     </div>
 </div>
 
-    <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 mb-6">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest">Latest Announcements</h3>
-            <span class="bg-primary-gold/10 text-primary-gold text-[10px] font-black px-2 py-1 rounded-md uppercase">New</span>
-        </div>
-        <div class="space-y-4">
-            <div class="flex gap-4 items-start">
-                <div class="w-2 h-2 rounded-full bg-primary-gold mt-1.5 shrink-0"></div>
-                <div>
-                    <p class="font-bold text-sm">Tour Tacker</p>
-                    <p class="text-xs text-gray-500">The tour tracker is updated every Thursday.</p>
-                </div>
-                <div>
-                    <p class="font-bold text-sm">New Features Coming</p>
-                    <p class="text-xs text-gray-500">Quick Links and your full Tour Schedule are coming soon!</p>
-                </div>
-            </div>
-            <hr class="border-gray-50">
-            <div class="flex gap-4 items-start">
-                <div class="w-2 h-2 rounded-full bg-gray-200 mt-1.5 shrink-0"></div>
-                <div>
-                    <p class="font-bold text-sm text-gray-400">Construction Update</p>
-                    <p class="text-xs text-gray-400 uppercase font-black">Resolved</p>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 mb-6">
-        <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Quick Links</h3>
-        <div class="grid grid-cols-2 gap-4">
-            <div class="p-4 bg-gray-50 rounded-2xl text-center font-bold text-sm">Coming Soon</div>
-            <a href="#" class="p-4 bg-gray-50 rounded-2xl text-center font-bold text-sm hover:bg-gray-100 transition-colors">Tour Guide Handbook</a>
-        </div>
-    </div>
-</div>
+    
 
     <div id="view-tracker" class="view-section">
         <header class="mb-8">
@@ -587,6 +555,36 @@ function switchView(viewId) {
     // 3. IMPORTANT: Reset scroll position of the content area
     document.querySelector('.content-area').scrollTop = 0;
 }
+
+    function renderHomeNextTour(myTours) {
+    const container = document.getElementById('home-next-tour-container');
+    if (!container) return;
+
+    const now = new Date();
+    now.setHours(0,0,0,0);
+
+    // Find the next upcoming tour
+    const upcoming = myTours
+        .filter(t => new Date(t.date) >= now)
+        .sort((a,b) => new Date(a.date) - new Date(b.date));
+
+    if (upcoming.length > 0) {
+        const tour = upcoming[0];
+        const tourDate = new Date(tour.date);
+        const info = TOUR_MAP[tour.type] || { color: 'bg-gray-500', text: 'text-white', name: tour.type };
+        
+        const dateStr = tourDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+
+        container.innerHTML = `
+            <div class="${info.color} rounded-[2rem] p-5 shadow-lg flex items-center gap-4 border-b-4 border-black/20 text-white">
+                <div class="text-2xl">📅</div>
+                <div>
+                    <h3 class="font-black uppercase tracking-tighter leading-tight text-sm">${tour.time} — ${info.name}</h3>
+                    <p class="opacity-90 text-[10px] font-bold uppercase tracking-widest leading-tight">${dateStr}</p>
+                </div>
+            </div>`;
+    }
+}
     function updateClock() {
         const now = new Date();
         document.getElementById('live-clock').innerText = now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -815,6 +813,13 @@ async function init() {
             // Hide overlay
             document.getElementById('loading-overlay').classList.add('opacity-0');
             setTimeout(() => document.getElementById('loading-overlay').style.display = 'none', 500);
+
+            const myToursForHome = cachedData.tours.filter(tour => {
+            const cleanName = tour.guide.replace(/[*~`]/g, '').trim();
+            return cleanName.toLowerCase() === cachedData.profile.displayName.toLowerCase();
+            });
+
+            renderHomeNextTour(myToursForHome);
 
         } catch (e) {
             console.error(e);
