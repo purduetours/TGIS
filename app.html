@@ -563,15 +563,15 @@
     const scriptURL = 'https://script.google.com/macros/s/AKfycbyqIgk-V7XABUMluhLwjGudlHwkgldwRaBlAN6dFdbI1gNL-_cvN5PNTek2cfqNtc3j/exec';
     const userName = new URLSearchParams(window.location.search).get('user');
     const TOUR_MAP = {
-    '9DV': { time: '9:30 AM', name: 'Daily Visit', color: 'bg-status-green', text: 'text-green-700' },
-    '0DV': { time: '10:30 AM', name: 'Daily Visit', color: 'bg-status-green', text: 'text-green-700' },
-    '1DV': { time: '1:30 PM', name: 'Daily Visit', color: 'bg-status-green', text: 'text-green-700' },
-    '2DV': { time: '2:30 PM', name: 'Daily Visit', color: 'bg-status-green', text: 'text-green-700' },
-    '0GV': { time: '10:30 AM', name: 'Group Visit', color: 'bg-blue-500', text: 'text-blue-700' },
-    '8PA': { time: '8:15 AM', name: 'Program Day (Academic)', color: 'bg-purple-600', text: 'text-purple-700' },
-    '1PF': { time: '11:00 AM', name: 'Program Day (Full)', color: 'bg-purple-600', text: 'text-purple-700' },
-    '1PA': { time: '1:30 PM', name: 'Program Day (Academic)', color: 'bg-purple-600', text: 'text-purple-700' },
-    '2PA': { time: '2:30 PM', name: 'Program Day (Academic)', color: 'bg-purple-600', text: 'text-purple-700' }
+    '9DV': { time: '9:30 AM', name: 'Daily Visit', color: 'bg-status-green', text: 'text-green-700', duration: 105},
+    '0DV': { time: '10:30 AM', name: 'Daily Visit', color: 'bg-status-green', text: 'text-green-700', duration: 105},
+    '1DV': { time: '1:30 PM', name: 'Daily Visit', color: 'bg-status-green', text: 'text-green-700', duration: 105},
+    '2DV': { time: '2:30 PM', name: 'Daily Visit', color: 'bg-status-green', text: 'text-green-700', duration: 105},
+    '0GV': { time: '10:30 AM', name: 'Group Visit', color: 'bg-blue-500', text: 'text-blue-700', duration: 105},
+    '8PA': { time: '8:15 AM', name: 'Program Day (Academic)', color: 'bg-purple-600', text: 'text-purple-700', duration: 105},
+    '1PF': { time: '11:00 AM', name: 'Program Day (Full)', color: 'bg-purple-600', text: 'text-purple-700', duration: 105},
+    '1PA': { time: '1:30 PM', name: 'Program Day (Academic)', color: 'bg-purple-600', text: 'text-purple-700', duration: 105},
+    '2PA': { time: '2:30 PM', name: 'Program Day (Academic)', color: 'bg-purple-600', text: 'text-purple-700', duration: 105}
     };
     let cachedData = null;
 
@@ -594,6 +594,53 @@ function switchView(viewId) {
 
     // 3. IMPORTANT: Reset scroll position of the content area
     document.querySelector('.content-area').scrollTop = 0;
+}
+
+    // Helper to convert "1:30 PM" to 24-hour integers
+function parse12Hour(timeStr) {
+    const [time, modifier] = timeStr.split(' ');
+    let [hours, minutes] = time.split(':');
+    hours = parseInt(hours);
+    if (modifier === 'PM' && hours < 12) hours += 12;
+    if (modifier === 'AM' && hours === 12) hours = 0;
+    return { hours, minutes: parseInt(minutes) };
+}
+
+function checkTourLock(myTours) {
+    const lockScreen = document.getElementById('tour-lock-screen');
+    if (!lockScreen || !myTours) return;
+
+    const now = new Date();
+
+    const activeTour = myTours.find(tour => {
+        const info = TOUR_MAP[tour.type];
+        if (!info) return false;
+
+        const startParsed = parse12Hour(info.time);
+        const startTime = new Date(tour.date);
+        startTime.setHours(startParsed.hours, startParsed.minutes, 0);
+
+        // Calculate end by adding duration minutes
+        const endTime = new Date(startTime.getTime() + info.duration * 60000);
+
+        return now >= startTime && now <= endTime;
+    });
+
+    if (activeTour) {
+        const info = TOUR_MAP[activeTour.type];
+        const startParsed = parse12Hour(info.time);
+        
+        // Create end time for display
+        const displayEnd = new Date();
+        displayEnd.setHours(startParsed.hours, startParsed.minutes);
+        const finalEnd = new Date(displayEnd.getTime() + info.duration * 60000);
+
+        document.getElementById('lock-tour-name').innerText = info.name;
+        document.getElementById('lock-tour-end').innerText = finalEnd.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+        lockScreen.classList.remove('hidden');
+    } else {
+        lockScreen.classList.add('hidden');
+    }
 }
 
     function renderHomeNextTour(myTours) {
@@ -847,8 +894,22 @@ async function init() {
                 </div>
             `).join('');
             if (cachedData.tours) {
-                updateScheduleView(cachedData.tours, cachedData.profile.displayName);
-            }
+    // 1. Create your personal list (used for Home and Lock logic)
+    const myTours = cachedData.tours.filter(tour => {
+        const cleanName = tour.guide.replace(/[*~`]/g, '').trim();
+        return cleanName.toLowerCase() === cachedData.profile.displayName.toLowerCase();
+    });
+
+    // 2. Keep your existing schedule view call
+    updateScheduleView(cachedData.tours, cachedData.profile.displayName);
+    
+    // 3. Add the Home Screen "Next Tour" box
+    renderHomeNextTour(myTours);
+
+    // 4. Add the two new Lock Logic lines
+    checkTourLock(myTours); 
+    setInterval(() => checkTourLock(myTours), 60000); 
+}
 
             // Hide overlay
             document.getElementById('loading-overlay').classList.add('opacity-0');
@@ -908,5 +969,29 @@ async function init() {
     
     
 </div>
+
+<div id="tour-lock-screen" class="hidden fixed inset-0 z-[9999] bg-[#000000] flex flex-col items-center justify-center p-8 text-center">
+    <div class="absolute inset-0 opacity-5 font-black text-[15rem] overflow-hidden pointer-events-none text-white flex items-center justify-center">
+        TOUR
+    </div>
+    
+    <div class="relative z-10 w-full max-w-sm">
+        <div class="w-20 h-20 bg-status-green rounded-full flex items-center justify-center text-3xl mb-6 mx-auto animate-pulse shadow-[0_0_40px_rgba(16,185,129,0.3)]">
+            🚶‍♂️
+        </div>
+        <h1 class="text-white text-5xl font-black tracking-tighter mb-2">On Tour</h1>
+        <p id="lock-tour-name" class="text-primary-gold font-bold uppercase tracking-[0.2em] mb-10 text-sm">Daily Visit</p>
+        
+        <div class="bg-white/5 border border-white/10 rounded-[2.5rem] p-8 backdrop-blur-xl">
+            <p class="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em] mb-2">Estimated Finish</p>
+            <p id="lock-tour-end" class="text-white text-4xl font-black tracking-tight">--:-- --</p>
+        </div>
+        
+        <p class="mt-12 text-gray-600 text-[10px] font-bold uppercase tracking-[0.2em] leading-relaxed">
+            Navigation Disabled<br>Until Tour Conclusion
+        </p>
+    </div>
+</div>
+
 </body>
 </html>
