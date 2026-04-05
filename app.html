@@ -643,9 +643,9 @@ function checkTourLock(myTours) {
     }
 }
 
-    function renderHomeNextTour(myTours) {
+   function renderHomeNextTour(myTours) {
     const container = document.getElementById('home-next-tour-container');
-    if (!container) return;
+    if (!container || !myTours || myTours.length === 0) return;
 
     const now = new Date();
     now.setHours(0,0,0,0);
@@ -657,18 +657,39 @@ function checkTourLock(myTours) {
 
     if (upcoming.length > 0) {
         const tour = upcoming[0];
+        const info = TOUR_MAP[tour.type] || { color: 'bg-gray-500', name: tour.type };
         const tourDate = new Date(tour.date);
-        const info = TOUR_MAP[tour.type] || { color: 'bg-gray-500', text: 'text-white', name: tour.type };
         
-        const dateStr = tourDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+        // Formatting for clarity
+        const dayName = tourDate.toLocaleDateString('en-US', { weekday: 'long' });
+        const dateStr = tourDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
         container.innerHTML = `
-            <div class="${info.color} rounded-[2rem] p-5 shadow-lg flex items-center gap-4 border-b-4 border-black/20 text-white">
-                <div class="text-2xl">📅</div>
-                <div>
-                    <h3 class="font-black uppercase tracking-tighter leading-tight text-sm">${tour.time} — ${info.name}</h3>
-                    <p class="opacity-90 text-[10px] font-bold uppercase tracking-widest leading-tight">${dateStr}</p>
+            <div class="${info.color} rounded-[2rem] p-6 shadow-lg border-b-4 border-black/20 text-white relative overflow-hidden">
+                <div class="absolute right-0 top-0 opacity-10 text-6xl font-black p-4 rotate-12">📅</div>
+                
+                <div class="relative z-10 flex flex-col gap-1">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="bg-black/20 text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-widest leading-relaxed">
+                            ${info.name}
+                        </span>
+                    </div>
+                    
+                    <h2 class="text-4xl font-black tracking-tighter leading-none mb-1">
+                        ${tour.time}
+                    </h2>
+                    
+                    <div class="flex items-center gap-2">
+                        <p class="text-sm font-bold uppercase tracking-widest opacity-90">
+                            ${dayName}, ${dateStr}
+                        </p>
+                    </div>
                 </div>
+            </div>`;
+    } else {
+        container.innerHTML = `
+            <div class="bg-gray-50 border-2 border-dashed border-gray-200 rounded-[2rem] p-5 flex items-center justify-center text-center">
+                <p class="text-gray-400 text-[10px] font-black uppercase tracking-widest mt-1">No tours scheduled</p>
             </div>`;
     }
 }
