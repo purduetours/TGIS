@@ -968,7 +968,7 @@ async function init() {
     });
 
     // 2. Keep your existing schedule view call
-    updateScheduleView(cachedData.tours, cachedData.profile.displayName);
+    updateScheduleView(myTours, cachedData.profile.displayName);
     
     // 3. Add the Home Screen "Next Tour" box
     renderHomeNextTour(myTours);
