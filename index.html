@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tour Guide Information System - Purdue Admissions</title>
+    <title>Tour Guide Information System | Purdue Admissions</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -59,7 +59,7 @@
                     <button onclick="showView('about-view')" class="py-2 bg-gray-100 rounded hover:bg-gray-200 font-semibold transition">About</button>
                     <button class="py-2 bg-gray-100 rounded hover:bg-gray-200 font-semibold transition">TGIT Access</button>
                     <button class="py-2 bg-gray-100 rounded hover:bg-gray-200 font-semibold transition">Demonstration</button>
-                    <button onclick="showView('username-view')" class="py-2 bg-primary-gold text-primary-black rounded hover:bg-primary-gold-dark font-bold transition">Username Link</button>
+                    <button onclick="showView('username-view')" class="py-2 bg-primary-gold text-primary-black rounded hover:bg-primary-gold-dark font-bold transition">Sign In with Bypass Code</button>
                     <button onclick="showView('main-view')" class="mt-4 text-sm text-gray-500 underline">Back to Sign In</button>
                 </div>
             </div>
@@ -67,14 +67,14 @@
             <div id="about-view" class="hidden-view">
                 <h2 class="text-2xl font-bold text-text-dark mb-4 border-t pt-6 border-gray-200">About TGIS</h2>
                 <div class="text-left text-sm text-gray-700 space-y-4 px-4">
-                    <p>The Tour Guide Information System is designed to streamline admissions operations...</p>
-                    <p>[Your text goes here]</p>
+                    <p>The Tour Guide Information System was developed in Spring 2026 to streamline tour guide management.</p>
+                    <p>Developers: Jacob Lavra and Nancy Pei</p>
                 </div>
                 <button onclick="showView('more-options-view')" class="mt-8 px-6 py-2 border border-primary-black rounded-lg">Back</button>
             </div>
 
             <div id="username-view" class="hidden-view">
-                <h2 class="text-2xl font-bold text-text-dark mb-6 border-t pt-6 border-gray-200">Username Link</h2>
+                <h2 class="text-2xl font-bold text-text-dark mb-6 border-t pt-6 border-gray-200">Sign In with Bypass Code</h2>
                 <div class="space-y-4 max-w-xs mx-auto">
                     <input type="text" id="usernameInput" placeholder="Username" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-primary-gold outline-none">
                     <input type="password" id="pinInput" placeholder="PIN" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-primary-gold outline-none">
