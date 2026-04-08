@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tour Guide Information System - Purdue Admissions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        'primary-gold': '#CFB991',
+                        'primary-black': '#212121',
+                        'primary-gold-dark': '#B8A17D',
+                        'text-dark': '#374151',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            background-image: url('https://www.purdue.edu/hr/workremotely/images/FoundersPark.jpg'); 
+            background-size: cover; background-position: center; background-attachment: fixed; overflow-x: hidden;
+        }
+        .hidden-view { display: none; }
+    </style>
+</head>
+<body class="font-sans min-h-screen flex flex-col antialiased">
+    <div id="snow-container" class="absolute inset-0"></div>
+    <div class="absolute inset-0 bg-primary-black opacity-20"></div>
+
+    <main class="flex-grow flex items-center justify-center p-4 relative z-10">
+        <div class="max-w-xl w-full bg-white bg-opacity-75 backdrop-blur-md shadow-2xl rounded-xl overflow-hidden p-6 sm:p-8 text-center border-t-8 border-primary-gold">
+            <img src="PU-H-Full-RGB.png" alt="Purdue University Logo" class="h-20 w-auto mx-auto mb-8 cursor-pointer" onclick="showView('main-view')">
+
+            <div id="main-view">
+                <h1 class="text-3xl sm:text-4xl font-extrabold text-text-dark mb-8 leading-snug border-t pt-6 border-gray-200">
+                    Tour Guide <span class="text-primary-black">Information System</span>
+                </h1>
+                <div class="flex flex-col items-center space-y-4">
+                    <form action="https://purdue.ca1.qualtrics.com/jfe/form/SV_aXWKLeeEHUPPjgi" method="POST" class="w-full sm:w-auto">
+                        <button type="submit" class="inline-flex items-center justify-center w-full px-10 py-3 bg-primary-black text-white font-extrabold text-lg rounded-lg shadow-xl hover:bg-gray-800 transition duration-300 transform hover:scale-105">
+                            <span>Sign In with SSO</span>
+                        </button>
+                    </form>
+                    <button onclick="showView('more-options-view')" class="w-full sm:w-auto px-10 py-2 border-2 border-primary-black text-primary-black font-bold text-md rounded-lg hover:bg-gray-100 transition duration-200 transform hover:scale-105">
+                        More Options
+                    </button>
+                </div>
+            </div>
+
+            <div id="more-options-view" class="hidden-view">
+                <h2 class="text-2xl font-bold text-text-dark mb-6 border-t pt-6 border-gray-200">Options</h2>
+                <div class="grid grid-cols-1 gap-3">
+                    <button onclick="showView('about-view')" class="py-2 bg-gray-100 rounded hover:bg-gray-200 font-semibold transition">About</button>
+                    <button class="py-2 bg-gray-100 rounded hover:bg-gray-200 font-semibold transition">TGIT Access</button>
+                    <button class="py-2 bg-gray-100 rounded hover:bg-gray-200 font-semibold transition">Demonstration</button>
+                    <button onclick="showView('username-view')" class="py-2 bg-primary-gold text-primary-black rounded hover:bg-primary-gold-dark font-bold transition">Username Link</button>
+                    <button onclick="showView('main-view')" class="mt-4 text-sm text-gray-500 underline">Back to Sign In</button>
+                </div>
+            </div>
+
+            <div id="about-view" class="hidden-view">
+                <h2 class="text-2xl font-bold text-text-dark mb-4 border-t pt-6 border-gray-200">About TGIS</h2>
+                <div class="text-left text-sm text-gray-700 space-y-4 px-4">
+                    <p>The Tour Guide Information System is designed to streamline admissions operations...</p>
+                    <p>[Your text goes here]</p>
+                </div>
+                <button onclick="showView('more-options-view')" class="mt-8 px-6 py-2 border border-primary-black rounded-lg">Back</button>
+            </div>
+
+            <div id="username-view" class="hidden-view">
+                <h2 class="text-2xl font-bold text-text-dark mb-6 border-t pt-6 border-gray-200">Username Link</h2>
+                <div class="space-y-4 max-w-xs mx-auto">
+                    <input type="text" id="usernameInput" placeholder="Username" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-primary-gold outline-none">
+                    <input type="password" id="pinInput" placeholder="PIN" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-primary-gold outline-none">
+                    <button onclick="redirectToApp()" class="w-full py-2 bg-primary-black text-white font-bold rounded hover:bg-gray-800 transition">Enter</button>
+                    <button onclick="showView('more-options-view')" class="block w-full text-sm text-gray-500 underline">Cancel</button>
+                </div>
+            </div>
+
+            <div class="mt-8 pt-6 border-t border-gray-200">
+                <p class="text-sm text-gray-500 font-medium">Please contact Jacob if your TGIS Profile is not established.</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Navigation Logic
+        function showView(viewId) {
+            const views = ['main-view', 'more-options-view', 'about-view', 'username-view'];
+            views.forEach(id => {
+                document.getElementById(id).classList.add('hidden-view');
+            });
+            document.getElementById(viewId).classList.remove('hidden-view');
+        }
+
+        // Redirect Logic
+        function redirectToApp() {
+            const user = document.getElementById('usernameInput').value;
+            if (user) {
+                window.location.href = `https://purduetours.github.io/TGIS/app.html?user=${encodeURIComponent(user)}`;
+            } else {
+                alert("Please enter a username.");
+            }
+        }
+    </script>
+</body>
+</html>
