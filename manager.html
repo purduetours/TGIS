@@ -7,36 +7,49 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; transition: background 0.5s ease; }
+        body { font-family: 'Inter', sans-serif; background-color: #f9fafb; }
         .content-area { margin-left: 18rem; transition: all 0.3s ease; min-height: 100vh; }
         @media (max-width: 1024px) { .content-area { margin-left: 0; } }
-        body.control-mode { background-image: url('boss.png'); background-size: cover; background-position: center; background-attachment: fixed; }
-        body.control-mode .content-area { margin-left: 0; } 
-        body.control-mode nav { display: none; }
+        
         .loader { border-top-color: #CFB991; animation: spinner 0.6s linear infinite; }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
         .tab-content { display: none; }
         .tab-content.active { display: block; }
+
         .schedule-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; }
         .day-column { background: white; border-radius: 1.5rem; border: 1px solid #F3F4F6; padding: 1rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-        .tour-slot { height: 260px; margin-bottom: 1rem; padding: 0.75rem; border-radius: 1rem; border: 1px solid #F3F4F6; display: flex; flex-direction: column; transition: all 0.2s ease; overflow: hidden; }
+        
+        .tour-slot { 
+            height: 260px; 
+            margin-bottom: 1rem; 
+            padding: 0.75rem; 
+            border-radius: 1rem; 
+            border: 1px solid #F3F4F6; 
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
         .tour-time-label { font-size: 10px; font-weight: 900; color: #CFB991; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
-        .guide-name-pill { font-size: 11px; font-weight: 600; background: white; border: 1px solid #E5E7EB; padding: 4px 8px; border-radius: 6px; margin-bottom: 3px; display: inline-block; width: 100%; }
+        .guide-name-pill { font-size: 11px; font-weight: 600; background: white; border: 1px solid #E5E7EB; padding: 4px 8px; border-radius: 6px; margin-bottom: 3px; width: 100%; }
         .status-drop { color: #EF4444; border-color: #FEE2E2; background: #FEF2F2; }
+
         .bg-slot-9DV { background-color: #f0f7ff; border-color: #bae6fd; }
         .bg-slot-0DV { background-color: #fdf2f8; border-color: #fbcfe8; }
         .bg-slot-1DV { background-color: #f0fdf4; border-color: #bbf7d0; }
         .bg-slot-2DV { background-color: #fffbeb; border-color: #fef3c7; }
+
         @media print {
             nav, #loading-overlay, .no-print, header, #tab-control, #tab-roster { display: none !important; }
             .content-area { margin-left: 0 !important; padding: 0 !important; width: 100% !important; }
             .schedule-grid { display: grid !important; grid-template-columns: repeat(5, 1fr) !important; gap: 4px !important; }
-            .tour-slot { height: 165px !important; }
+            .tour-slot { height: 165px !important; border: 1px solid #ddd !important; }
             @page { size: landscape; margin: 0.5cm; }
         }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800 antialiased">
+<body class="antialiased">
 
 <div id="loading-overlay" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center transition-opacity duration-500">
     <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
@@ -63,12 +76,20 @@
     </div>
 
     <div id="tab-schedule" class="tab-content p-8">
+        <div id="print-header" class="hidden print:block text-center mb-4">
+            <h1 class="text-3xl font-black uppercase">Postcard Sign Off</h1>
+            <p id="print-date-range" class="text-sm font-bold text-gray-600 uppercase"></p>
+        </div>
         <header class="mb-10 flex justify-between items-center no-print">
             <h1 class="text-4xl font-black">Tour Schedule</h1>
-            <div class="flex gap-3">
-                <button onclick="jumpToToday()" class="bg-green-600 text-white px-6 py-2 rounded-xl font-bold text-xs uppercase">Today</button>
-                <input type="date" id="schedule-date-picker" onchange="jumpToDate(this.value)" class="border rounded-xl px-2 font-bold text-sm">
-                <button onclick="prepareAndPrint()" class="bg-black text-white px-6 py-2 rounded-xl font-bold text-xs uppercase">Print</button>
+            <div class="flex items-center gap-3">
+                <button onclick="jumpToToday()" class="bg-green-600 text-white h-[40px] px-4 rounded-xl font-bold text-xs uppercase">Today</button>
+                <div class="flex items-center bg-white border rounded-xl p-1 h-[40px]">
+                    <button onclick="changeWeek(-7)" class="px-2 hover:bg-gray-100 rounded-lg">◀</button>
+                    <input type="date" id="schedule-date-picker" onchange="jumpToDate(this.value)" class="mx-2 font-bold text-sm outline-none cursor-pointer">
+                    <button onclick="changeWeek(7)" class="px-2 hover:bg-gray-100 rounded-lg">▶</button>
+                </div>
+                <button onclick="prepareAndPrint()" class="bg-black text-white h-[40px] px-6 rounded-xl font-bold text-xs uppercase">Print Postcards</button>
             </div>
         </header>
         <div id="schedule-container" class="schedule-grid"></div>
@@ -76,110 +97,94 @@
 
     <div id="tab-desk" class="tab-content p-8">
         <div class="flex justify-between items-center mb-8">
-            <div>
-                <h1 class="text-5xl font-black tracking-tighter uppercase">Desk Ops</h1>
-                <div class="flex items-center gap-4 mt-2">
-                    <button onclick="changeDeskDate(-1)" class="p-2 hover:bg-gray-200 rounded-full transition-colors">◀</button>
-                    <p id="desk-display-date" class="text-lg font-bold text-[#CFB991] uppercase tracking-widest"></p>
-                    <button onclick="changeDeskDate(1)" class="p-2 hover:bg-gray-200 rounded-full transition-colors">▶</button>
-                </div>
-            </div>
-            <div id="status-bar" class="flex gap-3 overflow-x-auto"></div>
+            <h1 class="text-5xl font-black uppercase">Desk Ops</h1>
+            <div id="status-bar" class="flex gap-3"></div>
         </div>
         <div id="desk-summary-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"></div>
     </div>
 
-    <div id="tab-control" class="tab-content h-screen w-full flex flex-col items-center justify-center text-white relative bg-gray-900">
-        <button onclick="switchTab('roster')" class="absolute top-8 right-8 text-white font-black uppercase">✕ Exit</button>
-        <h1 class="text-6xl font-black mb-4 uppercase">Control Center</h1>
+    <div id="tab-control" class="tab-content p-8">
+        <h1 class="text-4xl font-black mb-4">Control Center</h1>
+        <p class="text-gray-500 font-medium">System configuration and management tools.</p>
     </div>
 </div>
 
 <script>
     const scriptURL = 'https://script.google.com/macros/s/AKfycbz-RvNHk8SpTjtKt_r00cTmkH6DWtQeApayShxo9iDHsn7TyrhgQXWL2H-1ChBFfnaV/exec';
     let tourData = [];
-    let rawData = [];
-    let deskDate = new Date();
-    deskDate.setHours(0,0,0,0);
     let currentMonday = getMonday(new Date());
 
     function getMonday(d) {
         d = new Date(d);
         const day = d.getDay();
         const diff = d.getDate() - day + (day === 0 ? -6 : 1); 
-        const monday = new Date(d.setDate(diff));
-        monday.setHours(0,0,0,0);
-        return monday;
+        const mon = new Date(d.setDate(diff));
+        mon.setHours(0,0,0,0);
+        return mon;
     }
 
     function switchTab(tabName) {
         document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-        const target = document.getElementById('tab-' + tabName);
-        if(target) target.classList.add('active');
-        document.body.classList.toggle('control-mode', tabName === 'control');
-        if(tabName === 'schedule') renderSchedule();
+        document.getElementById('tab-' + tabName).classList.add('active');
+        if(tabName === 'schedule') { updatePicker(); renderSchedule(); }
         if(tabName === 'desk') renderDeskDashboard();
     }
 
-    function changeDeskDate(days) {
-        deskDate.setDate(deskDate.getDate() + days);
-        renderDeskDashboard();
+    function changeWeek(days) {
+        currentMonday.setDate(currentMonday.getDate() + days);
+        updatePicker();
+        renderSchedule();
     }
 
-    function renderDeskDashboard() {
-        const container = document.getElementById('desk-summary-grid');
-        const statusBar = document.getElementById('status-bar');
-        const dateLabel = document.getElementById('desk-display-date');
-        if(!container || !statusBar) return;
-        
-        dateLabel.innerText = deskDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
-        const slots = [
-            { code: '9DV', time: '9:30 AM', h: 9, m: 30 },
-            { code: '0DV', time: '10:30 AM', h: 10, m: 30 },
-            { code: '1DV', time: '1:30 PM', h: 13, m: 30 },
-            { code: '2DV', time: '2:30 PM', h: 14, m: 30 }
-        ];
+    function jumpToDate(val) {
+        if(!val) return;
+        currentMonday = getMonday(new Date(val.replace(/-/g, '/')));
+        renderSchedule();
+    }
 
-        const now = new Date();
-        let gridHtml = '';
-        let statusHtml = '';
+    function jumpToToday() {
+        currentMonday = getMonday(new Date());
+        updatePicker();
+        renderSchedule();
+    }
 
-        slots.forEach(slot => {
-            const guides = tourData.filter(t => t.type === slot.code && t.dateObj && t.dateObj.getTime() === deskDate.getTime() && !['N/A','#N/A'].includes(String(t.guide).trim().toUpperCase()));
-            const hasTour = guides.length > 0;
-            let color = "bg-gray-200 text-gray-500";
-            let text = "Empty";
+    function updatePicker() {
+        const picker = document.getElementById('schedule-date-picker');
+        if(picker) picker.value = currentMonday.toISOString().split('T')[0];
+    }
 
-            if(hasTour) {
-                const start = new Date(deskDate); start.setHours(slot.h, slot.m, 0);
-                const end = new Date(start); end.setMinutes(start.getMinutes() + 105);
-                if(deskDate.toDateString() === now.toDateString()) {
-                    if(now >= start && now <= end) { color = "bg-purple-600 text-white animate-pulse"; text = "Live"; }
-                    else if(now < start) { color = "bg-green-500 text-white"; text = "Ready"; }
-                    else { color = "bg-gray-400 text-white"; text = "Done"; }
-                } else { color = "bg-green-500 text-white"; text = "Scheduled"; }
-            }
-
-            statusHtml += `<div class="${color} px-4 py-2 rounded-xl text-center min-w-[90px]"><p class="text-[9px] font-black uppercase">${slot.time}</p><p class="text-[11px] font-bold">${text}</p></div>`;
-            gridHtml += `<div class="bg-white border p-6 rounded-[2rem] shadow-sm ${!hasTour ? 'opacity-40' : ''}"><p class="text-[10px] font-black text-[#CFB991] tracking-widest">${slot.code}</p><h2 class="text-2xl font-black mb-4">${slot.time}</h2><div class="space-y-2">${hasTour ? guides.map(g => `<div class="flex justify-between p-3 bg-gray-50 rounded-xl border"><span class="font-bold text-sm">${String(g.guide).replace('`','')}</span>${g.status==='DROP'?'⚠️':''}</div>`).join('') : '<p class="text-xs italic text-gray-400">None</p>'}</div></div>`;
-        });
-        statusBar.innerHTML = statusHtml;
-        container.innerHTML = gridHtml;
+    function prepareAndPrint() {
+        const printDateDisplay = document.getElementById('print-date-range');
+        const weekEnd = new Date(currentMonday);
+        weekEnd.setDate(currentMonday.getDate() + 4);
+        const range = `${currentMonday.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+        printDateDisplay.innerText = `Week of ${range}`;
+        window.print();
     }
 
     function renderSchedule() {
         const container = document.getElementById('schedule-container');
         if(!container) return;
-        const slots = [{c:'9DV',t:'9:30 AM',cls:'bg-slot-9DV'},{c:'0DV',t:'10:30 AM',cls:'bg-slot-0DV'},{c:'1DV',t:'1:30 PM',cls:'bg-slot-1DV'},{c:'2DV',t:'2:30 PM',cls:'bg-slot-2DV'}];
+        const slots = [
+            { c: '9DV', t: '9:30 AM', cls: 'bg-slot-9DV' },
+            { c: '0DV', t: '10:30 AM', cls: 'bg-slot-0DV' },
+            { c: '1DV', t: '1:30 PM', cls: 'bg-slot-1DV' },
+            { c: '2DV', t: '2:30 PM', cls: 'bg-slot-2DV' }
+        ];
         let html = '';
-        for(let i=0; i<5; i++){
-            const d = new Date(currentMonday); d.setDate(d.getDate()+i); d.setHours(0,0,0,0);
-            html += `<div class="day-column"><div class="text-center mb-4"><h3 class="font-black text-sm uppercase">${d.toLocaleDateString('en-US',{weekday:'long'})}</h3><p class="text-[9px] font-bold text-[#CFB991]">${d.toLocaleDateString('en-US',{month:'short',day:'numeric'})}</p></div>${slots.map(s => {
+        for(let i=0; i<5; i++) {
+            const d = new Date(currentMonday); d.setDate(d.getDate() + i);
+            html += `<div class="day-column"><div class="text-center mb-4"><h3 class="font-black uppercase text-sm">${d.toLocaleDateString('en-US',{weekday:'long'})}</h3><p class="text-[9px] font-bold text-[#CFB991]">${d.toLocaleDateString('en-US',{month:'short',day:'numeric'})}</p></div>`;
+            slots.forEach(s => {
                 const entries = tourData.filter(t => t.type === s.c && t.dateObj && t.dateObj.getTime() === d.getTime());
                 const cancelled = entries.some(e => ['N/A','#N/A'].includes(String(e.guide).trim().toUpperCase()));
-                if(cancelled) return `<div class="tour-slot ${s.cls} opacity-50 flex items-center justify-center italic text-[10px]">No Tour</div>`;
-                return `<div class="tour-slot ${s.cls}"><p class="tour-time-label">${s.t}</p><div class="flex flex-col gap-1">${entries.length > 0 ? entries.map(e => `<div class="guide-name-pill ${e.status==='DROP'?'status-drop':''}">${String(e.guide).replace('`','')}</div>`).join('') : '<p class="text-[8px] text-gray-400">Empty</p>'}</div></div>`;
-            }).join('')}</div>`;
+                if(cancelled) {
+                    html += `<div class="tour-slot ${s.cls} opacity-50 flex items-center justify-center italic text-[10px]">No Tour</div>`;
+                } else {
+                    html += `<div class="tour-slot ${s.cls}"><p class="tour-time-label">${s.t}</p><div class="flex flex-col gap-1">${entries.length > 0 ? entries.map(e => `<div class="guide-name-pill ${e.status==='DROP'?'status-drop':''}">${String(e.guide).replace('`','')}</div>`).join('') : '<p class="text-[8px] text-gray-400">Empty</p>'}</div></div>`;
+                }
+            });
+            html += `</div>`;
         }
         container.innerHTML = html;
     }
@@ -190,16 +195,12 @@
             const data = await resp.json();
             tourData = data.tours || [];
             tourData.forEach(t => { if(t.date) { t.dateObj = new Date(t.date); t.dateObj.setHours(0,0,0,0); }});
+            updatePicker();
             renderSchedule();
         } catch(e) { console.error(e); } finally {
-            const overlay = document.getElementById('loading-overlay');
-            if(overlay) { overlay.classList.add('opacity-0'); setTimeout(() => overlay.style.display = 'none', 500); }
+            document.getElementById('loading-overlay').style.display = 'none';
         }
     }
-
-    function jumpToDate(val) { if(val) { currentMonday = getMonday(new Date(val.replace(/-/g, '/'))); renderSchedule(); }}
-    function jumpToToday() { currentMonday = getMonday(new Date()); renderSchedule(); }
-    function changeWeek(n) { currentMonday.setDate(currentMonday.getDate()+n); renderSchedule(); }
 
     init();
 </script>
