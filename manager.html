@@ -7,127 +7,60 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
+    <style>
+        body { font-family: 'Inter', sans-serif; transition: background 0.5s ease; }
+        .content-area { margin-left: 18rem; transition: all 0.3s ease; min-height: 100vh; }
+        @media (max-width: 1024px) { .content-area { margin-left: 0; } }
+        
+        body.control-mode { background-image: url('boss.png'); background-size: cover; background-position: center; background-attachment: fixed; }
+        body.control-mode .content-area { margin-left: 0; } 
+        body.control-mode nav { display: none; }
 
-<style>
-    body { font-family: 'Inter', sans-serif; transition: background 0.5s ease; }
-    .content-area { margin-left: 18rem; transition: all 0.3s ease; min-height: 100vh; }
-    @media (max-width: 1024px) { .content-area { margin-left: 0; } }
-    
-    body.control-mode { background-image: url('boss.png'); background-size: cover; background-position: center; background-attachment: fixed; }
-    body.control-mode .content-area { margin-left: 0; } 
-    body.control-mode nav { display: none; }
+        .loader { border-top-color: #CFB991; animation: spinner 0.6s linear infinite; }
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
 
-    .loader { border-top-color: #CFB991; animation: spinner 0.6s linear infinite; }
-    @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    
-    .mini-badge { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; opacity: 0.15; filter: grayscale(1); transition: 0.3s; border: 1px solid rgba(0,0,0,0.05); }
-    .mini-badge.active { filter: grayscale(0); opacity: 1; transform: scale(1.1); border: 1px solid rgba(207, 185, 145, 0.3); }
-    
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
+        /* --- SCHEDULE GRID STYLING --- */
+        .schedule-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; }
+        .day-column { background: white; border-radius: 1.5rem; border: 1px solid #F3F4F6; padding: 1rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        
+        .tour-slot { 
+            height: 260px; 
+            margin-bottom: 1rem; 
+            padding: 0.75rem; 
+            border-radius: 1rem; 
+            border: 1px solid #F3F4F6; 
+            display: flex;
+            flex-direction: column;
+            transition: all 0.2s ease;
+        }
 
-    /* --- SCHEDULE GRID STYLING --- */
-    .schedule-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; }
-    .day-column { background: white; border-radius: 1.5rem; border: 1px solid #F3F4F6; padding: 1rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-    
-    /* Forced Height for Neat Grid (matches 6 guide names) */
-    .tour-slot { 
-        height: 260px; 
-        margin-bottom: 1rem; 
-        padding: 0.75rem; 
-        border-radius: 1rem; 
-        border: 1px solid #F3F4F6; 
-        display: flex;
-        flex-direction: column;
-        transition: all 0.2s ease;
-    }
+        .tour-time-label { font-size: 10px; font-weight: 900; color: #CFB991; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+        .guide-name-pill { font-size: 11px; font-weight: 600; background: white; border: 1px solid #E5E7EB; padding: 4px 8px; border-radius: 6px; margin-bottom: 3px; display: inline-block; width: 100%; }
+        .status-drop { color: #EF4444; border-color: #FEE2E2; background: #FEF2F2; }
 
-    .tour-time-label { font-size: 10px; font-weight: 900; color: #CFB991; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
-    .guide-name-pill { font-size: 11px; font-weight: 600; background: white; border: 1px solid #E5E7EB; padding: 4px 8px; border-radius: 6px; margin-bottom: 3px; display: inline-block; width: 100%; }
-    .status-drop { color: #EF4444; border-color: #FEE2E2; background: #FEF2F2; }
+        .bg-slot-9DV { background-color: #f0f7ff; border-color: #bae6fd; }
+        .bg-slot-0DV { background-color: #fdf2f8; border-color: #fbcfe8; }
+        .bg-slot-1DV { background-color: #f0fdf4; border-color: #bbf7d0; }
+        .bg-slot-2DV { background-color: #fffbeb; border-color: #fef3c7; }
 
-    /* Time Slot Color Coding */
-    .bg-slot-9DV { background-color: #f0f7ff; border-color: #bae6fd; } /* Blue */
-    .bg-slot-0DV { background-color: #fdf2f8; border-color: #fbcfe8; } /* Pink */
-    .bg-slot-1DV { background-color: #f0fdf4; border-color: #bbf7d0; } /* Green */
-    .bg-slot-2DV { background-color: #fffbeb; border-color: #fef3c7; } /* Yellow */
+        @media print {
+            nav, #loading-overlay, .no-print, header, #tab-control, #tab-roster { display: none !important; }
+            .content-area { margin-left: 0 !important; padding: 0 !important; width: 100% !important; }
+            body { background: white !important; }
+            .schedule-grid { display: grid !important; grid-template-columns: repeat(5, 1fr) !important; gap: 4px !important; width: 100% !important; }
+            .day-column { box-shadow: none !important; border: 1px solid #e5e7eb !important; padding: 4px !important; break-inside: avoid; }
+            .tour-slot { height: 165px !important; margin-bottom: 4px !important; padding: 4px !important; border: 1px solid #ddd !important; }
+            .guide-name-pill { margin-bottom: 1px !important; padding: 1px 4px !important; font-size: 9px !important; }
+            @page { size: landscape; margin: 0.5cm; }
+        }
 
-    /* --- PRINT LOGIC --- */
-  /* --- UPDATED PRINT LOGIC --- */
-@media print {
-    /* Hide UI elements */
-    nav, #loading-overlay, .no-print, header, #tab-control, #tab-roster { 
-        display: none !important; 
-    }
-
-    .content-area { 
-        margin-left: 0 !important; 
-        padding: 0 !important; 
-        width: 100% !important; 
-    }
-
-    body { 
-        background: white !important; 
-    }
-
-    /* Force the grid to fit the page width */
-    .schedule-grid { 
-        display: grid !important; 
-        grid-template-columns: repeat(5, 1fr) !important; 
-        gap: 4px !important;
-        width: 100% !important;
-    }
-
-    .day-column { 
-        box-shadow: none !important; 
-        border: 1px solid #e5e7eb !important; 
-        padding: 4px !important;
-        break-inside: avoid;
-    }
-
-    /* Adjusted height to ensure 6 guide pills + Header fit in the slot */
-    .tour-slot { 
-        height: 165px !important; 
-        margin-bottom: 4px !important;
-        padding: 4px !important;
-        border: 1px solid #ddd !important;
-    }
-
-    .guide-name-pill {
-        margin-bottom: 1px !important;
-        padding: 1px 4px !important;
-        font-size: 9px !important; /* Slightly smaller to guarantee fit */
-    }
-
-    @page { 
-        size: landscape; 
-        margin: 0.5cm; 
-    }
-}
-/* Hide the print header on the web screen */
-<div id="print-only-header">
-    <h1 class="text-3xl font-black uppercase tracking-tighter">Postcard Sign Off</h1>
-    <p id="print-date-range" class="text-lg font-bold text-gray-600"></p>
-</div>
-
-    /* Hide scrollbars but keep the container functional */
-.flex.flex-col.gap-1.overflow-y-auto {
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none;  /* IE and Edge */
-}
-
-.flex.flex-col.gap-1.overflow-y-auto::-webkit-scrollbar {
-    display: none; /* Chrome, Safari and Opera */
-}
-
-/* Ensure the tour-slot itself doesn't show a scrollbar if content overflows */
-.tour-slot {
-    overflow: hidden !important;
-}
-</style>
-
-
-    
+        .flex.flex-col.gap-1.overflow-y-auto { scrollbar-width: none; -ms-overflow-style: none; }
+        .flex.flex-col.gap-1.overflow-y-auto::-webkit-scrollbar { display: none; }
+        .tour-slot { overflow: hidden !important; }
+    </style>
 </head>
 <body class="bg-gray-50 text-gray-800 antialiased">
 
@@ -141,7 +74,6 @@
         <p class="text-[10px] font-black text-[#CFB991] uppercase tracking-[0.2em] mb-1">Purdue University</p>
         <h1 class="text-xl font-black leading-tight">TGIS Manager</h1>
     </div>
-
     <div class="space-y-2">
         <button onclick="switchTab('roster')" class="w-full flex items-center p-3 hover:bg-gray-50 rounded-xl font-bold text-sm transition-all">
             <span class="mr-3 text-lg">📋</span> Master Roster
@@ -161,280 +93,31 @@
 <div class="content-area">
     <div id="tab-roster" class="tab-content active p-4 sm:p-8">
         <h1 class="text-4xl font-black mb-8">Staff Roster</h1>
-        <div id="roster-table-container"></div> </div>
-
-<div id="tab-schedule" class="tab-content p-4 sm:p-8">
-<div id="print-header" class="hidden print:block text-center mb-4">
-    <h1 class="text-3xl font-black uppercase tracking-tight">Postcard Sign Off</h1>
-    <p id="print-date-range" class="text-sm font-bold text-gray-600 uppercase tracking-widest"></p>
-</div>
-   <header class="mb-10 flex flex-col md:flex-row md:items-stretch justify-between gap-4 no-print">
-    <div>
-        <h1 class="text-4xl font-black text-gray-900 tracking-tight">Tour Schedule</h1>
-        <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Live Weekly Calendar</p>
+        <div id="roster-table-container"></div> 
     </div>
-    
-    <div class="flex items-center gap-3">
-        <button onclick="jumpToToday()" class="bg-green-600 hover:bg-green-700 text-white h-[46px] px-6 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all shadow-md">
-            Today
-        </button>
 
-        <div class="flex items-center bg-white border border-gray-200 rounded-2xl p-1 shadow-sm h-[46px]">
-            <button onclick="changeWeek(-7)" class="p-2 hover:bg-gray-50 rounded-xl">◀</button>
-            <input type="date" id="schedule-date-picker" onchange="jumpToDate(this.value)" 
-                   class="mx-2 font-bold text-sm outline-none bg-transparent cursor-pointer">
-            <button onclick="changeWeek(7)" class="p-2 hover:bg-gray-50 rounded-xl">▶</button>
+    <div id="tab-schedule" class="tab-content p-4 sm:p-8">
+        <div id="print-header" class="hidden print:block text-center mb-4">
+            <h1 class="text-3xl font-black uppercase tracking-tight">Postcard Sign Off</h1>
+            <p id="print-date-range" class="text-sm font-bold text-gray-600 uppercase tracking-widest"></p>
         </div>
-
-       <button onclick="prepareAndPrint()" class="bg-gray-900 hover:bg-black text-white h-[46px] px-6 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all shadow-md">
-    Print Postcards
-</button>
+        <header class="mb-10 flex flex-col md:flex-row md:items-stretch justify-between gap-4 no-print">
+            <div>
+                <h1 class="text-4xl font-black text-gray-900 tracking-tight">Tour Schedule</h1>
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Live Weekly Calendar</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="jumpToToday()" class="bg-green-600 hover:bg-green-700 text-white h-[46px] px-6 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all shadow-md">Today</button>
+                <div class="flex items-center bg-white border border-gray-200 rounded-2xl p-1 shadow-sm h-[46px]">
+                    <button onclick="changeWeek(-7)" class="p-2 hover:bg-gray-50 rounded-xl">◀</button>
+                    <input type="date" id="schedule-date-picker" onchange="jumpToDate(this.value)" class="mx-2 font-bold text-sm outline-none bg-transparent cursor-pointer">
+                    <button onclick="changeWeek(7)" class="p-2 hover:bg-gray-50 rounded-xl">▶</button>
+                </div>
+                <button onclick="prepareAndPrint()" class="bg-gray-900 hover:bg-black text-white h-[46px] px-6 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all shadow-md">Print Postcards</button>
+            </div>
+        </header>
+        <div id="schedule-container" class="schedule-grid"></div>
     </div>
-</header>
-
-    <div id="schedule-container" class="schedule-grid">
-        </div>
-</div>
 
     <div id="tab-control" class="tab-content h-screen w-full flex flex-col items-center justify-center text-white relative">
-        <button onclick="switchTab('roster')" class="absolute top-8 right-8 bg-white/10 px-6 py-2 rounded-full font-black uppercase tracking-widest">✕ Exit Control</button>
-        <h1 class="text-6xl font-black mb-4">CONTROL CENTER</h1>
-    </div>
-
-   <div id="tab-desk" class="tab-content p-4 sm:p-8">
-    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-4">
-        <div>
-            <h1 class="text-5xl font-black tracking-tighter">DESK OPS</h1>
-            <div class="flex items-center gap-4 mt-2">
-                <button onclick="changeDeskDate(-1)" class="p-2 hover:bg-gray-200 rounded-full transition-colors">◀</button>
-                <p id="desk-display-date" class="text-lg font-bold text-[#CFB991] uppercase tracking-widest"></p>
-                <button onclick="changeDeskDate(1)" class="p-2 hover:bg-gray-200 rounded-full transition-colors">▶</button>
-            </div>
-        </div>
-
-        <div id="status-bar" class="flex gap-3 w-full lg:w-auto overflow-x-auto pb-2">
-            </div>
-    </div>
-
-    <div id="desk-summary-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        </div>
-</div>
-</div>
-
-<script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbz-RvNHk8SpTjtKt_r00cTmkH6DWtQeApayShxo9iDHsn7TyrhgQXWL2H-1ChBFfnaV/exec';
-    let tourData = [];
-    let rawData = [];
-    let currentMonday = getMonday(new Date());
-    let deskDate = new Date();
-    deskDate.setHours(0,0,0,0);
-
-    // --- DESK DASHBOARD LOGIC ---
-
-    function changeDeskDate(days) {
-        deskDate.setDate(deskDate.getDate() + days);
-        renderDeskDashboard();
-    }
-
-    function renderDeskDashboard() {
-        const container = document.getElementById('desk-summary-grid');
-        const statusBar = document.getElementById('status-bar');
-        const dateLabel = document.getElementById('desk-display-date');
-        
-        if(!container || !statusBar || !dateLabel) return;
-
-        dateLabel.innerText = deskDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
-
-        const slots = [
-            { code: '9DV', time: '9:30 AM', hour: 9, min: 30 },
-            { code: '0DV', time: '10:30 AM', hour: 10, min: 30 },
-            { code: '1DV', time: '1:30 PM', hour: 13, min: 30 },
-            { code: '2DV', time: '2:30 PM', hour: 14, min: 30 }
-        ];
-
-        const now = new Date();
-        const isToday = deskDate.toDateString() === now.toDateString();
-
-        let gridHtml = '';
-        let statusHtml = '';
-
-        slots.forEach(slot => {
-            const guides = tourData.filter(t => 
-                t.type === slot.code && 
-                t.dateObj && 
-                t.dateObj.getTime() === deskDate.getTime() &&
-                !['N/A', '#N/A'].includes(String(t.guide).trim().toUpperCase())
-            );
-
-            const hasTour = guides.length > 0;
-            let statusColor = "bg-gray-200 text-gray-500"; 
-            let statusText = "Empty";
-
-            if (hasTour) {
-                const startTime = new Date(deskDate);
-                startTime.setHours(slot.hour, slot.min, 0);
-                
-                const endTime = new Date(startTime);
-                endTime.setMinutes(startTime.getMinutes() + 105); // 1hr 45min
-
-                if (isToday) {
-                    if (now >= startTime && now <= endTime) {
-                        statusColor = "bg-purple-600 text-white animate-pulse";
-                        statusText = "In Progress";
-                    } else if (now < startTime) {
-                        statusColor = "bg-green-500 text-white";
-                        statusText = "Ready";
-                    } else {
-                        statusColor = "bg-gray-400 text-white";
-                        statusText = "Completed";
-                    }
-                } else {
-                    statusColor = "bg-green-500 text-white";
-                    statusText = "Scheduled";
-                }
-            }
-
-            statusHtml += `
-                <div class="${statusColor} px-4 py-2 rounded-xl flex flex-col items-center justify-center min-w-[100px] shadow-sm transition-all">
-                    <span class="text-[9px] font-black uppercase opacity-80">${slot.time}</span>
-                    <span class="text-[11px] font-bold">${statusText}</span>
-                </div>
-            `;
-
-            gridHtml += `
-                <div class="bg-white border-2 border-gray-50 rounded-[2rem] p-6 shadow-sm flex flex-col min-h-[250px] ${!hasTour ? 'opacity-40' : ''}">
-                    <div class="mb-4">
-                        <p class="text-[10px] font-black text-[#CFB991] uppercase tracking-widest">${slot.code} WAVE</p>
-                        <h2 class="text-2xl font-black">${slot.time}</h2>
-                    </div>
-                    <div class="flex-grow space-y-2">
-                        ${hasTour ? guides.map(g => `
-                            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-xl border border-gray-100">
-                                <span class="font-bold text-sm">${String(g.guide).replace('`', '')}</span>
-                                ${g.status === 'DROP' ? '<span class="text-[10px] font-black text-red-500">DROP</span>' : '<span class="text-green-500">●</span>'}
-                            </div>
-                        `).join('') : '<p class="text-xs italic text-gray-400">No guides assigned</p>'}
-                    </div>
-                </div>
-            `;
-        });
-
-        statusBar.innerHTML = statusHtml;
-        container.innerHTML = gridHtml;
-    }
-
-    // --- CORE APP LOGIC ---
-
-    function switchTab(tabName) {
-        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-        const targetTab = document.getElementById(`tab-${tabName}`);
-        if(targetTab) targetTab.classList.add('active');
-        
-        document.body.classList.toggle('control-mode', tabName === 'control');
-        
-        if(tabName === 'schedule') {
-            updateDatePickerDisplay();
-            renderSchedule();
-        }
-        if(tabName === 'desk') {
-            renderDeskDashboard();
-        }
-    }
-
-    function prepareAndPrint() {
-        const printDateDisplay = document.getElementById('print-date-range');
-        const nextFriday = new Date(currentMonday);
-        nextFriday.setDate(currentMonday.getDate() + 11);
-        
-        const dueDateString = nextFriday.toLocaleDateString('en-US', { 
-            weekday: 'long', month: 'long', day: 'numeric' 
-        });
-
-        const weekEnd = new Date(currentMonday);
-        weekEnd.setDate(currentMonday.getDate() + 4);
-        
-        const rangeString = `${currentMonday.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
-        printDateDisplay.innerHTML = `Week of ${rangeString} <span class="mx-4">|</span> <span style="color:red">Postcards Due: Friday, ${dueDateString.toUpperCase()}</span>`;
-
-        window.print();
-    }
-
-    function getMonday(d) {
-        d = new Date(d);
-        const day = d.getDay();
-        const diff = d.getDate() - day + (day === 0 ? -6 : 1); 
-        const monday = new Date(d.setDate(diff));
-        monday.setHours(0,0,0,0);
-        return monday;
-    }
-
-    function changeWeek(days) {
-        currentMonday.setDate(currentMonday.getDate() + days);
-        updateDatePickerDisplay();
-        renderSchedule();
-    }
-
-    function jumpToDate(dateStr) {
-        if(!dateStr) return;
-        currentMonday = getMonday(new Date(dateStr.replace(/-/g, '\/')));
-        renderSchedule();
-    }
-
-    function updateDatePickerDisplay() {
-        const picker = document.getElementById('schedule-date-picker');
-        if(picker) picker.value = currentMonday.toISOString().split('T')[0];
-    }
-
-    async function init() {
-        const overlay = document.getElementById('loading-overlay');
-        try {
-            const response = await fetch(scriptURL);
-            const data = await response.json();
-            
-            rawData = data.roster || [];
-            tourData = data.tours || [];
-            
-            tourData.forEach(t => {
-                if (t.date) {
-                    t.dateObj = new Date(t.date);
-                    t.dateObj.setHours(0,0,0,0);
-                }
-            });
-
-            updateDatePickerDisplay();
-        } catch (e) { 
-            console.error("TGIS Init Error:", e);
-        } finally {
-            if(overlay) {
-                overlay.classList.add('opacity-0');
-                setTimeout(() => overlay.style.display = 'none', 500);
-            }
-        }
-    }
-
-    function jumpToToday() {
-        currentMonday = getMonday(new Date());
-        updateDatePickerDisplay();
-        renderSchedule();
-    }
-
-    function renderSchedule() {
-        const container = document.getElementById('schedule-container');
-        if(!container) return;
-
-        const slots = [
-            { code: '9DV', time: '9:30 AM', color: 'bg-slot-9DV' },
-            { code: '0DV', time: '10:30 AM', color: 'bg-slot-0DV' },
-            { code: '1DV', time: '1:30 PM', color: 'bg-slot-1DV' },
-            { code: '2DV', time: '2:30 PM', color: 'bg-slot-2DV' }
-        ];
-
-        let html = '';
-        for (let i = 0; i < 5; i++) {
-            const workDate = new Date(currentMonday);
-            workDate.setDate(currentMonday.getDate() + i);
-            workDate.setHours(0,0,0,0);
-            
-            const dateString = workDate.toLocaleDateString('en-US',
-</body>
-</html>
+        <button onclick="
