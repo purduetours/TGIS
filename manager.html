@@ -152,6 +152,9 @@
         <button onclick="switchTab('control')" class="w-full flex items-center p-3 hover:bg-gray-50 text-gray-600 rounded-xl font-bold text-sm transition-all">
             <span class="mr-3 text-lg">🕹️</span> Control Center
         </button>
+        <button onclick="switchTab('desk')" class="w-full flex items-center p-3 hover:bg-gray-50 rounded-xl font-bold text-sm transition-all">
+            <span class="mr-3 text-lg">🖥️</span> Desk Dashboard
+        </button>
     </div>
 </nav>
 
@@ -197,6 +200,32 @@
         <button onclick="switchTab('roster')" class="absolute top-8 right-8 bg-white/10 px-6 py-2 rounded-full font-black uppercase tracking-widest">✕ Exit Control</button>
         <h1 class="text-6xl font-black mb-4">CONTROL CENTER</h1>
     </div>
+
+    <div id="tab-desk" class="tab-content p-4 sm:p-8">
+    <div class="flex justify-between items-end mb-8">
+        <div>
+            <h1 class="text-5xl font-black tracking-tighter">DESK DASHBOARD</h1>
+            <p id="desk-today-date" class="text-lg font-bold text-[#CFB991] uppercase tracking-widest"></p>
+        </div>
+        <div class="bg-gray-900 text-white px-6 py-3 rounded-2xl text-center">
+            <p class="text-[10px] font-black uppercase opacity-60">Status</p>
+            <p class="font-bold text-xl">LIVE OPS</p>
+        </div>
+    </div>
+
+    <div id="desk-summary-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        </div>
+
+    <div class="mt-12 bg-white border border-gray-100 rounded-3xl p-8 shadow-sm">
+        <h3 class="font-black text-xl mb-4 uppercase tracking-tight">Desk Reminders</h3>
+        <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm font-semibold text-gray-500">
+            <li class="flex items-center"><span class="mr-2">✅</span> Verify all guides have signed in</li>
+            <li class="flex items-center"><span class="mr-2">✅</span> Check for "No Tour Active" status before turning visitors away</li>
+            <li class="flex items-center"><span class="mr-2">✅</span> Ensure postcards are ready for the 2:30 PM wave</li>
+            <li class="flex items-center"><span class="mr-2">✅</span> Report any "DROP" alerts to the manager immediately</li>
+        </ul>
+    </div>
+</div>
 </div>
 
 <script>
@@ -260,17 +289,75 @@
         const picker = document.getElementById('schedule-date-picker');
         if(picker) picker.value = currentMonday.toISOString().split('T')[0];
     }
+    function renderDeskDashboard() {
+    const container = document.getElementById('desk-summary-grid');
+    const dateLabel = document.getElementById('desk-today-date');
+    const today = new Date();
+    today.setHours(0,0,0,0);
 
+    dateLabel.innerText = today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+    const slots = [
+        { code: '9DV', time: '9:30 AM', color: 'border-blue-200 bg-blue-50', icon: '☀️' },
+        { code: '0DV', time: '10:30 AM', color: 'border-pink-200 bg-pink-50', icon: '🌤️' },
+        { code: '1DV', time: '1:30 PM', color: 'border-green-200 bg-green-50', icon: '🌤️' },
+        { code: '2DV', time: '2:30 PM', color: 'border-yellow-200 bg-yellow-50', icon: '🌅' }
+    ];
+
+    container.innerHTML = slots.map(slot => {
+        const guides = tourData.filter(t => 
+            t.type === slot.code && 
+            t.dateObj && 
+            t.dateObj.getTime() === today.getTime() &&
+            String(t.guide).trim().toUpperCase() !== 'N/A' &&
+            String(t.guide).trim().toUpperCase() !== '#N/A'
+        );
+
+        const isActive = guides.length > 0;
+
+        return `
+            <div class="border-2 rounded-[2.5rem] p-6 flex flex-col min-h-[300px] transition-all ${isActive ? slot.color : 'bg-gray-100 border-gray-200 opacity-50'}">
+                <div class="flex justify-between items-start mb-6">
+                    <div>
+                        <p class="text-xs font-black uppercase tracking-widest text-gray-400">${slot.code} WAVE</p>
+                        <h2 class="text-3xl font-black">${slot.time}</h2>
+                    </div>
+                    <span class="text-3xl">${isActive ? slot.icon : '🚫'}</span>
+                </div>
+
+                <div class="flex-grow">
+                    ${isActive ? 
+                        `<div class="space-y-2">
+                            ${guides.map(g => `
+                                <div class="bg-white/80 backdrop-blur-sm px-4 py-3 rounded-2xl shadow-sm border border-black/5 flex justify-between items-center">
+                                    <span class="font-bold text-gray-800">${g.guide.replace('`', '')}</span>
+                                    ${g.status === 'DROP' ? '<span class="text-red-500 font-black animate-pulse text-xs">DROP ⚠️</span>' : '<span>✅</span>'}
+                                </div>
+                            `).join('')}
+                        </div>` : 
+                        `<div class="h-full flex items-center justify-center">
+                            <p class="font-black text-gray-400 uppercase tracking-tighter">No Tours</p>
+                        </div>`
+                    }
+                </div>
+            </div>
+        `;
+    }).join('');
+}
     function switchTab(tabName) {
-        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-        document.getElementById(`tab-${tabName}`).classList.add('active');
-        document.body.classList.toggle('control-mode', tabName === 'control');
-        
-        if(tabName === 'schedule') {
-            updateDatePickerDisplay();
-            renderSchedule();
-        }
+    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+    document.getElementById(`tab-${tabName}`).classList.add('active');
+    document.body.classList.toggle('control-mode', tabName === 'control');
+    
+    if(tabName === 'schedule') {
+        updateDatePickerDisplay();
+        renderSchedule();
     }
+    // ADD THIS BLOCK
+    if(tabName === 'desk') {
+        renderDeskDashboard();
+    }
+}
 
     async function init() {
         const overlay = document.getElementById('loading-overlay');
