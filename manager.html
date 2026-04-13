@@ -226,134 +226,140 @@
     let tourData = [];
     let rawData = [];
     let currentMonday = getMonday(new Date());
-
     let deskDate = new Date();
-deskDate.setHours(0,0,0,0);
+    deskDate.setHours(0,0,0,0);
 
-function changeDeskDate(days) {
-    deskDate.setDate(deskDate.getDate() + days);
-    renderDeskDashboard();
-}
+    // --- DESK DASHBOARD LOGIC ---
 
-function renderDeskDashboard() {
-    const container = document.getElementById('desk-summary-grid');
-    const statusBar = document.getElementById('status-bar');
-    const dateLabel = document.getElementById('desk-display-date');
-    
-    dateLabel.innerText = deskDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+    function changeDeskDate(days) {
+        deskDate.setDate(deskDate.getDate() + days);
+        renderDeskDashboard();
+    }
 
-    const slots = [
-        { code: '9DV', time: '9:30 AM', hour: 9, min: 30 },
-        { code: '0DV', time: '10:30 AM', hour: 10, min: 30 },
-        { code: '1DV', time: '1:30 PM', hour: 13, min: 30 },
-        { code: '2DV', time: '2:30 PM', hour: 14, min: 30 }
-    ];
-
-    const now = new Date();
-    const isToday = deskDate.toDateString() === now.toDateString();
-
-    let gridHtml = '';
-    let statusHtml = '';
-
-    slots.forEach(slot => {
-        const guides = tourData.filter(t => 
-            t.type === slot.code && 
-            t.dateObj && 
-            t.dateObj.getTime() === deskDate.getTime() &&
-            !['N/A', '#N/A'].includes(String(t.guide).trim().toUpperCase())
-        );
-
-        const hasTour = guides.length > 0;
+    function renderDeskDashboard() {
+        const container = document.getElementById('desk-summary-grid');
+        const statusBar = document.getElementById('status-bar');
+        const dateLabel = document.getElementById('desk-display-date');
         
-        // --- OVERLAP LOGIC ---
-        let statusColor = "bg-gray-200"; // Default: No tour or finished
-        let statusText = "Empty";
+        if(!container || !statusBar || !dateLabel) return;
 
-        if (hasTour) {
-            const startTime = new Date(deskDate);
-            startTime.setHours(slot.hour, slot.min, 0);
-            
-            const endTime = new Date(startTime);
-            endTime.setMinutes(startTime.getMinutes() + 105); // 1hr 45min
+        dateLabel.innerText = deskDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
 
-            if (isToday) {
-                if (now >= startTime && now <= endTime) {
-                    statusColor = "bg-purple-600 text-white animate-pulse";
-                    statusText = "In Progress";
-                } else if (now < startTime) {
-                    statusColor = "bg-green-500 text-white";
-                    statusText = "Ready";
+        const slots = [
+            { code: '9DV', time: '9:30 AM', hour: 9, min: 30 },
+            { code: '0DV', time: '10:30 AM', hour: 10, min: 30 },
+            { code: '1DV', time: '1:30 PM', hour: 13, min: 30 },
+            { code: '2DV', time: '2:30 PM', hour: 14, min: 30 }
+        ];
+
+        const now = new Date();
+        const isToday = deskDate.toDateString() === now.toDateString();
+
+        let gridHtml = '';
+        let statusHtml = '';
+
+        slots.forEach(slot => {
+            const guides = tourData.filter(t => 
+                t.type === slot.code && 
+                t.dateObj && 
+                t.dateObj.getTime() === deskDate.getTime() &&
+                !['N/A', '#N/A'].includes(String(t.guide).trim().toUpperCase())
+            );
+
+            const hasTour = guides.length > 0;
+            let statusColor = "bg-gray-200 text-gray-500"; 
+            let statusText = "Empty";
+
+            if (hasTour) {
+                const startTime = new Date(deskDate);
+                startTime.setHours(slot.hour, slot.min, 0);
+                
+                const endTime = new Date(startTime);
+                endTime.setMinutes(startTime.getMinutes() + 105); // 1hr 45min
+
+                if (isToday) {
+                    if (now >= startTime && now <= endTime) {
+                        statusColor = "bg-purple-600 text-white animate-pulse";
+                        statusText = "In Progress";
+                    } else if (now < startTime) {
+                        statusColor = "bg-green-500 text-white";
+                        statusText = "Ready";
+                    } else {
+                        statusColor = "bg-gray-400 text-white";
+                        statusText = "Completed";
+                    }
                 } else {
-                    statusColor = "bg-gray-400 text-white";
-                    statusText = "Completed";
+                    statusColor = "bg-green-500 text-white";
+                    statusText = "Scheduled";
                 }
-            } else {
-                statusColor = "bg-green-500 text-white";
-                statusText = "Scheduled";
             }
+
+            statusHtml += `
+                <div class="${statusColor} px-4 py-2 rounded-xl flex flex-col items-center justify-center min-w-[100px] shadow-sm transition-all">
+                    <span class="text-[9px] font-black uppercase opacity-80">${slot.time}</span>
+                    <span class="text-[11px] font-bold">${statusText}</span>
+                </div>
+            `;
+
+            gridHtml += `
+                <div class="bg-white border-2 border-gray-50 rounded-[2rem] p-6 shadow-sm flex flex-col min-h-[250px] ${!hasTour ? 'opacity-40' : ''}">
+                    <div class="mb-4">
+                        <p class="text-[10px] font-black text-[#CFB991] uppercase tracking-widest">${slot.code} WAVE</p>
+                        <h2 class="text-2xl font-black">${slot.time}</h2>
+                    </div>
+                    <div class="flex-grow space-y-2">
+                        ${hasTour ? guides.map(g => `
+                            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                <span class="font-bold text-sm">${String(g.guide).replace('`', '')}</span>
+                                ${g.status === 'DROP' ? '<span class="text-[10px] font-black text-red-500">DROP</span>' : '<span class="text-green-500">●</span>'}
+                            </div>
+                        `).join('') : '<p class="text-xs italic text-gray-400">No guides assigned</p>'}
+                    </div>
+                </div>
+            `;
+        });
+
+        statusBar.innerHTML = statusHtml;
+        container.innerHTML = gridHtml;
+    }
+
+    // --- CORE APP LOGIC ---
+
+    function switchTab(tabName) {
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        const targetTab = document.getElementById(`tab-${tabName}`);
+        if(targetTab) targetTab.classList.add('active');
+        
+        document.body.classList.toggle('control-mode', tabName === 'control');
+        
+        if(tabName === 'schedule') {
+            updateDatePickerDisplay();
+            renderSchedule();
         }
+        if(tabName === 'desk') {
+            renderDeskDashboard();
+        }
+    }
 
-        // 1. Generate Status Pill
-        statusHtml += `
-            <div class="${statusColor} px-4 py-2 rounded-xl flex flex-col items-center justify-center min-w-[100px] shadow-sm">
-                <span class="text-[9px] font-black uppercase opacity-80">${slot.time}</span>
-                <span class="text-[11px] font-bold">${statusText}</span>
-            </div>
-        `;
+    function prepareAndPrint() {
+        const printDateDisplay = document.getElementById('print-date-range');
+        const nextFriday = new Date(currentMonday);
+        nextFriday.setDate(currentMonday.getDate() + 11);
+        
+        const dueDateString = nextFriday.toLocaleDateString('en-US', { 
+            weekday: 'long', month: 'long', day: 'numeric' 
+        });
 
-        // 2. Generate Detailed Card
-        gridHtml += `
-            <div class="bg-white border-2 border-gray-50 rounded-[2rem] p-6 shadow-sm flex flex-col min-h-[250px] ${!hasTour ? 'opacity-40' : ''}">
-                <div class="mb-4">
-                    <p class="text-[10px] font-black text-[#CFB991] uppercase tracking-widest">${slot.code} WAVE</p>
-                    <h2 class="text-2xl font-black">${slot.time}</h2>
-                </div>
-                <div class="flex-grow space-y-2">
-                    ${hasTour ? guides.map(g => `
-                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-xl border border-gray-100">
-                            <span class="font-bold text-sm">${g.guide.replace('`', '')}</span>
-                            ${g.status === 'DROP' ? '<span class="text-[10px] font-black text-red-500">DROP</span>' : '<span class="text-green-500">●</span>'}
-                        </div>
-                    `).join('') : '<p class="text-xs italic text-gray-400">No guides assigned</p>'}
-                </div>
-            </div>
-        `;
-    });
+        const weekEnd = new Date(currentMonday);
+        weekEnd.setDate(currentMonday.getDate() + 4);
+        
+        const rangeString = `${currentMonday.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+        printDateDisplay.innerHTML = `Week of ${rangeString} <span class="mx-4">|</span> <span style="color:red">Postcards Due: Friday, ${dueDateString.toUpperCase()}</span>`;
 
-    statusBar.innerHTML = statusHtml;
-    container.innerHTML = gridHtml;
-}
+        window.print();
+    }
 
-
-    render prepareAndPrint() {
-    const printDateDisplay = document.getElementById('print-date-range');
-    
-    // 1. Calculate the Friday of the NEXT week
-    // (currentMonday + 11 days = Friday of following week)
-    const nextFriday = new Date(currentMonday);
-    nextFriday.setDate(currentMonday.getDate() + 11);
-    
-    const dueDateString = nextFriday.toLocaleDateString('en-US', { 
-        weekday: 'long',
-        month: 'long', 
-        day: 'numeric' 
-    });
-
-    // 2. Calculate the current week range for the header
-    const weekEnd = new Date(currentMonday);
-    weekEnd.setDate(currentMonday.getDate() + 4);
-    
-    const rangeString = `${currentMonday.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
-
-    // 3. Update the hidden print header
-    printDateDisplay.innerHTML = `Week of ${rangeString} <span class="mx-4">|</span> <span style="color:red">Postcards Due: Friday, ${dueDateString.toUpperCase()}</span>`;
-
-    // 4. Fire the print dialog
-    window.print();
-}
-
-    // Helper to find the Monday of whatever week is selected
-    render getMonday(d) {
+    function getMonday(d) {
         d = new Date(d);
         const day = d.getDay();
         const diff = d.getDate() - day + (day === 0 ? -6 : 1); 
@@ -370,7 +376,6 @@ function renderDeskDashboard() {
 
     function jumpToDate(dateStr) {
         if(!dateStr) return;
-        // Replace hyphens with slashes to prevent timezone shifting on some browsers
         currentMonday = getMonday(new Date(dateStr.replace(/-/g, '\/')));
         renderSchedule();
     }
@@ -379,75 +384,6 @@ function renderDeskDashboard() {
         const picker = document.getElementById('schedule-date-picker');
         if(picker) picker.value = currentMonday.toISOString().split('T')[0];
     }
-    function renderDeskDashboard() {
-    const container = document.getElementById('desk-summary-grid');
-    const dateLabel = document.getElementById('desk-today-date');
-    const today = new Date();
-    today.setHours(0,0,0,0);
-
-    dateLabel.innerText = today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-
-    const slots = [
-        { code: '9DV', time: '9:30 AM', color: 'border-blue-200 bg-blue-50', icon: '☀️' },
-        { code: '0DV', time: '10:30 AM', color: 'border-pink-200 bg-pink-50', icon: '🌤️' },
-        { code: '1DV', time: '1:30 PM', color: 'border-green-200 bg-green-50', icon: '🌤️' },
-        { code: '2DV', time: '2:30 PM', color: 'border-yellow-200 bg-yellow-50', icon: '🌅' }
-    ];
-
-    container.innerHTML = slots.map(slot => {
-        const guides = tourData.filter(t => 
-            t.type === slot.code && 
-            t.dateObj && 
-            t.dateObj.getTime() === today.getTime() &&
-            String(t.guide).trim().toUpperCase() !== 'N/A' &&
-            String(t.guide).trim().toUpperCase() !== '#N/A'
-        );
-
-        const isActive = guides.length > 0;
-
-        return `
-            <div class="border-2 rounded-[2.5rem] p-6 flex flex-col min-h-[300px] transition-all ${isActive ? slot.color : 'bg-gray-100 border-gray-200 opacity-50'}">
-                <div class="flex justify-between items-start mb-6">
-                    <div>
-                        <p class="text-xs font-black uppercase tracking-widest text-gray-400">${slot.code} WAVE</p>
-                        <h2 class="text-3xl font-black">${slot.time}</h2>
-                    </div>
-                    <span class="text-3xl">${isActive ? slot.icon : '🚫'}</span>
-                </div>
-
-                <div class="flex-grow">
-                    ${isActive ? 
-                        `<div class="space-y-2">
-                            ${guides.map(g => `
-                                <div class="bg-white/80 backdrop-blur-sm px-4 py-3 rounded-2xl shadow-sm border border-black/5 flex justify-between items-center">
-                                    <span class="font-bold text-gray-800">${g.guide.replace('`', '')}</span>
-                                    ${g.status === 'DROP' ? '<span class="text-red-500 font-black animate-pulse text-xs">DROP ⚠️</span>' : '<span>✅</span>'}
-                                </div>
-                            `).join('')}
-                        </div>` : 
-                        `<div class="h-full flex items-center justify-center">
-                            <p class="font-black text-gray-400 uppercase tracking-tighter">No Tours</p>
-                        </div>`
-                    }
-                </div>
-            </div>
-        `;
-    }).join('');
-}
-    function switchTab(tabName) {
-    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-    document.getElementById(`tab-${tabName}`).classList.add('active');
-    document.body.classList.toggle('control-mode', tabName === 'control');
-    
-    if(tabName === 'schedule') {
-        updateDatePickerDisplay();
-        renderSchedule();
-    }
-    // ADD THIS BLOCK
-    if(tabName === 'desk') {
-        renderDeskDashboard();
-    }
-}
 
     async function init() {
         const overlay = document.getElementById('loading-overlay');
@@ -458,7 +394,6 @@ function renderDeskDashboard() {
             rawData = data.roster || [];
             tourData = data.tours || [];
             
-            // Clean up dates from the Google Sheet
             tourData.forEach(t => {
                 if (t.date) {
                     t.dateObj = new Date(t.date);
@@ -466,100 +401,40 @@ function renderDeskDashboard() {
                 }
             });
 
-            // Optional: Render roster if the container exists
-            // renderRoster(rawData); 
-
             updateDatePickerDisplay();
         } catch (e) { 
             console.error("TGIS Init Error:", e);
         } finally {
-            // This hides the loader even if the fetch fails
-            overlay.classList.add('opacity-0');
-            setTimeout(() => overlay.style.display = 'none', 500);
+            if(overlay) {
+                overlay.classList.add('opacity-0');
+                setTimeout(() => overlay.style.display = 'none', 500);
+            }
         }
     }
 
     function jumpToToday() {
-    currentMonday = getMonday(new Date());
-    updateDatePickerDisplay();
-    renderSchedule();
-}
-
-function renderSchedule() {
-    const container = document.getElementById('schedule-container');
-    if(!container) return;
-
-    const slots = [
-        { code: '9DV', time: '9:30 AM', color: 'bg-slot-9DV' },
-        { code: '0DV', time: '10:30 AM', color: 'bg-slot-0DV' },
-        { code: '1DV', time: '1:30 PM', color: 'bg-slot-1DV' },
-        { code: '2DV', time: '2:30 PM', color: 'bg-slot-2DV' }
-    ];
-
-    let html = '';
-
-    for (let i = 0; i < 5; i++) {
-        const workDate = new Date(currentMonday);
-        workDate.setDate(currentMonday.getDate() + i);
-        workDate.setHours(0,0,0,0);
-        
-        const dateString = workDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        const dayName = workDate.toLocaleDateString('en-US', { weekday: 'long' });
-
-        html += `
-            <div class="day-column flex flex-col gap-2">
-                <div class="text-center mb-1">
-                    <h3 class="font-black text-gray-900 uppercase tracking-tighter leading-none text-sm">${dayName}</h3>
-                    <span class="text-[9px] font-bold text-[#CFB991] uppercase">${dateString}</span>
-                </div>
-                ${slots.map(slot => {
-                    const entriesInSlot = tourData.filter(t => {
-                        return t.type === slot.code && 
-                               t.dateObj && 
-                               t.dateObj.getTime() === workDate.getTime();
-                    });
-
-                    const isCancelled = entriesInSlot.some(g => {
-                        const val = String(g.guide).trim().toUpperCase();
-                        return val === 'N/A' || val === '#N/A';
-                    });
-
-                    if (isCancelled) {
-                        return `
-                            <div class="tour-slot ${slot.color} opacity-60 border-dashed items-center justify-center">
-                                <p class="tour-time-label">${slot.time}</p>
-                                <span class="text-[9px] text-gray-500 font-extrabold italic uppercase text-center">No Tour Active</span>
-                            </div>
-                        `;
-                    }
-
-                    return `
-                        <div class="tour-slot ${slot.color}">
-                            <p class="tour-time-label">${slot.time}</p>
-                            <div class="flex flex-col gap-1 overflow-hidden h-full">
-                                ${entriesInSlot.length > 0 ? entriesInSlot.map(g => {
-                                    const isSpecial = String(g.guide).includes('`');
-                                    const cleanName = String(g.guide).replace('`', '');
-                                    const initialText = isSpecial ? 'ACP' : '_______';
-
-                                    return `
-                                        <div class="guide-name-pill ${g.status === 'DROP' ? 'status-drop' : ''} flex justify-between items-center px-2">
-                                            <span class="truncate pr-1 text-[10px]">${cleanName} ${g.status === 'DROP' ? '⚠️' : ''}</span>
-                                            <span class="print-only-initials text-[9px] font-mono font-bold">${initialText}</span>
-                                        </div>
-                                    `;
-                                }).join('') : '<span class="text-[8px] text-gray-400 italic text-center py-1">No guides assigned</span>'}
-                            </div>
-                        </div>
-                    `;
-                }).join('')}
-            </div>
-        `;
+        currentMonday = getMonday(new Date());
+        updateDatePickerDisplay();
+        renderSchedule();
     }
-    container.innerHTML = html;
-}
-    // Launch!
-    init();
-</script>
+
+    function renderSchedule() {
+        const container = document.getElementById('schedule-container');
+        if(!container) return;
+
+        const slots = [
+            { code: '9DV', time: '9:30 AM', color: 'bg-slot-9DV' },
+            { code: '0DV', time: '10:30 AM', color: 'bg-slot-0DV' },
+            { code: '1DV', time: '1:30 PM', color: 'bg-slot-1DV' },
+            { code: '2DV', time: '2:30 PM', color: 'bg-slot-2DV' }
+        ];
+
+        let html = '';
+        for (let i = 0; i < 5; i++) {
+            const workDate = new Date(currentMonday);
+            workDate.setDate(currentMonday.getDate() + i);
+            workDate.setHours(0,0,0,0);
+            
+            const dateString = workDate.toLocaleDateString('en-US',
 </body>
 </html>
