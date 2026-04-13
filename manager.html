@@ -32,7 +32,7 @@
         }
 
         .tour-time-label { font-size: 10px; font-weight: 900; color: #CFB991; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
-        .guide-name-pill { font-size: 11px; font-weight: 600; background: white; border: 1px solid #E5E7EB; padding: 4px 8px; border-radius: 6px; margin-bottom: 3px; width: 100%; }
+        .guide-name-pill { font-size: 11px; font-weight: 600; background: white; border: 1px solid #E5E7EB; padding: 4px 8px; border-radius: 6px; margin-bottom: 3px; width: 100%; display: flex; justify-content: space-between; align-items: center; }
         .status-drop { color: #EF4444; border-color: #FEE2E2; background: #FEF2F2; }
 
         .bg-slot-9DV { background-color: #f0f7ff; border-color: #bae6fd; }
@@ -41,11 +41,16 @@
         .bg-slot-2DV { background-color: #fffbeb; border-color: #fef3c7; }
 
         @media print {
-            nav, #loading-overlay, .no-print, header, #tab-control, #tab-roster { display: none !important; }
-            .content-area { margin-left: 0 !important; padding: 0 !important; width: 100% !important; }
-            .schedule-grid { display: grid !important; grid-template-columns: repeat(5, 1fr) !important; gap: 4px !important; }
-            .tour-slot { height: 165px !important; border: 1px solid #ddd !important; }
-            @page { size: landscape; margin: 0.5cm; }
+            nav, #loading-overlay, .no-print, header, #tab-control, #tab-roster, #tab-desk { display: none !important; }
+            .content-area { margin-left: 0 !important; padding: 0 !important; width: 100% !important; background: white !important; }
+            body { background: white !important; }
+            .schedule-grid { display: grid !important; grid-template-columns: repeat(5, 1fr) !important; gap: 4px !important; width: 100% !important; }
+            .day-column { box-shadow: none !important; border: 1px solid #eee !important; padding: 4px !important; }
+            .tour-slot { height: 160px !important; margin-bottom: 4px !important; padding: 4px !important; border: 1px solid #ddd !important; border-radius: 0.5rem !important; }
+            .guide-name-pill { font-size: 8.5px !important; padding: 2px 4px !important; margin-bottom: 1px !important; border: 1px solid #eee !important; }
+            .tour-time-label { font-size: 8px !important; margin-bottom: 2px !important; }
+            #print-header { display: block !important; margin-bottom: 15px; }
+            @page { size: landscape; margin: 0.4cm; }
         }
     </style>
 </head>
@@ -67,7 +72,6 @@
         <button onclick="switchTab('desk')" class="w-full flex items-center p-3 hover:bg-gray-50 rounded-xl font-bold text-sm transition-all">🖥️ Desk Dashboard</button>
         <button onclick="switchTab('control')" class="w-full flex items-center p-3 hover:bg-gray-50 rounded-xl font-bold text-sm transition-all text-gray-400">🕹️ Control Center</button>
     </div>
-
     <div class="mt-auto pt-6 border-t border-gray-100">
         <div class="bg-gray-50 rounded-2xl p-4 flex items-center gap-3">
             <div class="w-10 h-10 bg-[#CFB991] rounded-full flex items-center justify-center text-white font-black">AD</div>
@@ -85,12 +89,13 @@
         <div id="roster-table-container"></div> 
     </div>
 
-    <div id="tab-schedule" class="tab-content p-8">
-        <div id="print-header" class="hidden print:block text-center mb-4">
-            <h1 class="text-3xl font-black uppercase">Postcard Sign Off</h1>
-            <p id="print-date-range" class="text-sm font-bold text-gray-600 uppercase"></p>
+    <div id="tab-schedule" class="tab-content p-4 lg:p-8">
+        <div id="print-header" class="hidden text-center">
+            <h1 class="text-3xl font-black uppercase tracking-tighter">Postcard Signoff</h1>
+            <p id="print-date-range" class="text-sm font-bold text-gray-500 uppercase tracking-widest"></p>
         </div>
-        <header class="mb-10 flex justify-between items-center no-print">
+        
+        <header class="mb-10 flex flex-wrap justify-between items-center no-print gap-4">
             <h1 class="text-4xl font-black">Tour Schedule</h1>
             <div class="flex items-center gap-3">
                 <button onclick="jumpToToday()" class="bg-green-600 text-white h-[40px] px-4 rounded-xl font-bold text-xs uppercase">Today</button>
@@ -107,22 +112,14 @@
 
     <div id="tab-desk" class="tab-content p-8">
         <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-4">
-            <div>
-                <h1 class="text-5xl font-black tracking-tighter uppercase">Desk Ops</h1>
-                <div class="flex items-center gap-4 mt-2">
-                    <button onclick="changeDeskDate(-1)" class="p-2 hover:bg-gray-200 rounded-full transition-colors">◀</button>
-                    <p id="desk-display-date" class="text-lg font-bold text-[#CFB991] uppercase tracking-widest"></p>
-                    <button onclick="changeDeskDate(1)" class="p-2 hover:bg-gray-200 rounded-full transition-colors">▶</button>
-                </div>
-            </div>
-            <div id="status-bar" class="flex gap-3 overflow-x-auto pb-2"></div>
+            <h1 class="text-5xl font-black uppercase tracking-tighter">Desk Ops</h1>
+            <div id="status-bar" class="flex gap-3"></div>
         </div>
         <div id="desk-summary-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"></div>
     </div>
 
     <div id="tab-control" class="tab-content p-8">
         <h1 class="text-4xl font-black mb-4 uppercase">Control Center</h1>
-        <p class="text-gray-500 font-medium">System configuration and management tools.</p>
     </div>
 </div>
 
@@ -168,11 +165,8 @@
 
     function jumpToToday() {
         currentMonday = getMonday(new Date());
-        deskDate = new Date();
-        deskDate.setHours(0,0,0,0);
         updatePicker();
         renderSchedule();
-        renderDeskDashboard();
     }
 
     function updatePicker() {
@@ -182,58 +176,32 @@
 
     function prepareAndPrint() {
         const printDateDisplay = document.getElementById('print-date-range');
-        const weekEnd = new Date(currentMonday);
-        weekEnd.setDate(currentMonday.getDate() + 4);
-        const range = `${currentMonday.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
-        printDateDisplay.innerText = `Week of ${range}`;
-        window.print();
-    }
-
-    function renderDeskDashboard() {
-        const container = document.getElementById('desk-summary-grid');
-        const statusBar = document.getElementById('status-bar');
-        const dateLabel = document.getElementById('desk-display-date');
-        if(!container || !statusBar) return;
         
-        dateLabel.innerText = deskDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
-        const slots = [
-            { code: '9DV', time: '9:30 AM', h: 9, m: 30 },
-            { code: '0DV', time: '10:30 AM', h: 10, m: 30 },
-            { code: '1DV', time: '1:30 PM', h: 13, m: 30 },
-            { code: '2DV', time: '2:30 PM', h: 14, m: 30 }
-        ];
+        // Calculate the Friday of the current displayed week
+        const friday = new Date(currentMonday);
+        friday.setDate(currentMonday.getDate() + 4);
+        
+        // Calculate due date (One week after that Friday)
+        const dueDate = new Date(friday);
+        dueDate.setDate(friday.getDate() + 7);
+        
+        const weekStart = currentMonday.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const weekEnd = friday.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const dueStr = dueDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
-        const now = new Date();
-        let gridHtml = '';
-        let statusHtml = '';
-
-        slots.forEach(slot => {
-            const guides = tourData.filter(t => t.type === slot.code && t.dateObj && t.dateObj.getTime() === deskDate.getTime() && !['N/A','#N/A'].includes(String(t.guide).trim().toUpperCase()));
-            const hasTour = guides.length > 0;
-            let color = "bg-gray-200 text-gray-500";
-            let text = "Empty";
-
-            if(hasTour) {
-                const start = new Date(deskDate); start.setHours(slot.h, slot.m, 0);
-                const end = new Date(start); end.setMinutes(start.getMinutes() + 105);
-                if(deskDate.toDateString() === now.toDateString()) {
-                    if(now >= start && now <= end) { color = "bg-purple-600 text-white animate-pulse"; text = "Live"; }
-                    else if(now < start) { color = "bg-green-500 text-white"; text = "Ready"; }
-                    else { color = "bg-gray-400 text-white"; text = "Done"; }
-                } else { color = "bg-green-500 text-white"; text = "Scheduled"; }
-            }
-
-            statusHtml += `<div class="${color} px-4 py-2 rounded-xl text-center min-w-[90px] shadow-sm"><p class="text-[9px] font-black uppercase opacity-80">${slot.time}</p><p class="text-[11px] font-bold">${text}</p></div>`;
-            gridHtml += `<div class="bg-white border-2 border-gray-50 p-6 rounded-[2rem] shadow-sm min-h-[250px] flex flex-col ${!hasTour ? 'opacity-40' : ''}"><div class="mb-4"><p class="text-[10px] font-black text-[#CFB991] tracking-widest uppercase">${slot.code} Wave</p><h2 class="text-2xl font-black">${slot.time}</h2></div><div class="space-y-2 flex-grow">${hasTour ? guides.map(g => `<div class="flex justify-between items-center p-3 bg-gray-50 rounded-xl border border-gray-100"><span class="font-bold text-sm">${String(g.guide).replace('`','')}</span>${g.status==='DROP'?'<span class="text-red-500 font-black text-[10px]">DROP</span>':'<span class="text-green-500 text-xs">●</span>'}</div>`).join('') : '<p class="text-xs italic text-gray-400">No guides assigned</p>'}</div></div>`;
-        });
-        statusBar.innerHTML = statusHtml;
-        container.innerHTML = gridHtml;
+        printDateDisplay.innerHTML = `Week of ${weekStart} - ${weekEnd} <span class="mx-4">|</span> <span class="text-red-600">Postcards Due: ${dueStr.toUpperCase()}</span>`;
+        window.print();
     }
 
     function renderSchedule() {
         const container = document.getElementById('schedule-container');
         if(!container) return;
-        const slots = [{c:'9DV',t:'9:30 AM',cls:'bg-slot-9DV'},{c:'0DV',t:'10:30 AM',cls:'bg-slot-0DV'},{c:'1DV',t:'1:30 PM',cls:'bg-slot-1DV'},{c:'2DV',t:'2:30 PM',cls:'bg-slot-2DV'}];
+        const slots = [
+            { c: '9DV', t: '9:30 AM', cls: 'bg-slot-9DV' },
+            { c: '0DV', t: '10:30 AM', cls: 'bg-slot-0DV' },
+            { c: '1DV', t: '1:30 PM', cls: 'bg-slot-1DV' },
+            { c: '2DV', t: '2:30 PM', cls: 'bg-slot-2DV' }
+        ];
         let html = '';
         for(let i=0; i<5; i++) {
             const d = new Date(currentMonday); d.setDate(d.getDate() + i);
@@ -241,15 +209,49 @@
             slots.forEach(s => {
                 const entries = tourData.filter(t => t.type === s.c && t.dateObj && t.dateObj.getTime() === d.getTime());
                 const cancelled = entries.some(e => ['N/A','#N/A'].includes(String(e.guide).trim().toUpperCase()));
+                
                 if(cancelled) {
                     html += `<div class="tour-slot ${s.cls} opacity-50 flex items-center justify-center italic text-[10px]">No Tour</div>`;
                 } else {
-                    html += `<div class="tour-slot ${s.cls}"><p class="tour-time-label">${s.t}</p><div class="flex flex-col gap-1">${entries.length > 0 ? entries.map(e => `<div class="guide-name-pill ${e.status==='DROP'?'status-drop':''}">${String(e.guide).replace('`','')}</div>`).join('') : '<p class="text-[8px] text-gray-400">Empty</p>'}</div></div>`;
+                    html += `<div class="tour-slot ${s.cls}"><p class="tour-time-label">${s.t}</p><div class="flex flex-col gap-1">`;
+                    if(entries.length > 0) {
+                        html += entries.map(e => {
+                            const isSpecial = String(e.guide).includes('`');
+                            const cleanName = String(e.guide).replace('`','');
+                            return `<div class="guide-name-pill ${e.status==='DROP'?'status-drop':''}">
+                                <span class="truncate">${cleanName}</span>
+                                <span class="hidden print:inline font-mono font-bold ml-1">${isSpecial ? 'ACP' : '____'}</span>
+                            </div>`;
+                        }).join('');
+                    } else {
+                        html += '<p class="text-[8px] text-gray-400">Empty</p>';
+                    }
+                    html += `</div></div>`;
                 }
             });
             html += `</div>`;
         }
         container.innerHTML = html;
+    }
+
+    function renderDeskDashboard() {
+        const container = document.getElementById('desk-summary-grid');
+        const statusBar = document.getElementById('status-bar');
+        if(!container || !statusBar) return;
+        
+        const slots = [
+            { code: '9DV', time: '9:30 AM', h: 9, m: 30 },
+            { code: '0DV', time: '10:30 AM', h: 10, m: 30 },
+            { code: '1DV', time: '1:30 PM', h: 13, m: 30 },
+            { code: '2DV', time: '2:30 PM', h: 14, m: 30 }
+        ];
+
+        let gridHtml = '';
+        slots.forEach(slot => {
+            const guides = tourData.filter(t => t.type === slot.code && t.dateObj && t.dateObj.getTime() === deskDate.getTime() && !['N/A','#N/A'].includes(String(t.guide).trim().toUpperCase()));
+            gridHtml += `<div class="bg-white border-2 p-6 rounded-[2rem] shadow-sm"><p class="text-[10px] font-black text-[#CFB991] uppercase">${slot.code}</p><h2 class="text-2xl font-black mb-4">${slot.time}</h2><div class="space-y-2">${guides.length > 0 ? guides.map(g => `<div class="p-3 bg-gray-50 rounded-xl border text-sm font-bold">${String(g.guide).replace('`','')}</div>`).join('') : '<p class="text-xs italic text-gray-400">Empty</p>'}</div></div>`;
+        });
+        container.innerHTML = gridHtml;
     }
 
     async function init() {
@@ -260,7 +262,6 @@
             tourData.forEach(t => { if(t.date) { t.dateObj = new Date(t.date); t.dateObj.setHours(0,0,0,0); }});
             updatePicker();
             renderSchedule();
-            renderDeskDashboard();
         } catch(e) { console.error(e); } finally {
             document.getElementById('loading-overlay').style.display = 'none';
         }
