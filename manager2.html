@@ -7,297 +7,309 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        .content-area { margin-left: 18rem; transition: all 0.3s ease; }
+        body { font-family: 'Inter', sans-serif; background-color: #f9fafb; }
+        .content-area { margin-left: 18rem; transition: all 0.3s ease; min-height: 100vh; }
         @media (max-width: 1024px) { .content-area { margin-left: 0; } }
         
         .loader { border-top-color: #CFB991; animation: spinner 0.6s linear infinite; }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        .mini-badge { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; opacity: 0.15; filter: grayscale(1); transition: 0.3s; border: 1px solid rgba(0,0,0,0.05); }
-        .mini-badge.active { filter: grayscale(0); opacity: 1; transform: scale(1.1); border: 1px solid rgba(207, 185, 145, 0.3); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .schedule-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; }
+        .day-column { background: white; border-radius: 1.5rem; border: 1px solid #F3F4F6; padding: 1rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
         
-        /* Bar Chart Styling */
-        .history-bar { height: 8px; border-radius: 4px; background: #F3F4F6; overflow: hidden; position: relative; }
-        .history-fill { height: 100%; background: #CFB991; transition: width 1s ease-out; }
-        
-        .sort-icon { font-size: 0.8em; margin-left: 4px; opacity: 0.2; }
-        .sort-icon.active { opacity: 1; color: #CFB991; }
-        
-        .card-active { border: 2px solid #CFB991 !important; background: #FFFDF9 !important; box-shadow: 0 10px 15px -3px rgba(207, 185, 145, 0.2); }
+        .tour-slot { height: 240px; margin-bottom: 1rem; padding: 0.6rem; border-radius: 1rem; border: 1px solid #F3F4F6; display: flex; flex-direction: column; overflow: hidden; }
+        .tour-time-label { font-size: 10px; font-weight: 900; color: #CFB991; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem; }
+        .guide-name-pill-schedule { font-size: 10px; font-weight: 600; background: white; border: 1px solid #E5E7EB; padding: 3px 6px; border-radius: 6px; margin-bottom: 2px; width: 100%; display: flex; justify-content: space-between; align-items: center; }
+
+        .bg-slot-9DV { background-color: #f0f7ff; border-color: #bae6fd; }
+        .bg-slot-0DV { background-color: #fdf2f8; border-color: #fbcfe8; }
+        .bg-slot-1DV { background-color: #f0fdf4; border-color: #bbf7d0; }
+        .bg-slot-2DV { background-color: #fffbeb; border-color: #fef3c7; }
+
+        .status-pill-red { background-color: #FEE2E2; border-color: #EF4444; color: #B91C1C; }
+        .status-pill-gray { background-color: #F3F4F6; border-color: #D1D5DB; color: #4B5563; opacity: 0.7; }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        @media print {
+            nav, #loading-overlay, .no-print, header, #tab-control, #tab-roster, #tab-desk { display: none !important; }
+            .content-area { margin-left: 0 !important; padding: 0 !important; width: 100% !important; background: white !important; }
+            body { background: white !important; }
+            .schedule-grid { display: grid !important; grid-template-columns: repeat(5, 1fr) !important; gap: 4px !important; width: 100% !important; }
+            .day-column { box-shadow: none !important; border: 1px solid #eee !important; padding: 4px !important; }
+            .tour-slot { height: 155px !important; margin-bottom: 4px !important; padding: 3px !important; border: 1px solid #ddd !important; border-radius: 0.4rem !important; }
+            .guide-name-pill-schedule { font-size: 8px !important; padding: 1px 3px !important; margin-bottom: 1px !important; border: 1px solid #eee !important; }
+            #print-header { display: block !important; margin-bottom: 10px; visibility: visible !important; }
+            @page { size: landscape; margin: 0.3cm; }
+        }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800 antialiased">
-
-<div id="history-modal" class="fixed inset-0 bg-black/60 z-[110] hidden items-center justify-center p-4 backdrop-blur-sm">
-    <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden transform transition-all">
-        <div class="p-6 border-b border-gray-100 flex justify-between items-center">
-            <div>
-                <h3 id="modal-name" class="text-xl font-black text-gray-900 leading-tight">Guide Name</h3>
-                <div id="modal-badges" class="flex space-x-2 mt-2"></div>
-            </div>
-            <button onclick="closeModal()" class="text-2xl font-bold text-gray-400 hover:text-gray-600">&times;</button>
-        </div>
-        <div id="modal-body" class="p-6 max-h-[50vh] overflow-y-auto space-y-4">
-            </div>
-        <div id="modal-footer" class="p-6 bg-gray-50 border-t border-gray-100">
-            </div>
-    </div>
-</div>
+<body class="antialiased">
 
 <div id="loading-overlay" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center transition-opacity duration-500">
     <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
-    <h2 class="font-bold text-lg text-[#CFB991] uppercase tracking-widest">Updating Records...</h2>
+    <h2 class="font-bold text-lg text-[#CFB991] uppercase tracking-widest">Accessing TGIS Database...</h2>
 </div>
 
-<nav class="fixed top-0 left-0 h-full w-72 bg-white shadow-2xl border-r border-gray-100 p-6 z-40 hidden lg:block">
+<nav id="main-nav" class="fixed top-0 left-0 h-full w-72 bg-white shadow-2xl border-r border-gray-100 p-6 z-40 hidden lg:flex flex-col">
     <div class="mb-8">
         <p class="text-[10px] font-black text-[#CFB991] uppercase tracking-[0.2em] mb-1">Purdue University</p>
         <h1 class="text-xl font-black leading-tight">TGIS Manager</h1>
     </div>
-
-    <div class="mb-8 p-4 bg-gray-50 rounded-2xl border border-gray-100 flex items-center space-x-3">
-        <div class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center text-white font-black shadow-inner">M</div>
-        <div>
-            <p class="font-bold text-sm leading-tight">Administrator</p>
-            <p class="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">Manager Access</p>
-        </div>
-    </div>
-
-    <div class="space-y-2">
-        <button onclick="clearFilters()" class="w-full flex items-center p-3 bg-[#CFB991] text-white rounded-xl font-bold text-sm shadow-lg shadow-[#CFB991]/30 transition-transform active:scale-95">
-            <span class="mr-3 text-lg">📋</span> Master Roster
-        </button>
+    <div class="space-y-2 flex-grow">
+        <button onclick="switchTab('roster')" class="w-full flex items-center p-3 hover:bg-gray-50 rounded-xl font-bold text-sm transition-all">📋 Master Roster</button>
+        <button onclick="switchTab('schedule')" class="w-full flex items-center p-3 hover:bg-gray-50 rounded-xl font-bold text-sm transition-all">📅 Tour Schedule</button>
+        <button onclick="switchTab('desk')" class="w-full flex items-center p-3 hover:bg-gray-50 rounded-xl font-bold text-sm transition-all">🖥️ Desk Dashboard</button>
     </div>
 </nav>
 
-<div class="content-area p-4 sm:p-8">
-    <header class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div>
-            <h1 class="text-4xl font-black text-gray-900 tracking-tight">Staff Roster</h1>
-            <p id="sem-label" class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1 italic">Connecting...</p>
-        </div>
-        <div class="relative w-full md:w-80">
-            <input type="text" id="managerSearch" onkeyup="filterRoster()" placeholder="Search guide names..." 
-                class="w-full bg-white border border-gray-200 py-3.5 pl-12 pr-4 rounded-2xl focus:ring-2 focus:ring-[#CFB991] outline-none shadow-sm transition-all font-medium">
-            <span class="absolute left-4 top-4 opacity-30 text-xl">🔍</span>
-        </div>
-    </header>
+<div class="content-area">
+    <div id="tab-desk" class="tab-content active p-8">
+        <header class="mb-6">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-5xl font-black uppercase tracking-tighter">Desk Ops</h1>
+                <div class="flex items-center gap-3 bg-white p-1 rounded-2xl border shadow-sm">
+                    <button onclick="changeDeskDate(-1)" class="p-2 hover:bg-gray-100 rounded-xl transition-all">◀</button>
+                    <p id="desk-display-date" class="font-black text-[#CFB991] uppercase text-sm tracking-widest px-2"></p>
+                    <button onclick="changeDeskDate(1)" class="p-2 hover:bg-gray-100 rounded-xl transition-all">▶</button>
+                </div>
+            </div>
+            <div id="status-bar" class="flex gap-3 overflow-x-auto no-scrollbar pb-6 border-b border-gray-100"></div>
+        </header>
 
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
-        <div onclick="filterByMilestone(50)" id="card-50" class="cursor-pointer bg-white p-6 rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition-all group">
-            <p class="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1">🔔 Bell Tower (50+)</p>
-            <h3 id="stat-50" class="text-3xl font-black text-gray-900 group-hover:text-blue-600">--</h3>
+        <div class="mb-10">
+            <h2 class="text-xs font-black text-gray-400 uppercase tracking-[0.3em] mb-4">Daily Visits</h2>
+            <div id="grid-daily" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4"></div>
         </div>
-        <div onclick="filterByMilestone(100)" id="card-100" class="cursor-pointer bg-white p-6 rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition-all group">
-            <p class="text-[10px] font-black text-orange-500 uppercase tracking-widest mb-1">💯 Century Club (100+)</p>
-            <h3 id="stat-100" class="text-3xl font-black text-gray-900 group-hover:text-orange-600">--</h3>
-        </div>
-        <div onclick="filterByMilestone(200)" id="card-200" class="cursor-pointer bg-white p-6 rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition-all group">
-            <p class="text-[10px] font-black text-yellow-600 uppercase tracking-widest mb-1">✨ Golden Guide (200+)</p>
-            <h3 id="stat-200" class="text-3xl font-black text-gray-900 group-hover:text-yellow-600">--</h3>
+
+        <div>
+            <h2 class="text-xs font-black text-gray-400 uppercase tracking-[0.3em] mb-4">Program Days</h2>
+            <div id="grid-program" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4"></div>
         </div>
     </div>
 
-    <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-gray-50 border-b border-gray-100 text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                        <th class="p-6 cursor-pointer group" onclick="handleSort('displayName')">
-                            Guide Name <span id="sort-displayName" class="sort-icon">▼</span>
-                        </th>
-                        <th class="p-6 text-center cursor-pointer group" onclick="handleSort('semesterTotal')">
-                            Semester <span id="sort-semesterTotal" class="sort-icon active">▼</span>
-                        </th>
-                        <th class="p-6 text-center cursor-pointer group" onclick="handleSort('careerTotal')">
-                            Career Total <span id="sort-careerTotal" class="sort-icon">▼</span>
-                        </th>
-                        <th class="p-6">Milestones</th>
-                    </tr>
-                </thead>
-                <tbody id="roster-body" class="divide-y divide-gray-50">
-                    </tbody>
-            </table>
+    <div id="tab-schedule" class="tab-content p-4 lg:p-8">
+        <div id="print-header" class="hidden text-center">
+            <h1 class="text-2xl font-black uppercase tracking-tighter">Postcard Signoff</h1>
+            <p id="print-date-range" class="text-xs font-bold text-gray-500 uppercase tracking-widest"></p>
         </div>
+        <header class="mb-10 flex flex-wrap justify-between items-center no-print gap-4">
+            <h1 class="text-4xl font-black">Tour Schedule</h1>
+            <div class="flex items-center gap-3">
+                <button onclick="jumpToToday()" class="bg-green-600 text-white h-[40px] px-4 rounded-xl font-bold text-xs uppercase">Today</button>
+                <div class="flex items-center bg-white border rounded-xl p-1 h-[40px]">
+                    <button onclick="changeWeek(-7)" class="px-2 hover:bg-gray-100 rounded-lg">◀</button>
+                    <input type="date" id="schedule-date-picker" class="mx-2 font-bold text-sm outline-none cursor-pointer">
+                    <button onclick="changeWeek(7)" class="px-2 hover:bg-gray-100 rounded-lg">▶</button>
+                </div>
+                <button onclick="prepareAndPrint()" class="bg-black text-white h-[40px] px-6 rounded-xl font-bold text-xs uppercase">Print Postcards</button>
+            </div>
+        </header>
+        <div id="schedule-container" class="schedule-grid"></div>
     </div>
 </div>
 
 <script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbxh8JxZKbg9tutWgGP3OEXmihptDcQCuUgl11G0vvCOWr43mBsJeRWn5A8j2L-1mUVe/exec';
-    let rawData = [];
-    let currentData = [];
-    let sortConfig = { key: 'semesterTotal', direction: 'desc' };
-    let activeMilestoneFilter = null;
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbz-RvNHk8SpTjtKt_r00cTmkH6DWtQeApayShxo9iDHsn7TyrhgQXWL2H-1ChBFfnaV/exec';
+    let tourData = [];
+    let currentMonday = getMonday(new Date());
+    let deskDate = new Date();
+    deskDate.setHours(0,0,0,0);
+
+    const DAILY_VISITS = [
+        { code: '9DV', name: '9:30 Daily', h: 9, m: 30 },
+        { code: '0DV', name: '10:30 Daily', h: 10, m: 30 },
+        { code: '0GV', name: '10:30 Group', h: 10, m: 30 },
+        { code: '1DV', name: '1:30 Daily', h: 13, m: 30 },
+        { code: '2DV', name: '2:30 Daily', h: 14, m: 30 }
+    ];
+
+    const PROGRAM_DAYS = [
+        { code: '8PA', name: '8:15 Program', h: 8, m: 15 },
+        { code: 'EPF.', name: '11:15 Program', h: 11, m: 15 },
+        { code: '1PA', name: '1:15 Program', h: 13, m: 15 },
+        { code: '1PF', name: '1:30 Program', h: 13, m: 30 },
+        { code: '2PA', name: '2:15 Program', h: 14, m: 15 }
+    ];
+
+    function getMonday(d) {
+        d = new Date(d);
+        const day = d.getDay();
+        const diff = d.getDate() - day + (day === 0 ? -6 : 1); 
+        const mon = new Date(d.setDate(diff));
+        mon.setHours(0,0,0,0);
+        return mon;
+    }
+
+    function switchTab(tabName) {
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        document.getElementById('tab-' + tabName).classList.add('active');
+        if(tabName === 'schedule') renderSchedule();
+        if(tabName === 'desk') renderDeskDashboard();
+    }
+
+    function changeDeskDate(days) {
+        deskDate.setDate(deskDate.getDate() + days);
+        renderDeskDashboard();
+    }
+
+    function changeWeek(days) {
+        currentMonday.setDate(currentMonday.getDate() + days);
+        renderSchedule();
+    }
+
+    function jumpToToday() {
+        currentMonday = getMonday(new Date());
+        deskDate = new Date();
+        deskDate.setHours(0,0,0,0);
+        renderSchedule();
+        renderDeskDashboard();
+    }
+
+    function prepareAndPrint() {
+        const friday = new Date(currentMonday);
+        friday.setDate(currentMonday.getDate() + 4);
+        const dueDate = new Date(friday);
+        dueDate.setDate(friday.getDate() + 7);
+        const weekStart = currentMonday.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const weekEnd = friday.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const dueStr = dueDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+        document.getElementById('print-date-range').innerHTML = `Week: ${weekStart} - ${weekEnd} | <span style=\"color:#ef4444\">Postcards Due: ${dueStr.toUpperCase()}</span>`;
+        window.print();
+    }
+
+    function parseGuide(guideStr, status) {
+        let name = String(guideStr);
+        let statusLabel = "SCHEDULED";
+        let cardClass = "bg-gray-50 border-gray-100";
+        let badgeClass = "bg-green-100 text-green-700";
+
+        if (name.includes('*')) {
+            name = name.replace('*', '').trim();
+            statusLabel = "PENDING DROP";
+            cardClass = "status-pill-red border-red-300";
+            badgeClass = "bg-red-600 text-white";
+        } else if (name.includes('`')) {
+            name = name.replace('`', '').trim();
+            statusLabel = "NOT GIVEN";
+            badgeClass = "bg-blue-100 text-blue-700";
+        } else if (name.includes('+')) {
+            name = name.replace('+', '').trim();
+            statusLabel = "PICKED UP";
+            badgeClass = "bg-purple-100 text-purple-700";
+        }
+
+        if (status === 'SENT HOME') {
+            cardClass = "status-pill-gray border-gray-300";
+            statusLabel = "SENT HOME";
+            badgeClass = "bg-gray-500 text-white";
+        }
+
+        return { name, statusLabel, cardClass, badgeClass };
+    }
+
+    function renderDeskDashboard() {
+        const dailyContainer = document.getElementById('grid-daily');
+        const programContainer = document.getElementById('grid-program');
+        const statusBar = document.getElementById('status-bar');
+        const dateLabel = document.getElementById('desk-display-date');
+        if(!dailyContainer || !programContainer || !statusBar) return;
+        
+        dateLabel.innerText = deskDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const now = new Date();
+        
+        let dailyHtml = '';
+        let programHtml = '';
+        let statusSummary = '';
+
+        [...DAILY_VISITS, ...PROGRAM_DAYS].forEach((slot, idx) => {
+            const guides = tourData.filter(t => t.type === slot.code && t.dateObj && t.dateObj.getTime() === deskDate.getTime() && !['N/A','#N/A'].includes(String(t.guide).trim().toUpperCase()));
+            const hasTour = guides.length > 0;
+            
+            let sColor = "bg-gray-100 text-gray-400";
+            let sText = "Empty";
+            if(hasTour) {
+                const start = new Date(deskDate); start.setHours(slot.h, slot.m, 0);
+                const end = new Date(start); end.setMinutes(start.getMinutes() + 105);
+                if(deskDate.toDateString() === now.toDateString()) {
+                    if(now >= start && now <= end) { sColor = "bg-purple-600 text-white animate-pulse shadow-md"; sText = "Live"; }
+                    else if(now < start) { sColor = "bg-green-500 text-white shadow-sm"; sText = "Ready"; }
+                    else { sColor = "bg-gray-400 text-white opacity-80"; sText = "Done"; }
+                } else { sColor = "bg-green-600 text-white shadow-sm"; sText = "Scheduled"; }
+            }
+            
+            // Bigger Status Tags with Full Titles
+            statusSummary += `
+                <div class="${sColor} px-4 py-2 rounded-xl text-[11px] font-black uppercase whitespace-nowrap transition-all flex flex-col items-center min-w-[120px]">
+                    <span class="opacity-80 text-[8px] tracking-widest mb-0.5">${slot.name}</span>
+                    <span>${sText}</span>
+                </div>`;
+
+            const cardHtml = `
+                <div class="bg-white border p-5 rounded-3xl shadow-sm flex flex-col ${!hasTour ? 'opacity-30' : ''}">
+                    <p class="text-[9px] font-black text-[#CFB991] uppercase tracking-widest">${slot.code}</p>
+                    <h2 class="text-xl font-black mb-3">${slot.name}</h2>
+                    <div class="space-y-1.5 flex-grow">
+                        ${guides.length > 0 ? guides.map(g => {
+                            const parsed = parseGuide(g.guide, g.status);
+                            return `
+                                <div class="p-2 rounded-lg border text-[11px] font-bold flex justify-between items-center ${parsed.cardClass}">
+                                    <span>${parsed.name}</span>
+                                    <span class="text-[7px] px-1.5 py-0.5 rounded-md font-black uppercase ${parsed.badgeClass}">${parsed.statusLabel}</span>
+                                </div>
+                            `;
+                        }).join('') : '<p class="text-[10px] italic text-gray-400">No Guides</p>'}
+                    </div>
+                </div>`;
+
+            if(DAILY_VISITS.find(d => d.code === slot.code)) dailyHtml += cardHtml; else programHtml += cardHtml;
+        });
+
+        dailyContainer.innerHTML = dailyHtml;
+        programContainer.innerHTML = programHtml;
+        statusBar.innerHTML = statusSummary;
+    }
+
+    function renderSchedule() {
+        const container = document.getElementById('schedule-container');
+        if(!container) return;
+        const slots = [{c:'9DV',t:'9:30 AM',cls:'bg-slot-9DV'},{c:'0DV',t:'10:30 AM',cls:'bg-slot-0DV'},{c:'1DV',t:'1:30 PM',cls:'bg-slot-1DV'},{c:'2DV',t:'2:30 PM',cls:'bg-slot-2DV'}];
+        let html = '';
+        for(let i=0; i<5; i++) {
+            const d = new Date(currentMonday); d.setDate(d.getDate() + i);
+            html += `<div class="day-column"><div class="text-center mb-3"><h3 class="font-black uppercase text-xs">${d.toLocaleDateString('en-US',{weekday:'long'})}</h3><p class="text-[9px] font-bold text-[#CFB991]">${d.toLocaleDateString('en-US',{month:'short',day:'numeric'})}</p></div>`;
+            slots.forEach(s => {
+                const entries = tourData.filter(t => t.type === s.c && t.dateObj && t.dateObj.getTime() === d.getTime());
+                const cancelled = entries.some(e => ['N/A','#N/A'].includes(String(e.guide).trim().toUpperCase()));
+                if(cancelled) {
+                    html += `<div class="tour-slot ${s.cls} opacity-50 flex items-center justify-center italic text-[9px]">No Tour</div>`;
+                } else {
+                    html += `<div class="tour-slot ${s.cls}"><p class="tour-time-label">${s.t}</p><div class="flex flex-col gap-1">`;
+                    html += entries.length > 0 ? entries.map(e => `<div class="guide-name-pill-schedule"><span>${String(e.guide).replace('`','').replace('*','').replace('+','')}</span><span class="hidden print:inline font-mono font-bold">${String(e.guide).includes('`') ? 'ACP' : '____'}</span></div>`).join('') : '<p class="text-[8px] text-gray-400">Empty</p>';
+                    html += `</div></div>`;
+                }
+            });
+            html += `</div>`;
+        }
+        container.innerHTML = html;
+    }
 
     async function init() {
         try {
-            const response = await fetch(scriptURL, { cache: 'no-store' });
-            const data = await response.json();
-            
-            rawData = data.roster || [];
-            currentData = [...rawData];
-            
-            document.getElementById('sem-label').innerText = `Active Semester: ${data.currentSemester}`;
-            
-            updateMilestoneStats();
-            applyAllFilters(); // Initial render
-
-            document.getElementById('loading-overlay').classList.add('opacity-0');
-            setTimeout(() => document.getElementById('loading-overlay').style.display = 'none', 500);
-        } catch (e) {
-            console.error("Initialization Error:", e);
-            document.getElementById('loading-overlay').innerHTML = `<p class="text-red-500 font-bold">Error connecting to database.</p>`;
+            const resp = await fetch(scriptURL);
+            const data = await resp.json();
+            tourData = data.tours || [];
+            tourData.forEach(t => { if(t.date) { t.dateObj = new Date(t.date); t.dateObj.setHours(0,0,0,0); }});
+            renderSchedule();
+            renderDeskDashboard();
+        } catch(e) { console.error(e); } finally {
+            document.getElementById('loading-overlay').style.display = 'none';
         }
     }
-
-    function updateMilestoneStats() {
-        document.getElementById('stat-50').innerText = rawData.filter(g => g.careerTotal >= 50).length;
-        document.getElementById('stat-100').innerText = rawData.filter(g => g.careerTotal >= 100).length;
-        document.getElementById('stat-200').innerText = rawData.filter(g => g.careerTotal >= 200).length;
-    }
-
-    function handleSort(key) {
-        if (sortConfig.key === key) {
-            sortConfig.direction = sortConfig.direction === 'desc' ? 'asc' : 'desc';
-        } else {
-            sortConfig.key = key;
-            sortConfig.direction = 'desc';
-        }
-        
-        // Update Icons
-        document.querySelectorAll('.sort-icon').forEach(icon => icon.classList.remove('active'));
-        const activeIcon = document.getElementById(`sort-${key}`);
-        activeIcon.classList.add('active');
-        activeIcon.innerText = sortConfig.direction === 'desc' ? '▼' : '▲';
-        
-        applyAllFilters();
-    }
-
-    function filterByMilestone(level) {
-        if (activeMilestoneFilter === level) {
-            activeMilestoneFilter = null;
-            document.getElementById(`card-${level}`).classList.remove('card-active');
-        } else {
-            activeMilestoneFilter = level;
-            document.querySelectorAll('[id^="card-"]').forEach(c => c.classList.remove('card-active'));
-            document.getElementById(`card-${level}`).classList.add('card-active');
-        }
-        applyAllFilters();
-    }
-
-    function filterRoster() {
-        applyAllFilters();
-    }
-
-    function applyAllFilters() {
-        const searchTerm = document.getElementById('managerSearch').value.toLowerCase();
-        let filtered = [...rawData];
-
-        if (activeMilestoneFilter) {
-            filtered = filtered.filter(g => g.careerTotal >= activeMilestoneFilter);
-        }
-
-        if (searchTerm) {
-            filtered = filtered.filter(g => 
-                g.displayName.toLowerCase().includes(searchTerm) || 
-                g.status.toLowerCase().includes(searchTerm)
-            );
-        }
-
-        // Sorting
-        filtered.sort((a, b) => {
-            let aVal = a[sortConfig.key];
-            let bVal = b[sortConfig.key];
-            if (typeof aVal === 'string') {
-                return sortConfig.direction === 'desc' ? bVal.localeCompare(aVal) : aVal.localeCompare(bVal);
-            }
-            return sortConfig.direction === 'desc' ? bVal - aVal : aVal - bVal;
-        });
-
-        currentData = filtered;
-        renderTable();
-    }
-
-    function renderTable() {
-        const body = document.getElementById('roster-body');
-        body.innerHTML = currentData.map(g => `
-            <tr class="hover:bg-gray-50/80 transition-colors group">
-                <td class="p-6 cursor-pointer" onclick="showHistory('${g.displayName}')">
-                    <div class="font-bold text-gray-900 text-lg group-hover:text-[#CFB991] transition-colors">${g.displayName}</div>
-                    <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-0.5">${g.status}</div>
-                </td>
-                <td class="p-6 text-center">
-                    <span class="inline-block px-4 py-1.5 bg-green-50 text-green-600 font-black rounded-full text-xs">${g.semesterTotal}</span>
-                </td>
-                <td class="p-6 text-center font-black text-xl text-gray-900">${g.careerTotal}</td>
-                <td class="p-6">
-                    <div class="flex space-x-2">
-                        <div class="mini-badge bg-blue-50 text-blue-500 ${g.careerTotal >= 50 ? 'active' : ''}">🔔</div>
-                        <div class="mini-badge bg-orange-50 text-orange-500 ${g.careerTotal >= 100 ? 'active' : ''}">💯</div>
-                        <div class="mini-badge bg-yellow-50 text-yellow-600 ${g.careerTotal >= 200 ? 'active' : ''}">✨</div>
-                    </div>
-                </td>
-            </tr>
-        `).join('');
-    }
-
-    function showHistory(name) {
-        const g = rawData.find(x => x.displayName === name);
-        if (!g) return;
-
-        document.getElementById('modal-name').innerText = g.displayName;
-        document.getElementById('modal-badges').innerHTML = `
-            <div class="mini-badge bg-blue-50 text-blue-500 ${g.careerTotal >= 50 ? 'active' : ''}">🔔</div>
-            <div class="mini-badge bg-orange-50 text-orange-500 ${g.careerTotal >= 100 ? 'active' : ''}">💯</div>
-            <div class="mini-badge bg-yellow-50 text-yellow-600 ${g.careerTotal >= 200 ? 'active' : ''}">✨</div>
-        `;
-
-        // History Bars
-        const maxVal = g.history.length > 0 ? Math.max(...g.history.map(h => h.count), 5) : 5;
-        document.getElementById('modal-body').innerHTML = g.history.map(h => `
-            <div class="space-y-1">
-                <div class="flex justify-between text-[10px] font-black text-gray-400 uppercase">
-                    <span>${h.semester}</span>
-                    <span class="text-gray-900">${h.count} Tours</span>
-                </div>
-                <div class="history-bar"><div class="history-fill" style="width: ${(h.count/maxVal)*100}%"></div></div>
-            </div>
-        `).join('');
-
-        // Impersonate Link
-        const impersonateUrl = `https://purduetours.github.io/TGIS/unifiedall.html?user=${g.username}`;
-        document.getElementById('modal-footer').innerHTML = `
-            <div class="flex flex-col space-y-4">
-                <div class="flex justify-between items-center px-1">
-                    <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Career Total</span>
-                    <span class="text-2xl font-black text-gray-900">${g.careerTotal}</span>
-                </div>
-                <a href="${impersonateUrl}" target="_blank" class="w-full bg-gray-900 text-white text-center py-3.5 rounded-2xl font-bold text-xs uppercase tracking-widest shadow-xl hover:bg-black transition-all">
-                    👤 Impersonate Student View
-                </a>
-            </div>
-        `;
-
-        document.getElementById('history-modal').classList.remove('hidden');
-        document.getElementById('history-modal').classList.add('flex');
-    }
-
-    function clearFilters() {
-        activeMilestoneFilter = null;
-        document.querySelectorAll('[id^="card-"]').forEach(c => c.classList.remove('card-active'));
-        document.getElementById('managerSearch').value = '';
-        sortConfig = { key: 'semesterTotal', direction: 'desc' };
-        applyAllFilters();
-    }
-
-    function closeModal() {
-        document.getElementById('history-modal').classList.add('hidden');
-        document.getElementById('history-modal').classList.remove('flex');
-    }
-
-    window.onclick = (e) => { if(e.target.id === 'history-modal') closeModal(); }
-
     init();
 </script>
 </body>
