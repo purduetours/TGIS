@@ -56,16 +56,26 @@
     <h2 class="font-bold text-lg text-[#CFB991] uppercase tracking-widest">Accessing TGIS Database...</h2>
 </div>
 
-<nav id="main-nav" class="fixed top-0 left-0 h-full w-72 bg-white shadow-2xl border-r border-gray-100 p-6 z-40 hidden lg:block">
+<nav id="main-nav" class="fixed top-0 left-0 h-full w-72 bg-white shadow-2xl border-r border-gray-100 p-6 z-40 hidden lg:flex flex-col">
     <div class="mb-8">
         <p class="text-[10px] font-black text-[#CFB991] uppercase tracking-[0.2em] mb-1">Purdue University</p>
         <h1 class="text-xl font-black leading-tight">TGIS Manager</h1>
     </div>
-    <div class="space-y-2">
-        <button onclick="switchTab('roster')" class="w-full flex items-center p-3 hover:bg-gray-50 rounded-xl font-bold text-sm">📋 Master Roster</button>
-        <button onclick="switchTab('schedule')" class="w-full flex items-center p-3 hover:bg-gray-50 rounded-xl font-bold text-sm">📅 Tour Schedule</button>
-        <button onclick="switchTab('desk')" class="w-full flex items-center p-3 hover:bg-gray-50 rounded-xl font-bold text-sm">🖥️ Desk Dashboard</button>
-        <button onclick="switchTab('control')" class="w-full flex items-center p-3 hover:bg-gray-50 rounded-xl font-bold text-sm">🕹️ Control Center</button>
+    <div class="space-y-2 flex-grow">
+        <button onclick="switchTab('roster')" class="w-full flex items-center p-3 hover:bg-gray-50 rounded-xl font-bold text-sm transition-all">📋 Master Roster</button>
+        <button onclick="switchTab('schedule')" class="w-full flex items-center p-3 hover:bg-gray-50 rounded-xl font-bold text-sm transition-all">📅 Tour Schedule</button>
+        <button onclick="switchTab('desk')" class="w-full flex items-center p-3 hover:bg-gray-50 rounded-xl font-bold text-sm transition-all">🖥️ Desk Dashboard</button>
+        <button onclick="switchTab('control')" class="w-full flex items-center p-3 hover:bg-gray-50 rounded-xl font-bold text-sm transition-all text-gray-400">🕹️ Control Center</button>
+    </div>
+
+    <div class="mt-auto pt-6 border-t border-gray-100">
+        <div class="bg-gray-50 rounded-2xl p-4 flex items-center gap-3">
+            <div class="w-10 h-10 bg-[#CFB991] rounded-full flex items-center justify-center text-white font-black">AD</div>
+            <div>
+                <p class="text-xs font-black uppercase tracking-tight">Admin User</p>
+                <p class="text-[10px] font-bold text-gray-400 uppercase">Boilermaker Admin</p>
+            </div>
+        </div>
     </div>
 </nav>
 
@@ -96,15 +106,22 @@
     </div>
 
     <div id="tab-desk" class="tab-content p-8">
-        <div class="flex justify-between items-center mb-8">
-            <h1 class="text-5xl font-black uppercase">Desk Ops</h1>
-            <div id="status-bar" class="flex gap-3"></div>
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-4">
+            <div>
+                <h1 class="text-5xl font-black tracking-tighter uppercase">Desk Ops</h1>
+                <div class="flex items-center gap-4 mt-2">
+                    <button onclick="changeDeskDate(-1)" class="p-2 hover:bg-gray-200 rounded-full transition-colors">◀</button>
+                    <p id="desk-display-date" class="text-lg font-bold text-[#CFB991] uppercase tracking-widest"></p>
+                    <button onclick="changeDeskDate(1)" class="p-2 hover:bg-gray-200 rounded-full transition-colors">▶</button>
+                </div>
+            </div>
+            <div id="status-bar" class="flex gap-3 overflow-x-auto pb-2"></div>
         </div>
         <div id="desk-summary-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"></div>
     </div>
 
     <div id="tab-control" class="tab-content p-8">
-        <h1 class="text-4xl font-black mb-4">Control Center</h1>
+        <h1 class="text-4xl font-black mb-4 uppercase">Control Center</h1>
         <p class="text-gray-500 font-medium">System configuration and management tools.</p>
     </div>
 </div>
@@ -113,6 +130,8 @@
     const scriptURL = 'https://script.google.com/macros/s/AKfycbz-RvNHk8SpTjtKt_r00cTmkH6DWtQeApayShxo9iDHsn7TyrhgQXWL2H-1ChBFfnaV/exec';
     let tourData = [];
     let currentMonday = getMonday(new Date());
+    let deskDate = new Date();
+    deskDate.setHours(0,0,0,0);
 
     function getMonday(d) {
         d = new Date(d);
@@ -136,6 +155,11 @@
         renderSchedule();
     }
 
+    function changeDeskDate(days) {
+        deskDate.setDate(deskDate.getDate() + days);
+        renderDeskDashboard();
+    }
+
     function jumpToDate(val) {
         if(!val) return;
         currentMonday = getMonday(new Date(val.replace(/-/g, '/')));
@@ -144,8 +168,11 @@
 
     function jumpToToday() {
         currentMonday = getMonday(new Date());
+        deskDate = new Date();
+        deskDate.setHours(0,0,0,0);
         updatePicker();
         renderSchedule();
+        renderDeskDashboard();
     }
 
     function updatePicker() {
@@ -162,15 +189,51 @@
         window.print();
     }
 
+    function renderDeskDashboard() {
+        const container = document.getElementById('desk-summary-grid');
+        const statusBar = document.getElementById('status-bar');
+        const dateLabel = document.getElementById('desk-display-date');
+        if(!container || !statusBar) return;
+        
+        dateLabel.innerText = deskDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+        const slots = [
+            { code: '9DV', time: '9:30 AM', h: 9, m: 30 },
+            { code: '0DV', time: '10:30 AM', h: 10, m: 30 },
+            { code: '1DV', time: '1:30 PM', h: 13, m: 30 },
+            { code: '2DV', time: '2:30 PM', h: 14, m: 30 }
+        ];
+
+        const now = new Date();
+        let gridHtml = '';
+        let statusHtml = '';
+
+        slots.forEach(slot => {
+            const guides = tourData.filter(t => t.type === slot.code && t.dateObj && t.dateObj.getTime() === deskDate.getTime() && !['N/A','#N/A'].includes(String(t.guide).trim().toUpperCase()));
+            const hasTour = guides.length > 0;
+            let color = "bg-gray-200 text-gray-500";
+            let text = "Empty";
+
+            if(hasTour) {
+                const start = new Date(deskDate); start.setHours(slot.h, slot.m, 0);
+                const end = new Date(start); end.setMinutes(start.getMinutes() + 105);
+                if(deskDate.toDateString() === now.toDateString()) {
+                    if(now >= start && now <= end) { color = "bg-purple-600 text-white animate-pulse"; text = "Live"; }
+                    else if(now < start) { color = "bg-green-500 text-white"; text = "Ready"; }
+                    else { color = "bg-gray-400 text-white"; text = "Done"; }
+                } else { color = "bg-green-500 text-white"; text = "Scheduled"; }
+            }
+
+            statusHtml += `<div class="${color} px-4 py-2 rounded-xl text-center min-w-[90px] shadow-sm"><p class="text-[9px] font-black uppercase opacity-80">${slot.time}</p><p class="text-[11px] font-bold">${text}</p></div>`;
+            gridHtml += `<div class="bg-white border-2 border-gray-50 p-6 rounded-[2rem] shadow-sm min-h-[250px] flex flex-col ${!hasTour ? 'opacity-40' : ''}"><div class="mb-4"><p class="text-[10px] font-black text-[#CFB991] tracking-widest uppercase">${slot.code} Wave</p><h2 class="text-2xl font-black">${slot.time}</h2></div><div class="space-y-2 flex-grow">${hasTour ? guides.map(g => `<div class="flex justify-between items-center p-3 bg-gray-50 rounded-xl border border-gray-100"><span class="font-bold text-sm">${String(g.guide).replace('`','')}</span>${g.status==='DROP'?'<span class="text-red-500 font-black text-[10px]">DROP</span>':'<span class="text-green-500 text-xs">●</span>'}</div>`).join('') : '<p class="text-xs italic text-gray-400">No guides assigned</p>'}</div></div>`;
+        });
+        statusBar.innerHTML = statusHtml;
+        container.innerHTML = gridHtml;
+    }
+
     function renderSchedule() {
         const container = document.getElementById('schedule-container');
         if(!container) return;
-        const slots = [
-            { c: '9DV', t: '9:30 AM', cls: 'bg-slot-9DV' },
-            { c: '0DV', t: '10:30 AM', cls: 'bg-slot-0DV' },
-            { c: '1DV', t: '1:30 PM', cls: 'bg-slot-1DV' },
-            { c: '2DV', t: '2:30 PM', cls: 'bg-slot-2DV' }
-        ];
+        const slots = [{c:'9DV',t:'9:30 AM',cls:'bg-slot-9DV'},{c:'0DV',t:'10:30 AM',cls:'bg-slot-0DV'},{c:'1DV',t:'1:30 PM',cls:'bg-slot-1DV'},{c:'2DV',t:'2:30 PM',cls:'bg-slot-2DV'}];
         let html = '';
         for(let i=0; i<5; i++) {
             const d = new Date(currentMonday); d.setDate(d.getDate() + i);
@@ -197,6 +260,7 @@
             tourData.forEach(t => { if(t.date) { t.dateObj = new Date(t.date); t.dateObj.setHours(0,0,0,0); }});
             updatePicker();
             renderSchedule();
+            renderDeskDashboard();
         } catch(e) { console.error(e); } finally {
             document.getElementById('loading-overlay').style.display = 'none';
         }
