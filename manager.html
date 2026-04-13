@@ -201,30 +201,23 @@
         <h1 class="text-6xl font-black mb-4">CONTROL CENTER</h1>
     </div>
 
-    <div id="tab-desk" class="tab-content p-4 sm:p-8">
-    <div class="flex justify-between items-end mb-8">
+   <div id="tab-desk" class="tab-content p-4 sm:p-8">
+    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-4">
         <div>
-            <h1 class="text-5xl font-black tracking-tighter">DESK DASHBOARD</h1>
-            <p id="desk-today-date" class="text-lg font-bold text-[#CFB991] uppercase tracking-widest"></p>
+            <h1 class="text-5xl font-black tracking-tighter">DESK OPS</h1>
+            <div class="flex items-center gap-4 mt-2">
+                <button onclick="changeDeskDate(-1)" class="p-2 hover:bg-gray-200 rounded-full transition-colors">◀</button>
+                <p id="desk-display-date" class="text-lg font-bold text-[#CFB991] uppercase tracking-widest"></p>
+                <button onclick="changeDeskDate(1)" class="p-2 hover:bg-gray-200 rounded-full transition-colors">▶</button>
+            </div>
         </div>
-        <div class="bg-gray-900 text-white px-6 py-3 rounded-2xl text-center">
-            <p class="text-[10px] font-black uppercase opacity-60">Status</p>
-            <p class="font-bold text-xl">LIVE OPS</p>
-        </div>
+
+        <div id="status-bar" class="flex gap-3 w-full lg:w-auto overflow-x-auto pb-2">
+            </div>
     </div>
 
     <div id="desk-summary-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         </div>
-
-    <div class="mt-12 bg-white border border-gray-100 rounded-3xl p-8 shadow-sm">
-        <h3 class="font-black text-xl mb-4 uppercase tracking-tight">Desk Reminders</h3>
-        <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm font-semibold text-gray-500">
-            <li class="flex items-center"><span class="mr-2">✅</span> Verify all guides have signed in</li>
-            <li class="flex items-center"><span class="mr-2">✅</span> Check for "No Tour Active" status before turning visitors away</li>
-            <li class="flex items-center"><span class="mr-2">✅</span> Ensure postcards are ready for the 2:30 PM wave</li>
-            <li class="flex items-center"><span class="mr-2">✅</span> Report any "DROP" alerts to the manager immediately</li>
-        </ul>
-    </div>
 </div>
 </div>
 
@@ -234,8 +227,105 @@
     let rawData = [];
     let currentMonday = getMonday(new Date());
 
+    let deskDate = new Date();
+deskDate.setHours(0,0,0,0);
 
-    function prepareAndPrint() {
+function changeDeskDate(days) {
+    deskDate.setDate(deskDate.getDate() + days);
+    renderDeskDashboard();
+}
+
+function renderDeskDashboard() {
+    const container = document.getElementById('desk-summary-grid');
+    const statusBar = document.getElementById('status-bar');
+    const dateLabel = document.getElementById('desk-display-date');
+    
+    dateLabel.innerText = deskDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+
+    const slots = [
+        { code: '9DV', time: '9:30 AM', hour: 9, min: 30 },
+        { code: '0DV', time: '10:30 AM', hour: 10, min: 30 },
+        { code: '1DV', time: '1:30 PM', hour: 13, min: 30 },
+        { code: '2DV', time: '2:30 PM', hour: 14, min: 30 }
+    ];
+
+    const now = new Date();
+    const isToday = deskDate.toDateString() === now.toDateString();
+
+    let gridHtml = '';
+    let statusHtml = '';
+
+    slots.forEach(slot => {
+        const guides = tourData.filter(t => 
+            t.type === slot.code && 
+            t.dateObj && 
+            t.dateObj.getTime() === deskDate.getTime() &&
+            !['N/A', '#N/A'].includes(String(t.guide).trim().toUpperCase())
+        );
+
+        const hasTour = guides.length > 0;
+        
+        // --- OVERLAP LOGIC ---
+        let statusColor = "bg-gray-200"; // Default: No tour or finished
+        let statusText = "Empty";
+
+        if (hasTour) {
+            const startTime = new Date(deskDate);
+            startTime.setHours(slot.hour, slot.min, 0);
+            
+            const endTime = new Date(startTime);
+            endTime.setMinutes(startTime.getMinutes() + 105); // 1hr 45min
+
+            if (isToday) {
+                if (now >= startTime && now <= endTime) {
+                    statusColor = "bg-purple-600 text-white animate-pulse";
+                    statusText = "In Progress";
+                } else if (now < startTime) {
+                    statusColor = "bg-green-500 text-white";
+                    statusText = "Ready";
+                } else {
+                    statusColor = "bg-gray-400 text-white";
+                    statusText = "Completed";
+                }
+            } else {
+                statusColor = "bg-green-500 text-white";
+                statusText = "Scheduled";
+            }
+        }
+
+        // 1. Generate Status Pill
+        statusHtml += `
+            <div class="${statusColor} px-4 py-2 rounded-xl flex flex-col items-center justify-center min-w-[100px] shadow-sm">
+                <span class="text-[9px] font-black uppercase opacity-80">${slot.time}</span>
+                <span class="text-[11px] font-bold">${statusText}</span>
+            </div>
+        `;
+
+        // 2. Generate Detailed Card
+        gridHtml += `
+            <div class="bg-white border-2 border-gray-50 rounded-[2rem] p-6 shadow-sm flex flex-col min-h-[250px] ${!hasTour ? 'opacity-40' : ''}">
+                <div class="mb-4">
+                    <p class="text-[10px] font-black text-[#CFB991] uppercase tracking-widest">${slot.code} WAVE</p>
+                    <h2 class="text-2xl font-black">${slot.time}</h2>
+                </div>
+                <div class="flex-grow space-y-2">
+                    ${hasTour ? guides.map(g => `
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-xl border border-gray-100">
+                            <span class="font-bold text-sm">${g.guide.replace('`', '')}</span>
+                            ${g.status === 'DROP' ? '<span class="text-[10px] font-black text-red-500">DROP</span>' : '<span class="text-green-500">●</span>'}
+                        </div>
+                    `).join('') : '<p class="text-xs italic text-gray-400">No guides assigned</p>'}
+                </div>
+            </div>
+        `;
+    });
+
+    statusBar.innerHTML = statusHtml;
+    container.innerHTML = gridHtml;
+}
+
+
+    render prepareAndPrint() {
     const printDateDisplay = document.getElementById('print-date-range');
     
     // 1. Calculate the Friday of the NEXT week
@@ -263,7 +353,7 @@
 }
 
     // Helper to find the Monday of whatever week is selected
-    function getMonday(d) {
+    render getMonday(d) {
         d = new Date(d);
         const day = d.getDay();
         const diff = d.getDate() - day + (day === 0 ? -6 : 1); 
