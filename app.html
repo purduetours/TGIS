@@ -279,8 +279,7 @@
         <div id="nav-families" class="nav-button" onclick="switchView('families')">Family Points</div>
         <div id="nav-desk" class="nav-button" onclick="switchView('desk')">Desk Schedule</div>
         <div id="nav-forms" class="nav-button" onclick="switchView('forms')">Required Forms</div>
-        <!--<div id="nav-welcome-center" class="nav-button" onclick="switchView('welcome-center')">Welcome Center</div>!-->
-        
+        <div id="nav-desk-dashboard" class="nav-button hidden" onclick="switchView('desk-dashboard')">Desk Dashboard</div>        
 
     </div>
 </nav>
@@ -535,19 +534,18 @@
     </div>
 </div>
 
-<div id="view-welcome-center" class="view-section hidden p-10">
-    <header class="mb-10 flex justify-between items-end">
-        <div>
-            <h1 class="text-6xl font-black tracking-tighter">Welcome Center</h1>
-            <p id="welcome-date-display" class="text-primary-gold font-bold uppercase tracking-[0.3em] mt-2">October 24, 2023</p>
-        </div>
-        <div class="bg-black text-white px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-xs">
-            Live Dashboard
-        </div>
-    </header>
 
-    <div id="welcome-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-        </div>
+
+
+    
+<div id="view-desk-dashboard" class="view-section">
+    <header class="mb-8">
+        <h1 class="text-3xl font-black">Desk Dashboard</h1>
+        <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Administrative Overview</p>
+    </header>
+    <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+        <p>This content is only visible to Staff/Leads.</p>
+    </div>
 </div>
 
     
@@ -1107,6 +1105,10 @@ async function init() {
             // Update UI Elements
             document.getElementById('sidebar-name').innerText = cachedData.profile.fullName;
             document.getElementById('sidebar-status').innerText = cachedData.profile.status;
+            const deskDashBtn = document.getElementById('nav-desk-dashboard');
+                if (cachedData.profile.status !== "Tour Guide") {
+                    deskDashBtn.classList.remove('hidden');
+                }
             document.getElementById('profile-initial').innerText = cachedData.profile.fullName.charAt(0);
             document.getElementById('welcome-name').innerText = cachedData.profile.displayName;
 
