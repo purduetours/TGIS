@@ -276,6 +276,19 @@
         <div class="flex items-center text-[10px] text-status-green font-bold bg-white w-fit px-2 py-1 rounded-md border border-gray-100">
             <span class="w-1.5 h-1.5 bg-status-green rounded-full mr-1.5 animate-pulse"></span> TGIS ONLINE
         </div>
+        <div class="mb-8 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+    <div class="flex items-center text-[10px] text-status-green font-bold bg-white w-fit px-2 py-1 rounded-md border border-gray-100 mb-4">
+        <span class="w-1.5 h-1.5 bg-status-green rounded-full mr-1.5 animate-pulse"></span> TGIS ONLINE
+    </div>
+
+    <div id="view-switcher-container" class="hidden border-t border-gray-200 pt-4 mt-2">
+        <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">System View</p>
+        <select id="view-selector" onchange="handleViewChange(this.value)" class="w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-primary-gold">
+            <option value="student">Student View</option>
+            <option value="manager">Manager View</option>
+        </select>
+    </div>
+</div>
     </div>
 
     <div class="mb-8">
@@ -1120,6 +1133,35 @@ function updateNavigation(profile) {
     `;
 }
 
+
+    
+
+    function handleViewChange(viewType) {
+    const isManagerView = (viewType === 'manager');
+    
+    // 1. Define which buttons belong to which view
+    const managerButtons = ['nav-desk-dashboard'];
+    const studentButtons = ['nav-home', 'nav-schedule', 'nav-tracker', 'nav-families', 'nav-desk', 'nav-forms'];
+
+    // 2. Toggle visibility
+    managerButtons.forEach(id => {
+        document.getElementById(id).style.display = isManagerView ? 'flex' : 'none';
+    });
+
+    studentButtons.forEach(id => {
+        document.getElementById(id).style.display = isManagerView ? 'none' : 'flex';
+    });
+
+    // 3. Auto-switch to the "Home" of that view
+    if (isManagerView) {
+        switchView('desk-dashboard');
+    } else {
+        switchView('home');
+    }
+}
+
+
+    
     
 // Helper function to keep code clean
 function renderTourRow(tour, isHistory = false) {
@@ -1201,6 +1243,13 @@ async function init() {
             updateLeaderboard('career');
             renderFamilyUI();
             updateClock();
+
+            const switcher = document.getElementById('view-switcher-container');
+            const userStatus = cachedData.profile.status;
+
+            if (userStatus === "Codirector" || userStatus === "Manager") {
+                switcher.classList.remove('hidden');
+            }
 
             const histContainer = document.getElementById('history-container');
             histContainer.innerHTML = [...cachedData.stats.history].reverse().map(h => `
