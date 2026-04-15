@@ -126,7 +126,7 @@
 </div>
 
 <script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbz-RvNHk8SpTjtKt_r00cTmkH6DWtQeApayShxo9iDHsn7TyrhgQXWL2H-1ChBFfnaV/exec';
+    const managerURL = 'https://script.google.com/macros/s/AKfycbz-RvNHk8SpTjtKt_r00cTmkH6DWtQeApayShxo9iDHsn7TyrhgQXWL2H-1ChBFfnaV/exec';
     let tourData = [];
     let currentMonday = getMonday(new Date());
     let deskDate = new Date();
@@ -324,7 +324,7 @@
 
     async function init() {
         try {
-            const resp = await fetch(scriptURL);
+            const resp = await fetch(managerURL);
             const data = await resp.json();
             tourData = data.tours || [];
             tourData.forEach(t => { if(t.date) { t.dateObj = new Date(t.date); t.dateObj.setHours(0,0,0,0); }});
