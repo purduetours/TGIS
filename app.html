@@ -571,23 +571,26 @@
 
 
 <div id="view-desk-dashboard" class="view-section">
-    <header class="mb-10 no-print">
-        <div class="flex flex-wrap justify-between items-center gap-4">
-            <div>
-                <h1 class="text-4xl font-black uppercase tracking-tighter">Welcome Center Operations</h1>
-                <p class="text-[10px] font-black text-primary-gold uppercase tracking-[0.3em] mt-1">Live Management Suite</p>
+    <header class="mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h1 class="text-5xl font-black uppercase tracking-tighter">Welcome Center Operations</h1>
+                <div class="flex items-center gap-3 bg-white p-1 rounded-2xl border shadow-sm">
+                    <button onclick="changeDeskDate(-1)" class="p-2 hover:bg-gray-100 rounded-xl transition-all">◀</button>
+                    <p id="desk-display-date" class="font-black text-[#CFB991] uppercase text-sm tracking-widest px-2"></p>
+                    <button onclick="changeDeskDate(1)" class="p-2 hover:bg-gray-100 rounded-xl transition-all">▶</button>
+                </div>
             </div>
-            <div class="flex items-center bg-white border rounded-2xl p-1 shadow-sm h-[50px]">
-                <button onclick="changeDeskDate(-1)" class="px-3 hover:bg-gray-100 rounded-xl transition-all font-bold">◀</button>
-                <p id="desk-display-date" class="mx-4 font-black text-sm min-w-[140px] text-center">Loading...</p>
-                <button onclick="changeDeskDate(1)" class="px-3 hover:bg-gray-100 rounded-xl transition-all font-bold">▶</button>
-            </div>
+            <div id="status-bar" class="flex gap-2 overflow-x-auto no-scrollbar pb-4 border-b border-gray-100"></div>
+        </header>
+
+        <div class="mb-10">
+            <h2 class="text-xs font-black text-gray-400 uppercase tracking-[0.3em] mb-4">Daily Visits</h2>
+            <div id="grid-daily" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4"></div>
         </div>
-    </header>
 
-    <div id="desk-stats-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"></div>
-
-    <div id="desk-schedule-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+        <div>
+            <h2 class="text-xs font-black text-gray-400 uppercase tracking-[0.3em] mb-4">Program Days</h2>
+            <div id="grid-program" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4"></div>
         </div>
 </div>
     
@@ -710,70 +713,238 @@
     ];
 
 
-let deskDate = new Date();
-deskDate.setHours(0,0,0,0);
+    let deskDate = new Date();
+    deskDate.setHours(0,0,0,0);
 
-function changeDeskDate(days) {
-    deskDate.setDate(deskDate.getDate() + days);
-    renderDeskDashboard();
-}
-
-
-function renderDeskDashboard() {
-    const container = document.getElementById('desk-schedule-container');
-    const statsContainer = document.getElementById('desk-stats-grid');
-    
-    // Filter by the selected deskDate
-    const dayTours = deskTourData.filter(t => {
-        const tDate = new Date(t.date);
-        tDate.setHours(0,0,0,0);
-        return tDate.getTime() === deskDate.getTime();
-    });
-
-    // 3. Update Stats
-    const checkedIn = dayTours.filter(t => t.checkInTime).length;
-    statsContainer.innerHTML = `
-        <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
-            <p class="text-[10px] font-black text-gray-400 uppercase mb-1">Total Guides</p>
-            <p class="text-3xl font-black">${dayTours.length}</p>
-        </div>
-        <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
-            <p class="text-[10px] font-black text-gray-400 uppercase mb-1">Checked In</p>
-            <p class="text-3xl font-black text-status-green">${checkedIn}</p>
-        </div>
-        `;
-
-    // 4. Create the "Cards by Time" View
-    // Define the slots you want to show
-    const slots = [
-        { t: '9:30 AM', cls: 'bg-slot-9DV', key: '9:30' },
-        { t: '10:30 AM', cls: 'bg-slot-0DV', key: '10:30' },
-        { t: '1:30 PM', cls: 'bg-slot-1DV', key: '1:30' },
-        { t: '2:30 PM', cls: 'bg-slot-2DV', key: '2:30' }
+        const DAILY_VISITS = [
+        { code: '9DV', name: '9:30 Daily', h: 9, m: 30 },
+        { code: '0DV', name: '10:30 Daily', h: 10, m: 30 },
+        { code: '0GV', name: '10:30 Group', h: 10, m: 30 },
+        { code: '1DV', name: '1:30 Daily', h: 13, m: 30 },
+        { code: '2DV', name: '2:30 Daily', h: 14, m: 30 }
     ];
 
-    let html = '';
-    slots.forEach(slot => {
-        const guidesInSlot = dayTours.filter(t => String(t.time).includes(slot.key));
+    const PROGRAM_DAYS = [
+        { code: '8PA', name: '8:15 Program', h: 8, m: 15 },
+        { code: 'EPF.', name: '11:15 Program', h: 11, m: 15 },
+        { code: '1PA', name: '1:15 Program', h: 13, m: 15 },
+        { code: '1PF', name: '1:30 Program', h: 13, m: 30 },
+        { code: '2PA', name: '2:15 Program', h: 14, m: 15 }
+    ];
+
+    function getMonday(d) {
+        d = new Date(d);
+        const day = d.getDay();
+        const diff = d.getDate() - day + (day === 0 ? -6 : 1); 
+        const mon = new Date(d.setDate(diff));
+        mon.setHours(0,0,0,0);
+        return mon;
+    }
+
+    function switchTab(tabName) {
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        document.getElementById('tab-' + tabName).classList.add('active');
+        if(tabName === 'schedule') { updatePicker(); renderSchedule(); }
+        if(tabName === 'desk') renderDeskDashboard();
+    }
+
+    function changeDeskDate(days) {
+        deskDate.setDate(deskDate.getDate() + days);
+        renderDeskDashboard();
+    }
+
+    function changeWeek(days) {
+        currentMonday.setDate(currentMonday.getDate() + days);
+        updatePicker();
+        renderSchedule();
+    }
+
+    function jumpToDate(val) {
+        if(!val) return;
+        currentMonday = getMonday(new Date(val.replace(/-/g, '/')));
+        renderSchedule();
+    }
+
+    function jumpToToday() {
+        currentMonday = getMonday(new Date());
+        deskDate = new Date();
+        deskDate.setHours(0,0,0,0);
+        updatePicker();
+        renderSchedule();
+        renderDeskDashboard();
+    }
+
+    function updatePicker() {
+        const picker = document.getElementById('schedule-date-picker');
+        if(picker) picker.value = currentMonday.toISOString().split('T')[0];
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+function parseGuide(guideStr, status) {
+        let name = String(guideStr);
+        let statusLabel = "SCHEDULED";
+        let cardClass = "bg-gray-50 border-gray-100";
+        let badgeClass = "bg-green-100 text-green-700";
+
+        if (name.includes('*')) {
+            name = name.replace('*', '').trim();
+            statusLabel = "PENDING DROP";
+            cardClass = "status-pill-red border-red-300";
+            badgeClass = "bg-red-600 text-white";
+        } else if (name.includes('`')) {
+            name = name.replace('`', '').trim();
+            statusLabel = "NOT GIVEN";
+            badgeClass = "bg-blue-100 text-blue-700";
+        } else if (name.includes('+')) {
+            name = name.replace('+', '').trim();
+            statusLabel = "PICKED UP";
+            badgeClass = "bg-purple-100 text-purple-700";
+        }
+
+        if (status === 'SENT HOME') {
+            cardClass = "status-pill-gray border-gray-300";
+            statusLabel = "SENT HOME";
+            badgeClass = "bg-gray-500 text-white";
+        }
+
+        return { name, statusLabel, cardClass, badgeClass };
+    }
+
+
+
+
+    
+
+
+ function renderDeskDashboard() {
+        const dailyContainer = document.getElementById('grid-daily');
+        const programContainer = document.getElementById('grid-program');
+        const statusBar = document.getElementById('status-bar');
+        const dateLabel = document.getElementById('desk-display-date');
+        if(!dailyContainer || !programContainer || !statusBar) return;
         
-        html += `
-            <div class="tour-slot-card ${slot.cls}">
-                <p class="text-[10px] font-black opacity-50 uppercase tracking-widest mb-4">${slot.t}</p>
-                <div class="space-y-2">
-                    ${guidesInSlot.length > 0 ? guidesInSlot.map(g => `
-                        <div class="bg-white/80 backdrop-blur-sm p-2 rounded-xl flex justify-between items-center border border-white">
-                            <span class="text-xs font-bold">${g.guide}</span>
-                            <span class="text-[9px] font-black ${g.checkInTime ? 'text-gray-400' : 'text-red-500'}">
-                                ${g.checkInTime ? '✓' : 'PENDING'}
-                            </span>
+        dateLabel.innerText = deskDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const now = new Date();
+        
+        let dailyHtml = '';
+        let programHtml = '';
+        let statusSummary = '';
+
+        [DAILY_VISITS, PROGRAM_DAYS].forEach((list, idx) => {
+            list.forEach(slot => {
+                const guides = tourData.filter(t => t.type === slot.code && t.dateObj && t.dateObj.getTime() === deskDate.getTime() && !['N/A','#N/A'].includes(String(t.guide).trim().toUpperCase()));
+                const hasTour = guides.length > 0;
+                
+                let sColor = "bg-gray-100 text-gray-400";
+                let sText = "Empty";
+                if(hasTour) {
+                    const start = new Date(deskDate); start.setHours(slot.h, slot.m, 0);
+                    const end = new Date(start); end.setMinutes(start.getMinutes() + 105);
+                    if(deskDate.toDateString() === now.toDateString()) {
+                        if(now >= start && now <= end) { sColor = "bg-purple-600 text-white animate-pulse"; sText = "Live"; }
+                        else if(now < start) { sColor = "bg-green-500 text-white"; sText = "Ready"; }
+                        else { sColor = "bg-gray-400 text-white"; sText = "Done"; }
+                    } else { sColor = "bg-green-600 text-white"; sText = "Scheduled"; }
+                }
+                statusSummary += `<div class="${sColor} px-2 py-0.5 rounded text-[9px] font-black uppercase whitespace-nowrap">${slot.code}: ${sText}</div>`;
+
+                const cardHtml = `
+                    <div class="bg-white border p-5 rounded-3xl shadow-sm flex flex-col ${!hasTour ? 'opacity-30' : ''}">
+                        <p class="text-[9px] font-black text-[#CFB991] uppercase tracking-widest">${slot.code}</p>
+                        <h2 class="text-xl font-black mb-3">${slot.name}</h2>
+                        <div class="space-y-1.5 flex-grow">
+                            ${guides.length > 0 ? guides.map(g => {
+                                const parsed = parseGuide(g.guide, g.status);
+                                return `
+                                    <div class="p-2 rounded-lg border text-[11px] font-bold flex justify-between items-center ${parsed.cardClass}">
+                                        <span>${parsed.name}</span>
+                                        <span class="text-[7px] px-1.5 py-0.5 rounded-md font-black uppercase ${parsed.badgeClass}">${parsed.statusLabel}</span>
+                                    </div>
+                                `;
+                            }).join('') : '<p class="text-[10px] italic text-gray-400">No Guides</p>'}
                         </div>
-                    `).join('') : '<p class="text-[10px] font-bold text-gray-400 italic">No guides assigned</p>'}
-                </div>
-            </div>
-        `;
-    });
-    container.innerHTML = html;
-}
+                    </div>`;
+
+                if(idx === 0) dailyHtml += cardHtml; else programHtml += cardHtml;
+            });
+        });
+
+        dailyContainer.innerHTML = dailyHtml;
+        programContainer.innerHTML = programHtml;
+        statusBar.innerHTML = statusSummary;
+    }
+
+
+
+
+
+
+
+
+
+
+
+        function renderSchedule() {
+        const container = document.getElementById('schedule-container');
+        if(!container) return;
+        const slots = [{c:'9DV',t:'9:30 AM',cls:'bg-slot-9DV'},{c:'0DV',t:'10:30 AM',cls:'bg-slot-0DV'},{c:'1DV',t:'1:30 PM',cls:'bg-slot-1DV'},{c:'2DV',t:'2:30 PM',cls:'bg-slot-2DV'}];
+        let html = '';
+        for(let i=0; i<5; i++) {
+            const d = new Date(currentMonday); d.setDate(d.getDate() + i);
+            html += `<div class="day-column"><div class="text-center mb-3"><h3 class="font-black uppercase text-xs">${d.toLocaleDateString('en-US',{weekday:'long'})}</h3><p class="text-[9px] font-bold text-[#CFB991]">${d.toLocaleDateString('en-US',{month:'short',day:'numeric'})}</p></div>`;
+            slots.forEach(s => {
+                const entries = tourData.filter(t => t.type === s.c && t.dateObj && t.dateObj.getTime() === d.getTime());
+                const cancelled = entries.some(e => ['N/A','#N/A'].includes(String(e.guide).trim().toUpperCase()));
+                if(cancelled) {
+                    html += `<div class="tour-slot ${s.cls} opacity-50 flex items-center justify-center italic text-[9px]">No Tour</div>`;
+                } else {
+                    html += `<div class="tour-slot ${s.cls}"><p class="tour-time-label">${s.t}</p><div class="flex flex-col gap-1">`;
+                    html += entries.length > 0 ? entries.map(e => `<div class="guide-name-pill-schedule ${e.status==='DROP'?'status-drop':''}"><span>${String(e.guide).replace('`','').replace('*','').replace('+','')}</span><span class="hidden print:inline font-mono font-bold">${String(e.guide).includes('`') ? 'ACP' : '____'}</span></div>`).join('') : '<p class="text-[8px] text-gray-400">Empty</p>';
+                    html += `</div></div>`;
+                }
+            });
+            html += `</div>`;
+        }
+        container.innerHTML = html;
+    }
+
+
+    async function devinit() {
+        try {
+            const resp = await fetch(managerURL);
+            const data = await resp.json();
+            tourData = data.tours || [];
+            tourData.forEach(t => { if(t.date) { t.dateObj = new Date(t.date); t.dateObj.setHours(0,0,0,0); }});
+            updatePicker();
+            renderSchedule();
+            renderDeskDashboard();
+        } catch(e) { console.error(e); } finally {
+            document.getElementById('loading-overlay').style.display = 'none';
+        }
+    }
+
+    devinit();
+
+
+
+    
+
+
+
+
+
+    
+
 
 
 
