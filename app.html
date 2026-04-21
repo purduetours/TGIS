@@ -1293,6 +1293,7 @@ async function init() {
             const deskDashBtn = document.getElementById('nav-desk-dashboard');
                 if (cachedData.profile.status !== "Tour Guide") {
                     deskDashBtn.classList.remove('hidden');
+                    renderDeskDashboard();
                 }
             document.getElementById('profile-initial').innerText = cachedData.profile.fullName.charAt(0);
             document.getElementById('welcome-name').innerText = cachedData.profile.displayName;
