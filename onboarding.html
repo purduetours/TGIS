@@ -19,11 +19,11 @@
 <body class="flex items-center justify-center min-h-screen p-4 md:p-8">
 
     <div id="status-overlay" class="fixed inset-0 bg-white z-50 flex items-center justify-center flex-col">
-        <div class="w-12 h-12 border-4 border-gray-100 border-t-[#CFB991] rounded-full animate-spin mb-4"></div>
+        <div id="loader-icon" class="w-12 h-12 border-4 border-gray-100 border-t-[#CFB991] rounded-full animate-spin mb-4"></div>
         <p id="status-message" class="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400 loading-dots">Validating Identity</p>
     </div>
 
-    <div id="main-card" class="hidden max-w-2xl w-full bg-white rounded-[3rem] shadow-2xl shadow-gray-200/50 p-8 md:p-12 border border-gray-100">
+    <div id="main-card" class="hidden max-w-2xl w-full bg-white rounded-[3rem] shadow-2xl p-8 md:p-12 border border-gray-100">
         <header class="mb-10">
             <div class="flex items-center gap-2 mb-2">
                 <span class="h-1 w-8 bg-[#CFB991] rounded-full"></span>
@@ -92,22 +92,21 @@
                     <option value="Honors College">Honors College</option>
                     <option value="Graduate School">Graduate School</option>
                 </select>
-                <p class="text-[9px] text-gray-400 mt-2 ml-1 font-bold italic">* Hold Cmd (Mac) or Ctrl (Windows) to select multiple</p>
             </div>
 
             <div class="input-group">
                 <label>Major</label>
-                <input type="text" name="major" required placeholder="e.g. Brain and Behavioral Sciences" class="input-style">
+                <input type="text" name="major" required placeholder="Major" class="input-style">
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="input-group">
                     <label>Minor (Optional)</label>
-                    <input type="text" name="minor" placeholder="N/A" class="input-style">
+                    <input type="text" name="minor" class="input-style">
                 </div>
                 <div class="input-group">
                     <label>Certificate (Optional)</label>
-                    <input type="text" name="certificate" placeholder="N/A" class="input-style">
+                    <input type="text" name="certificate" class="input-style">
                 </div>
             </div>
 
@@ -118,9 +117,9 @@
     </div>
 
     <script>
-        // CONFIGURATION
-        const ONBOARDING_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxox6gDqjOyP42tk-PtLjDw9P5ncGi-f-c-PYLIcUq4ZT5UhWnfvlgDUk867KBirQyN/exec'; // MUST BE NEW DEPLOYMENT
-        const MAIN_APP_URL = 'purduetours.github.io/TGIS/app.html';
+        // CONFIG - CHANGE THESE
+        const ONBOARDING_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyRoQVbW5Bi_Or35VwZw-9cxQq6A_woUSmegpCqj4j2iG31l27OOKICBmCXsUCyB_pN/exec';
+        const MAIN_APP_URL = 'https://purduetours.github.io/TGIS/app.html';
         const SCHOOL_DOMAIN = "@purdue.edu"; 
 
         const params = new URLSearchParams(window.location.search);
@@ -129,77 +128,67 @@
 
         window.onload = async () => {
             if (!username) {
-                document.getElementById('status-message').innerText = "Missing User Parameter";
+                document.getElementById('status-message').innerText = "URL Error: Missing ?user=";
+                document.getElementById('loader-icon').style.display = 'none';
                 return;
             }
 
-            // 1. Populate Grad Dates
+            // Populate Grad Select
             const gradSelect = document.getElementById('gradSemester');
             const years = [2024, 2025, 2026, 2027, 2028, 2029, 2030, 2031];
             const terms = ['Spring', 'Summer', 'Winter'];
-            years.forEach(y => {
-                terms.forEach(t => {
-                    let opt = document.createElement('option');
-                    opt.value = `${t} ${y}`;
-                    opt.innerText = `${t} ${y}`;
-                    gradSelect.appendChild(opt);
-                });
-            });
+            years.forEach(y => { terms.forEach(t => {
+                let opt = document.createElement('option');
+                opt.value = `${t} ${y}`; opt.innerText = `${t} ${y}`;
+                gradSelect.appendChild(opt);
+            })});
 
-            // 2. Fetch Identity
             try {
-                const fetchUrl = `${ONBOARDING_SCRIPT_URL}?action=getName&email=${encodeURIComponent(fullEmail)}`;
-                const resp = await fetch(fetchUrl);
-                const data = await resp.json();
+                // FETCH DATA
+                const response = await fetch(`${ONBOARDING_SCRIPT_URL}?action=getName&email=${encodeURIComponent(fullEmail)}`);
+                const data = await response.json();
 
-                if(data.name) {
+                if (data.name) {
                     document.getElementById('user-display-name').innerText = data.name;
                     document.getElementById('display-email').value = fullEmail;
                     document.getElementById('hidden-email').value = fullEmail;
                     
-                    // Reveal Form
-                    document.getElementById('status-overlay').classList.add('hidden');
+                    document.getElementById('status-overlay').style.display = 'none';
                     document.getElementById('main-card').classList.remove('hidden');
                 } else {
-                    document.getElementById('status-message').innerText = "User Not Found in Database";
+                    document.getElementById('status-message').innerText = "User not found in system.";
+                    document.getElementById('loader-icon').style.display = 'none';
                 }
-            } catch(e) {
-                document.getElementById('status-message').innerText = "Connection Error: Check Script Permissions";
-                console.error(e);
+            } catch (err) {
+                document.getElementById('status-message').innerText = "Connection Error: Check Deployment Permissions";
+                document.getElementById('loader-icon').style.display = 'none';
             }
         };
 
-        // Form Submit
         document.getElementById('onboardingForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('submitBtn');
-            btn.innerText = "UPDATING DATABASE...";
+            btn.innerText = "ACTIVATING...";
             btn.disabled = true;
 
             const formData = new FormData(e.target);
             const data = Object.fromEntries(formData.entries());
-            
-            // Collect Multiple Colleges
-            const collegeSelect = e.target.college;
-            const selectedColleges = Array.from(collegeSelect.selectedOptions).map(option => option.value);
-            data.college = selectedColleges.join(', ');
+            const colleges = Array.from(e.target.college.selectedOptions).map(o => o.value);
+            data.college = colleges.join(', ');
 
             try {
-                // Post to Apps Script
                 await fetch(ONBOARDING_SCRIPT_URL, {
                     method: 'POST',
-                    mode: 'no-cors', // Critical for GAS
+                    mode: 'no-cors', // Critical
                     body: JSON.stringify(data)
                 });
                 
-                // Success redirect
                 btn.innerText = "SUCCESS! REDIRECTING...";
                 setTimeout(() => {
                     window.location.href = `${MAIN_APP_URL}?user=${username}`;
                 }, 1500);
-                
             } catch (err) {
-                alert("Error connecting to server. Please try again.");
+                alert("Submit error. Please try again.");
                 btn.innerText = "ACTIVATE MY ACCOUNT";
                 btn.disabled = false;
             }
