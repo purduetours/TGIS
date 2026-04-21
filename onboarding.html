@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TGIS | Onboarding</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f9fafb; }
+        .input-group label { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: #9CA3AF; margin-bottom: 6px; display: block; margin-left: 4px; }
+        .input-style { width: 100%; background: white; border: 1px solid #E5E7EB; border-radius: 1.25rem; padding: 1rem 1.25rem; font-weight: 600; transition: all 0.2s; }
+        .input-style:focus { outline: none; border-color: #CFB991; ring: 2px; ring-color: #CFB991; }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-6">
+
+    <div class="max-w-xl w-full bg-white rounded-[3rem] shadow-2xl shadow-gray-200/50 p-8 md:p-12 border border-gray-100">
+        <header class="mb-10">
+            <h1 class="text-5xl font-black tracking-tighter uppercase italic leading-none">Welcome<br><span class="text-[#CFB991] non-italic">To The Team</span></h1>
+            <p class="text-gray-400 font-bold text-sm mt-4 uppercase tracking-widest">Complete your guide profile to continue</p>
+        </header>
+
+        <form id="onboardingForm" class="space-y-6">
+            <div class="input-group">
+                <label>Academic Major</label>
+                <input type="text" name="major" required placeholder="e.g. Mechanical Engineering" class="input-style">
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="input-group">
+                    <label>Hometown</label>
+                    <input type="text" name="hometown" required placeholder="City, State" class="input-style">
+                </div>
+                <div class="input-group">
+                    <label>Graduation Year</label>
+                    <input type="number" name="year" required placeholder="2027" class="input-style">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Birthday</label>
+                <input type="date" name="birthday" required class="input-style">
+            </div>
+
+            <div class="input-group">
+                <label>Short Bio</label>
+                <textarea name="bio" rows="3" required placeholder="Tell us a bit about yourself..." class="input-style resize-none"></textarea>
+            </div>
+
+            <button type="submit" id="submitBtn" class="w-full bg-black text-white font-black py-5 rounded-[2rem] shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all mt-4 uppercase tracking-widest text-sm">
+                Finalize My Account
+            </button>
+        </form>
+    </div>
+
+    <script>
+        const ONBOARDING_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby6oqY6ImfBY-HGett9l-EsAMBZ0_ksRlrfQtZxsAcWaD794FgXDjzrpVZWRI9iwuH5/exec';
+        // REPLACE WITH YOUR ACTUAL MAIN APP URL
+        const APP_URL = 'https://purduetours.github.io/TGIS/app.html'; 
+
+        const params = new URLSearchParams(window.location.search);
+        const email = params.get('user');
+
+        document.getElementById('onboardingForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            btn.innerText = "UPDATING DATABASE...";
+            btn.disabled = true;
+
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            data.email = email;
+
+            try {
+                await fetch(ONBOARDING_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // Standard for Google Apps Script POST
+                    body: JSON.stringify(data)
+                });
+                
+                // Redirect to main app after brief delay
+                setTimeout(() => {
+                    window.location.href = `${APP_URL}?user=${email}`;
+                }, 1000);
+                
+            } catch (err) {
+                alert("Error saving profile. Check your connection.");
+                btn.innerText = "FINALIZE MY ACCOUNT";
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
