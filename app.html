@@ -568,18 +568,17 @@
                 <button onclick="changeDeskDate(1)" class="p-2 hover:bg-gray-100 rounded-xl transition-all">▶</button>
             </div>
         </div>
+        <div id="status-bar" class="flex gap-2 overflow-x-auto pb-4 border-b border-gray-100"></div>
     </header>
 
-    <div id="desk-stats-grid" class="mb-8">
-        </div>
+    <div class="mb-10">
+        <h2 class="text-xs font-black text-gray-400 uppercase tracking-[0.3em] mb-4">Daily Visits</h2>
+        <div id="grid-daily" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4"></div>
+    </div>
 
-    <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="p-6 border-b border-gray-50 flex justify-between items-center">
-            <h3 class="font-black uppercase tracking-widest text-xs text-gray-400">Guide Status Tracker</h3>
-            <span id="desk-sync-indicator" class="text-[10px] font-bold text-status-green">● LIVE REFRESH</span>
-        </div>
-        <div id="desk-guide-list" class="divide-y divide-gray-50">
-            </div>
+    <div>
+        <h2 class="text-xs font-black text-gray-400 uppercase tracking-[0.3em] mb-4">Program Days</h2>
+        <div id="grid-program" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4"></div>
     </div>
 </div>
 
@@ -684,6 +683,22 @@
     '1PA': { time: '1:30 PM', name: 'Program Day (Academic)', color: 'bg-purple-600', text: 'text-purple-700', duration: 105},
     '2PA': { time: '2:30 PM', name: 'Program Day (Academic)', color: 'bg-purple-600', text: 'text-purple-700', duration: 105}
     };
+
+    const DAILY_VISITS = [
+    { code: '9DV', name: '9:30 Daily', h: 9, m: 30 },
+    { code: '0DV', name: '10:30 Daily', h: 10, m: 30 },
+    { code: '0GV', name: '10:30 Group', h: 10, m: 30 },
+    { code: '1DV', name: '1:30 Daily', h: 13, m: 30 },
+    { code: '2DV', name: '2:30 Daily', h: 14, m: 30 }
+    ];
+
+    const PROGRAM_DAYS = [
+    { code: '8PA', name: '8:15 Program', h: 8, m: 15 },
+    { code: 'EPF.', name: '11:15 Program', h: 11, m: 15 },
+    { code: '1PA', name: '1:15 Program', h: 13, m: 15 },
+    { code: '1PF', name: '1:30 Program', h: 13, m: 30 },
+    { code: '2PA', name: '2:15 Program', h: 14, m: 15 }
+    ];
     let cachedData = null;
     let calendarViewDate = new Date(); // Tracks displayed month
     let selectedCalendarDate = null;   // Tracks clicked day
@@ -706,49 +721,97 @@ function changeDeskDate(days) {
 }
 
 function renderDeskDashboard() {
-    const container = document.getElementById('desk-guide-list');
-    const dateDisplay = document.getElementById('desk-display-date');
-    const statsContainer = document.getElementById('desk-stats-grid');
-    
-    dateDisplay.innerText = deskDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-    
-    // Filter tours for the selected desk date
-    const dayTours = cachedData.tours.filter(t => {
-        const tDate = new Date(t.date);
-        tDate.setHours(0,0,0,0);
-        return tDate.getTime() === deskDate.getTime();
+    const dailyContainer = document.getElementById('grid-daily');
+    const programContainer = document.getElementById('grid-program');
+    const statusBar = document.getElementById('status-bar');
+    const dateLabel = document.getElementById('desk-display-date');
+    if (!dailyContainer || !programContainer || !statusBar || !cachedData) return;
+
+    dateLabel.innerText = deskDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const now = new Date();
+
+    let dailyHtml = '';
+    let programHtml = '';
+    let statusSummary = '';
+
+    [DAILY_VISITS, PROGRAM_DAYS].forEach((list, idx) => {
+        list.forEach(slot => {
+            const guides = cachedData.tours.filter(t => {
+                const tDate = t.dateObj || (t.date ? (() => { const d = new Date(t.date); d.setHours(0,0,0,0); return d; })() : null);
+                return t.type === slot.code && tDate && tDate.getTime() === deskDate.getTime() && !['N/A','#N/A'].includes(String(t.guide).trim().toUpperCase());
+            });
+            const hasTour = guides.length > 0;
+
+            let sColor = "bg-gray-100 text-gray-400";
+            let sText = "Empty";
+            if (hasTour) {
+                const start = new Date(deskDate); start.setHours(slot.h, slot.m, 0);
+                const end = new Date(start); end.setMinutes(start.getMinutes() + 105);
+                if (deskDate.toDateString() === now.toDateString()) {
+                    if (now >= start && now <= end) { sColor = "bg-purple-600 text-white animate-pulse"; sText = "Live"; }
+                    else if (now < start) { sColor = "bg-green-500 text-white"; sText = "Ready"; }
+                    else { sColor = "bg-gray-400 text-white"; sText = "Done"; }
+                } else { sColor = "bg-green-600 text-white"; sText = "Scheduled"; }
+            }
+            statusSummary += `<div class="${sColor} px-2 py-0.5 rounded text-[9px] font-black uppercase whitespace-nowrap">${slot.code}: ${sText}</div>`;
+
+            const cardHtml = `
+                <div class="bg-white border p-5 rounded-3xl shadow-sm flex flex-col ${!hasTour ? 'opacity-30' : ''}">
+                    <p class="text-[9px] font-black text-primary-gold uppercase tracking-widest">${slot.code}</p>
+                    <h2 class="text-xl font-black mb-3">${slot.name}</h2>
+                    <div class="space-y-1.5 flex-grow">
+                        ${guides.length > 0 ? guides.map(g => {
+                            const parsed = parseGuide(g.guide, g.status);
+                            return `
+                                <div class="p-2 rounded-lg border text-[11px] font-bold flex justify-between items-center ${parsed.cardClass}">
+                                    <span>${parsed.name}</span>
+                                    <span class="text-[7px] px-1.5 py-0.5 rounded-md font-black uppercase ${parsed.badgeClass}">${parsed.statusLabel}</span>
+                                </div>
+                            `;
+                        }).join('') : '<p class="text-[10px] italic text-gray-400">No Guides</p>'}
+                    </div>
+                </div>`;
+
+            if (idx === 0) dailyHtml += cardHtml; else programHtml += cardHtml;
+        });
     });
 
-    if (dayTours.length === 0) {
-        container.innerHTML = `<div class="p-10 text-center text-gray-400 font-bold uppercase text-xs">No tours scheduled for this date</div>`;
-        statsContainer.innerHTML = '';
-        return;
-    }
-
-    // Logic to render the list and stats
-    let html = '';
-    dayTours.forEach(tour => {
-        const isCheckedIn = tour.checkInTime ? 'Checked In' : 'Pending';
-        const statusClass = tour.checkInTime ? 'status-pill-gray' : 'status-pill-red';
-        
-        html += `
-            <div class="guide-row">
-                <div>
-                    <p class="font-black text-sm">${tour.guide}</p>
-                    <p class="text-[10px] font-bold text-gray-400 uppercase">${tour.tourType} @ ${tour.time}</p>
-                </div>
-                <div class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${statusClass}">
-                    ${isCheckedIn}
-                </div>
-            </div>
-        `;
-    });
-    container.innerHTML = html;
+    dailyContainer.innerHTML = dailyHtml;
+    programContainer.innerHTML = programHtml;
+    statusBar.innerHTML = statusSummary;
 }
 
 
 
+function parseGuide(guideStr, status) {
+    let name = String(guideStr);
+    let statusLabel = "SCHEDULED";
+    let cardClass = "bg-gray-50 border-gray-100";
+    let badgeClass = "bg-green-100 text-green-700";
 
+    if (name.includes('*')) {
+        name = name.replace('*', '').trim();
+        statusLabel = "PENDING DROP";
+        cardClass = "status-pill-red border-red-300";
+        badgeClass = "bg-red-600 text-white";
+    } else if (name.includes('`')) {
+        name = name.replace('`', '').trim();
+        statusLabel = "NOT GIVEN";
+        badgeClass = "bg-blue-100 text-blue-700";
+    } else if (name.includes('+')) {
+        name = name.replace('+', '').trim();
+        statusLabel = "PICKED UP";
+        badgeClass = "bg-purple-100 text-purple-700";
+    }
+
+    if (status === 'SENT HOME') {
+        cardClass = "status-pill-gray border-gray-300";
+        statusLabel = "SENT HOME";
+        badgeClass = "bg-gray-500 text-white";
+    }
+
+    return { name, statusLabel, cardClass, badgeClass };
+}
 
 
     
