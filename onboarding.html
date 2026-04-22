@@ -37,8 +37,8 @@
         
         <div id="landing-page" class="hidden max-w-5xl">
             <header class="mb-8">
-                <h1 class="text-3xl font-black">Tour Guide Onboarding</h1>
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Please complete the profile action assigned below:</p>
+                <h1 class="text-3xl font-black">Required Forms</h1>
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Please complete all required forms by the posted deadline</p>
             </header>
 
             <div class="grid grid-cols-1 gap-6">
@@ -46,22 +46,26 @@
                     <div class="flex-1">
                         <div class="flex items-center gap-2 mb-2">
                             <span class="bg-red-100 text-red-600 text-[10px] font-black px-2 py-1 rounded-md uppercase tracking-wider">Required</span>
-                            <span class="text-gray-400 text-[10px] font-black uppercase tracking-widest">Due 4/27 @ 11:59 PM</span>
+                            <span class="text-gray-400 text-[10px] font-black uppercase tracking-widest">Due 3/27 @ 11:59 PM</span>
                         </div>
-                        <h2 id="profile-full-name" class="text-2xl font-black text-gray-800 italic">Loading Profile...</h2>
-                        <p class="text-sm text-gray-500 mt-1 font-medium">Summer/Fall 2026 New Hire - Tour Guide</p>
+                        <h2 id="profile-full-name" class="text-2xl font-black text-gray-800">Loading Profile...</h2>
+                        <p class="text-sm text-gray-500 mt-1 font-medium">Please provide your secure details to activate your staff account. This form is REQUIRED for all new hire tour guides.</p>
                     </div>
                     
                     <button onclick="showForm()" class="w-full md:w-auto bg-primary-gold hover:bg-[#b39a6d] text-white font-black py-4 px-8 rounded-2xl transition-all text-center shadow-lg shadow-primary-gold/30 uppercase text-xs tracking-widest">
                         Open Form
                     </button>
                 </div>
+
+                <div class="bg-gray-100 border-2 border-dashed border-gray-200 p-8 rounded-3xl text-center">
+                    <p class="text-gray-400 font-bold text-sm italic uppercase">No other forms pending at this time.</p>
+                </div>
             </div>
         </div>
 
         <div id="form-page" class="hidden max-w-5xl">
             <header class="mb-8">
-                <h1 id="user-display-name" class="text-3xl font-black">Account Setup</h1>
+                <h1 class="text-3xl font-black">Account Setup</h1>
                 <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Populating Secure Staff Profile</p>
             </header>
 
@@ -82,7 +86,7 @@
                 <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                         <div><label class="label-style">Birthday</label><input type="date" name="birthday" required class="input-box"></div>
-                        <div><label class="input-label label-style">Hometown</label><input type="text" name="hometown" required placeholder="City, State" class="input-box"></div>
+                        <div><label class="label-style">Hometown</label><input type="text" name="hometown" required placeholder="City, State" class="input-box"></div>
                         <div>
                             <label class="label-style">Classification</label>
                             <select name="year" required class="input-box">
@@ -98,9 +102,14 @@
 
                 <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
                     <label class="label-style">Academic College(s)</label>
-                    <select name="college" multiple required class="input-box h-40">
+                    <select name="college" multiple required class="input-box h-40 mb-6">
                         <option>Agriculture</option><option>Education</option><option>Engineering</option><option>Health and Human Sciences</option><option>Liberal Arts</option><option>Management</option><option>Pharmacy</option><option>Polytechnic</option><option>Science</option><option>Veterinary Medicine</option><option>Exploratory Studies</option>
                     </select>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div><label class="label-style">Minor (Optional)</label><input type="text" name="minor" placeholder="Enter Minor" class="input-box"></div>
+                        <div><label class="label-style">Certificate (Optional)</label><input type="text" name="certificate" placeholder="Enter Certificate" class="input-box"></div>
+                    </div>
                 </div>
 
                 <div class="flex justify-end">
@@ -137,7 +146,6 @@
 
                 if(data.displayName) {
                     document.getElementById('profile-full-name').innerText = data.fullName;
-                    document.getElementById('user-display-name').innerText = data.displayName;
                     document.getElementById('display-email').value = username + SCHOOL_DOMAIN;
                     document.getElementById('hidden-email').value = username + SCHOOL_DOMAIN;
                     document.getElementById('status-overlay').classList.add('hidden');
@@ -165,7 +173,7 @@
 
             await fetch(ONBOARDING_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
             btn.innerText = "SUCCESS!";
-            setTimeout(() => { window.location.href = `https://your-app-url.html?user=${username}`; }, 1500);
+            setTimeout(() => { window.location.href = `https://tgis-web.github.io/app.html?user=${username}`; }, 1500);
         });
     </script>
 </body>
