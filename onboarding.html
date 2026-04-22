@@ -4,177 +4,302 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TGIS | Account Activation</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: {
-                        'primary-gold': '#CFB991',
-                    }
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: { 'primary-gold': '#CFB991' }
                 }
             }
         }
     </script>
+
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #F9FAFB; color: #111827; }
-        .input-box { width: 100%; border: 1px solid #E5E7EB; border-radius: 1rem; padding: 0.75rem 1rem; font-weight: 600; font-size: 14px; outline: none; transition: all 0.2s; }
-        .input-box:focus { border-color: #CFB991; box-shadow: 0 0 0 4px rgba(207, 185, 145, 0.1); }
-        .label-style { font-size: 10px; font-weight: 800; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; display: block; margin-left: 0.5rem; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F9FAFB;
+            color: #111827;
+        }
+
+        .input-box {
+            width: 100%;
+            border: 1px solid #E5E7EB;
+            border-radius: 1rem;
+            padding: 0.75rem 1rem;
+            font-weight: 600;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .input-box:focus {
+            border-color: #CFB991;
+            box-shadow: 0 0 0 4px rgba(207, 185, 145, 0.1);
+        }
+
+        .label-style {
+            font-size: 10px;
+            font-weight: 800;
+            color: #9CA3AF;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+            display: block;
+            margin-left: 0.5rem;
+        }
     </style>
 </head>
-<body class="min-h-screen flex">
 
-    <aside class="w-64 border-r border-gray-200 bg-white hidden md:flex flex-col p-6">
-        <h1 class="text-2xl font-black tracking-tighter mb-10">TGIS <span class="text-primary-gold">Web</span></h1>
-        <nav class="space-y-1">
-            <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl text-black font-bold text-sm">🛡️ Activation</div>
-        </nav>
-    </aside>
+<body class="bg-gray-50 font-sans antialiased">
 
-    <main class="flex-grow p-8 md:p-12 overflow-y-auto">
-        
-        <div id="landing-page" class="hidden max-w-5xl">
-            <header class="mb-8">
-                <h1 class="text-3xl font-black">Required Forms</h1>
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Please complete all required forms by the posted deadline</p>
-            </header>
+<main class="flex-grow p-4 sm:p-8 overflow-y-auto">
+<div class="mx-auto max-w-4xl">
 
-            <div class="grid grid-cols-1 gap-6">
-                <div class="bg-white p-6 rounded-3xl shadow-xl border-l-8 border-primary-gold flex flex-col md:flex-row justify-between items-center gap-6">
-                    <div class="flex-1">
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="bg-red-100 text-red-600 text-[10px] font-black px-2 py-1 rounded-md uppercase tracking-wider">Required</span>
-                            <span class="text-gray-400 text-[10px] font-black uppercase tracking-widest">Due 3/27 @ 11:59 PM</span>
-                        </div>
-                        <h2 id="profile-full-name" class="text-2xl font-black text-gray-800">Loading Profile...</h2>
-                        <p class="text-sm text-gray-500 mt-1 font-medium">Please provide your secure details to activate your staff account. This form is REQUIRED for all new hire tour guides.</p>
+    <!-- LANDING PAGE -->
+    <div id="landing-page" class="hidden">
+
+        <header class="mb-8">
+            <h1 class="text-3xl font-black tracking-tight">Required Forms</h1>
+            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">
+                Please complete all required forms by the posted deadline
+            </p>
+        </header>
+
+        <div class="grid grid-cols-1 gap-6">
+
+            <div class="bg-white p-6 rounded-3xl shadow-xl border-l-8 border-primary-gold flex flex-col md:flex-row justify-between items-center gap-6">
+                <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="bg-red-100 text-red-600 text-[10px] font-black px-2 py-1 rounded-md uppercase tracking-wider">Required</span>
+                        <span class="text-gray-400 text-[10px] font-black uppercase tracking-widest">Due Now</span>
                     </div>
-                    
-                    <button onclick="showForm()" class="w-full md:w-auto bg-primary-gold hover:bg-[#b39a6d] text-white font-black py-4 px-8 rounded-2xl transition-all text-center shadow-lg shadow-primary-gold/30 uppercase text-xs tracking-widest">
-                        Open Form
-                    </button>
+
+                    <h2 id="profile-full-name" class="text-2xl font-black text-gray-800">
+                        Loading Profile...
+                    </h2>
+
+                    <p class="text-sm text-gray-500 mt-1 font-medium">
+                        Please provide your secure details to activate your staff account.
+                    </p>
                 </div>
 
-                <div class="bg-gray-100 border-2 border-dashed border-gray-200 p-8 rounded-3xl text-center">
-                    <p class="text-gray-400 font-bold text-sm italic uppercase">No other forms pending at this time.</p>
-                </div>
+                <button onclick="showForm()" class="w-full md:w-auto bg-primary-gold hover:bg-[#b39a6d] text-white font-black py-4 px-8 rounded-2xl transition-all text-center shadow-lg shadow-primary-gold/30 uppercase text-xs tracking-widest">
+                    Open Form
+                </button>
             </div>
+
+            <div class="bg-gray-100 border-2 border-dashed border-gray-200 p-6 rounded-3xl text-center">
+                <p class="text-gray-400 font-bold text-sm italic uppercase">
+                    No other forms pending at this time.
+                </p>
+            </div>
+
         </div>
+    </div>
 
-        <div id="form-page" class="hidden max-w-5xl">
-            <header class="mb-8">
-                <h1 class="text-3xl font-black">Account Setup</h1>
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Populating Secure Staff Profile</p>
-            </header>
 
-            <form id="onboardingForm" class="space-y-6">
-                <input type="hidden" name="email" id="hidden-email">
+    <!-- FORM PAGE -->
+    <div id="form-page" class="hidden">
+
+        <header class="mb-8">
+            <h1 class="text-3xl font-black tracking-tight">Account Setup</h1>
+            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">
+                Populating Secure Staff Profile
+            </p>
+        </header>
+
+        <form id="onboardingForm" class="space-y-6">
+
+            <input type="hidden" name="email" id="hidden-email">
+
+            <!-- ROW 1 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <div class="bg-white p-6 rounded-3xl shadow-xl border border-gray-100">
+                    <label class="label-style">Secure PUID</label>
+                    <input type="password" name="puid" required placeholder="Enter ID" class="input-box">
+                </div>
+
+                <div class="bg-white p-6 rounded-3xl shadow-xl border border-gray-100 bg-gray-50">
+                    <label class="label-style">Assigned Email</label>
+                    <input type="email" id="display-email" class="input-box border-none bg-transparent text-gray-400" readonly>
+                </div>
+
+            </div>
+
+            <!-- PERSONAL INFO -->
+            <div class="bg-white p-6 rounded-3xl shadow-xl border border-gray-100">
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div>
+                        <label class="label-style">Birthday</label>
+                        <input type="date" name="birthday" required class="input-box">
+                    </div>
+
+                    <div>
+                        <label class="label-style">Hometown</label>
+                        <input type="text" name="hometown" required placeholder="City, State" class="input-box">
+                    </div>
+
+                    <div>
+                        <label class="label-style">Classification</label>
+                        <select name="year" required class="input-box">
+                            <option>Freshman</option>
+                            <option>Sophomore</option>
+                            <option>Junior</option>
+                            <option>Senior</option>
+                            <option>5th Year/Grad</option>
+                        </select>
+                    </div>
+                </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-                        <label class="label-style">Secure PUID</label>
-                        <input type="password" name="puid" required placeholder="Enter ID" class="input-box">
+                    <div>
+                        <label class="label-style">Expected Graduation</label>
+                        <select name="gradDate" id="gradDate" required class="input-box"></select>
                     </div>
-                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 bg-gray-50">
-                        <label class="label-style">Assigned Email</label>
-                        <input type="email" id="display-email" class="input-box border-none bg-transparent text-gray-400" readonly>
-                    </div>
-                </div>
 
-                <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                        <div><label class="label-style">Birthday</label><input type="date" name="birthday" required class="input-box"></div>
-                        <div><label class="label-style">Hometown</label><input type="text" name="hometown" required placeholder="City, State" class="input-box"></div>
-                        <div>
-                            <label class="label-style">Classification</label>
-                            <select name="year" required class="input-box">
-                                <option>Freshman</option><option>Sophomore</option><option>Junior</option><option>Senior</option><option>5th Year/Grad</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div><label class="label-style">Expected Graduation</label><select name="gradDate" id="gradDate" required class="input-box"></select></div>
-                        <div><label class="label-style">Major</label><input type="text" name="major" required placeholder="Major" class="input-box"></div>
+                    <div>
+                        <label class="label-style">Major</label>
+                        <input type="text" name="major" required placeholder="Major" class="input-box">
                     </div>
                 </div>
 
-                <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
-                    <label class="label-style">Academic College(s)</label>
-                    <select name="college" multiple required class="input-box h-40 mb-6">
-                        <option>Agriculture</option><option>Education</option><option>Engineering</option><option>Health and Human Sciences</option><option>Liberal Arts</option><option>Management</option><option>Pharmacy</option><option>Polytechnic</option><option>Science</option><option>Veterinary Medicine</option><option>Exploratory Studies</option>
-                    </select>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div><label class="label-style">Minor (Optional)</label><input type="text" name="minor" placeholder="Enter Minor" class="input-box"></div>
-                        <div><label class="label-style">Certificate (Optional)</label><input type="text" name="certificate" placeholder="Enter Certificate" class="input-box"></div>
+            </div>
+
+            <!-- ACADEMICS -->
+            <div class="bg-white p-6 rounded-3xl shadow-xl border border-gray-100">
+
+                <label class="label-style">Academic College(s)</label>
+
+                <select name="college" multiple required class="input-box h-40 mb-6">
+                    <option>Agriculture</option>
+                    <option>Education</option>
+                    <option>Engineering</option>
+                    <option>Health and Human Sciences</option>
+                    <option>Liberal Arts</option>
+                    <option>Management</option>
+                    <option>Pharmacy</option>
+                    <option>Polytechnic</option>
+                    <option>Science</option>
+                    <option>Veterinary Medicine</option>
+                    <option>Exploratory Studies</option>
+                </select>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="label-style">Minor (Optional)</label>
+                        <input type="text" name="minor" placeholder="Enter Minor" class="input-box">
+                    </div>
+
+                    <div>
+                        <label class="label-style">Certificate (Optional)</label>
+                        <input type="text" name="certificate" placeholder="Enter Certificate" class="input-box">
                     </div>
                 </div>
 
-                <div class="flex justify-end">
-                    <button type="submit" id="submitBtn" class="bg-primary-gold hover:bg-[#b39a6d] text-white font-black py-4 px-12 rounded-2xl transition-all shadow-lg shadow-primary-gold/30 uppercase text-xs tracking-widest">
-                        Submit Activation
-                    </button>
-                </div>
-            </form>
-        </div>
+            </div>
 
-        <div id="status-overlay" class="fixed inset-0 bg-white z-50 flex items-center justify-center flex-col">
-            <div class="w-8 h-8 border-4 border-gray-100 border-t-primary-gold rounded-full animate-spin mb-4"></div>
-            <p id="status-message" class="text-[10px] font-black uppercase tracking-widest text-gray-400">Authenticating</p>
-        </div>
-    </main>
+            <!-- SUBMIT -->
+            <div class="flex justify-end">
+                <button type="submit" id="submitBtn" class="bg-primary-gold hover:bg-[#b39a6d] text-white font-black py-4 px-8 rounded-2xl transition-all shadow-lg shadow-primary-gold/30 uppercase text-xs tracking-widest">
+                    Submit Activation
+                </button>
+            </div>
 
-    <script>
-        const ONBOARDING_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzz5RVbtLPG-pp4WY9wvW2-_RGOchvXEiKYMpMC2nW322OW3C2bo9AY3NhuCllndmDh/exec';
-        const SCHOOL_DOMAIN = "@purdue.edu"; 
-        const params = new URLSearchParams(window.location.search);
-        const username = params.get('user');
+        </form>
+    </div>
 
-        window.onload = async () => {
-            if (!username) { document.getElementById('status-message').innerText = "ERROR: NO USER FOUND"; return; }
+</div>
+</main>
 
-            const gradSelect = document.getElementById('gradDate');
-            for(let y=2024; y<=2031; y++) {
-                ['Spring', 'Summer', 'Winter'].forEach(t => { gradSelect.add(new Option(`${t} ${y}`, `${t} ${y}`)); });
-            }
+<!-- LOADING OVERLAY -->
+<div id="status-overlay" class="fixed inset-0 bg-white z-50 flex items-center justify-center flex-col">
+    <div class="w-8 h-8 border-4 border-gray-100 border-t-primary-gold rounded-full animate-spin mb-4"></div>
+    <p id="status-message" class="text-[10px] font-black uppercase tracking-widest text-gray-400">
+        Authenticating
+    </p>
+</div>
 
-            try {
-                const resp = await fetch(`${ONBOARDING_SCRIPT_URL}?action=getName&username=${encodeURIComponent(username)}`);
-                const data = await resp.json();
+<script>
+const ONBOARDING_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzz5RVbtLPG-pp4WY9wvW2-_RGOchvXEiKYMpMC2nW322OW3C2bo9AY3NhuCllndmDh/exec';
+const SCHOOL_DOMAIN = "@purdue.edu"; 
+const params = new URLSearchParams(window.location.search);
+const username = params.get('user');
 
-                if(data.displayName) {
-                    document.getElementById('profile-full-name').innerText = data.fullName;
-                    document.getElementById('display-email').value = username + SCHOOL_DOMAIN;
-                    document.getElementById('hidden-email').value = username + SCHOOL_DOMAIN;
-                    document.getElementById('status-overlay').classList.add('hidden');
-                    document.getElementById('landing-page').classList.remove('hidden');
-                } else {
-                    document.getElementById('status-message').innerText = "USER NOT FOUND";
-                }
-            } catch(e) { console.error(e); }
-        };
+window.onload = async () => {
 
-        function showForm() {
-            document.getElementById('landing-page').classList.add('hidden');
-            document.getElementById('form-page').classList.remove('hidden');
+    if (!username) {
+        document.getElementById('status-message').innerText = "ERROR: NO USER FOUND";
+        return;
+    }
+
+    const gradSelect = document.getElementById('gradDate');
+
+    for(let y=2024; y<=2031; y++) {
+        ['Spring', 'Summer', 'Winter'].forEach(t => {
+            gradSelect.add(new Option(`${t} ${y}`, `${t} ${y}`));
+        });
+    }
+
+    try {
+        const resp = await fetch(`${ONBOARDING_SCRIPT_URL}?action=getName&username=${encodeURIComponent(username)}`);
+        const data = await resp.json();
+
+        if(data.displayName) {
+            document.getElementById('profile-full-name').innerText = data.fullName;
+            document.getElementById('display-email').value = username + SCHOOL_DOMAIN;
+            document.getElementById('hidden-email').value = username + SCHOOL_DOMAIN;
+
+            document.getElementById('status-overlay').classList.add('hidden');
+            document.getElementById('landing-page').classList.remove('hidden');
+        } else {
+            document.getElementById('status-message').innerText = "USER NOT FOUND";
         }
 
-        document.getElementById('onboardingForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('submitBtn');
-            btn.innerText = "SAVING..."; btn.disabled = true;
+    } catch(e) {
+        console.error(e);
+    }
+};
 
-            const formData = new FormData(e.target);
-            const data = Object.fromEntries(formData.entries());
-            data.username = username;
-            data.college = Array.from(e.target.college.selectedOptions).map(o => o.value).join(', ');
+function showForm() {
+    document.getElementById('landing-page').classList.add('hidden');
+    document.getElementById('form-page').classList.remove('hidden');
+}
 
-            await fetch(ONBOARDING_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
-            btn.innerText = "SUCCESS!";
-            setTimeout(() => { window.location.href = `https://tgis-web.github.io/app.html?user=${username}`; }, 1500);
-        });
-    </script>
+document.getElementById('onboardingForm').addEventListener('submit', async (e) => {
+
+    e.preventDefault();
+
+    const btn = document.getElementById('submitBtn');
+    btn.innerText = "SAVING...";
+    btn.disabled = true;
+
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
+
+    data.username = username;
+    data.college = Array.from(e.target.college.selectedOptions).map(o => o.value).join(', ');
+
+    await fetch(ONBOARDING_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        body: JSON.stringify(data)
+    });
+
+    btn.innerText = "SUCCESS!";
+
+    setTimeout(() => {
+        window.location.href = `https://tgis-web.github.io/app.html?user=${username}`;
+    }, 1500);
+
+});
+</script>
+
 </body>
 </html>
