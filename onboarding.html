@@ -3,104 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TGIS Onboarding | Gateway</title>
+    <title>TGIS | Guide Onboarding</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #F3F4F6; color: #111827; }
-        .input-group label { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: #6B7280; margin-bottom: 8px; display: block; margin-left: 4px; }
-        .input-style { width: 100%; background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 1.5rem; padding: 1.25rem; font-weight: 600; transition: all 0.2s; }
-        .input-style:focus { outline: none; border-color: #CFB991; background: white; box-shadow: 0 0 0 4px rgba(207, 185, 145, 0.1); }
-        .glass-card { background: white; border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.05); }
+        body { font-family: 'Inter', sans-serif; background-color: #F9FAFB; color: #111827; height: 100vh; overflow: hidden; display: flex; }
+        .sidebar-link { display: flex; align-items: center; gap: 0.75rem; padding: 0.85rem 1rem; border-radius: 1rem; font-weight: 600; font-size: 0.875rem; color: #6B7280; transition: all 0.2s; cursor: not-allowed; opacity: 0.5; }
+        .input-group label { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #9CA3AF; margin-bottom: 8px; display: block; margin-left: 2px; }
+        .input-style { width: 100%; background: white; border: 1.5px solid #F3F4F6; border-radius: 1rem; padding: 0.85rem 1.25rem; font-weight: 600; transition: all 0.2s; outline: none; }
+        .input-style:focus { border-color: #CFB991; box-shadow: 0 0 0 4px rgba(207, 185, 145, 0.05); }
+        .app-card { background: white; border: 1.5px solid #F3F4F6; border-radius: 2rem; padding: 2rem; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #E5E7EB; border-radius: 10px; }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-6">
+<body>
 
-    <div id="status-overlay" class="fixed inset-0 bg-white z-[100] flex items-center justify-center flex-col">
-        <div class="w-12 h-12 border-4 border-gray-100 border-t-[#CFB991] rounded-full animate-spin mb-4"></div>
-        <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Authenticating</p>
-    </div>
-
-    <div id="landing-page" class="hidden w-full max-w-2xl">
-        <div class="mb-12">
-            <h1 class="text-5xl font-black tracking-tighter uppercase italic leading-none">Available<br><span class="text-[#CFB991] non-italic">Profiles</span></h1>
-            <p class="text-gray-400 font-bold text-sm mt-4 uppercase tracking-[0.2em]">Select your profile to begin activation</p>
+    <aside class="w-64 border-r border-gray-100 flex-shrink-0 flex flex-col p-6 bg-white">
+        <div class="mb-10 px-2">
+            <h1 class="text-2xl font-black tracking-tighter">TGIS <span class="text-primary-gold text-[#CFB991]">Web</span></h1>
+            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Version 2.3 Onboarding</p>
         </div>
 
-        <div class="glass-card rounded-[3rem] p-8 flex items-center justify-between group hover:border-[#CFB991] transition-all duration-300">
-            <div>
-                <h2 id="profile-full-name" class="text-2xl font-black tracking-tight">Full Name</h2>
-                <p class="text-gray-400 font-bold text-xs uppercase tracking-widest mt-1">Summer/Fall 2026 New Hire — Tour Guide</p>
+        <nav class="space-y-1 flex-grow">
+            <div class="sidebar-link bg-gray-50 text-black opacity-100">
+                <span>🛡️</span> Onboarding Mode
             </div>
-            <button onclick="showForm()" class="bg-black text-white px-8 py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-lg shadow-black/10">
-                Activate Account
-            </button>
+            <div class="sidebar-link"><span>🏠</span> Dashboard</div>
+            <div class="sidebar-link"><span>📋</span> Schedule</div>
+            <div class="sidebar-link"><span>👥</span> Staff</div>
+        </nav>
+
+        <div class="mt-auto p-4 bg-gray-50 rounded-2xl border border-gray-100">
+            <p class="text-[9px] font-black uppercase text-gray-400 mb-1">Status</p>
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-2 bg-[#CFB991] rounded-full animate-pulse"></div>
+                <p class="text-xs font-bold text-gray-700">Registration Active</p>
+            </div>
         </div>
-    </div>
+    </aside>
 
-    <div id="form-page" class="hidden w-full max-w-4xl bg-white rounded-[4rem] shadow-2xl p-10 md:p-16 border border-gray-100">
-        <header class="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div>
-                <p class="text-[#CFB991] font-black uppercase tracking-widest text-xs mb-2">Final Step</p>
-                <h1 class="text-6xl font-black tracking-tighter uppercase italic leading-none">Complete<br>Profile</h1>
+    <main class="flex-grow overflow-y-auto p-12">
+        
+        <div id="landing-page" class="hidden max-w-4xl mx-auto mt-10">
+            <div class="mb-10">
+                <h2 class="text-4xl font-extrabold tracking-tight text-gray-900">Available Profiles</h2>
+                <p class="text-gray-500 font-medium mt-2">Identify your account to proceed with guide registration.</p>
             </div>
-            <div class="text-right">
-                <p id="user-display-name" class="font-black text-xl italic uppercase tracking-tighter"></p>
-                <p class="text-gray-400 font-bold text-[10px] uppercase tracking-widest">New Hire Portal</p>
-            </div>
-        </header>
 
-        <form id="onboardingForm" class="space-y-10">
-            <input type="hidden" name="email" id="hidden-email">
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="input-group">
-                    <label>PUID (Secure ID)</label>
-                    <input type="password" name="puid" required placeholder="•••••••••" class="input-style">
+            <div class="app-card flex items-center justify-between group hover:border-[#CFB991] transition-all">
+                <div class="flex items-center gap-6">
+                    <div class="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center text-2xl grayscale group-hover:grayscale-0 transition-all">
+                        👋
+                    </div>
+                    <div>
+                        <h3 id="profile-full-name" class="text-2xl font-bold text-gray-900">Loading profile...</h3>
+                        <p class="text-gray-400 font-bold text-[11px] uppercase tracking-widest mt-1">Tour Guide — Summer/Fall 2026 New Hire</p>
+                    </div>
                 </div>
-                <div class="input-group">
-                    <label>Official Email</label>
-                    <input type="email" id="display-email" class="input-style bg-gray-50 text-gray-400" readonly>
+                <button onclick="showForm()" class="bg-black text-white px-8 py-4 rounded-xl font-bold text-sm hover:scale-105 active:scale-95 transition-all shadow-xl shadow-black/10">
+                    Activate Account
+                </button>
+            </div>
+        </div>
+
+        <div id="form-page" class="hidden max-w-5xl mx-auto">
+            <header class="flex items-center justify-between mb-10 pb-10 border-b border-gray-100">
+                <div>
+                    <h2 class="text-4xl font-extrabold tracking-tight text-gray-900">Guide Onboarding</h2>
+                    <p class="text-gray-500 font-medium mt-1">Complete your professional profile for the TGIS database.</p>
                 </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="input-group"><label>Birthday</label><input type="date" name="birthday" required class="input-style"></div>
-                <div class="input-group"><label>Hometown</label><input type="text" name="hometown" required placeholder="City, State" class="input-style"></div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="input-group">
-                    <label>Expected Graduation</label>
-                    <select name="gradDate" id="gradDate" required class="input-style"></select>
+                <div class="text-right">
+                    <p id="user-display-name" class="font-bold text-lg text-[#CFB991]"></p>
+                    <p class="text-gray-400 font-bold text-[10px] uppercase tracking-widest">Employee Portal</p>
                 </div>
-                <div class="input-group">
-                    <label>Classification</label>
-                    <select name="year" required class="input-style">
-                        <option>Freshman</option><option>Sophomore</option><option>Junior</option><option>Senior</option><option>5th Year/Grad</option>
-                    </select>
+            </header>
+
+            <form id="onboardingForm" class="space-y-8">
+                <input type="hidden" name="email" id="hidden-email">
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="app-card !p-8">
+                        <div class="input-group">
+                            <label>Secure PUID</label>
+                            <input type="password" name="puid" required placeholder="Enter ID number" class="input-style">
+                        </div>
+                    </div>
+                    <div class="app-card !p-8">
+                        <div class="input-group">
+                            <label>Campus Email</label>
+                            <input type="email" id="display-email" class="input-style bg-gray-50 text-gray-400 border-none" readonly>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            <div class="input-group">
-                <label>College (Select all that apply)</label>
-                <select name="college" multiple required class="input-style h-48 py-4">
-                    <option>Agriculture</option><option>Education</option><option>Engineering</option><option>Health and Human Sciences</option><option>Liberal Arts</option><option>Management</option><option>Pharmacy</option><option>Polytechnic</option><option>Science</option><option>Veterinary Medicine</option><option>Exploratory Studies</option><option>Honors College</option>
-                </select>
-            </div>
+                <div class="app-card !p-10">
+                    <p class="text-sm font-black uppercase tracking-widest mb-8 text-gray-400">Guide Background</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div class="input-group"><label>Birthday</label><input type="date" name="birthday" required class="input-style"></div>
+                        <div class="input-group"><label>Hometown</label><input type="text" name="hometown" required placeholder="City, State" class="input-style"></div>
+                        <div class="input-group"><label>Classification</label>
+                            <select name="year" required class="input-style">
+                                <option>Freshman</option><option>Sophomore</option><option>Junior</option><option>Senior</option><option>5th Year/Grad</option>
+                            </select>
+                        </div>
+                    </div>
 
-            <div class="input-group"><label>Primary Major</label><input type="text" name="major" required placeholder="e.g. Aeronautical Engineering" class="input-style"></div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="input-group"><label>Minor (Optional)</label><input type="text" name="minor" placeholder="N/A" class="input-style"></div>
-                <div class="input-group"><label>Certificate (Optional)</label><input type="text" name="certificate" placeholder="N/A" class="input-style"></div>
-            </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+                        <div class="input-group"><label>Expected Graduation</label><select name="gradDate" id="gradDate" required class="input-style"></select></div>
+                        <div class="input-group"><label>Primary Major</label><input type="text" name="major" required placeholder="e.g. Computer Science" class="input-style"></div>
+                    </div>
+                </div>
 
-            <button type="submit" id="submitBtn" class="w-full bg-black text-white font-black py-8 rounded-[2.5rem] shadow-2xl uppercase tracking-[0.3em] text-sm hover:bg-gray-900 transition-all active:scale-[0.98]">
-                Finalize & Launch App
-            </button>
-        </form>
-    </div>
+                <div class="app-card !p-10">
+                    <div class="input-group">
+                        <label>Academic College(s)</label>
+                        <select name="college" multiple required class="input-style h-48 py-4 px-2">
+                            <option>Agriculture</option><option>Education</option><option>Engineering</option><option>Health and Human Sciences</option><option>Liberal Arts</option><option>Management</option><option>Pharmacy</option><option>Polytechnic</option><option>Science</option><option>Veterinary Medicine</option><option>Exploratory Studies</option><option>Honors College</option>
+                        </select>
+                        <p class="text-[10px] text-gray-400 mt-4 font-semibold italic">Hold Command (Mac) or Ctrl (Windows) to select multiple colleges.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="app-card !p-8">
+                        <div class="input-group"><label>Minor (Optional)</label><input type="text" name="minor" class="input-style" placeholder="N/A"></div>
+                    </div>
+                    <div class="app-card !p-8">
+                        <div class="input-group"><label>Certificate (Optional)</label><input type="text" name="certificate" class="input-style" placeholder="N/A"></div>
+                    </div>
+                </div>
+
+                <div class="pb-20">
+                    <button type="submit" id="submitBtn" class="w-full bg-black text-white font-black py-6 rounded-2xl shadow-2xl uppercase tracking-widest text-sm hover:bg-primary-gold hover:text-black transition-all">
+                        Activate Account & Finish
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div id="status-overlay" class="fixed inset-0 bg-white/90 backdrop-blur-md z-[100] flex items-center justify-center flex-col">
+            <div class="w-12 h-12 border-4 border-gray-100 border-t-[#CFB991] rounded-full animate-spin mb-4"></div>
+            <p id="status-message" class="text-[10px] font-black uppercase tracking-widest text-gray-400">Syncing with Staff Database</p>
+        </div>
+    </main>
 
     <script>
         const ONBOARDING_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzz5RVbtLPG-pp4WY9wvW2-_RGOchvXEiKYMpMC2nW322OW3C2bo9AY3NhuCllndmDh/exec';
@@ -109,15 +155,11 @@
         const username = params.get('user');
 
         window.onload = async () => {
-            if (!username) { alert("No user provided in URL"); return; }
+            if (!username) { document.getElementById('status-message').innerText = "Access Denied: Missing URL Parameter"; return; }
 
-            // Populate Grad Dates
             const gradSelect = document.getElementById('gradDate');
             for(let y=2024; y<=2031; y++) {
-                ['Spring', 'Summer', 'Winter'].forEach(t => {
-                    let opt = new Option(`${t} ${y}`, `${t} ${y}`);
-                    gradSelect.add(opt);
-                });
+                ['Spring', 'Summer', 'Winter'].forEach(t => { gradSelect.add(new Option(`${t} ${y}`, `${t} ${y}`)); });
             }
 
             try {
@@ -129,27 +171,23 @@
                     document.getElementById('user-display-name').innerText = data.displayName;
                     document.getElementById('display-email').value = username + SCHOOL_DOMAIN;
                     document.getElementById('hidden-email').value = username + SCHOOL_DOMAIN;
-                    
                     document.getElementById('status-overlay').classList.add('hidden');
                     document.getElementById('landing-page').classList.remove('hidden');
                 } else {
-                    document.getElementById('status-overlay').innerHTML = `<p class='font-black uppercase tracking-widest text-red-500'>Username Not Found</p>`;
+                    document.getElementById('status-message').innerText = "Account Not Found";
                 }
-            } catch(e) {
-                console.error(e);
-            }
+            } catch(e) { console.error(e); }
         };
 
         function showForm() {
             document.getElementById('landing-page').classList.add('hidden');
             document.getElementById('form-page').classList.remove('hidden');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         document.getElementById('onboardingForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('submitBtn');
-            btn.innerText = "PROCESSING..."; btn.disabled = true;
+            btn.innerText = "UPDATING DATABASE..."; btn.disabled = true;
 
             const formData = new FormData(e.target);
             const data = Object.fromEntries(formData.entries());
@@ -157,8 +195,8 @@
             data.college = Array.from(e.target.college.selectedOptions).map(o => o.value).join(', ');
 
             await fetch(ONBOARDING_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
-            btn.innerText = "SUCCESS! OPENING TGIS...";
-            setTimeout(() => { window.location.href = `https://your-main-app-url.html?user=${username}`; }, 2000);
+            btn.innerText = "ACCOUNT ACTIVATED!";
+            setTimeout(() => { window.location.href = `https://your-main-app-url.html?user=${username}`; }, 1500);
         });
     </script>
 </body>
