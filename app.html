@@ -3,1447 +3,174 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TGIS Web 2.3</title>
+    <title>TGIS | Account Activation</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'] },
                     colors: {
                         'primary-gold': '#CFB991',
-                        'text-dark': '#374151',
-                        'status-green': '#10B981',
-                        'tgis-blue': '#1D4ED8',
                     }
                 }
             }
         }
     </script>
     <style>
-        body { 
-    display: flex; 
-    flex-direction: column; 
-    height: 100vh; 
-    overflow: hidden; 
-}
-
-        /* Desk Dashboard Specific Polish */
-#desk-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; }
-.desk-card { background: white; padding: 1.5rem; border-radius: 1.5rem; border: 1px solid #F3F4F6; }
-.status-pill-red { background-color: #FEE2E2; border-color: #EF4444; color: #B91C1C; border-width: 1px; }
-.status-pill-gray { background-color: #F3F4F6; border-color: #D1D5DB; color: #4B5563; opacity: 0.7; border-width: 1px; }
-.guide-row { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem; border-bottom: 1px solid #F9FAFB; }
-
-        /* Schedule Specific Polish */
-.date-stack {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 4.5rem;
-    height: 4.5rem;
-    border-radius: 1.25rem;
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
-    line-height: 1;
-}
-
-.month-label {
-    font-size: 0.65rem;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: #9ca3af;
-    margin-bottom: 2px;
-}
-
-        /* Compact Hero Date Badge */
-.hero-date-badge {
-    background: rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(4px);
-    border-radius: 1rem;
-    padding: 0.75rem 1.25rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.hero-month {
-    font-size: 0.7rem;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    opacity: 0.8;
-}
-
-.hero-day {
-    font-size: 1.75rem;
-    font-weight: 900;
-    line-height: 1;
-}
-
-.day-number {
-    font-size: 1.5rem;
-    font-weight: 900;
-    color: #111827;
-}
-
-.weekday-label {
-    font-size: 0.6rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    color: #6b7280;
-    margin-top: 2px;
-}
-
-/* Glassmorphism Badge for Up Next */
-.up-next-badge {
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    padding: 0.4rem 0.8rem;
-    border-radius: 99px;
-    font-size: 0.65rem;
-    font-weight: 900;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-
-/* Split Layout for Schedule */
-.schedule-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 2rem;
-}
-
-@media (min-width: 1024px) {
-    .schedule-grid {
-        grid-template-columns: 400px 1fr; /* Compact list on left, wide calendar on right */
-    }
-}
-
-.calendar-day {
-    aspect-ratio: 1 / 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    border-radius: 1rem;
-    font-size: 0.75rem;
-    font-weight: 800;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.calendar-day.has-tour {
-    background: #CFB991; /* primary-gold */
-    color: black;
-}
-        
-.content-area { 
-    flex: 1; 
-    overflow-y: auto; 
-    -webkit-overflow-scrolling: touch; 
-    padding-bottom: 2rem;
-    margin-left: 18rem; 
-    transition: margin 0.3s ease; 
-}
-
-        @keyframes pulse-subtle {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.01); }
-}
-.animate-pulse-subtle {
-    animation: pulse-subtle 3s ease-in-out infinite;
-}
-
-        .bottom-nav-dedicated {
-    height: 75px;
-    background: white;
-    border-top: 1px solid #F3F4F6;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    flex-shrink: 0; 
-    padding-bottom: env(safe-area-inset-bottom);
-}
-
-        @media (max-width: 1024px) { 
-            .content-area { margin-left: 0; }
-            #sidebar { transform: translateX(-100%); transition: transform 0.3s ease; }
-            #sidebar.open { transform: translateX(0); display: block !important; }
-        }
-        
-        .nav-button { cursor: pointer; display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem; color: #4B5563; margin-bottom: 0.5rem; transition: 0.2s; }
-        .nav-button:hover { background-color: #F3F4F6; }
-        .nav-button.active { background-color: #CFB991; color: white; box-shadow: 0 4px 6px -1px rgba(207, 185, 145, 0.4); }
-        .view-section { display: none; }
-        .view-section.active { display: block; animation: fadeIn 0.4s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .loader { border-top-color: #CFB991; animation: spinner 0.6s linear infinite; }
-        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .toggle-btn { transition: all 0.3s ease; }
-        .toggle-btn.active { background-color: white; color: #374151; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .badge-active { opacity: 1 !important; filter: grayscale(0) !important; filter: drop-shadow(0 0 8px rgba(207, 185, 145, 0.6)); }
-
-        /* Family Podium Styles */
-        .podium-container { display: flex; align-items: flex-end; justify-content: center; gap: 8px; height: 200px; }
-        .podium-base { width: 70px; display: flex; flex-direction: column; align-items: center; border-radius: 12px 12px 0 0; }
-        .rank-1 { height: 150px; background: #CFB991; border: 2px solid #b39a6d; }
-        .rank-2 { height: 110px; background: #E5E7EB; border: 2px solid #D1D5DB; }
-        .rank-3 { height: 80px; background: #FFEDD5; border: 2px solid #FED7AA; }
-        .rank-4 { height: 50px; background: #f3f4f6; border: 1px dashed #ccc; }
-
-        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes pulse-soft { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-
-        .loader { 
-            border-top-color: #CFB991; 
-            border-left-color: #CFB991; 
-            animation: spinner 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite; 
-        }
-
-        .loading-text {
-            animation: pulse-soft 2s ease-in-out infinite;
-        }
+        body { font-family: 'Inter', sans-serif; background-color: #F9FAFB; color: #111827; }
+        .input-box { width: 100%; border: 1px solid #E5E7EB; border-radius: 1rem; padding: 0.75rem 1rem; font-weight: 600; font-size: 14px; outline: none; transition: all 0.2s; }
+        .input-box:focus { border-color: #CFB991; box-shadow: 0 0 0 4px rgba(207, 185, 145, 0.1); }
+        .label-style { font-size: 10px; font-weight: 800; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; display: block; margin-left: 0.5rem; }
     </style>
-    <meta name="apple-mobile-web-app-capable" content="yes">
-
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
-<meta name="apple-mobile-web-app-title" content="TGIS Mobile">
-
-<link rel="apple-touch-icon" href="tgisicon.png">
-
-<link rel="apple-touch-icon" sizes="152x152" href="tgisicon.png">
-<link rel="apple-touch-icon" sizes="180x180" href="tgisicon.png">
 </head>
-<body class="bg-gray-50 font-sans antialiased text-text-dark">
+<body class="min-h-screen flex">
 
-<div id="loading-overlay" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center transition-opacity duration-500 p-6">
-    <div id="loader-content" class="flex flex-col items-center">
-        <div class="relative flex items-center justify-center mb-6">
-            <div class="loader ease-linear rounded-full border-4 border-gray-100 h-16 w-16"></div>
-            <div class="absolute text-xl">🚂</div>
-        </div>
-        <div class="text-center loading-text">
-            <h2 class="font-black text-xl tracking-tight text-gray-800">TGIS 2.3</h2>
-            <p class="text-[10px] font-bold text-primary-gold uppercase tracking-[0.3em] mt-1">Please wait...</p>
-        </div>
-    </div>
+    <aside class="w-64 border-r border-gray-200 bg-white hidden md:flex flex-col p-6">
+        <h1 class="text-2xl font-black tracking-tighter mb-10">TGIS <span class="text-primary-gold">Web</span></h1>
+        <nav class="space-y-1">
+            <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl text-black font-bold text-sm">🛡️ Activation</div>
+        </nav>
+    </aside>
 
-    <div id="error-content" class="hidden flex flex-col items-center text-center max-w-xs">
-        <div class="text-4xl mb-4">⚠️</div>
-        <h2 class="font-black text-xl text-gray-800 uppercase tracking-tight">Connection Failed</h2>
-        <p class="text-xs font-bold text-gray-400 mt-2 leading-relaxed">We couldn't reach the TGIS server. Check your connection and try again. Please contact Jacob if the issue persists.</p>
+    <main class="flex-grow p-8 md:p-12 overflow-y-auto">
         
-        <div class="mt-6 bg-gray-50 p-3 rounded-xl border border-gray-100 w-full">
-            <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Error Code</p>
-            <p id="error-code-display" class="text-sm font-mono font-bold text-red-500">UNKNOWN_ERR</p>
-        </div>
+        <div id="landing-page" class="hidden max-w-5xl">
+            <header class="mb-8">
+                <h1 class="text-3xl font-black">Required Forms</h1>
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Please complete all required forms by the posted deadline</p>
+            </header>
 
-        <button onclick="window.location.reload()" class="mt-6 bg-primary-black text-white px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest shadow-lg">
-            Retry Connection
-        </button>
-    </div>
-</div>
-
-<nav id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white shadow-2xl border-r border-gray-100 p-6 z-40 hidden lg:block overflow-y-auto">
-    <div class="mb-8 flex justify-between items-start">
-        <div>
-            <p class="text-[10px] font-black text-primary-gold uppercase tracking-[0.2em] mb-1">Purdue University</p>
-            <h1 class="text-xl font-black leading-tight">Tour Guide Information System</h1>
-        </div>
-        <button id="close-menu" class="lg:hidden text-gray-400 text-2xl">&times;</button>
-    </div>
-
-    <div class="mb-8 p-4 bg-gray-50 rounded-2xl border border-gray-100">
-        <div class="flex items-center space-x-3 mb-3">
-            <div id="profile-initial" class="w-12 h-12 rounded-full bg-primary-gold flex items-center justify-center text-white font-black text-lg shadow-inner">?</div>
-            <div>
-                <p id="sidebar-name" class="font-bold leading-tight">Loading...</p>
-                <p id="sidebar-status" class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Syncing...</p>
-            </div>
-        </div>
-        <div class="flex items-center text-[10px] text-status-green font-bold bg-white w-fit px-2 py-1 rounded-md border border-gray-100">
-            <span class="w-1.5 h-1.5 bg-status-green rounded-full mr-1.5 animate-pulse"></span> TGIS ONLINE
-        </div>
-        <div class="mb-8 p-4 bg-gray-50 rounded-2xl border border-gray-100">
-    <!--<div class="flex items-center text-[10px] text-status-green font-bold bg-white w-fit px-2 py-1 rounded-md border border-gray-100 mb-4">
-        <span class="w-1.5 h-1.5 bg-status-green rounded-full mr-1.5 animate-pulse"></span> TGIS ONLINE
-    </div> -->
-
-    <div id="view-switcher-container" class="hidden border-t border-gray-200 pt-4 mt-2">
-        <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">System View</p>
-        <select id="view-selector" onchange="handleViewChange(this.value)" class="w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-primary-gold">
-            <option value="student">Student View</option>
-            <option value="manager">Manager View</option>
-        </select>
-    </div>
-</div>
-    </div>
-
-    <div class="mb-8">
-        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 ml-2">Main Menu</p>
-        <div id="nav-home" class="nav-button active" onclick="switchView('home')">Home</div>
-        <div id="nav-schedule" class="nav-button" onclick="switchView('schedule')">Schedule</div>
-        <div id="nav-tracker" class="nav-button" onclick="switchView('tracker')">Tour Tracker</div>
-        <div id="nav-families" class="nav-button" onclick="switchView('families')">Family Points</div>
-        <div id="nav-desk" class="nav-button" onclick="switchView('desk')">Desk Schedule</div>
-        <div id="nav-forms" class="nav-button" onclick="switchView('forms')">Required Forms</div>
-        <div id="nav-desk-dashboard" class="nav-button hidden" onclick="switchView('desk-dashboard')">Desk Dashboard</div>        
-
-    </div>
-</nav>
-
-<header class="lg:hidden p-4 bg-white shadow-md flex justify-between items-center z-20 sticky top-0">
-    <div class="text-lg font-black">TGIS Mobile</div>
-    <button id="mobile-menu-button" class="text-3xl p-2">☰</button>
-</header>
-
-
-<div class="content-area p-4 sm:p-8">
-    
-
-<div id="view-home" class="view-section active">
-    <header class="mb-8 text-left">
-        <h1 class="text-4xl font-black text-left">Welcome, <span id="welcome-name" class="text-primary-gold text-nowrap">Guide</span></h1>
-        <p id="live-clock" class="text-lg font-bold text-gray-400 uppercase mt-2">Loading...</p>
-    </header>
-
-    <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] ml-2 mb-3 text-left">Next Tour</h3>
-    <div id="home-next-tour-container" class="mb-8 text-left">
-        <div class="bg-gray-50 border-2 border-dashed border-gray-200 rounded-[2rem] p-5 flex items-center justify-center text-center">
-            <p class="text-gray-400 text-[10px] font-black uppercase tracking-widest mt-1">No tours scheduled</p>
-        </div>
-    </div>
-
-    <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] ml-2 mb-3 text-left">Alerts</h3>
-    <div class="space-y-3 mb-8">
-        <!-- <div class="bg-red-600 rounded-2xl p-4 shadow-lg flex items-center gap-4 animate-pulse border-b-4 border-red-800 text-left text-white">
-            <div class="text-3xl">⚠️</div>
-            <div>
-                <h3 class="font-black uppercase tracking-tighter leading-tight text-sm text-left">Introducing Purdue (April 13)</h3>
-                <p class="text-red-100 text-[10px] font-bold uppercase tracking-widest leading-tight text-left">
-                    Expect large crowds. Be prepared to make adjustments to your tour route.
-                </p>
-            </div>
-        </div> -->
-
-        <div class="bg-yellow-400 rounded-2xl p-4 shadow-lg flex items-center gap-4 border-b-4 border-yellow-600 text-black text-left">
-            <div class="text-3xl">🛑</div>
-            <div>
-                <h3 class="font-black uppercase tracking-tighter leading-tight text-sm text-left">DO NOT ENTER FORD</h3>
-                <p class="text-yellow-900 text-[10px] font-bold uppercase tracking-widest leading-tight text-left text-black">
-                    Please do not enter the dining court for any reason unless for extreme weather.
-                </p>
-            </div>
-        </div>
-    </div>
-
-    <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 mb-6 text-left">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest text-left">Latest Announcements</h3>
-            <span class="bg-primary-gold/10 text-primary-gold text-[10px] font-black px-2 py-1 rounded-md uppercase">New</span>
-        </div>
-        <div class="space-y-4">
-            <div class="flex gap-4 items-start">
-                <div class="w-2 h-2 rounded-full bg-primary-gold mt-1.5 shrink-0"></div>
-                <div>
-                    <p class="font-bold text-sm text-left">Tour Tacker</p>
-                    <p class="text-xs text-gray-500 text-left">The tour tracker is updated every Thursday.</p>
-                </div>
-            </div>
-            <hr class="border-gray-50">
-            <div class="flex gap-4 items-start">
-                <div class="w-2 h-2 rounded-full bg-gray-200 mt-1.5 shrink-0"></div>
-                <div>
-                    <p class="font-bold text-sm text-gray-400 text-left font-black">Construction Update</p>
-                    <p class="text-xs text-gray-400 uppercase font-black text-left">Resolved</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 mb-6 text-left">
-        <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-2 text-left">Quick Links</h3>
-        <div class="grid grid-cols-2 gap-4">
-            <div class="p-4 bg-gray-50 rounded-2xl text-center font-bold text-sm text-gray-400">Coming Soon</div>
-            <a href="#" class="p-4 bg-gray-50 rounded-2xl text-center font-bold text-sm hover:bg-gray-100 transition-colors text-black">Handbook</a>
-        </div>
-    </div>
-</div>
-
-    
-
-    <div id="view-tracker" class="view-section">
-        <header class="mb-8">
-            <h1 class="text-3xl font-black">Tour Tracker</h1>
-            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Last Updated: Thursday, April 16</p>
-        </header>
-
-        <div class="bg-white rounded-3xl shadow-xl p-6 border border-gray-100 mb-8">
-            <div class="flex flex-col xl:flex-row items-center gap-8">
-                <div class="flex gap-4 shrink-0">
-                    <div id="badge-50" class="flex flex-col items-center opacity-20 grayscale transition-all duration-1000">
-                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-gold to-yellow-600 flex items-center justify-center text-white text-2xl shadow-lg">🔔</div>
-                        <p class="text-[9px] font-black mt-2 uppercase text-center">Bell Tower Boss</p>
-                    </div>
-                    <div id="badge-100" class="flex flex-col items-center opacity-20 grayscale transition-all duration-1000">
-                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-gold to-yellow-600 flex items-center justify-center text-white text-2xl shadow-lg">💯</div>
-                        <p class="text-[9px] font-black mt-2 uppercase text-center">Century Club</p>
-                    </div>
-                    <div id="badge-200" class="flex flex-col items-center opacity-20 grayscale transition-all duration-1000">
-                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-gold to-yellow-600 flex items-center justify-center text-white text-2xl shadow-lg">✨</div>
-                        <p class="text-[9px] font-black mt-2 uppercase text-center">Golden Guide</p>
-                    </div>
-                </div>
-
-                <div class="flex-1 w-full">
-                    <div class="flex justify-between items-end mb-2">
-                        <div>
-                            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Progress to Next Milestone</p>
-                            <h4 id="next-milestone-name" class="font-bold text-lg">Calculating...</h4>
+            <div class="grid grid-cols-1 gap-6">
+                <div class="bg-white p-6 rounded-3xl shadow-xl border-l-8 border-primary-gold flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="bg-red-100 text-red-600 text-[10px] font-black px-2 py-1 rounded-md uppercase tracking-wider">Required</span>
+                            <span class="text-gray-400 text-[10px] font-black uppercase tracking-widest">Due 3/27 @ 11:59 PM</span>
                         </div>
-                        <p class="text-sm font-black text-primary-gold"><span id="tours-to-go">--</span> TOURS TO GO</p>
+                        <h2 id="profile-full-name" class="text-2xl font-black text-gray-800 italic">Loading Profile...</h2>
+                        <p class="text-sm text-gray-500 mt-1 font-medium">Please provide your secure details to activate your staff account. This form is REQUIRED for all new hire tour guides.</p>
                     </div>
-                    <div class="w-full h-4 bg-gray-100 rounded-full overflow-hidden border border-gray-50">
-                        <div id="milestone-progress-bar" class="h-full bg-primary-gold transition-all duration-[1.5s] ease-out" style="width: 0%"></div>
+                    
+                    <button onclick="showForm()" class="w-full md:w-auto bg-primary-gold hover:bg-[#b39a6d] text-white font-black py-4 px-8 rounded-2xl transition-all text-center shadow-lg shadow-primary-gold/30 uppercase text-xs tracking-widest">
+                        Open Form
+                    </button>
+                </div>
+
+                <div class="bg-gray-100 border-2 border-dashed border-gray-200 p-8 rounded-3xl text-center">
+                    <p class="text-gray-400 font-bold text-sm italic uppercase">No other forms pending at this time.</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="form-page" class="hidden max-w-5xl">
+            <header class="mb-8">
+                <h1 id="user-display-name" class="text-3xl font-black">Account Setup</h1>
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Populating Secure Staff Profile</p>
+            </header>
+
+            <form id="onboardingForm" class="space-y-6">
+                <input type="hidden" name="email" id="hidden-email">
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                        <label class="label-style">Secure PUID</label>
+                        <input type="password" name="puid" required placeholder="Enter ID" class="input-box">
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-            <div class="bg-white p-8 rounded-3xl shadow-xl border border-gray-100 text-center">
-                <p class="text-xs font-bold text-gray-400 uppercase mb-2 tracking-widest">Career Tours</p>
-                <h2 id="career-total" class="text-6xl font-black">--</h2>
-            </div>
-            <div class="bg-white p-8 rounded-3xl shadow-xl border-4 border-status-green/30 text-center">
-                <p id="sem-label" class="text-xs font-bold text-status-green uppercase mb-2 tracking-widest">Current Semester</p>
-                <h2 id="sem-total" class="text-6xl font-black text-status-green">--</h2>
-            </div>
-            <div class="bg-white p-8 rounded-3xl shadow-xl border border-gray-100 text-center">
-                <p class="text-xs font-bold text-gray-400 uppercase mb-2 tracking-widest">Current Rank</p>
-                <h2 id="user-rank" class="text-6xl font-black text-tgis-blue">--</h2>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div class="bg-white rounded-3xl shadow-xl p-6 border border-gray-100">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-                    <h3 class="text-xl font-black flex items-center">Leaderboard</h3>
-                    <div class="bg-gray-100 p-1 rounded-xl flex w-full sm:w-auto">
-                        <button id="toggle-career" onclick="updateLeaderboard('career')" class="toggle-btn active flex-1 px-4 py-1.5 text-[10px] font-black uppercase rounded-lg tracking-widest">All Time</button>
-                        <button id="toggle-semester" onclick="updateLeaderboard('semester')" class="toggle-btn flex-1 px-4 py-1.5 text-[10px] font-black uppercase rounded-lg tracking-widest">Semester</button>
-                    </div>
-                </div>
-                <div id="leaderboard-container" class="space-y-3"></div>
-            </div>
-
-            <div class="bg-white rounded-3xl shadow-xl p-6 border border-gray-100">
-                <h3 class="text-xl font-black mb-6">Semester History</h3>
-                <div id="history-container" class="space-y-4"></div>
-            </div>
-        </div>
-    </div>
-
-    <div id="view-families" class="view-section">
-        <h1 class="text-3xl font-black mb-8">Family Points</h1>
-        <div class="bg-white rounded-3xl shadow-xl p-8 border border-gray-100">
-            <div id="podium-display" class="podium-container mb-10"></div>
-            <div id="family-list-container" class="space-y-4"></div>
-        </div>
-    </div>
-
-    <div id="view-forms" class="view-section">
-    <header class="mb-8">
-        <h1 class="text-3xl font-black">Required Forms</h1>
-        <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Please complete all required forms by the posted deadline</p>
-    </header>
-
-<div class="grid grid-cols-1 gap-6">
-    <div class="bg-white p-6 rounded-3xl shadow-xl border-l-8 border-primary-gold flex flex-col md:flex-row justify-between items-center gap-6">
-        <div class="flex-1">
-            <div class="flex items-center gap-2 mb-2">
-                <span class="bg-red-100 text-red-600 text-[10px] font-black px-2 py-1 rounded-md uppercase tracking-wider">Required</span>
-                <span class="text-gray-400 text-[10px] font-black uppercase tracking-widest">Due 3/27 @ 11:59 PM</span>
-            </div>
-            <h2 class="text-2xl font-black text-gray-800">Summer Interest Survey</h2>
-            <p class="text-sm text-gray-500 mt-1 font-medium">Please indicate your availability for Summer 2026 tours. This form is REQUIRED for all current tour guides.</p>
-        </div>
-        
-        <a href="https://purdue.ca1.qualtrics.com/jfe/form/SV_2n48T0ajlR6OIgm" target="_blank" class="w-full md:w-auto bg-primary-gold hover:bg-[#b39a6d] text-white font-black py-4 px-8 rounded-2xl transition-all text-center shadow-lg shadow-primary-gold/30 uppercase text-xs tracking-widest">
-            Open Form
-        </a>
-    </div>
-
-    <div class="bg-white p-6 rounded-3xl shadow-md border-l-8 border-gray-200 flex flex-col md:flex-row justify-between items-center gap-6">
-        <div class="flex-1">
-            <div class="flex items-center gap-2 mb-2">
-                <span class="bg-gray-100 text-gray-500 text-[10px] font-black px-2 py-1 rounded-md uppercase tracking-wider">Optional</span>
-                <span class="text-gray-400 text-[10px] font-black uppercase tracking-widest">No Due Date</span>
-            </div>
-            <h2 class="text-xl font-bold text-gray-600">Anonymous Feedback Form</h2>
-            <p class="text-sm text-gray-400 mt-1 font-medium">Do you have comments or concerns within the program? Share them here anonymously. .</p>
-        </div>
-        
-        <a href="https://forms.gle/g4nsQmjgb9XDu7ab7" target="_blank" class="w-full md:w-auto border-2 border-gray-200 hover:bg-gray-50 text-gray-500 font-black py-3 px-8 rounded-2xl transition-all text-center uppercase text-xs tracking-widest">
-            Submit Feedback
-        </a>
-    </div>
-    
-    <div class="bg-gray-100 border-2 border-dashed border-gray-200 p-8 rounded-3xl text-center">
-        <p class="text-gray-400 font-bold text-sm italic uppercase">No other forms pending at this time.</p>
-    </div>
-</div>
-</div>
-
-
-   <div id="view-schedule" class="view-section">
-    <header class="mb-8">
-        <h1 class="text-4xl font-black tracking-tighter">Your Schedule</h1>
-        <p class="text-gray-400 font-bold uppercase text-xs tracking-widest mt-2">Click on the calendar to filter by date</p>
-    </header>
-
-    <div class="schedule-grid">
-        <div id="schedule-list-container" class="space-y-4">
-            </div>
-
-        <div class="bg-white rounded-[2.5rem] p-8 border border-gray-100 shadow-sm self-start">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="font-black uppercase tracking-widest text-[10px] text-gray-400">Monthly View</h3>
-                <div class="flex items-center gap-4">
-                    <button onclick="changeMonth(-1)" class="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-full transition-colors text-lg font-black text-primary-gold">←</button>
-                    <span class="text-xs font-black uppercase text-primary-gold min-w-[120px] text-center" id="calendar-month-name">October 2023</span>
-                    <button onclick="changeMonth(1)" class="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-full transition-colors text-lg font-black text-primary-gold">→</button>
-                </div>
-            </div>
-
-
-            
-            
-            <div class="grid grid-cols-7 gap-2 mb-2">
-                <div class="text-center text-[10px] font-black text-gray-300">S</div>
-                <div class="text-center text-[10px] font-black text-gray-300">M</div>
-                <div class="text-center text-[10px] font-black text-gray-300">T</div>
-                <div class="text-center text-[10px] font-black text-gray-300">W</div>
-                <div class="text-center text-[10px] font-black text-gray-300">T</div>
-                <div class="text-center text-[10px] font-black text-gray-300">F</div>
-                <div class="text-center text-[10px] font-black text-gray-300">S</div>
-            </div>
-
-            <div id="calendar-grid" class="grid grid-cols-7 gap-2 text-center">
-                </div>
-            
-            <div class="mt-6 flex items-center gap-4">
-                <div class="flex items-center gap-2">
-                    <div class="w-3 h-3 rounded-full bg-primary-gold"></div>
-                    <span class="text-[10px] font-black uppercase text-gray-400">Tour Scheduled</span>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-
-
-    
-<div id="view-desk-dashboard" class="view-section">
-    <header class="mb-6">
-        <div class="flex justify-between items-center mb-4">
-            <h1 class="text-4xl font-black uppercase tracking-tighter">Desk Operations</h1>
-            <div class="flex items-center gap-3 bg-white p-1 rounded-2xl border shadow-sm">
-                <button onclick="changeDeskDate(-1)" class="p-2 hover:bg-gray-100 rounded-xl transition-all">◀</button>
-                <p id="desk-display-date" class="font-bold text-sm px-4">Loading...</p>
-                <button onclick="changeDeskDate(1)" class="p-2 hover:bg-gray-100 rounded-xl transition-all">▶</button>
-            </div>
-        </div>
-        <div id="status-bar" class="flex gap-2 overflow-x-auto pb-4 border-b border-gray-100"></div>
-    </header>
-
-    <div class="mb-10">
-        <h2 class="text-xs font-black text-gray-400 uppercase tracking-[0.3em] mb-4">Daily Visits</h2>
-        <div id="grid-daily" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4"></div>
-    </div>
-
-    <div>
-        <h2 class="text-xs font-black text-gray-400 uppercase tracking-[0.3em] mb-4">Program Days</h2>
-        <div id="grid-program" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4"></div>
-    </div>
-</div>
-
-    
-
-    <div id="view-desk" class="view-section">
-        <header class="mb-10 text-nowrap">
-            <h1 class="text-3xl font-black">Desk Schedule</h1>
-        </header>
-        <div class="content-area p-4 sm:p-8">
-    <h2 class="text-2xl font-black text-text-dark mb-6">Spring Semester Desk Schedule</h2>
-    
-    <div class="w-full bg-white shadow-2xl rounded-3xl overflow-hidden p-6 sm:p-10 border border-gray-100">
-        
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
-            
-            <div id="current-shift-card" class="md:col-span-2 rounded-2xl p-6 text-center shadow-lg transition-all duration-300">
-                <p class="text-xs font-bold uppercase tracking-widest mb-1" id="current-shift-status-label">Checking Current Status...</p>
-                <h3 id="current-shift-details" class="text-3xl sm:text-4xl font-black leading-tight"></h3>
-            </div>
-            
-            <div class="bg-desk-shift-blue/10 border-2 border-desk-shift-blue/40 rounded-2xl p-6 text-center">
-                <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Total Weekly Shifts</p>
-                <h3 id="total-weekly-shifts" class="text-5xl font-black text-desk-shift-blue">--</h3>
-            </div>
-            
-            <div class="bg-desk-shift-blue/10 border-2 border-desk-shift-blue/40 rounded-2xl p-6 text-center">
-                <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Total Weekly Hours</p>
-                <h3 id="total-weekly-hours" class="text-5xl font-black text-desk-shift-blue">--</h3>
-            </div>
-            
-        </div>
-        
-        <div class="mb-10 p-6 bg-gray-50 rounded-2xl border border-gray-100">
-             <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">Your Weekly Desk Shifts</p>
-            <div id="user-shifts-summary" class="min-h-[40px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                <span class="text-sm text-gray-500 italic sm:col-span-2 lg:col-span-3">No shifts currently loaded.</span>
-            </div>
-        </div>
-        
-        <h3 class="text-xl font-black text-desk-shift-blue mb-4">Master Desk Schedules</h3>
-        
-        <div class="space-y-8">
-            <div id="welcome-desk-schedule">
-                <h4 class="text-lg font-bold text-text-dark border-b pb-2 mb-4">Welcome Desk</h4>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-0 bg-gray-50">Time</th>
-                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monday</th>
-                                <th class="px-3 py-3 text-left text-xs font-xs font-medium text-gray-500 uppercase tracking-wider">Tuesday</th>
-                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Wednesday</th>
-                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thursday</th>
-                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Friday</th>
-                            </tr>
-                        </thead>
-                        <tbody id="welcome-desk-body" class="bg-white divide-y divide-gray-200">
-                            <tr><td colspan="6" class="p-4 text-center text-sm text-gray-400">Loading schedule...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            
-            <div id="front-desk-schedule">
-                <h4 class="text-lg font-bold text-text-dark border-b pb-2 mb-4">Front Desk</h4>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-0 bg-gray-50">Time</th>
-                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monday</th>
-                                <th class="px-3 py-3 text-left text-xs font-xs font-medium text-gray-500 uppercase tracking-wider">Tuesday</th>
-                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Wednesday</th>
-                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thursday</th>
-                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Friday</th>
-                            </tr>
-                        </thead>
-                        <tbody id="front-desk-body" class="bg-white divide-y divide-gray-200">
-                            <tr><td colspan="6" class="p-4 text-center text-sm text-gray-400">Loading schedule...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div> 
-</div>
-    </div>
-</div>
-
-<script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbyqIgk-V7XABUMluhLwjGudlHwkgldwRaBlAN6dFdbI1gNL-_cvN5PNTek2cfqNtc3j/exec';
-    const userName = new URLSearchParams(window.location.search).get('user');
-    const TOUR_MAP = {
-    '9DV': { time: '9:30 AM', name: 'Daily Visit', color: 'bg-status-green', text: 'text-green-700', duration: 105},
-    '0DV': { time: '10:30 AM', name: 'Daily Visit', color: 'bg-status-green', text: 'text-green-700', duration: 105},
-    '1DV': { time: '1:30 PM', name: 'Daily Visit', color: 'bg-status-green', text: 'text-green-700', duration: 105},
-    '2DV': { time: '2:30 PM', name: 'Daily Visit', color: 'bg-status-green', text: 'text-green-700', duration: 105},
-    '0GV': { time: '10:30 AM', name: 'Group Visit', color: 'bg-blue-500', text: 'text-blue-700', duration: 105},
-    '8PA': { time: '8:15 AM', name: 'Program Day (Academic)', color: 'bg-purple-600', text: 'text-purple-700', duration: 105},
-    '1PF': { time: '11:00 AM', name: 'Program Day (Full)', color: 'bg-purple-600', text: 'text-purple-700', duration: 105},
-    '1PA': { time: '1:30 PM', name: 'Program Day (Academic)', color: 'bg-purple-600', text: 'text-purple-700', duration: 105},
-    '2PA': { time: '2:30 PM', name: 'Program Day (Academic)', color: 'bg-purple-600', text: 'text-purple-700', duration: 105}
-    };
-
-    const DAILY_VISITS = [
-    { code: '9DV', name: '9:30 Daily', h: 9, m: 30 },
-    { code: '0DV', name: '10:30 Daily', h: 10, m: 30 },
-    { code: '0GV', name: '10:30 Group', h: 10, m: 30 },
-    { code: '1DV', name: '1:30 Daily', h: 13, m: 30 },
-    { code: '2DV', name: '2:30 Daily', h: 14, m: 30 }
-    ];
-
-    const PROGRAM_DAYS = [
-    { code: '8PA', name: '8:15 Program', h: 8, m: 15 },
-    { code: 'EPF.', name: '11:15 Program', h: 11, m: 15 },
-    { code: '1PA', name: '1:15 Program', h: 13, m: 15 },
-    { code: '1PF', name: '1:30 Program', h: 13, m: 30 },
-    { code: '2PA', name: '2:15 Program', h: 14, m: 15 }
-    ];
-    let cachedData = null;
-    let calendarViewDate = new Date(); // Tracks displayed month
-    let selectedCalendarDate = null;   // Tracks clicked day
-
-    // Static Family Data
-    const familyData = [
-        { name: "Marley", points: 0 },
-        { name: "Jacob", points: 0 },
-        { name: "Samantha", points: 0 },
-        { name: "Kristina", points: 0 }
-    ];
-
-
-let deskDate = new Date();
-deskDate.setHours(0,0,0,0);
-
-function changeDeskDate(days) {
-    deskDate.setDate(deskDate.getDate() + days);
-    renderDeskDashboard();
-}
-
-function renderDeskDashboard() {
-    const dailyContainer = document.getElementById('grid-daily');
-    const programContainer = document.getElementById('grid-program');
-    const statusBar = document.getElementById('status-bar');
-    const dateLabel = document.getElementById('desk-display-date');
-    if (!dailyContainer || !programContainer || !statusBar || !cachedData) return;
-
-    dateLabel.innerText = deskDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    const now = new Date();
-
-    let dailyHtml = '';
-    let programHtml = '';
-    let statusSummary = '';
-
-    [DAILY_VISITS, PROGRAM_DAYS].forEach((list, idx) => {
-        list.forEach(slot => {
-            const guides = cachedData.tours.filter(t => {
-                const tDate = t.dateObj || (t.date ? (() => { const d = new Date(t.date); d.setHours(0,0,0,0); return d; })() : null);
-                return t.type === slot.code && tDate && tDate.getTime() === deskDate.getTime() && !['N/A','#N/A'].includes(String(t.guide).trim().toUpperCase());
-            });
-            const hasTour = guides.length > 0;
-
-            let sColor = "bg-gray-100 text-gray-400";
-            let sText = "Empty";
-            if (hasTour) {
-                const start = new Date(deskDate); start.setHours(slot.h, slot.m, 0);
-                const end = new Date(start); end.setMinutes(start.getMinutes() + 105);
-                if (deskDate.toDateString() === now.toDateString()) {
-                    if (now >= start && now <= end) { sColor = "bg-purple-600 text-white animate-pulse"; sText = "Live"; }
-                    else if (now < start) { sColor = "bg-green-500 text-white"; sText = "Ready"; }
-                    else { sColor = "bg-gray-400 text-white"; sText = "Done"; }
-                } else { sColor = "bg-green-600 text-white"; sText = "Scheduled"; }
-            }
-            statusSummary += `<div class="${sColor} px-2 py-0.5 rounded text-[9px] font-black uppercase whitespace-nowrap">${slot.code}: ${sText}</div>`;
-
-            const cardHtml = `
-                <div class="bg-white border p-5 rounded-3xl shadow-sm flex flex-col ${!hasTour ? 'opacity-30' : ''}">
-                    <p class="text-[9px] font-black text-primary-gold uppercase tracking-widest">${slot.code}</p>
-                    <h2 class="text-xl font-black mb-3">${slot.name}</h2>
-                    <div class="space-y-1.5 flex-grow">
-                        ${guides.length > 0 ? guides.map(g => {
-                            const parsed = parseGuide(g.guide, g.status);
-                            return `
-                                <div class="p-2 rounded-lg border text-[11px] font-bold flex justify-between items-center ${parsed.cardClass}">
-                                    <span>${parsed.name}</span>
-                                    <span class="text-[7px] px-1.5 py-0.5 rounded-md font-black uppercase ${parsed.badgeClass}">${parsed.statusLabel}</span>
-                                </div>
-                            `;
-                        }).join('') : '<p class="text-[10px] italic text-gray-400">No Guides</p>'}
-                    </div>
-                </div>`;
-
-            if (idx === 0) dailyHtml += cardHtml; else programHtml += cardHtml;
-        });
-    });
-
-    dailyContainer.innerHTML = dailyHtml;
-    programContainer.innerHTML = programHtml;
-    statusBar.innerHTML = statusSummary;
-}
-
-
-
-function parseGuide(guideStr, status) {
-    let name = String(guideStr);
-    let statusLabel = "SCHEDULED";
-    let cardClass = "bg-gray-50 border-gray-100";
-    let badgeClass = "bg-green-100 text-green-700";
-
-    if (name.includes('*')) {
-        name = name.replace('*', '').trim();
-        statusLabel = "PENDING DROP";
-        cardClass = "status-pill-red border-red-300";
-        badgeClass = "bg-red-600 text-white";
-    } else if (name.includes('`')) {
-        name = name.replace('`', '').trim();
-        statusLabel = "NOT GIVEN";
-        badgeClass = "bg-blue-100 text-blue-700";
-    } else if (name.includes('+')) {
-        name = name.replace('+', '').trim();
-        statusLabel = "PICKED UP";
-        badgeClass = "bg-purple-100 text-purple-700";
-    }
-
-    if (status === 'SENT HOME') {
-        cardClass = "status-pill-gray border-gray-300";
-        statusLabel = "SENT HOME";
-        badgeClass = "bg-gray-500 text-white";
-    }
-
-    return { name, statusLabel, cardClass, badgeClass };
-}
-
-
-    
-function renderWelcomeCenter(allTours) {
-    const grid = document.getElementById('welcome-grid');
-    const dateDisplay = document.getElementById('welcome-date-display');
-    if (!grid) return;
-
-    const now = new Date();
-    const todayStr = now.toDateString();
-    dateDisplay.innerText = now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }).toUpperCase();
-
-    grid.innerHTML = '';
-
-    // Loop through every possible tour in your map
-    Object.keys(TOUR_MAP).forEach(typeCode => {
-        const info = TOUR_MAP[typeCode];
-        
-        // Find everyone assigned to THIS tour type TODAY
-        const assignedGuides = allTours.filter(t => 
-            t.type === typeCode && 
-            new Date(t.date).toDateString() === todayStr
-        );
-
-        // Determine Status
-        let statusColor = "bg-gray-100 border-gray-200 text-gray-400 opacity-50"; // DEFAULT: Red (Not Scheduled)
-        let statusLabel = "Not Scheduled";
-        let dotColor = "bg-red-500";
-
-        if (assignedGuides.length > 0) {
-            // It is scheduled!
-            statusColor = "bg-white border-status-green text-gray-900 shadow-xl ring-2 ring-status-green/20";
-            statusLabel = "Scheduled";
-            dotColor = "bg-status-green";
-
-            // Check if it's CURRENTLY on tour
-            const start = parse12Hour(info.time);
-            const startTime = new Date();
-            startTime.setHours(start.hours, start.minutes, 0);
-            const endTime = new Date(startTime.getTime() + info.duration * 60000);
-
-            if (now >= startTime && now <= endTime) {
-                statusColor = "bg-purple-600 border-purple-800 text-white shadow-2xl scale-105 z-10";
-                statusLabel = "ON TOUR";
-                dotColor = "bg-white animate-ping";
-            }
-        }
-
-        const guideList = assignedGuides.length > 0 
-            ? assignedGuides.map(g => `<div class="font-bold text-sm">👤 ${g.guide}</div>`).join('')
-            : '<div class="text-xs italic opacity-50 text-red-500 font-bold">No Guides Assigned</div>';
-
-        grid.innerHTML += `
-            <div class="rounded-[2.5rem] border-2 p-8 transition-all duration-500 ${statusColor}">
-                <div class="flex justify-between items-start mb-6">
-                    <div>
-                        <p class="text-[10px] font-black uppercase tracking-[0.2em] opacity-60 mb-1">${info.name}</p>
-                        <h2 class="text-4xl font-black tracking-tighter">${info.time}</h2>
-                    </div>
-                    <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-black/10 text-[10px] font-black uppercase">
-                        <span class="w-2 h-2 rounded-full ${dotColor}"></span>
-                        ${statusLabel}
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 bg-gray-50">
+                        <label class="label-style">Assigned Email</label>
+                        <input type="email" id="display-email" class="input-box border-none bg-transparent text-gray-400" readonly>
                     </div>
                 </div>
 
-                <div class="space-y-2 mt-6 pt-6 border-t border-current/10">
-                    <p class="text-[10px] font-black uppercase tracking-widest opacity-60 mb-2">Assigned Personnel</p>
-                    ${guideList}
-                </div>
-            </div>
-        `;
-    });
-}
-function switchView(viewId) {
-    // 1. Hide all sections, show the active one
-    document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
-    document.getElementById(`view-${viewId}`).classList.add('active');
-
-    // 2. Update the Desktop Sidebar active state
-    document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
-    const activeNav = document.getElementById(`nav-${viewId}`);
-    if(activeNav) activeNav.classList.add('active');
-
-    // 3. IMPORTANT: Reset scroll position of the content area
-    document.querySelector('.content-area').scrollTop = 0;
-}
-
-    // Helper to convert "1:30 PM" to 24-hour integers
-function parse12Hour(timeStr) {
-    const [time, modifier] = timeStr.split(' ');
-    let [hours, minutes] = time.split(':');
-    hours = parseInt(hours);
-    if (modifier === 'PM' && hours < 12) hours += 12;
-    if (modifier === 'AM' && hours === 12) hours = 0;
-    return { hours, minutes: parseInt(minutes) };
-}
-
-function checkTourLock(myTours) {
-    const lockScreen = document.getElementById('tour-lock-screen');
-    if (!lockScreen || !myTours) return;
-
-    const now = new Date();
-
-    const activeTour = myTours.find(tour => {
-        const info = TOUR_MAP[tour.type];
-        if (!info) return false;
-
-        const startParsed = parse12Hour(info.time);
-        const startTime = new Date(tour.date);
-        startTime.setHours(startParsed.hours, startParsed.minutes, 0);
-
-        // Calculate end by adding duration minutes
-        const endTime = new Date(startTime.getTime() + info.duration * 60000);
-
-        return now >= startTime && now <= endTime;
-    });
-
-    if (activeTour) {
-        const info = TOUR_MAP[activeTour.type];
-        const startParsed = parse12Hour(info.time);
-        
-        // Create end time for display
-        const displayEnd = new Date();
-        displayEnd.setHours(startParsed.hours, startParsed.minutes);
-        const finalEnd = new Date(displayEnd.getTime() + info.duration * 60000);
-
-        document.getElementById('lock-tour-name').innerText = info.name;
-        document.getElementById('lock-tour-end').innerText = finalEnd.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-        lockScreen.classList.remove('hidden');
-    } else {
-        lockScreen.classList.add('hidden');
-    }
-}
-
-function renderHomeNextTour(myTours) {
-    const container = document.getElementById('home-next-tour-container');
-    if (!container || !myTours || myTours.length === 0) return;
-
-    const now = new Date();
-    now.setHours(0,0,0,0);
-
-    // Find the next upcoming tour
-    const upcoming = myTours
-        .filter(t => new Date(t.date) >= now)
-        .sort((a,b) => new Date(a.date) - new Date(b.date));
-
-    if (upcoming.length > 0) {
-        const tour = upcoming[0];
-        
-        // --- DATA CHECK ---
-        // If tour.time is undefined, we look at the TOUR_MAP as a fallback
-        const info = TOUR_MAP[tour.type] || { color: 'bg-gray-500', name: tour.type, time: '--:--' };
-        const displayTime = tour.time || info.time; 
-        
-        const tourDate = new Date(tour.date);
-        
-        // Date Components
-        const month = tourDate.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
-        const dayNum = tourDate.getDate();
-        const dayName = tourDate.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
-
-        container.innerHTML = `
-            <div class="${info.color} rounded-[2rem] p-4 shadow-lg border-b-4 border-black/20 text-white flex items-center gap-5">
-                
-                <div class="bg-white/20 backdrop-blur-md rounded-2xl w-16 h-16 flex flex-col items-center justify-center shrink-0 border border-white/10">
-                    <span class="text-[9px] font-black tracking-widest opacity-80 mb-0.5">${month}</span>
-                    <span class="text-xl font-black leading-none">${dayNum}</span>
-                    <span class="text-[9px] font-black tracking-widest opacity-80 mt-1">${dayName}</span>
-                </div>
-
-                <div class="flex flex-col justify-center">
-                    <div class="flex items-center gap-2 mb-1">
-                        <span class="bg-black/20 text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-[0.15em]">
-                            ${info.name}
-                        </span>
+                <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <div><label class="label-style">Birthday</label><input type="date" name="birthday" required class="input-box"></div>
+                        <div><label class="input-label label-style">Hometown</label><input type="text" name="hometown" required placeholder="City, State" class="input-box"></div>
+                        <div>
+                            <label class="label-style">Classification</label>
+                            <select name="year" required class="input-box">
+                                <option>Freshman</option><option>Sophomore</option><option>Junior</option><option>Senior</option><option>5th Year/Grad</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <span class="text-2xl font-black tracking-tighter uppercase italic italic">
-                            ${displayTime}
-                        </span>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div><label class="label-style">Expected Graduation</label><select name="gradDate" id="gradDate" required class="input-box"></select></div>
+                        <div><label class="label-style">Major</label><input type="text" name="major" required placeholder="Major" class="input-box"></div>
                     </div>
                 </div>
 
-            </div>`;
-    } else {
-        container.innerHTML = `
-            <div class="bg-gray-50 border-2 border-dashed border-gray-200 rounded-[2rem] p-5 flex items-center justify-center text-center">
-                <p class="text-gray-400 text-[10px] font-black uppercase tracking-widest mt-1">No tours scheduled</p>
-            </div>`;
-    }
-}
-    function updateClock() {
-        const now = new Date();
-        document.getElementById('live-clock').innerText = now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-    }
-    setInterval(updateClock, 1000);
-
-    function renderFamilyUI() {
-        const sorted = [...familyData].sort((a, b) => b.points - a.points);
-        const pOrder = [sorted[1], sorted[0], sorted[2]];
-        document.getElementById('podium-display').innerHTML = pOrder.map((f, i) => `
-            <div class="podium-base rank-${[2, 1, 3][i]}">
-                <span class="text-xs font-black mb-1">${f.points}</span>
-                <span class="font-bold text-[10px] uppercase">${f.name}</span>
-            </div>
-        `).join('');
-        document.getElementById('family-list-container').innerHTML = sorted.map((f, i) => `
-            <div class="flex justify-between p-4 bg-gray-50 rounded-2xl font-bold">
-                <span>#${i+1} ${f.name} Family</span>
-                <span class="text-primary-gold">${f.points} PTS</span>
-            </div>
-        `).join('');
-    }
-
-    // Sidebar Controls
-    document.getElementById('mobile-menu-button').onclick = () => document.getElementById('sidebar').classList.add('open');
-    document.getElementById('close-menu').onclick = () => document.getElementById('sidebar').classList.remove('open');
-
-    // Milestones Logic (Original)
-    function handleMilestones(total) {
-        const careerTotal = total || 0;
-        if (careerTotal >= 50)  document.getElementById('badge-50').classList.add('badge-active');
-        if (careerTotal >= 100) document.getElementById('badge-100').classList.add('badge-active');
-        if (careerTotal >= 200) document.getElementById('badge-200').classList.add('badge-active');
-        let nextGoal = 50;
-        let goalName = "Bell Tower Boss";
-        if (careerTotal >= 200) { nextGoal = careerTotal; goalName = "Maximum Rank!"; }
-        else if (careerTotal >= 100) { nextGoal = 200; goalName = "Golden Guide"; }
-        else if (careerTotal >= 50) { nextGoal = 100; goalName = "Century Club"; }
-        document.getElementById('next-milestone-name').innerText = goalName;
-        document.getElementById('tours-to-go').innerText = Math.max(0, nextGoal - careerTotal);
-        document.getElementById('milestone-progress-bar').style.width = (careerTotal >= 200 ? 100 : (careerTotal / nextGoal) * 100) + "%";
-    }
-
-    // Leaderboard Logic (Original)
-    function updateLeaderboard(mode) {
-        if (!cachedData || !cachedData.fullList) return;
-        document.getElementById('toggle-career').classList.toggle('active', mode === 'career');
-        document.getElementById('toggle-semester').classList.toggle('active', mode === 'semester');
-        const sortedData = [...cachedData.fullList].sort((a, b) => mode === 'career' ? b.careerTotal - a.careerTotal : b.semesterTotal - a.semesterTotal).slice(0, 10);
-        document.getElementById('leaderboard-container').innerHTML = sortedData.map((entry, i) => `
-            <div class="flex items-center justify-between p-4 rounded-2xl ${entry.displayName.toLowerCase() === cachedData.profile.displayName.toLowerCase() ? 'bg-primary-gold/20 ring-2 ring-primary-gold' : 'bg-gray-50'}">
-                <div class="flex items-center space-x-4">
-                    <span class="font-black text-gray-300 w-6">#${i+1}</span>
-                    <span class="font-bold">${entry.displayName}</span>
+                <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+                    <label class="label-style">Academic College(s)</label>
+                    <select name="college" multiple required class="input-box h-40">
+                        <option>Agriculture</option><option>Education</option><option>Engineering</option><option>Health and Human Sciences</option><option>Liberal Arts</option><option>Management</option><option>Pharmacy</option><option>Polytechnic</option><option>Science</option><option>Veterinary Medicine</option><option>Exploratory Studies</option>
+                    </select>
                 </div>
-                <span class="font-black text-primary-gold">${mode === 'career' ? entry.careerTotal : entry.semesterTotal}</span>
-            </div>
-        `).join('');
-    }
 
-   function changeMonth(offset) {
-    calendarViewDate.setMonth(calendarViewDate.getMonth() + offset);
-    const myTours = window.currentMyTours || []; 
-    updateScheduleView(myTours);
-}
-
-function selectDate(dateString, myTours) {
-    // Toggle filter: if clicking the same date, clear it. Otherwise, set it.
-    selectedCalendarDate = (selectedCalendarDate === dateString) ? null : dateString;
-    updateScheduleView(myTours);
-}
-
-function updateScheduleView(myTours, displayName) {
-    window.currentMyTours = myTours; // Store for the nav buttons
-    const listContainer = document.getElementById('schedule-list-container');
-    const calendarGrid = document.getElementById('calendar-grid');
-    const monthLabel = document.getElementById('calendar-month-name');
-    if (!listContainer || !calendarGrid) return;
-
-    // 1. Update Month Label
-    const monthName = calendarViewDate.toLocaleString('default', { month: 'long' });
-    if (monthLabel) monthLabel.innerText = `${monthName} ${calendarViewDate.getFullYear()}`;
-
-    // 2. Filter the List
-    let filteredTours = [...myTours];
-    const today = new Date();
-    today.setHours(0, 0, 0, 0); // Reset time to midnight for accurate day comparison
-
-    if (selectedCalendarDate) {
-        // If a specific day is clicked, show tours for THAT day (even if past)
-        filteredTours = myTours.filter(t => new Date(t.date).toDateString() === selectedCalendarDate);
-    } else {
-        // DEFAULT VIEW: Only show tours where the date is TODAY or in the FUTURE
-        filteredTours = myTours.filter(t => {
-            const tourDate = new Date(t.date);
-            tourDate.setHours(0, 0, 0, 0);
-            return tourDate >= today;
-        });
-    }
-    
-    // Sort chronologically
-    filteredTours.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-    // 3. Render the List Side
-    listContainer.innerHTML = selectedCalendarDate 
-        ? `<div class="mb-4 flex items-center justify-between">
-            <p class="text-[10px] font-black uppercase text-primary-gold">Viewing: ${new Date(selectedCalendarDate).toLocaleDateString()}</p>
-            <button onclick="selectDate(null, window.currentMyTours)" class="text-[10px] font-black uppercase text-gray-400 underline">Show All Upcoming</button>
-           </div>`
-        : `<div class="mb-4">
-            <p class="text-[10px] font-black uppercase text-gray-400 tracking-[0.2em]">Upcoming Assignments</p>
-           </div>`;
-
-    if (filteredTours.length === 0) {
-        listContainer.innerHTML += `<p class="text-gray-400 text-[10px] font-black uppercase py-20 text-center tracking-widest">No upcoming tours</p>`;
-    }
-
-    filteredTours.forEach(tour => {
-        const info = TOUR_MAP[tour.type] || { color: 'bg-gray-500', name: tour.type };
-        const d = new Date(tour.date);
-        listContainer.innerHTML += `
-            <div class="bg-white p-4 rounded-3xl border border-gray-100 shadow-sm flex items-center justify-between hover:border-primary-gold transition-colors mb-3">
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 ${info.color} rounded-2xl flex flex-col items-center justify-center text-white shrink-0 shadow-sm">
-                        <span class="text-[9px] font-black leading-none opacity-80">${d.toLocaleDateString('en-US', {month:'short'}).toUpperCase()}</span>
-                        <span class="text-lg font-black leading-none">${d.getDate()}</span>
-                    </div>
-                    <div>
-                        <h4 class="font-black text-sm uppercase tracking-tighter">${tour.time || info.time}</h4>
-                        <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">${info.name}</p>
-                    </div>
+                <div class="flex justify-end">
+                    <button type="submit" id="submitBtn" class="bg-primary-gold hover:bg-[#b39a6d] text-white font-black py-4 px-12 rounded-2xl transition-all shadow-lg shadow-primary-gold/30 uppercase text-xs tracking-widest">
+                        Submit Activation
+                    </button>
                 </div>
-            </div>
-        `;
-    });
-
-    // 4. Render Calendar Grid (Always shows all tours for the month)
-    const year = calendarViewDate.getFullYear();
-    const month = calendarViewDate.getMonth();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const firstDay = new Date(year, month, 1).getDay();
-
-    calendarGrid.innerHTML = '';
-    for (let i = 0; i < firstDay; i++) calendarGrid.innerHTML += `<div></div>`;
-
-    for (let day = 1; day <= daysInMonth; day++) {
-        const dateObj = new Date(year, month, day);
-        const dateString = dateObj.toDateString();
-        const hasTour = myTours.some(t => new Date(t.date).toDateString() === dateString);
-        const isSelected = selectedCalendarDate === dateString;
-
-        let styleClass = "text-gray-400 bg-gray-50/50 hover:bg-gray-100";
-        if (hasTour) styleClass = "bg-primary-gold text-black font-black shadow-md scale-105 border-2 border-white";
-        if (isSelected) styleClass = "bg-black text-white ring-4 ring-primary-gold/30 scale-110 z-10";
-
-        calendarGrid.innerHTML += `
-            <div onclick="selectDate('${dateString}', window.currentMyTours)" 
-                 class="calendar-day cursor-pointer ${styleClass} transition-all active:scale-95">
-                ${day}
-            </div>
-        `;
-    }
-}
-
-
-function updateNavigation(profile) {
-    const nav = document.getElementById('bottom-nav');
-    const isGuide = profile.rank === 'Tour Guide';
-    
-    // We add a check: hidden on mobile (hidden lg:flex handles the desktop part)
-    // and hidden if they are just a Tour Guide
-    nav.innerHTML = `
-        <button onclick="showView('home')" class="flex flex-col items-center">
-            <span class="text-xl">🏠</span>
-            <span class="text-[9px] font-black uppercase tracking-tighter">Home</span>
-        </button>
-        <button onclick="showView('schedule')" class="flex flex-col items-center">
-            <span class="text-xl">📅</span>
-            <span class="text-[9px] font-black uppercase tracking-tighter">Schedule</span>
-        </button>
-        ${!isGuide ? `
-        <button onclick="showView('welcome-center')" class="hidden lg:flex flex-col items-center">
-            <span class="text-xl">🖥️</span>
-            <span class="text-[9px] font-black uppercase tracking-tighter">Welcome</span>
-        </button>
-        ` : ''}
-        <button onclick="showView('profile')" class="flex flex-col items-center">
-            <span class="text-xl">👤</span>
-            <span class="text-[9px] font-black uppercase tracking-tighter">Profile</span>
-        </button>
-    `;
-}
-
-
-    
-
-    function handleViewChange(viewType) {
-    const isManagerView = (viewType === 'manager');
-    
-    // 1. Define which buttons belong to which view
-    const managerButtons = ['nav-desk-dashboard'];
-    const studentButtons = ['nav-home', 'nav-schedule', 'nav-tracker', 'nav-families', 'nav-desk', 'nav-forms'];
-
-    // 2. Toggle visibility
-    managerButtons.forEach(id => {
-        document.getElementById(id).style.display = isManagerView ? 'flex' : 'none';
-    });
-
-    studentButtons.forEach(id => {
-        document.getElementById(id).style.display = isManagerView ? 'none' : 'flex';
-    });
-
-    // 3. Auto-switch to the "Home" of that view
-    if (isManagerView) {
-        switchView('desk-dashboard');
-    } else {
-        switchView('home');
-    }
-}
-
-
-    
-    
-// Helper function to keep code clean
-function renderTourRow(tour, isHistory = false) {
-    const opacity = isHistory ? 'opacity-50 grayscale' : '';
-    const dateObj = new Date(tour.date);
-    
-    // Date formatting
-    const month = dateObj.toLocaleDateString('en-US', { month: 'short' });
-    const day = dateObj.getDate();
-    const weekday = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
-
-    return `
-    <div class="bg-white p-5 rounded-[2.2rem] shadow-sm border border-gray-100 flex items-center gap-5 mb-4 ${opacity}">
-        <div class="date-stack shrink-0">
-            <span class="month-label">${month}</span>
-            <span class="day-number">${day}</span>
-            <span class="weekday-label">${weekday}</span>
+            </form>
         </div>
-        
-        <div class="flex-1">
-            <div class="flex items-center gap-2 mb-1">
-                <span class="w-2 h-2 rounded-full ${tour.color}"></span>
-                <p class="text-[10px] font-black ${tour.text} uppercase tracking-widest">${tour.name}</p>
-            </div>
-            <h4 class="text-xl font-black text-gray-900 tracking-tight">${tour.time}</h4>
+
+        <div id="status-overlay" class="fixed inset-0 bg-white z-50 flex items-center justify-center flex-col">
+            <div class="w-8 h-8 border-4 border-gray-100 border-t-primary-gold rounded-full animate-spin mb-4"></div>
+            <p id="status-message" class="text-[10px] font-black uppercase tracking-widest text-gray-400">Authenticating</p>
         </div>
-    </div>`;
-}
+    </main>
 
-async function init() {
-        if(!userName) {
-            showError("MISSING_USER_PARAM");
-            return;
-        }
+    <script>
+        const ONBOARDING_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzz5RVbtLPG-pp4WY9wvW2-_RGOchvXEiKYMpMC2nW322OW3C2bo9AY3NhuCllndmDh/exec';
+        const SCHOOL_DOMAIN = "@purdue.edu"; 
+        const params = new URLSearchParams(window.location.search);
+        const username = params.get('user');
 
-        // Setup the 10-second timeout controller
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => {
-            controller.abort();
-            showError("TIMEOUT_10S");
-        }, 10000); // 10000ms = 10 seconds
+        window.onload = async () => {
+            if (!username) { document.getElementById('status-message').innerText = "ERROR: NO USER FOUND"; return; }
 
-        try {
-            const res = await fetch(`${scriptURL}?user=${userName}`, { signal: controller.signal });
-            
-            if (!res.ok) {
-                showError(`HTTP_${res.status}`);
-                return;
+            const gradSelect = document.getElementById('gradDate');
+            for(let y=2024; y<=2031; y++) {
+                ['Spring', 'Summer', 'Winter'].forEach(t => { gradSelect.add(new Option(`${t} ${y}`, `${t} ${y}`)); });
             }
 
-            cachedData = await res.json();
-            clearTimeout(timeoutId); // Stop the timeout timer since we succeeded
+            try {
+                const resp = await fetch(`${ONBOARDING_SCRIPT_URL}?action=getName&username=${encodeURIComponent(username)}`);
+                const data = await resp.json();
 
-            // Check if profile actually exists in the response
-            if (!cachedData || !cachedData.profile) {
-                showError("PROFILE_NOT_FOUND");
-                return;
-            }
-
-            cachedData.fullList = cachedData.fullList || cachedData.leaderboard;
-            
-
-            // Update UI Elements
-            document.getElementById('sidebar-name').innerText = cachedData.profile.fullName;
-            document.getElementById('sidebar-status').innerText = cachedData.profile.status;
-            const deskDashBtn = document.getElementById('nav-desk-dashboard');
-                if (cachedData.profile.status !== "Tour Guide") {
-                    deskDashBtn.classList.remove('hidden');
-                    renderDeskDashboard();
+                if(data.displayName) {
+                    document.getElementById('profile-full-name').innerText = data.fullName;
+                    document.getElementById('user-display-name').innerText = data.displayName;
+                    document.getElementById('display-email').value = username + SCHOOL_DOMAIN;
+                    document.getElementById('hidden-email').value = username + SCHOOL_DOMAIN;
+                    document.getElementById('status-overlay').classList.add('hidden');
+                    document.getElementById('landing-page').classList.remove('hidden');
+                } else {
+                    document.getElementById('status-message').innerText = "USER NOT FOUND";
                 }
-            document.getElementById('profile-initial').innerText = cachedData.profile.fullName.charAt(0);
-            document.getElementById('welcome-name').innerText = cachedData.profile.displayName;
+            } catch(e) { console.error(e); }
+        };
 
-            document.getElementById('career-total').innerText = cachedData.stats.careerTotal;
-            document.getElementById('sem-total').innerText = cachedData.stats.semesterTotal;
-            document.getElementById('sem-label').innerText = cachedData.currentSemesterName;
-            document.getElementById('user-rank').innerText = `#${cachedData.rank}`;
-
-            handleMilestones(cachedData.stats.careerTotal);
-            updateLeaderboard('career');
-            renderFamilyUI();
-            updateClock();
-
-            const switcher = document.getElementById('view-switcher-container');
-            const userStatus = cachedData.profile.status;
-
-            if (userStatus === "Codirector" || userStatus === "Manager") {
-                switcher.classList.remove('hidden');
-            }
-
-            const histContainer = document.getElementById('history-container');
-            histContainer.innerHTML = [...cachedData.stats.history].reverse().map(h => `
-                <div class="flex items-center">
-                    <div class="w-24 text-[10px] font-black text-gray-400 uppercase tracking-tighter">${h.semester}</div>
-                    <div class="flex-1 h-2.5 bg-gray-100 rounded-full overflow-hidden mx-3">
-                        <div class="h-full bg-primary-gold" style="width: ${Math.min((h.count / 40) * 100, 100)}%"></div>
-                    </div>
-                    <div class="w-8 text-right font-black text-xs">${h.count}</div>
-                </div>
-            `).join('');
-            if (cachedData.tours) {
-    // 1. Create your personal list (used for Home and Lock logic)
-    const myTours = cachedData.tours.filter(tour => {
-        const cleanName = tour.guide.replace(/[*~`]/g, '').trim();
-        return cleanName.toLowerCase() === cachedData.profile.displayName.toLowerCase();
-        renderDeskDashboard();
-    });
-
-    // 2. Keep your existing schedule view call
-    updateScheduleView(myTours, cachedData.profile.displayName);
-    
-    // 3. Add the Home Screen "Next Tour" box
-    renderHomeNextTour(myTours);
-
-    // 4. Add the two new Lock Logic lines
-    checkTourLock(myTours); 
-    setInterval(() => checkTourLock(myTours), 60000); 
-    renderWelcomeCenter(cachedData.tours);
-}
-
-            // Hide overlay
-            document.getElementById('loading-overlay').classList.add('opacity-0');
-            setTimeout(() => document.getElementById('loading-overlay').style.display = 'none', 500);
-
-            const myToursForHome = cachedData.tours.filter(tour => {
-            const cleanName = tour.guide.replace(/[*~`]/g, '').trim();
-            return cleanName.toLowerCase() === cachedData.profile.displayName.toLowerCase();
-            });
-
-            renderHomeNextTour(myToursForHome);
-
-        } catch (e) {
-            console.error(e);
-            if (e.name === 'AbortError') {
-                // Handled by the timeoutId already
-            } else {
-                showError(e.message.toUpperCase().replace(/\s+/g, '_'));
-            }
+        function showForm() {
+            document.getElementById('landing-page').classList.add('hidden');
+            document.getElementById('form-page').classList.remove('hidden');
         }
-    }
 
-    function showView(viewId) {
-    // 1. Hide all views
-    const views = ['home', 'schedule', 'profile', 'welcome-center'];
-    views.forEach(v => {
-        const el = document.getElementById('view-' + v);
-        if (el) el.classList.add('hidden');
-    });
+        document.getElementById('onboardingForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            btn.innerText = "SAVING..."; btn.disabled = true;
 
-    // 2. Show selected view
-    const activeView = document.getElementById('view-' + viewId);
-    if (activeView) activeView.classList.remove('hidden');
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            data.username = username;
+            data.college = Array.from(e.target.college.selectedOptions).map(o => o.value).join(', ');
 
-    // 3. Update Nav Colors (Optional)
-    document.querySelectorAll('#bottom-nav button').forEach(btn => {
-        btn.classList.remove('text-primary-gold');
-        btn.classList.add('text-gray-400');
-    });
-}
-    // Helper function to swap loader for error message
-    function showError(code) {
-        document.getElementById('loader-content').classList.add('hidden');
-        document.getElementById('error-content').classList.remove('hidden');
-        document.getElementById('error-code-display').innerText = code;
-    }
-
-    init();
-</script>
-    <div class="lg:hidden bottom-nav-dedicated">
-    <button onclick="switchView('home')" class="flex flex-col items-center">
-        <span class="text-xl">🏠</span>
-        <span class="text-[9px] font-black uppercase">Home</span>
-    </button>
-    <button onclick="switchView('schedule')" class="flex flex-col items-center">
-        <span class="text-xl">📅</span>
-        <span class="text-[9px] font-black uppercase">Schedule</span>
-    </button>
-    <button onclick="switchView('tracker')" class="flex flex-col items-center">
-        <span class="text-xl">📊</span>
-        <span class="text-[9px] font-black uppercase">Tracker</span>
-    </button>
-    <button onclick="switchView('families')" class="flex flex-col items-center">
-        <span class="text-xl">🏆</span>
-        <span class="text-[9px] font-black uppercase">Points</span>
-    </button>
-    <button onclick="switchView('desk')" class="flex flex-col items-center">
-        <span class="text-xl">🗃️</span>
-        <span class="text-[9px] font-black uppercase">Desk</span>
-    </button>
-    <button onclick="switchView('forms')" class="flex flex-col items-center">
-        <span class="text-xl">📝</span>
-        <span class="text-[9px] font-black uppercase">Forms</span>
-    </button>
-    
-    
-</div>
-
-<div id="tour-lock-screen" class="hidden fixed inset-0 z-[9999] bg-[#000000] flex flex-col items-center justify-center p-8 text-center">
-    <div class="absolute inset-0 opacity-5 font-black text-[15rem] overflow-hidden pointer-events-none text-white flex items-center justify-center">
-        TOUR
-    </div>
-    
-    <div class="relative z-10 w-full max-w-sm">
-        <div class="w-20 h-20 bg-status-green rounded-full flex items-center justify-center text-3xl mb-6 mx-auto animate-pulse shadow-[0_0_40px_rgba(16,185,129,0.3)]">
-            🚶‍♂️
-        </div>
-        <h1 class="text-white text-5xl font-black tracking-tighter mb-2">On Tour</h1>
-        <p id="lock-tour-name" class="text-primary-gold font-bold uppercase tracking-[0.2em] mb-10 text-sm">Daily Visit</p>
-        
-        <div class="bg-white/5 border border-white/10 rounded-[2.5rem] p-8 backdrop-blur-xl">
-            <p class="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em] mb-2">Estimated Finish</p>
-            <p id="lock-tour-end" class="text-white text-4xl font-black tracking-tight">--:-- --</p>
-        </div>
-        
-        <p class="mt-12 text-gray-600 text-[10px] font-bold uppercase tracking-[0.2em] leading-relaxed">
-            TGIS Navigation Disabled<br>Until Tour Conclusion
-        </p>
-    </div>
-</div>
-
+            await fetch(ONBOARDING_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
+            btn.innerText = "SUCCESS!";
+            setTimeout(() => { window.location.href = `https://your-app-url.html?user=${username}`; }, 1500);
+        });
+    </script>
 </body>
 </html>
