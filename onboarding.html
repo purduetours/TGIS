@@ -3,90 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TGIS | Account Activation</title>
+    <title>TGIS | Account Setup</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #F9FAFB; color: #111827; height: 100vh; display: flex; overflow: hidden; }
         
-        /* Sidebar Styles to match App */
-        .sidebar-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 0.75rem; font-weight: 600; font-size: 13px; color: #6B7280; }
-        .sidebar-item.active { background: #F3F4F6; color: #111827; }
+        /* Sidebar matches your main app */
+        .sidebar-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 0.75rem; font-weight: 600; font-size: 13px; color: #6B7280; opacity: 0.5; }
+        .sidebar-item.active { background: #F3F4F6; color: #111827; opacity: 1; }
 
-        /* Clean Box Styles */
-        .content-card { background: white; border: 1px solid #E5E7EB; border-radius: 1rem; padding: 1.5rem; }
-        
-        .input-label { font-size: 11px; font-weight: 700; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.025em; margin-bottom: 0.5rem; display: block; }
-        .input-box { width: 100%; border: 1px solid #E5E7EB; border-radius: 0.75rem; padding: 0.75rem 1rem; font-weight: 600; font-size: 14px; outline: none; transition: border-color 0.2s; }
-        .input-box:focus { border-color: #CFB991; }
+        /* The "Framed Card" from the picture */
+        .framed-content { 
+            background: white; 
+            border-radius: 2.5rem; 
+            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05);
+            border: 1px solid #F3F4F6;
+            width: 100%;
+            max-width: 1100px; /* Extends wide */
+            min-height: 80vh;
+            padding: 3rem;
+            margin-top: 1rem;
+        }
 
-        .btn-primary { background: #000000; color: #FFFFFF; font-weight: 700; font-size: 13px; padding: 0.75rem 1.5rem; border-radius: 0.75rem; transition: all 0.2s; }
-        .btn-primary:hover { opacity: 0.8; transform: translateY(-1px); }
+        .required-tag {
+            background: #FEE2E2;
+            color: #EF4444;
+            font-size: 9px;
+            font-weight: 900;
+            text-transform: uppercase;
+            padding: 4px 8px;
+            border-radius: 6px;
+            letter-spacing: 0.05em;
+        }
+
+        .input-label { font-size: 11px; font-weight: 800; color: #9CA3AF; text-transform: uppercase; margin-bottom: 0.5rem; display: block; }
+        .input-box { width: 100%; border: 1px solid #F3F4F6; background: #F9FAFB; border-radius: 1rem; padding: 1rem; font-weight: 600; outline: none; }
+        .input-box:focus { border-color: #CFB991; background: white; }
+
+        .btn-gold { 
+            background: #CFB991; 
+            color: #FFFFFF; 
+            font-weight: 800; 
+            font-size: 14px; 
+            padding: 1rem 2.5rem; 
+            border-radius: 1rem; 
+            transition: all 0.2s; 
+        }
+        .btn-gold:hover { opacity: 0.9; transform: translateY(-1px); }
     </style>
 </head>
 <body>
 
-    <aside class="w-64 border-r border-gray-200 bg-white flex flex-col p-6 hidden md:flex">
-        <div class="mb-10">
-            <h1 class="text-xl font-black tracking-tighter">TGIS <span class="text-[#CFB991]">Web</span></h1>
-        </div>
+    <aside class="w-64 border-r border-gray-200 bg-white flex flex-col p-8 hidden md:flex">
+        <h1 class="text-xl font-black tracking-tighter mb-10">TGIS <span class="text-[#CFB991]">Web</span></h1>
         <nav class="space-y-1">
-            <div class="sidebar-item active"><span>🛡️</span> Activation</div>
-            <div class="sidebar-item opacity-40"><span>🏠</span> Dashboard</div>
-            <div class="sidebar-item opacity-40"><span>👥</span> Staff</div>
+            <div class="sidebar-item active"><span>🛡️</span> Onboarding</div>
+            <div class="sidebar-item"><span>🏠</span> Dashboard</div>
+            <div class="sidebar-item"><span>📋</span> Forms</div>
         </nav>
     </aside>
 
-    <main class="flex-grow overflow-y-auto bg-[#F9FAFB] p-8 md:p-12">
+    <main class="flex-grow p-10 overflow-y-auto">
         
-        <div id="landing-page" class="hidden max-w-3xl">
-            <header class="mb-8">
-                <h2 class="text-3xl font-extrabold tracking-tight">Available Profiles</h2>
-                <p class="text-gray-500 font-medium">Verify your identity to complete account setup.</p>
-            </header>
-
-            <div class="content-card flex items-center justify-between">
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-xl">👤</div>
+        <div id="landing-page" class="hidden">
+            <div class="framed-content">
+                <div class="flex items-start justify-between mb-8">
                     <div>
-                        <h3 id="profile-full-name" class="font-bold text-lg text-gray-900">Loading Name...</h3>
-                        <p class="text-gray-400 text-xs font-semibold uppercase tracking-wider">Summer/Fall 2026 New Hire — Tour Guide</p>
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="required-tag">Required</span>
+                            <span class="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Due by May 15, 2026</span>
+                        </div>
+                        <h2 id="profile-full-name" class="text-4xl font-black tracking-tight mb-2 italic">Loading Name...</h2>
+                        <p class="text-gray-500 font-medium text-lg">Summer/Fall 2026 New Hire — Tour Guide Account Activation</p>
                     </div>
                 </div>
-                <button onclick="showForm()" class="btn-primary">Activate Account</button>
+
+                <div class="bg-gray-50 rounded-3xl p-8 border border-gray-100 mb-8">
+                    <h4 class="font-bold text-gray-900 mb-2">Description</h4>
+                    <p class="text-gray-500 leading-relaxed text-sm">
+                        Welcome to the TGIS team! Please complete this mandatory profile activation. This information will be used to populate your staff profile, campus credentials, and scheduling availability. You will not be able to access the main dashboard until this form is submitted.
+                    </p>
+                </div>
+
+                <div class="flex justify-start">
+                    <button onclick="showForm()" class="btn-gold">Activate Account</button>
+                </div>
             </div>
         </div>
 
-        <div id="form-page" class="hidden max-w-4xl">
-            <header class="mb-10">
-                <h2 class="text-3xl font-extrabold tracking-tight">Complete Profile</h2>
-                <p class="text-gray-500 font-medium">Provide your secure details for the official staff record.</p>
-            </header>
+        <div id="form-page" class="hidden">
+            <div class="framed-content">
+                <header class="mb-12 border-b border-gray-100 pb-10">
+                    <h2 class="text-4xl font-black tracking-tight italic">Profile Activation</h2>
+                    <p class="text-gray-400 font-medium mt-2">Personal and Academic Information</p>
+                </header>
 
-            <form id="onboardingForm" class="space-y-6">
-                <input type="hidden" name="email" id="hidden-email">
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="content-card">
-                        <label class="input-label">Secure PUID</label>
-                        <input type="password" name="puid" required placeholder="Enter PUID" class="input-box">
-                    </div>
-                    <div class="content-card bg-gray-50">
-                        <label class="input-label">Assigned Email</label>
-                        <input type="email" id="display-email" class="input-box border-none bg-transparent text-gray-400" readonly>
-                    </div>
-                </div>
-
-                <div class="content-card">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <form id="onboardingForm" class="space-y-10">
+                    <input type="hidden" name="email" id="hidden-email">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
                         <div>
-                            <label class="input-label">Birthday</label>
-                            <input type="date" name="birthday" required class="input-box">
+                            <label class="input-label">PUID (Secure ID)</label>
+                            <input type="password" name="puid" required placeholder="Enter PUID" class="input-box">
                         </div>
                         <div>
-                            <label class="input-label">Hometown</label>
-                            <input type="text" name="hometown" required placeholder="City, State" class="input-box">
+                            <label class="input-label">Official Campus Email</label>
+                            <input type="email" id="display-email" class="input-box text-gray-400" readonly>
                         </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                        <div><label class="input-label">Birthday</label><input type="date" name="birthday" required class="input-box"></div>
+                        <div><label class="input-label">Hometown</label><input type="text" name="hometown" required placeholder="City, State" class="input-box"></div>
                         <div>
                             <label class="input-label">Classification</label>
                             <select name="year" required class="input-box">
@@ -94,8 +123,8 @@
                             </select>
                         </div>
                     </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
                         <div>
                             <label class="input-label">Expected Graduation</label>
                             <select name="gradDate" id="gradDate" required class="input-box"></select>
@@ -105,36 +134,24 @@
                             <input type="text" name="major" required placeholder="Major" class="input-box">
                         </div>
                     </div>
-                </div>
 
-                <div class="content-card">
-                    <label class="input-label">Academic College(s)</label>
-                    <select name="college" multiple required class="input-box h-32 py-2">
-                        <option>Agriculture</option><option>Education</option><option>Engineering</option><option>Health and Human Sciences</option><option>Liberal Arts</option><option>Management</option><option>Pharmacy</option><option>Polytechnic</option><option>Science</option><option>Veterinary Medicine</option><option>Exploratory Studies</option><option>Honors College</option>
-                    </select>
-                    <p class="text-[10px] text-gray-400 mt-2 font-medium italic">Hold Ctrl/Cmd to select multiple.</p>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="content-card">
-                        <label class="input-label">Minor (Optional)</label>
-                        <input type="text" name="minor" class="input-box" placeholder="None">
+                    <div>
+                        <label class="input-label">Academic College(s)</label>
+                        <select name="college" multiple required class="input-box h-40">
+                            <option>Agriculture</option><option>Education</option><option>Engineering</option><option>Health and Human Sciences</option><option>Liberal Arts</option><option>Management</option><option>Pharmacy</option><option>Polytechnic</option><option>Science</option><option>Veterinary Medicine</option><option>Exploratory Studies</option>
+                        </select>
                     </div>
-                    <div class="content-card">
-                        <label class="input-label">Certificate (Optional)</label>
-                        <input type="text" name="certificate" class="input-box" placeholder="None">
-                    </div>
-                </div>
 
-                <div class="flex justify-end pt-4">
-                    <button type="submit" id="submitBtn" class="btn-primary w-full md:w-auto px-12">Submit Activation</button>
-                </div>
-            </form>
+                    <div class="flex justify-end mt-12">
+                        <button type="submit" id="submitBtn" class="btn-gold w-full md:w-auto">Submit Information</button>
+                    </div>
+                </form>
+            </div>
         </div>
 
-        <div id="status-overlay" class="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center flex-col">
-            <div class="w-8 h-8 border-2 border-gray-200 border-t-[#CFB991] rounded-full animate-spin mb-4"></div>
-            <p id="status-message" class="text-xs font-bold text-gray-400 uppercase tracking-widest">Checking Database</p>
+        <div id="status-overlay" class="fixed inset-0 bg-white z-[99] flex items-center justify-center flex-col">
+            <div class="w-10 h-10 border-4 border-gray-100 border-t-[#CFB991] rounded-full animate-spin mb-4"></div>
+            <p id="status-message" class="text-[10px] font-black uppercase tracking-widest text-gray-400">Syncing Profile</p>
         </div>
     </main>
 
@@ -145,7 +162,7 @@
         const username = params.get('user');
 
         window.onload = async () => {
-            if (!username) { document.getElementById('status-message').innerText = "URL Error: No User Found"; return; }
+            if (!username) { document.getElementById('status-message').innerText = "ERROR: NO USER FOUND"; return; }
 
             const gradSelect = document.getElementById('gradDate');
             for(let y=2024; y<=2031; y++) {
@@ -163,7 +180,7 @@
                     document.getElementById('status-overlay').classList.add('hidden');
                     document.getElementById('landing-page').classList.remove('hidden');
                 } else {
-                    document.getElementById('status-message').innerText = "Account Not Found";
+                    document.getElementById('status-message').innerText = "USER NOT FOUND";
                 }
             } catch(e) { console.error(e); }
         };
@@ -176,7 +193,7 @@
         document.getElementById('onboardingForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('submitBtn');
-            btn.innerText = "Processing..."; btn.disabled = true;
+            btn.innerText = "SAVING..."; btn.disabled = true;
 
             const formData = new FormData(e.target);
             const data = Object.fromEntries(formData.entries());
@@ -184,8 +201,8 @@
             data.college = Array.from(e.target.college.selectedOptions).map(o => o.value).join(', ');
 
             await fetch(ONBOARDING_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
-            btn.innerText = "Success!";
-            setTimeout(() => { window.location.href = `https://your-main-app-url.html?user=${username}`; }, 1500);
+            btn.innerText = "SUCCESS!";
+            setTimeout(() => { window.location.href = `https://your-app-link.html?user=${username}`; }, 1500);
         });
     </script>
 </body>
