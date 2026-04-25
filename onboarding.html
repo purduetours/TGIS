@@ -277,7 +277,7 @@ document.getElementById('onboardingForm').addEventListener('submit', async (e) =
     e.preventDefault();
 
     const btn = document.getElementById('submitBtn');
-    btn.innerText = "SAVING...";
+    btn.innerText = "ACTIVATING...";
     btn.disabled = true;
 
     const formData = new FormData(e.target);
@@ -292,7 +292,7 @@ document.getElementById('onboardingForm').addEventListener('submit', async (e) =
         body: JSON.stringify(data)
     });
 
-    btn.innerText = "SUCCESS!";
+    btn.innerText = "REDIRECTING TO TGIS";
 
     setTimeout(() => {
         window.location.href = `https://purduetours.github.io/TGIS/app.html?user=${username}`;
