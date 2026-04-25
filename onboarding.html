@@ -147,7 +147,7 @@
                     </div>
 
                     <div>
-                        <label class="label-style">Classification</label>
+                        <label class="label-style">Classification (For Fall 2026)</label>
                         <select name="year" required class="input-box">
                             <option>Freshman</option>
                             <option>Sophomore</option>
@@ -292,7 +292,7 @@ document.getElementById('onboardingForm').addEventListener('submit', async (e) =
         body: JSON.stringify(data)
     });
 
-    btn.innerText = "REDIRECTING TO TGIS";
+    btn.innerText = "REDIRECTING TO TGIS...";
 
     setTimeout(() => {
         window.location.href = `https://purduetours.github.io/TGIS/app.html?user=${username}`;
