@@ -76,7 +76,7 @@
                 <div class="flex-1">
                     <div class="flex items-center gap-2 mb-2">
                         <span class="bg-red-100 text-red-600 text-[10px] font-black px-2 py-1 rounded-md uppercase tracking-wider">Required</span>
-                        <span class="text-gray-400 text-[10px] font-black uppercase tracking-widest">Due 4/24 @ 11:59 PM</span>
+                        <span class="text-gray-400 text-[10px] font-black uppercase tracking-widest">Due 4/27 @ 11:59 PM</span>
                     </div>
 
                     <h2 id="profile-full-name" class="text-2xl font-black text-gray-800">
@@ -109,7 +109,7 @@
         <header class="mb-8">
             <h1 class="text-3xl font-black tracking-tight">Account Setup</h1>
             <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">
-                Populating Secure Staff Profile
+                Please complete all required fields (ignore numbers after email)
             </p>
         </header>
 
@@ -153,7 +153,7 @@
                             <option>Sophomore</option>
                             <option>Junior</option>
                             <option>Senior</option>
-                            <option>5th Year/Grad</option>
+                            <option>5th Year/Grad Student</option>
                         </select>
                     </div>
                 </div>
@@ -165,8 +165,8 @@
                     </div>
 
                     <div>
-                        <label class="label-style">Major</label>
-                        <input type="text" name="major" required placeholder="Major" class="input-box">
+                        <label class="label-style">Major(s)</label>
+                        <input type="text" name="major" required placeholder="Major (separate with commas)" class="input-box">
                     </div>
                 </div>
 
@@ -193,13 +193,13 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label class="label-style">Minor (Optional)</label>
-                        <input type="text" name="minor" placeholder="Enter Minor" class="input-box">
+                        <label class="label-style">Minor(s) (Optional)</label>
+                        <input type="text" name="minor" placeholder="Minor (separate with commas)" class="input-box">
                     </div>
 
                     <div>
-                        <label class="label-style">Certificate (Optional)</label>
-                        <input type="text" name="certificate" placeholder="Enter Certificate" class="input-box">
+                        <label class="label-style">Certificate(s) (Optional)</label>
+                        <input type="text" name="certificate" placeholder="Certificate(s) (separate with commas)" class="input-box">
                     </div>
                 </div>
 
@@ -222,7 +222,7 @@
 <div id="status-overlay" class="fixed inset-0 bg-white z-50 flex items-center justify-center flex-col">
     <div class="w-8 h-8 border-4 border-gray-100 border-t-primary-gold rounded-full animate-spin mb-4"></div>
     <p id="status-message" class="text-[10px] font-black uppercase tracking-widest text-gray-400">
-        Authenticating
+        Loading Profile
     </p>
 </div>
 
