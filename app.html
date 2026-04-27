@@ -116,6 +116,30 @@
     gap: 0.5rem;
 }
 
+/* Retirement Screen */
+@keyframes shimmer {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+}
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.retirement-screen {
+    animation: fadeInUp 1s ease-out;
+}
+.gold-shimmer-text {
+    background: linear-gradient(90deg, #CFB991, #f5e6c8, #b39a6d, #f5e6c8, #CFB991);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 4s linear infinite;
+}
+.certificate-frame {
+    border: 3px solid #CFB991;
+    box-shadow: 0 0 0 6px rgba(207,185,145,0.15), 0 0 0 10px #CFB991, 0 0 0 14px rgba(207,185,145,0.15), 0 30px 60px rgba(0,0,0,0.4);
+}
 
 /* Split Layout for Schedule */
 .schedule-grid {
@@ -1285,7 +1309,13 @@ async function init() {
             }
 
             cachedData.fullList = cachedData.fullList || cachedData.leaderboard;
-            
+
+            //Check for retirement
+            if (cachedData.profile.status === "Retired") {
+                document.getElementById('loading-overlay').style.display = 'none';
+                showRetirementScreen(cachedData.profile, cachedData.stats);
+                return;
+            }
 
             // Update UI Elements
             document.getElementById('sidebar-name').innerText = cachedData.profile.fullName;
@@ -1391,6 +1421,26 @@ async function init() {
         document.getElementById('error-code-display').innerText = code;
     }
 
+    function showRetirementScreen(profile, stats) {
+    const screen = document.getElementById('retirement-screen');
+    const careerTours = stats.careerTotal;
+    const miles = (careerTours * 2.1).toLocaleString('en-US', { maximumFractionDigits: 1 });
+    const steps = (careerTours * 5836).toLocaleString('en-US');
+
+    document.getElementById('retirement-name').innerText = profile.fullName;
+    document.getElementById('retirement-tours').innerText = careerTours.toLocaleString('en-US');
+    document.getElementById('retirement-miles').innerText = miles;
+    document.getElementById('retirement-steps').innerText = steps;
+
+    screen.classList.remove('hidden');
+
+    // Hide all nav and UI chrome so nothing else is accessible
+    document.getElementById('sidebar')?.remove();
+    document.querySelector('header')?.remove();
+    document.querySelector('.bottom-nav-dedicated')?.remove();
+    document.querySelector('.content-area')?.remove();
+}
+
     init();
 </script>
     <div class="lg:hidden bottom-nav-dedicated">
@@ -1442,6 +1492,63 @@ async function init() {
         <p class="mt-12 text-gray-600 text-[10px] font-bold uppercase tracking-[0.2em] leading-relaxed">
             TGIS Navigation Disabled<br>Until Tour Conclusion
         </p>
+    </div>
+</div>
+
+<div id="retirement-screen" class="hidden fixed inset-0 z-[99999] flex flex-col items-center justify-center p-8 text-center" style="background: linear-gradient(135deg, #0a0a0a 0%, #1a1408 50%, #0a0a0a 100%);">
+    <!-- Background watermark -->
+    <div class="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none opacity-[0.04]">
+        <span class="font-black text-white" style="font-size: 18rem; white-space: nowrap;">RETIRED</span>
+    </div>
+
+    <div class="retirement-screen relative z-10 w-full max-w-lg">
+        <!-- Top decoration -->
+        <div class="flex items-center justify-center gap-3 mb-8">
+            <div class="h-px flex-1 bg-gradient-to-r from-transparent to-primary-gold opacity-50"></div>
+            <span class="text-4xl">⭐</span>
+            <div class="h-px flex-1 bg-gradient-to-l from-transparent to-primary-gold opacity-50"></div>
+        </div>
+
+        <!-- Headline -->
+        <p class="text-[10px] font-black uppercase tracking-[0.4em] text-primary-gold mb-3 opacity-80">Purdue Tour Guide Information System</p>
+        <h1 class="text-3xl sm:text-4xl font-black text-white leading-tight mb-2">Congrats on a</h1>
+        <h1 class="gold-shimmer-text text-4xl sm:text-5xl font-black leading-tight mb-10">Legendary Tour Guide Career</h1>
+
+        <!-- Certificate frame -->
+        <div class="certificate-frame rounded-[2rem] p-8 mb-10" style="background: linear-gradient(145deg, #1c1407, #0f0c04);">
+            <p class="text-[9px] font-black uppercase tracking-[0.4em] text-primary-gold opacity-60 mb-3">This certifies the outstanding service of</p>
+            <h2 id="retirement-name" class="text-3xl sm:text-4xl font-black text-white tracking-tight mb-3">—</h2>
+            <div class="h-px bg-primary-gold opacity-30 mb-6"></div>
+
+            <!-- Stats -->
+            <div class="grid grid-cols-3 gap-4 mb-6">
+                <div>
+                    <p id="retirement-tours" class="text-3xl font-black text-primary-gold">—</p>
+                    <p class="text-[9px] font-black uppercase tracking-widest text-gray-500 mt-1">Career Tours</p>
+                </div>
+                <div>
+                    <p id="retirement-miles" class="text-3xl font-black text-primary-gold">—</p>
+                    <p class="text-[9px] font-black uppercase tracking-widest text-gray-500 mt-1">Miles Walked</p>
+                </div>
+                <div>
+                    <p id="retirement-steps" class="text-3xl font-black text-primary-gold">—</p>
+                    <p class="text-[9px] font-black uppercase tracking-widest text-gray-500 mt-1">Steps Taken</p>
+                </div>
+            </div>
+
+            <div class="h-px bg-primary-gold opacity-30 mb-4"></div>
+            <p class="text-[10px] text-gray-400 font-bold leading-relaxed">
+                Your dedication, warmth, and passion made every Boilermaker's first step on campus unforgettable.<br>
+                Wishing you nothing but the best in every adventure ahead. 🚂
+            </p>
+        </div>
+
+        <!-- Bottom decoration -->
+        <div class="flex items-center justify-center gap-3">
+            <div class="h-px flex-1 bg-gradient-to-r from-transparent to-primary-gold opacity-50"></div>
+            <span class="text-xs font-black text-primary-gold opacity-60 tracking-widest uppercase">Boiler Up</span>
+            <div class="h-px flex-1 bg-gradient-to-l from-transparent to-primary-gold opacity-50"></div>
+        </div>
     </div>
 </div>
 
