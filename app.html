@@ -1439,6 +1439,51 @@ async function init() {
     document.querySelector('header')?.remove();
     document.querySelector('.bottom-nav-dedicated')?.remove();
     document.querySelector('.content-area')?.remove();
+    // Gold confetti
+const canvas = document.getElementById('confetti-canvas');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const pieces = Array.from({ length: 80 }, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height - canvas.height,
+    size: Math.random() * 8 + 4,
+    speedY: Math.random() * 2 + 1,
+    speedX: (Math.random() - 0.5) * 1.5,
+    rotation: Math.random() * 360,
+    rotSpeed: (Math.random() - 0.5) * 4,
+    color: ['#CFB991','#f5e6c8','#b39a6d','#e8d5a3','#fff8e7'][Math.floor(Math.random() * 5)],
+    shape: Math.random() > 0.5 ? 'rect' : 'circle'
+}));
+
+function drawConfetti() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pieces.forEach(p => {
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rotation * Math.PI / 180);
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = 0.85;
+        if (p.shape === 'rect') {
+            ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.5);
+        } else {
+            ctx.beginPath();
+            ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        ctx.restore();
+        p.y += p.speedY;
+        p.x += p.speedX;
+        p.rotation += p.rotSpeed;
+        if (p.y > canvas.height) {
+            p.y = -p.size;
+            p.x = Math.random() * canvas.width;
+        }
+    });
+    requestAnimationFrame(drawConfetti);
+}
+drawConfetti();
 }
 
     init();
@@ -1496,6 +1541,7 @@ async function init() {
 </div>
 
 <div id="retirement-screen" class="hidden fixed inset-0 z-[99999] flex flex-col items-center justify-center p-8 text-center" style="background: linear-gradient(135deg, #0a0a0a 0%, #1a1408 50%, #0a0a0a 100%);">
+    <canvas id="confetti-canvas" class="absolute inset-0 w-full h-full pointer-events-none"></canvas>
     <!-- Background watermark -->
     <div class="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none opacity-[0.04]">
         <span class="font-black text-white" style="font-size: 18rem; white-space: nowrap;">RETIRED</span>
@@ -1514,34 +1560,32 @@ async function init() {
         <h1 class="text-3xl sm:text-4xl font-black text-white leading-tight mb-2">Congrats on a</h1>
         <h1 class="gold-shimmer-text text-4xl sm:text-5xl font-black leading-tight mb-10">Legendary Tour Guide Career</h1>
 
-        <!-- Certificate frame -->
-        <div class="certificate-frame rounded-[2rem] p-8 mb-10" style="background: linear-gradient(145deg, #1c1407, #0f0c04);">
-            <p class="text-[9px] font-black uppercase tracking-[0.4em] text-primary-gold opacity-60 mb-3">This certifies the outstanding service of</p>
-            <h2 id="retirement-name" class="text-3xl sm:text-4xl font-black text-white tracking-tight mb-3">—</h2>
-            <div class="h-px bg-primary-gold opacity-30 mb-6"></div>
+        <!-- Certificate frame - name only -->
+<div class="certificate-frame rounded-[2rem] p-8 mb-6" style="background: linear-gradient(145deg, #1c1407, #0f0c04);">
+    <p class="text-[9px] font-black uppercase tracking-[0.4em] text-primary-gold opacity-60 mb-3">This certifies the outstanding service of</p>
+    <h2 id="retirement-name" class="text-3xl sm:text-4xl font-black text-white tracking-tight mb-3">—</h2>
+    <div class="h-px bg-primary-gold opacity-30 mb-4"></div>
+    <p class="text-[10px] text-gray-400 font-bold leading-relaxed">
+        Your dedication, warmth, and passion made every Boilermaker's first step on campus unforgettable.<br>
+        Wishing you nothing but the best in every adventure ahead. 🚂
+    </p>
+</div>
 
-            <!-- Stats -->
-            <div class="grid grid-cols-3 gap-4 mb-6">
-                <div>
-                    <p id="retirement-tours" class="text-3xl font-black text-primary-gold">—</p>
-                    <p class="text-[9px] font-black uppercase tracking-widest text-gray-500 mt-1">Career Tours</p>
-                </div>
-                <div>
-                    <p id="retirement-miles" class="text-3xl font-black text-primary-gold">—</p>
-                    <p class="text-[9px] font-black uppercase tracking-widest text-gray-500 mt-1">Miles Walked</p>
-                </div>
-                <div>
-                    <p id="retirement-steps" class="text-3xl font-black text-primary-gold">—</p>
-                    <p class="text-[9px] font-black uppercase tracking-widest text-gray-500 mt-1">Steps Taken</p>
-                </div>
-            </div>
-
-            <div class="h-px bg-primary-gold opacity-30 mb-4"></div>
-            <p class="text-[10px] text-gray-400 font-bold leading-relaxed">
-                Your dedication, warmth, and passion made every Boilermaker's first step on campus unforgettable.<br>
-                Wishing you nothing but the best in every adventure ahead. 🚂
-            </p>
-        </div>
+<!-- Stat cards -->
+<div class="grid grid-cols-3 gap-3 mb-10">
+    <div class="rounded-2xl p-4 flex flex-col items-center justify-center" style="background: linear-gradient(145deg, #1c1407, #0f0c04); border: 1px solid rgba(207,185,145,0.4); box-shadow: 0 0 20px rgba(207,185,145,0.1);">
+        <p id="retirement-tours" class="text-2xl sm:text-3xl font-black text-primary-gold leading-none mb-1">—</p>
+        <p class="text-[8px] font-black uppercase tracking-widest text-gray-500 text-center">Career<br>Tours</p>
+    </div>
+    <div class="rounded-2xl p-4 flex flex-col items-center justify-center" style="background: linear-gradient(145deg, #1c1407, #0f0c04); border: 1px solid rgba(207,185,145,0.4); box-shadow: 0 0 20px rgba(207,185,145,0.1);">
+        <p id="retirement-miles" class="text-2xl sm:text-3xl font-black text-primary-gold leading-none mb-1">—</p>
+        <p class="text-[8px] font-black uppercase tracking-widest text-gray-500 text-center">Miles<br>Walked</p>
+    </div>
+    <div class="rounded-2xl p-4 flex flex-col items-center justify-center" style="background: linear-gradient(145deg, #1c1407, #0f0c04); border: 1px solid rgba(207,185,145,0.4); box-shadow: 0 0 20px rgba(207,185,145,0.1);">
+        <p id="retirement-steps" class="text-2xl sm:text-3xl font-black text-primary-gold leading-none mb-1">—</p>
+        <p class="text-[8px] font-black uppercase tracking-widest text-gray-500 text-center">Steps<br>Taken</p>
+    </div>
+</div>
 
         <!-- Bottom decoration -->
         <div class="flex items-center justify-center gap-3">
