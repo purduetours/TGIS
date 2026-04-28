@@ -211,40 +211,38 @@
             </div>
 
             <!-- DESK INTEREST -->
-            <div class="bg-white p-6 rounded-3xl shadow-xl border border-gray-100">
-                <span class="label-style">Are you interested in working desk this summer?</span>
-                <div class="space-y-2 mt-1">
+           <div class="bg-white p-6 rounded-3xl shadow-xl border border-gray-100">
+    <span class="label-style">Are you interested in working desk this summer?</span>
+    <div class="space-y-2 mt-1">
+        <label class="choice-card" id="desk-FRONT">
+            <input type="radio" name="deskInterest" value="FRONT" onchange="handleDeskChange(this)">
+            <div><div class="font-black text-sm">Yes, front desk preferred</div></div>
+        </label>
 
-                    <label class="choice-card" id="desk-FRONT">
-                        <input type="radio" name="deskInterest" value="FRONT" onchange="updateRadioStyles('desk')">
-                        <div>
-                            <div class="font-black text-sm">Yes, front desk preferred</div>
-                        </div>
-                    </label>
+        <label class="choice-card" id="desk-WELCOME">
+            <input type="radio" name="deskInterest" value="WELCOME" onchange="handleDeskChange(this)">
+            <div><div class="font-black text-sm">Yes, welcome desk preferred</div></div>
+        </label>
 
-                    <label class="choice-card" id="desk-WELCOME">
-                        <input type="radio" name="deskInterest" value="WELCOME" onchange="updateRadioStyles('desk')">
-                        <div>
-                            <div class="font-black text-sm">Yes, welcome desk preferred</div>
-                        </div>
-                    </label>
+        <label class="choice-card" id="desk-EITHER">
+            <input type="radio" name="deskInterest" value="EITHER" onchange="handleDeskChange(this)">
+            <div><div class="font-black text-sm">Yes, either desk</div></div>
+        </label>
 
-                    <label class="choice-card" id="desk-EITHER">
-                        <input type="radio" name="deskInterest" value="EITHER" onchange="updateRadioStyles('desk')">
-                        <div>
-                            <div class="font-black text-sm">Yes, either desk</div>
-                        </div>
-                    </label>
+        <label class="choice-card" id="desk-NO">
+            <input type="radio" name="deskInterest" value="NO" onchange="handleDeskChange(this)">
+            <div><div class="font-black text-sm">No, not interested</div></div>
+        </label>
+    </div>
 
-                    <label class="choice-card" id="desk-NO">
-                        <input type="radio" name="deskInterest" value="NO" onchange="updateRadioStyles('desk')">
-                        <div>
-                            <div class="font-black text-sm">No, not interested</div>
-                        </div>
-                    </label>
-
-                </div>
-            </div>
+    <div id="desk-hours-section" class="hidden mt-6">
+        <label class="label-style">How many desk hours would you like per week?</label>
+        <div class="flex items-center gap-4 mt-1">
+            <input type="number" name="deskHours" id="deskHours" min="0" max="40" placeholder="0 – 40" class="input-box w-36">
+            <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">hours per week (max 40)</span>
+        </div>
+    </div>
+</div>
 
             <!-- WEEK AVAILABILITY -->
             <div class="bg-white p-6 rounded-3xl shadow-xl border border-gray-100">
@@ -446,6 +444,23 @@ function setYN(field, value) {
         }
     }
 
+    function handleDeskChange(input) {
+    // 1. Update the visual highlight of the cards
+    const cards = document.querySelectorAll('input[name="deskInterest"]');
+    cards.forEach(radio => {
+        radio.closest('.choice-card').classList.toggle('selected', radio.checked);
+    });
+
+    // 2. Show/Hide hours section: Show if anything but 'NO' is selected
+    const hoursSection = document.getElementById('desk-hours-section');
+    if (input.value !== 'NO') {
+        hoursSection.classList.remove('hidden');
+    } else {
+        hoursSection.classList.add('hidden');
+        document.getElementById('deskHours').value = ''; // Clear value if they change to No
+    }
+}
+
     // ─── FORM SUBMIT ──────────────────────────────────────────────────────────
     document.getElementById('censusForm').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -469,14 +484,15 @@ function setYN(field, value) {
             document.querySelectorAll('input[name="weeks"]:checked')
         ).map(cb => cb.value).join(', ');
 
-        const payload = {
-            action:       'census',
-            username:     username,
-            givingTours:  document.getElementById('givingTours-value').value,          // Col P
-            toursPerWeek: document.getElementById('toursPerWeek').value || '0',        // Col Q
-            deskInterest: document.querySelector('input[name="deskInterest"]:checked').value, // Col R
-            weeks:        selectedWeeks,                                                // Col S
-        };
+       const payload = {
+    action:       'census',
+    username:     username,
+    givingTours:  document.getElementById('givingTours-value').value,
+    toursPerWeek: document.getElementById('toursPerWeek').value || '0',
+    deskInterest: document.querySelector('input[name="deskInterest"]:checked').value,
+    deskHours:    document.getElementById('deskHours').value || '0', // ADD THIS LINE
+    weeks:        selectedWeeks,
+};
 
         try {
             await fetch(CENSUS_SCRIPT_URL, {
