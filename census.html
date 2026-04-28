@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TGIS | Summer Census</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: { 'primary-gold': '#CFB991' }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F9FAFB;
+            color: #111827;
+        }
+
+        .input-box {
+            width: 100%;
+            border: 1px solid #E5E7EB;
+            border-radius: 1rem;
+            padding: 0.75rem 1rem;
+            font-weight: 600;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .input-box:focus {
+            border-color: #CFB991;
+            box-shadow: 0 0 0 4px rgba(207, 185, 145, 0.1);
+        }
+
+        .label-style {
+            font-size: 10px;
+            font-weight: 800;
+            color: #9CA3AF;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+            display: block;
+            margin-left: 0.5rem;
+        }
+
+        /* Radio / Checkbox card styles */
+        .choice-card {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.875rem 1rem;
+            border: 1.5px solid #E5E7EB;
+            border-radius: 1rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            background: white;
+            font-weight: 700;
+            font-size: 13px;
+            user-select: none;
+        }
+
+        .choice-card:hover {
+            border-color: #CFB991;
+            background: rgba(207, 185, 145, 0.04);
+        }
+
+        .choice-card.selected {
+            border-color: #CFB991;
+            background: rgba(207, 185, 145, 0.08);
+            color: #111827;
+        }
+
+        .choice-card input[type="radio"],
+        .choice-card input[type="checkbox"] {
+            accent-color: #CFB991;
+            width: 1rem;
+            height: 1rem;
+            flex-shrink: 0;
+        }
+
+        /* Toggle yes/no */
+        .yn-btn {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border-radius: 0.875rem;
+            font-weight: 800;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            text-align: center;
+            cursor: pointer;
+            border: 1.5px solid #E5E7EB;
+            background: white;
+            color: #9CA3AF;
+            transition: all 0.15s ease;
+        }
+
+        .yn-btn.active-yes {
+            background: #D1FAE5;
+            border-color: #10B981;
+            color: #065F46;
+        }
+
+        .yn-btn.active-no {
+            background: #FEE2E2;
+            border-color: #EF4444;
+            color: #991B1B;
+        }
+
+        /* Week checkbox grid */
+        .week-card {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            padding: 0.75rem 0.875rem;
+            border: 1.5px solid #E5E7EB;
+            border-radius: 0.875rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            background: white;
+            user-select: none;
+        }
+
+        .week-card:hover {
+            border-color: #CFB991;
+        }
+
+        .week-card.selected {
+            border-color: #CFB991;
+            background: rgba(207, 185, 145, 0.08);
+        }
+
+        .week-card input[type="checkbox"] {
+            accent-color: #CFB991;
+            width: 1rem;
+            height: 1rem;
+            flex-shrink: 0;
+        }
+
+        .week-num {
+            font-weight: 900;
+            font-size: 11px;
+            color: #CFB991;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .week-dates {
+            font-size: 11px;
+            font-weight: 600;
+            color: #6B7280;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 font-sans antialiased min-h-screen">
+
+<main class="p-4 sm:p-8">
+<div class="mx-auto max-w-2xl">
+
+    <!-- FORM PAGE -->
+    <div id="form-page" class="hidden">
+
+        <header class="mb-8">
+            <p class="text-[10px] font-black text-primary-gold uppercase tracking-[0.2em] mb-1">Purdue University</p>
+            <h1 class="text-3xl font-black tracking-tight">Summer Census</h1>
+            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">
+                Summer 2026 — Please complete all required fields
+            </p>
+        </header>
+
+        <form id="censusForm" class="space-y-6">
+
+            <!-- TOURS THIS SUMMER -->
+            <div class="bg-white p-6 rounded-3xl shadow-xl border border-gray-100">
+                <span class="label-style">Will you be giving tours over the summer?</span>
+
+                <div class="flex gap-3 mt-1">
+                    <button type="button" id="tours-yes" class="yn-btn" onclick="setYN('tours', 'Yes')">✓ &nbsp;Yes</button>
+                    <button type="button" id="tours-no"  class="yn-btn" onclick="setYN('tours', 'No')">✕ &nbsp;No</button>
+                </div>
+                <input type="hidden" name="givingTours" id="givingTours-value" required>
+            </div>
+
+            <!-- TOURS PER WEEK -->
+            <div class="bg-white p-6 rounded-3xl shadow-xl border border-gray-100" id="tours-per-week-section">
+                <label class="label-style" for="toursPerWeek">How many tours a week would you like to give?</label>
+                <div class="flex items-center gap-4 mt-1">
+                    <input
+                        type="number"
+                        name="toursPerWeek"
+                        id="toursPerWeek"
+                        min="0"
+                        max="10"
+                        placeholder="0 – 10"
+                        class="input-box w-36"
+                    >
+                    <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">per week (max 10)</span>
+                </div>
+            </div>
+
+            <!-- DESK INTEREST -->
+            <div class="bg-white p-6 rounded-3xl shadow-xl border border-gray-100">
+                <span class="label-style">Are you interested in working desk this summer?</span>
+                <div class="space-y-2 mt-1">
+
+                    <label class="choice-card" id="desk-FRONT">
+                        <input type="radio" name="deskInterest" value="FRONT" onchange="updateRadioStyles('desk')">
+                        <div>
+                            <div class="font-black text-sm">Yes, front desk preferred</div>
+                        </div>
+                    </label>
+
+                    <label class="choice-card" id="desk-WELCOME">
+                        <input type="radio" name="deskInterest" value="WELCOME" onchange="updateRadioStyles('desk')">
+                        <div>
+                            <div class="font-black text-sm">Yes, welcome desk preferred</div>
+                        </div>
+                    </label>
+
+                    <label class="choice-card" id="desk-EITHER">
+                        <input type="radio" name="deskInterest" value="EITHER" onchange="updateRadioStyles('desk')">
+                        <div>
+                            <div class="font-black text-sm">Yes, either desk</div>
+                        </div>
+                    </label>
+
+                    <label class="choice-card" id="desk-NO">
+                        <input type="radio" name="deskInterest" value="NO" onchange="updateRadioStyles('desk')">
+                        <div>
+                            <div class="font-black text-sm">No, not interested</div>
+                        </div>
+                    </label>
+
+                </div>
+            </div>
+
+            <!-- WEEK AVAILABILITY -->
+            <div class="bg-white p-6 rounded-3xl shadow-xl border border-gray-100">
+                <span class="label-style">What weeks are you available to work <em>in any capacity</em>? (select all that apply)</span>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2" id="weeks-grid">
+
+                    <label class="week-card" id="week-card-1">
+                        <input type="checkbox" name="weeks" value="Week 1" onchange="updateWeekStyle(this, 'week-card-1')">
+                        <div>
+                            <div class="week-num">Week 1</div>
+                            <div class="week-dates">Tue 5/26 – Fri 5/29</div>
+                        </div>
+                    </label>
+
+                    <label class="week-card" id="week-card-2">
+                        <input type="checkbox" name="weeks" value="Week 2" onchange="updateWeekStyle(this, 'week-card-2')">
+                        <div>
+                            <div class="week-num">Week 2</div>
+                            <div class="week-dates">Mon 6/1 – Fri 6/5</div>
+                        </div>
+                    </label>
+
+                    <label class="week-card" id="week-card-3">
+                        <input type="checkbox" name="weeks" value="Week 3" onchange="updateWeekStyle(this, 'week-card-3')">
+                        <div>
+                            <div class="week-num">Week 3</div>
+                            <div class="week-dates">Mon 6/8 – Fri 6/12</div>
+                        </div>
+                    </label>
+
+                    <label class="week-card" id="week-card-4">
+                        <input type="checkbox" name="weeks" value="Week 4" onchange="updateWeekStyle(this, 'week-card-4')">
+                        <div>
+                            <div class="week-num">Week 4</div>
+                            <div class="week-dates">Mon 6/15 – Fri 6/19</div>
+                        </div>
+                    </label>
+
+                    <label class="week-card" id="week-card-5">
+                        <input type="checkbox" name="weeks" value="Week 5" onchange="updateWeekStyle(this, 'week-card-5')">
+                        <div>
+                            <div class="week-num">Week 5</div>
+                            <div class="week-dates">Mon 6/22 – Fri 6/26</div>
+                        </div>
+                    </label>
+
+                    <label class="week-card" id="week-card-6">
+                        <input type="checkbox" name="weeks" value="Week 6" onchange="updateWeekStyle(this, 'week-card-6')">
+                        <div>
+                            <div class="week-num">Week 6</div>
+                            <div class="week-dates">Mon 6/29 – Fri 7/3</div>
+                        </div>
+                    </label>
+
+                    <label class="week-card" id="week-card-7">
+                        <input type="checkbox" name="weeks" value="Week 7" onchange="updateWeekStyle(this, 'week-card-7')">
+                        <div>
+                            <div class="week-num">Week 7</div>
+                            <div class="week-dates">Mon 7/6 – Fri 7/10</div>
+                        </div>
+                    </label>
+
+                    <label class="week-card" id="week-card-8">
+                        <input type="checkbox" name="weeks" value="Week 8" onchange="updateWeekStyle(this, 'week-card-8')">
+                        <div>
+                            <div class="week-num">Week 8</div>
+                            <div class="week-dates">Mon 7/13 – Fri 7/17</div>
+                        </div>
+                    </label>
+
+                    <label class="week-card" id="week-card-9">
+                        <input type="checkbox" name="weeks" value="Week 9" onchange="updateWeekStyle(this, 'week-card-9')">
+                        <div>
+                            <div class="week-num">Week 9</div>
+                            <div class="week-dates">Mon 7/20 – Fri 7/24</div>
+                        </div>
+                    </label>
+
+                    <label class="week-card" id="week-card-10">
+                        <input type="checkbox" name="weeks" value="Week 10" onchange="updateWeekStyle(this, 'week-card-10')">
+                        <div>
+                            <div class="week-num">Week 10</div>
+                            <div class="week-dates">Mon 7/27 – Fri 7/31</div>
+                        </div>
+                    </label>
+
+                </div>
+            </div>
+
+            <!-- SUBMIT -->
+            <div class="flex justify-end pb-8">
+                <button type="submit" id="submitBtn"
+                    class="bg-primary-gold hover:bg-[#b39a6d] text-white font-black py-4 px-10 rounded-2xl transition-all shadow-lg shadow-primary-gold/30 uppercase text-xs tracking-widest">
+                    Submit Census
+                </button>
+            </div>
+
+        </form>
+    </div>
+
+</div>
+</main>
+
+<!-- LOADING / STATUS OVERLAY -->
+<div id="status-overlay" class="fixed inset-0 bg-white z-50 flex items-center justify-center flex-col">
+    <div class="w-8 h-8 border-4 border-gray-100 border-t-primary-gold rounded-full animate-spin mb-4"></div>
+    <p id="status-message" class="text-[10px] font-black uppercase tracking-widest text-gray-400">
+        Loading Profile
+    </p>
+</div>
+
+<script>
+    // ─── CONFIG ───────────────────────────────────────────────────────────────
+    // Point this at the same Apps Script web app URL used by your main app,
+    // or create a new deployment that handles the census doPost.
+    const CENSUS_SCRIPT_URL = 'https://script.google.com/macros/s/YOUR_CENSUS_APPSCRIPT_URL_HERE/exec';
+    const SCHOOL_DOMAIN = "@purdue.edu";
+
+    const params   = new URLSearchParams(window.location.search);
+    const username = params.get('user');
+
+    // ─── INIT ─────────────────────────────────────────────────────────────────
+    window.onload = async () => {
+        if (!username) {
+            document.getElementById('status-message').innerText = "ERROR: NO USER FOUND";
+            return;
+        }
+
+        try {
+            // Re-use the same getName endpoint so we know the user is valid
+            const resp = await fetch(`${CENSUS_SCRIPT_URL}?action=getName&username=${encodeURIComponent(username)}`);
+            const data = await resp.json();
+
+            if (data.displayName || data.fullName) {
+                document.getElementById('status-overlay').classList.add('hidden');
+                document.getElementById('form-page').classList.remove('hidden');
+            } else {
+                document.getElementById('status-message').innerText = "USER NOT FOUND";
+            }
+        } catch (e) {
+            console.error(e);
+            document.getElementById('status-message').innerText = "CONNECTION ERROR";
+        }
+    };
+
+    // ─── YES / NO TOGGLE ──────────────────────────────────────────────────────
+    function setYN(field, value) {
+        document.getElementById(`${field}-value`).value = value;
+
+        const yesBtn = document.getElementById(`${field}-yes`);
+        const noBtn  = document.getElementById(`${field}-no`);
+
+        yesBtn.className = 'yn-btn' + (value === 'Yes' ? ' active-yes' : '');
+        noBtn.className  = 'yn-btn' + (value === 'No'  ? ' active-no'  : '');
+    }
+
+    // ─── RADIO CARD HIGHLIGHT ─────────────────────────────────────────────────
+    function updateRadioStyles(group) {
+        const cards = document.querySelectorAll(`input[name="${group}Interest"]`);
+        cards.forEach(input => {
+            const card = input.closest('.choice-card');
+            if (input.checked) {
+                card.classList.add('selected');
+            } else {
+                card.classList.remove('selected');
+            }
+        });
+    }
+
+    // ─── WEEK CHECKBOX HIGHLIGHT ──────────────────────────────────────────────
+    function updateWeekStyle(checkbox, cardId) {
+        const card = document.getElementById(cardId);
+        if (checkbox.checked) {
+            card.classList.add('selected');
+        } else {
+            card.classList.remove('selected');
+        }
+    }
+
+    // ─── FORM SUBMIT ──────────────────────────────────────────────────────────
+    document.getElementById('censusForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        // Basic validation
+        if (!document.getElementById('givingTours-value').value) {
+            alert('Please answer whether you will be giving tours this summer.');
+            return;
+        }
+        if (!document.querySelector('input[name="deskInterest"]:checked')) {
+            alert('Please select your desk preference.');
+            return;
+        }
+
+        const btn = document.getElementById('submitBtn');
+        btn.innerText = "SUBMITTING...";
+        btn.disabled  = true;
+
+        // Collect checked weeks
+        const selectedWeeks = Array.from(
+            document.querySelectorAll('input[name="weeks"]:checked')
+        ).map(cb => cb.value).join(', ');
+
+        const payload = {
+            action:       'census',
+            username:     username,
+            givingTours:  document.getElementById('givingTours-value').value,          // Col P
+            toursPerWeek: document.getElementById('toursPerWeek').value || '0',        // Col Q
+            deskInterest: document.querySelector('input[name="deskInterest"]:checked').value, // Col R
+            weeks:        selectedWeeks,                                                // Col S
+        };
+
+        try {
+            await fetch(CENSUS_SCRIPT_URL, {
+                method: 'POST',
+                mode:   'no-cors',
+                body:   JSON.stringify(payload)
+            });
+        } catch (err) {
+            // no-cors swallows errors; proceed to redirect regardless
+            console.warn('Fetch note:', err);
+        }
+
+        btn.innerText = "REDIRECTING TO TGIS...";
+
+        setTimeout(() => {
+            window.location.href = `https://purduetours.github.io/TGIS/app.html?user=${username}`;
+        }, 1500);
+    });
+</script>
+
+</body>
+</html>
