@@ -184,11 +184,11 @@
 
             <!-- TOURS THIS SUMMER -->
             <div class="bg-white p-6 rounded-3xl shadow-xl border border-gray-100">
-                <span class="label-style">Will you be giving tours over the summer?</span>
+            <span class="label-style">Will you be giving tours over the summer?</span>
 
                 <div class="flex gap-3 mt-1">
                     <button type="button" id="tours-yes" class="yn-btn" onclick="setYN('tours', 'Yes')">✓ &nbsp;Yes</button>
-                    <button type="button" id="tours-no"  class="yn-btn" onclick="setYN('tours', 'No')">✕ &nbsp;No</button>
+                    <button type="button" id="tours-no" class="yn-btn" onclick="setYN('tours', 'No')">✕ &nbsp;No</button>
                 </div>
                 <input type="hidden" name="givingTours" id="givingTours-value" required>
             </div>
@@ -392,15 +392,36 @@
     };
 
     // ─── YES / NO TOGGLE ──────────────────────────────────────────────────────
-    function setYN(field, value) {
-        document.getElementById(`${field}-value`).value = value;
+function setYN(field, value) {
+    // We map 'tours' to the actual hidden input ID 'givingTours-value'
+    const inputId = (field === 'tours') ? 'givingTours-value' : `${field}-value`;
+    const input = document.getElementById(inputId);
+    
+    if (input) input.value = value;
 
-        const yesBtn = document.getElementById(`${field}-yes`);
-        const noBtn  = document.getElementById(`${field}-no`);
+    // Update button styles
+    const yesBtn = document.getElementById(`${field}-yes`);
+    const noBtn  = document.getElementById(`${field}-no`);
 
+    if (yesBtn && noBtn) {
         yesBtn.className = 'yn-btn' + (value === 'Yes' ? ' active-yes' : '');
         noBtn.className  = 'yn-btn' + (value === 'No'  ? ' active-no'  : '');
     }
+
+    // --- CONDITIONAL LOGIC ---
+    if (field === 'tours') {
+        const reasonSection = document.getElementById('no-reason-section');
+        const perWeekSection = document.getElementById('tours-per-week-section');
+        
+        if (value === 'No') {
+            if (reasonSection) reasonSection.classList.remove('hidden');
+            if (perWeekSection) perWeekSection.classList.add('hidden');
+        } else {
+            if (reasonSection) reasonSection.classList.add('hidden');
+            if (perWeekSection) perWeekSection.classList.remove('hidden');
+        }
+    }
+}
 
     // ─── RADIO CARD HIGHLIGHT ─────────────────────────────────────────────────
     function updateRadioStyles(group) {
