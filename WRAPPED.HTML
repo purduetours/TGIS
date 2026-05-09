@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tour Guide Wrapped | Spring 2025</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --spotify-green: #1DB954;
+            --purdue-gold: #CFB991;
+        }
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        .wrapped-font { font-family: 'Archivo Black', sans-serif; }
+        
+        /* Custom Background Shapes */
+        .blob {
+            position: absolute;
+            filter: blur(80px);
+            z-index: -1;
+            border-radius: 50%;
+            opacity: 0.6;
+        }
+
+        /* Section Snap */
+        section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .gold-shimmer {
+            background: linear-gradient(90deg, #CFB991, #fff, #CFB991);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 3s linear infinite;
+        }
+
+        @keyframes shimmer {
+            to { background-position: 200% center; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Background Blobs for Atmosphere -->
+    <div class="blob w-96 h-96 bg-green-600 top-10 -left-20"></div>
+    <div class="blob w-[500px] h-[500px] bg-yellow-900 bottom-10 -right-20"></div>
+
+    <!-- INTRO PANEL -->
+    <section class="text-center">
+        <div data-aos="zoom-out" data-aos-duration="1500">
+            <span class="inline-block border-2 border-white px-4 py-1 rounded-full text-xs font-black tracking-widest mb-6">SPRING 2025 RECAP</span>
+            <h1 class="wrapped-font text-6xl md:text-8xl italic uppercase leading-[0.9] tracking-tighter">
+                TOUR<br>GUIDE<br><span class="text-[var(--spotify-green)]">WRAPPED</span>
+            </h1>
+            <p class="mt-8 text-white/50 font-bold animate-bounce text-sm uppercase tracking-widest">Scroll to start the show ↓</p>
+        </div>
+    </section>
+
+    <!-- THE STATS PANEL -->
+    <section class="bg-white text-black rounded-[3rem] my-10 overflow-hidden">
+        <div class="max-w-4xl mx-auto w-full">
+            <h2 class="wrapped-font text-4xl mb-12 text-center" data-aos="fade-up">YOU CRUSHED THE BRICKS.</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Tour Stat -->
+                <div class="p-10 border-4 border-black rounded-[2rem]" data-aos="fade-right" data-aos-delay="200">
+                    <p class="font-black text-xs uppercase tracking-widest mb-2">Semester Tours</p>
+                    <span class="wrapped-font text-8xl leading-none">42</span>
+                    <p class="mt-4 font-bold opacity-60">Average of 3 per week. Legend status.</p>
+                </div>
+                
+                <!-- Hours Stat -->
+                <div class="p-10 bg-[var(--purdue-gold)] rounded-[2rem]" data-aos="fade-left" data-aos-delay="400">
+                    <p class="font-black text-xs uppercase tracking-widest mb-2">Hours Dedicated</p>
+                    <span class="wrapped-font text-8xl leading-none">63</span>
+                    <p class="mt-4 font-bold opacity-70">That's 3,780 minutes of Purdue hype.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- REVERSE WALKING HIGHLIGHT (The Fun Effect) -->
+    <section>
+        <div class="max-w-4xl mx-auto text-center">
+            <div class="inline-block bg-[var(--spotify-green)] text-black p-4 rounded-2xl mb-8 -rotate-2" data-aos="flip-up">
+                <span class="wrapped-font text-2xl uppercase">Reverse Master Level 99</span>
+            </div>
+            
+            <h2 class="wrapped-font text-5xl md:text-7xl italic uppercase mb-12 leading-tight" data-aos="fade-down">
+                Walking Backwards <br>Is Your <span class="text-[var(--spotify-green)]">Superpower.</span>
+            </h2>
+
+            <div class="grid grid-cols-2 md:grid-cols-2 gap-4">
+                <div class="p-8 bg-zinc-900 rounded-[2.5rem] border border-white/10" data-aos="zoom-in" data-aos-delay="200">
+                    <span class="wrapped-font text-5xl md:text-7xl block mb-2">54.6</span>
+                    <p class="text-white/40 font-black tracking-widest text-xs uppercase">Miles In Reverse</p>
+                </div>
+                <div class="p-8 bg-zinc-900 rounded-[2.5rem] border border-white/10" data-aos="zoom-in" data-aos-delay="400">
+                    <span class="wrapped-font text-5xl md:text-7xl block mb-2">109k</span>
+                    <p class="text-white/40 font-black tracking-widest text-xs uppercase">Backwards Steps</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CAREER MILESTONE -->
+    <section class="bg-[var(--purdue-gold)] text-black">
+        <div class="text-center" data-aos="zoom-in-up">
+            <p class="font-black tracking-[0.3em] uppercase text-sm mb-4">The Big Picture</p>
+            <div class="inline-block border-[10px] border-black p-10 md:p-20">
+                <h3 class="wrapped-font text-[10rem] md:text-[15rem] leading-none">128</h3>
+                <p class="wrapped-font text-2xl md:text-4xl uppercase tracking-tighter">Career Tours & Counting</p>
+            </div>
+            <p class="mt-10 font-bold max-w-md mx-auto italic">"Your legacy isn't just the tours you gave, it's the future Boilermakers you inspired."</p>
+        </div>
+    </section>
+
+    <!-- FINAL SIGN OFF -->
+    <section class="h-[60vh] flex items-center justify-center">
+        <div class="text-center" data-aos="fade-up">
+            <h4 class="wrapped-font text-4xl md:text-6xl gold-shimmer italic uppercase mb-8">Boiler Up. <br>Hammer Down.</h4>
+            <div class="flex justify-center gap-4">
+                <div class="w-4 h-4 bg-white rounded-full"></div>
+                <div class="w-4 h-4 bg-[var(--purdue-gold)] rounded-full"></div>
+                <div class="w-4 h-4 bg-[var(--spotify-green)] rounded-full"></div>
+            </div>
+            <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="mt-12 text-xs font-black uppercase tracking-widest border-b border-white pb-1 hover:text-[var(--spotify-green)] transition">Back to Top</button>
+        </div>
+    </section>
+
+    <!-- SCRIPTS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        // Initialize Animate On Scroll
+        AOS.init({
+            duration: 1000,
+            once: false,
+            mirror: true
+        });
+    </script>
+</body>
+</html>
