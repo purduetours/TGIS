@@ -189,15 +189,38 @@
     animation: pulse-subtle 3s ease-in-out infinite;
 }
 
-        .bottom-nav-dedicated {
+.bottom-nav-dedicated {
     height: 75px;
     background: white;
     border-top: 1px solid #F3F4F6;
     display: flex;
     justify-content: space-around;
     align-items: center;
-    flex-shrink: 0; 
+    flex-shrink: 0;
     padding-bottom: env(safe-area-inset-bottom);
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+.bn-btn {
+    color: #9CA3AF;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    min-width: 44px;
+}
+
+.bn-btn.active {
+    color: #CFB991;
+    background: rgba(207, 185, 145, 0.1);
+}
+
+.bn-btn svg {
+    transition: transform 0.15s ease;
+}
+
+.bn-btn.active svg {
+    transform: translateY(-1px);
 }
 
         @media (max-width: 1024px) { 
@@ -328,10 +351,10 @@
     </div>
 </nav>
 
-<header class="lg:hidden p-4 bg-white shadow-md flex justify-between items-center z-20 sticky top-0">
+<!--<header class="lg:hidden p-4 bg-white shadow-md flex justify-between items-center z-20 sticky top-0">
     <div class="text-lg font-black">TGIS Mobile</div>
     <button id="mobile-menu-button" class="text-3xl p-2">☰</button>
-</header>
+</header> -->
 
 
 <div class="content-area p-4 sm:p-8">
@@ -919,15 +942,22 @@ function switchView(viewId) {
     document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
     document.getElementById(`view-${viewId}`).classList.add('active');
 
-    // 2. Update the Desktop Sidebar active state
+    // 2. Update desktop sidebar active state
     document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
     const activeNav = document.getElementById(`nav-${viewId}`);
-    if(activeNav) activeNav.classList.add('active');
+    if (activeNav) activeNav.classList.add('active');
 
-    // 3. IMPORTANT: Reset scroll position of the content area
+    // 3. Update mobile bottom nav active state
+    document.querySelectorAll('.bn-btn').forEach(btn => btn.classList.remove('active'));
+    const activeBn = document.getElementById(`bn-${viewId}`);
+    if (activeBn) activeBn.classList.add('active');
+
+    // 4. Close sidebar if open on mobile
+    document.getElementById('sidebar').classList.remove('open');
+
+    // 5. Reset scroll
     document.querySelector('.content-area').scrollTop = 0;
 }
-
     // Helper to convert "1:30 PM" to 24-hour integers
 function parse12Hour(timeStr) {
     const [time, modifier] = timeStr.split(' ');
@@ -1385,6 +1415,8 @@ async function init() {
             document.getElementById('home-sem-total').innerText = cachedData.stats.semesterTotal;
             document.getElementById('sem-label').innerText = cachedData.currentSemesterName;
             document.getElementById('user-rank').innerText = `#${cachedData.rank}`;
+            document.getElementById('bn-home')?.classList.add('active');
+
 
             handleMilestones(cachedData.stats.careerTotal);
             updateLeaderboard('career');
@@ -1541,35 +1573,34 @@ drawConfetti();
 
     init();
 </script>
-    <div class="lg:hidden bottom-nav-dedicated">
-    <button onclick="switchView('home')" class="flex flex-col items-center">
-        <span class="text-xl">🏠</span>
-        <span class="text-[9px] font-black uppercase">Home</span>
+<div class="lg:hidden bottom-nav-dedicated" id="bottom-nav-bar">
+    <button id="bn-home" onclick="switchView('home')" class="bn-btn flex flex-col items-center gap-1 px-3 py-2 rounded-2xl transition-all">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
+        <span class="text-[9px] font-black uppercase tracking-wide">Home</span>
     </button>
-    <button onclick="switchView('schedule')" class="flex flex-col items-center">
-        <span class="text-xl">📅</span>
-        <span class="text-[9px] font-black uppercase">Schedule</span>
+    <button id="bn-schedule" onclick="switchView('schedule')" class="bn-btn flex flex-col items-center gap-1 px-3 py-2 rounded-2xl transition-all">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>
+        <span class="text-[9px] font-black uppercase tracking-wide">Schedule</span>
     </button>
-    <button onclick="switchView('tracker')" class="flex flex-col items-center">
-        <span class="text-xl">📊</span>
-        <span class="text-[9px] font-black uppercase">Tracker</span>
+    <button id="bn-tracker" onclick="switchView('tracker')" class="bn-btn flex flex-col items-center gap-1 px-3 py-2 rounded-2xl transition-all">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+        <span class="text-[9px] font-black uppercase tracking-wide">Tracker</span>
     </button>
-    <button onclick="switchView('families')" class="flex flex-col items-center">
-        <span class="text-xl">🏆</span>
-        <span class="text-[9px] font-black uppercase">Points</span>
+    <button id="bn-families" onclick="switchView('families')" class="bn-btn flex flex-col items-center gap-1 px-3 py-2 rounded-2xl transition-all">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <span class="text-[9px] font-black uppercase tracking-wide">Points</span>
     </button>
-    <button onclick="switchView('desk')" class="flex flex-col items-center">
-        <span class="text-xl">🗃️</span>
-        <span class="text-[9px] font-black uppercase">Desk</span>
+    <button id="bn-forms" onclick="switchView('forms')" class="bn-btn flex flex-col items-center gap-1 px-3 py-2 rounded-2xl transition-all">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/></svg>
+        <span class="text-[9px] font-black uppercase tracking-wide">Forms</span>
     </button>
-    <button onclick="switchView('forms')" class="flex flex-col items-center">
-        <span class="text-xl">📝</span>
-        <span class="text-[9px] font-black uppercase">Forms</span>
+    <button id="bn-menu" onclick="document.getElementById('sidebar').classList.add('open')" class="bn-btn flex flex-col items-center gap-1 px-3 py-2 rounded-2xl transition-all">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        <span class="text-[9px] font-black uppercase tracking-wide">Menu</span>
     </button>
-    
-    
 </div>
 
+    
 <div id="tour-lock-screen" class="hidden fixed inset-0 z-[9999] bg-[#000000] flex flex-col items-center justify-center p-8 text-center">
     <div class="absolute inset-0 opacity-5 font-black text-[15rem] overflow-hidden pointer-events-none text-white flex items-center justify-center">
         TOUR
