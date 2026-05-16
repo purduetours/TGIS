@@ -1415,7 +1415,6 @@ async function init() {
             document.getElementById('home-sem-total').innerText = cachedData.stats.semesterTotal;
             document.getElementById('sem-label').innerText = cachedData.currentSemesterName;
             document.getElementById('user-rank').innerText = `#${cachedData.rank}`;
-            document.getElementById('bn-home')?.classList.add('active');
 
 
             handleMilestones(cachedData.stats.careerTotal);
@@ -1479,6 +1478,8 @@ async function init() {
                 showError(e.message.toUpperCase().replace(/\s+/g, '_'));
             }
         }
+    document.getElementById('bn-home')?.classList.add('active');
+
     }
 
     function showView(viewId) {
