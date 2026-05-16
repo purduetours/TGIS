@@ -338,72 +338,75 @@
     
 
 <div id="view-home" class="view-section active">
-    <header class="mb-8 text-left">
-        <h1 class="text-4xl font-black text-left">Welcome, <span id="welcome-name" class="text-primary-gold text-nowrap">Guide</span></h1>
-        <p id="live-clock" class="text-lg font-bold text-gray-400 uppercase mt-2">Loading...</p>
+
+    <header class="mb-6">
+        <h1 class="text-4xl font-black">Welcome, <span id="welcome-name" class="text-primary-gold text-nowrap">Guide</span></h1>
+        <p id="live-clock" class="text-sm font-bold text-gray-400 uppercase tracking-wider mt-1">Loading...</p>
     </header>
 
-    <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] ml-2 mb-3 text-left">Next Tour</h3>
-    <div id="home-next-tour-container" class="mb-8 text-left">
+    <!-- NEXT TOUR -->
+    <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] ml-1 mb-2">Next Tour</p>
+    <div id="home-next-tour-container" class="mb-5">
         <div class="bg-gray-50 border-2 border-dashed border-gray-200 rounded-[2rem] p-5 flex items-center justify-center text-center">
-            <p class="text-gray-400 text-[10px] font-black uppercase tracking-widest mt-1">No tours scheduled</p>
+            <p class="text-gray-400 text-[10px] font-black uppercase tracking-widest">No tours scheduled</p>
         </div>
     </div>
 
-    <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] ml-2 mb-3 text-left">Alerts</h3>
-    <div class="space-y-3 mb-8">
-        <!-- <div class="bg-red-600 rounded-2xl p-4 shadow-lg flex items-center gap-4 animate-pulse border-b-4 border-red-800 text-left text-white">
-            <div class="text-3xl">⚠️</div>
+    <!-- QUICK STATS -->
+    <div class="grid grid-cols-2 gap-3 mb-5">
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">This Semester</p>
+            <p id="home-sem-total" class="text-4xl font-black text-status-green">--</p>
+            <p class="text-[10px] font-bold text-gray-400 mt-0.5">tours given</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Upcoming</p>
+            <p id="home-upcoming-count" class="text-4xl font-black text-primary-gold">--</p>
+            <p class="text-[10px] font-bold text-gray-400 mt-0.5">tours scheduled</p>
+        </div>
+    </div>
+
+    <!-- TODAY'S SCHEDULE -->
+    <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] ml-1 mb-2">Today's Schedule</p>
+    <div id="home-today-container" class="mb-5">
+        <div class="bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl p-4 text-center">
+            <p class="text-gray-400 text-[10px] font-black uppercase tracking-widest">No tours today</p>
+        </div>
+    </div>
+
+    <!-- ALERTS -->
+    <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] ml-1 mb-2">Alerts</p>
+    <div class="space-y-3 mb-5">
+        <div class="bg-yellow-400 rounded-2xl p-4 flex items-start gap-3 border-b-4 border-yellow-600 text-black">
+            <div class="text-2xl leading-none mt-0.5">🛑</div>
             <div>
-                <h3 class="font-black uppercase tracking-tighter leading-tight text-sm text-left">Introducing Purdue (April 13)</h3>
-                <p class="text-red-100 text-[10px] font-bold uppercase tracking-widest leading-tight text-left">
-                    Expect large crowds. Be prepared to make adjustments to your tour route.
+                <p class="font-black uppercase tracking-tighter text-sm leading-tight">Use Caution Inside Ford</p>
+                <p class="text-yellow-900 text-[10px] font-bold uppercase tracking-widest leading-tight mt-1">
+                    Only give your stop inside if there are no groups and the room is clear.
                 </p>
             </div>
-        </div> -->
+        </div>
+    </div>
 
-        <div class="bg-yellow-400 rounded-2xl p-4 shadow-lg flex items-center gap-4 border-b-4 border-yellow-600 text-black text-left">
-            <div class="text-3xl">🛑</div>
+    <!-- ANNOUNCEMENTS -->
+    <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] ml-1 mb-2">Announcements</p>
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mb-5">
+        <div class="flex gap-3 items-start p-4 border-b border-gray-50">
+            <div class="w-2 h-2 rounded-full bg-primary-gold mt-1.5 shrink-0"></div>
             <div>
-                <h3 class="font-black uppercase tracking-tighter leading-tight text-sm text-left">USE CAUTION INSIDE FORD</h3>
-                <p class="text-yellow-900 text-[10px] font-bold uppercase tracking-widest leading-tight text-left text-black">
-                    Only give your stop inside if there are no groups and the room is relatively clear.
-                </p>
+                <p class="font-bold text-sm">Tour Tracker</p>
+                <p class="text-xs text-gray-500">Updated every Thursday.</p>
+            </div>
+        </div>
+        <div class="flex gap-3 items-start p-4">
+            <div class="w-2 h-2 rounded-full bg-gray-200 mt-1.5 shrink-0"></div>
+            <div>
+                <p class="font-bold text-sm text-gray-400">Construction Update</p>
+                <p class="text-[10px] text-gray-400 uppercase font-black tracking-wider">Resolved</p>
             </div>
         </div>
     </div>
 
-    <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 mb-6 text-left">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest text-left">Latest Announcements</h3>
-            <span class="bg-primary-gold/10 text-primary-gold text-[10px] font-black px-2 py-1 rounded-md uppercase">New</span>
-        </div>
-        <div class="space-y-4">
-            <div class="flex gap-4 items-start">
-                <div class="w-2 h-2 rounded-full bg-primary-gold mt-1.5 shrink-0"></div>
-                <div>
-                    <p class="font-bold text-sm text-left">Tour Tacker</p>
-                    <p class="text-xs text-gray-500 text-left">The tour tracker is updated every Thursday.</p>
-                </div>
-            </div>
-            <hr class="border-gray-50">
-            <div class="flex gap-4 items-start">
-                <div class="w-2 h-2 rounded-full bg-gray-200 mt-1.5 shrink-0"></div>
-                <div>
-                    <p class="font-bold text-sm text-gray-400 text-left font-black">Construction Update</p>
-                    <p class="text-xs text-gray-400 uppercase font-black text-left">Resolved</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 mb-6 text-left">
-        <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-2 text-left">Quick Links</h3>
-        <div class="grid grid-cols-2 gap-4">
-            <div class="p-4 bg-gray-50 rounded-2xl text-center font-bold text-sm text-gray-400">Coming Soon</div>
-            <a href="#" class="p-4 bg-gray-50 rounded-2xl text-center font-bold text-sm hover:bg-gray-100 transition-colors text-black">Handbook</a>
-        </div>
-    </div>
 </div>
 
     
@@ -974,60 +977,107 @@ function checkTourLock(myTours) {
 
 function renderHomeNextTour(myTours) {
     const container = document.getElementById('home-next-tour-container');
-    if (!container || !myTours || myTours.length === 0) return;
+    const upcomingEl = document.getElementById('home-upcoming-count');
+    if (!container) return;
 
-    const now = new Date();
-    now.setHours(0,0,0,0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-    // Find the next upcoming tour
-    const upcoming = myTours
-        .filter(t => new Date(t.date) >= now)
-        .sort((a,b) => new Date(a.date) - new Date(b.date));
+    const upcoming = (myTours || [])
+        .filter(t => { const d = new Date(t.date); d.setHours(0,0,0,0); return d >= today; })
+        .sort((a, b) => new Date(a.date) - new Date(b.date));
 
-    if (upcoming.length > 0) {
-        const tour = upcoming[0];
-        
-        // --- DATA CHECK ---
-        // If tour.time is undefined, we look at the TOUR_MAP as a fallback
-        const info = TOUR_MAP[tour.type] || { color: 'bg-gray-500', name: tour.type, time: '--:--' };
-        const displayTime = tour.time || info.time; 
-        
-        const tourDate = new Date(tour.date);
-        
-        // Date Components
-        const month = tourDate.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
-        const dayNum = tourDate.getDate();
-        const dayName = tourDate.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
+    // Fill upcoming count stat card
+    if (upcomingEl) upcomingEl.innerText = upcoming.length;
 
-        container.innerHTML = `
-            <div class="${info.color} rounded-[2rem] p-4 shadow-lg border-b-4 border-black/20 text-white flex items-center gap-5">
-                
-                <div class="bg-white/20 backdrop-blur-md rounded-2xl w-16 h-16 flex flex-col items-center justify-center shrink-0 border border-white/10">
-                    <span class="text-[9px] font-black tracking-widest opacity-80 mb-0.5">${month}</span>
-                    <span class="text-xl font-black leading-none">${dayNum}</span>
-                    <span class="text-[9px] font-black tracking-widest opacity-80 mt-1">${dayName}</span>
-                </div>
+    // Render today's schedule
+    renderHomeTodaySchedule(myTours || []);
 
-                <div class="flex flex-col justify-center">
-                    <div class="flex items-center gap-2 mb-1">
-                        <span class="bg-black/20 text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-[0.15em]">
-                            ${info.name}
-                        </span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span class="text-2xl font-black tracking-tighter uppercase italic italic">
-                            ${displayTime}
-                        </span>
-                    </div>
-                </div>
-
-            </div>`;
-    } else {
+    if (upcoming.length === 0) {
         container.innerHTML = `
             <div class="bg-gray-50 border-2 border-dashed border-gray-200 rounded-[2rem] p-5 flex items-center justify-center text-center">
-                <p class="text-gray-400 text-[10px] font-black uppercase tracking-widest mt-1">No tours scheduled</p>
+                <p class="text-gray-400 text-[10px] font-black uppercase tracking-widest">No tours scheduled</p>
             </div>`;
+        return;
     }
+
+    const tour = upcoming[0];
+    const info = TOUR_MAP[tour.type] || { color: 'bg-gray-600', name: tour.type, time: '--:--' };
+    const displayTime = tour.time || info.time;
+    const tourDate = new Date(tour.date);
+
+    const month = tourDate.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
+    const dayNum = tourDate.getDate();
+    const dayName = tourDate.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
+
+    // "X days away" label
+    const diffDays = Math.round((new Date(tour.date) - new Date()) / (1000 * 60 * 60 * 24));
+    const diffLabel = diffDays <= 0 ? 'Today' : diffDays === 1 ? 'Tomorrow' : `${diffDays} days away`;
+
+    container.innerHTML = `
+        <div style="background:#1a1408; border:1px solid rgba(207,185,145,0.3);" class="rounded-[2rem] p-5 flex items-center gap-5">
+            <div style="background:rgba(207,185,145,0.12); border:1px solid rgba(207,185,145,0.35);" class="rounded-2xl w-16 h-16 flex flex-col items-center justify-center shrink-0">
+                <span class="text-[9px] font-black tracking-widest text-primary-gold mb-0.5">${month}</span>
+                <span class="text-2xl font-black leading-none text-white">${dayNum}</span>
+                <span class="text-[9px] font-black tracking-widest mt-0.5" style="color:rgba(207,185,145,0.6)">${dayName}</span>
+            </div>
+            <div class="flex flex-col justify-center min-w-0">
+                <span style="background:rgba(207,185,145,0.12); color:#CFB991;" class="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md w-fit mb-2">${info.name}</span>
+                <span class="text-3xl font-black text-white leading-none tracking-tight">${displayTime}</span>
+                <span class="text-[11px] font-bold mt-1" style="color:rgba(255,255,255,0.4)">${diffLabel}</span>
+            </div>
+        </div>`;
+}
+
+function renderHomeTodaySchedule(myTours) {
+    const container = document.getElementById('home-today-container');
+    if (!container) return;
+
+    const todayStr = new Date().toDateString();
+    const todayTours = myTours
+        .filter(t => new Date(t.date).toDateString() === todayStr)
+        .sort((a, b) => {
+            const getMinutes = t => {
+                const info = TOUR_MAP[t.type];
+                if (!info) return 9999;
+                const p = parse12Hour(info.time);
+                return p.hours * 60 + p.minutes;
+            };
+            return getMinutes(a) - getMinutes(b);
+        });
+
+    if (todayTours.length === 0) {
+        container.innerHTML = `
+            <div class="bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl p-4 text-center">
+                <p class="text-gray-400 text-[10px] font-black uppercase tracking-widest">No tours today</p>
+            </div>`;
+        return;
+    }
+
+    const now = new Date();
+    const dotColors = { '9DV': '#10B981', '0DV': '#10B981', '1DV': '#10B981', '2DV': '#10B981', '0GV': '#3B82F6', '8PA': '#8B5CF6', '1PF': '#8B5CF6', '1PA': '#8B5CF6', '2PA': '#8B5CF6' };
+
+    const rows = todayTours.map((tour, i) => {
+        const info = TOUR_MAP[tour.type] || { name: tour.type, time: '--' };
+        const displayTime = tour.time || info.time;
+        const dot = dotColors[tour.type] || '#9CA3AF';
+        const isLast = i === todayTours.length - 1;
+        return `
+            <div class="flex items-center gap-3 px-4 py-3 ${isLast ? '' : 'border-b border-gray-50'}">
+                <div class="w-2 h-2 rounded-full shrink-0" style="background:${dot}"></div>
+                <span class="font-bold text-sm flex-1">${info.name}</span>
+                <span class="text-sm font-black text-gray-600">${displayTime}</span>
+            </div>`;
+    }).join('');
+
+    container.innerHTML = `
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+            <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+                <span class="text-xs font-black text-gray-500 uppercase tracking-widest">Today</span>
+                <span class="bg-status-green/10 text-status-green text-[10px] font-black px-2 py-0.5 rounded-md uppercase">${todayTours.length} tour${todayTours.length > 1 ? 's' : ''}</span>
+            </div>
+            ${rows}
+        </div>`;
 }
     function updateClock() {
         const now = new Date();
@@ -1332,6 +1382,7 @@ async function init() {
 
             document.getElementById('career-total').innerText = cachedData.stats.careerTotal;
             document.getElementById('sem-total').innerText = cachedData.stats.semesterTotal;
+            document.getElementById('home-sem-total').innerText = cachedData.stats.semesterTotal;
             document.getElementById('sem-label').innerText = cachedData.currentSemesterName;
             document.getElementById('user-rank').innerText = `#${cachedData.rank}`;
 
