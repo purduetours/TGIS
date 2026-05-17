@@ -251,6 +251,11 @@
 
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes pulse-soft { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        @keyframes loading-bar-pulse {
+            0%   { opacity: 1; }
+            50%  { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
 
         .loader { 
             border-top-color: #CFB991; 
@@ -275,29 +280,41 @@
 </head>
 <body class="bg-gray-50 font-sans antialiased text-text-dark">
 
-<div id="loading-overlay" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center transition-opacity duration-500 p-6">
-    <div id="loader-content" class="flex flex-col items-center">
-        <div class="relative flex items-center justify-center mb-6">
-            <div class="loader ease-linear rounded-full border-4 border-gray-100 h-16 w-16"></div>
-            <div class="absolute text-xl">🚂</div>
+<div id="loading-overlay" class="fixed inset-0 z-[100] flex flex-col items-center justify-center transition-opacity duration-500" style="background:#0f0c04;">
+
+    <!-- Loading state -->
+    <div id="loader-content" class="flex flex-col items-center w-full max-w-xs px-8">
+
+        <!-- Wordmark -->
+        <div style="margin-bottom:2.5rem;text-align:center;">
+            <p style="font-size:9px;font-weight:900;letter-spacing:0.3em;text-transform:uppercase;color:rgba(207,185,145,0.5);margin-bottom:6px;">Purdue University</p>
+            <h1 style="font-size:2rem;font-weight:900;color:#ffffff;letter-spacing:-0.02em;line-height:1;">TGIS</h1>
+            <p style="font-size:10px;font-weight:700;color:rgba(207,185,145,0.6);letter-spacing:0.15em;text-transform:uppercase;margin-top:4px;">Tour Guide Information System</p>
         </div>
-        <div class="text-center loading-text">
-            <h2 class="font-black text-xl tracking-tight text-gray-800">TGIS 2.3</h2>
-            <p class="text-[10px] font-bold text-primary-gold uppercase tracking-[0.3em] mt-1">Please wait...</p>
+
+        <!-- Progress bar -->
+        <div style="width:100%;height:2px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;margin-bottom:1.5rem;">
+            <div id="loading-bar" style="height:100%;width:0%;background:#CFB991;border-radius:99px;transition:width 0.4s ease;"></div>
         </div>
+
+        <!-- Status text -->
+        <p id="loading-status" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:rgba(207,185,145,0.5);">Connecting...</p>
     </div>
 
-    <div id="error-content" class="hidden flex flex-col items-center text-center max-w-xs">
-        <div class="text-4xl mb-4">⚠️</div>
-        <h2 class="font-black text-xl text-gray-800 uppercase tracking-tight">Connection Failed</h2>
-        <p class="text-xs font-bold text-gray-400 mt-2 leading-relaxed">We couldn't reach the TGIS server. Check your connection and try again. Please contact Jacob if the issue persists.</p>
-        
-        <div class="mt-6 bg-gray-50 p-3 rounded-xl border border-gray-100 w-full">
-            <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Error Code</p>
-            <p id="error-code-display" class="text-sm font-mono font-bold text-red-500">UNKNOWN_ERR</p>
+    <!-- Error state -->
+    <div id="error-content" class="hidden flex-col items-center text-center w-full max-w-xs px-8">
+        <div style="width:48px;height:48px;border-radius:12px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);display:flex;align-items:center;justify-content:center;margin-bottom:1.5rem;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2.5" stroke-linecap="round"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+        </div>
+        <h2 style="font-size:1.1rem;font-weight:900;color:#ffffff;letter-spacing:-0.01em;margin-bottom:0.5rem;">Connection Failed</h2>
+        <p style="font-size:12px;color:rgba(255,255,255,0.4);line-height:1.6;margin-bottom:1.5rem;">Couldn't reach the TGIS server. Check your connection and try again, or contact Jacob if the issue persists.</p>
+
+        <div style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:0.75rem 1rem;margin-bottom:1.5rem;text-align:left;">
+            <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:rgba(255,255,255,0.25);margin-bottom:4px;">Error code</p>
+            <p id="error-code-display" class="font-mono" style="font-size:13px;font-weight:700;color:#EF4444;">UNKNOWN_ERR</p>
         </div>
 
-        <button onclick="window.location.reload()" class="mt-6 bg-primary-black text-white px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest shadow-lg">
+        <button onclick="window.location.reload()" style="width:100%;background:#CFB991;color:#0f0c04;padding:0.875rem;border-radius:12px;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;border:none;cursor:pointer;">
             Retry Connection
         </button>
     </div>
@@ -560,67 +577,66 @@
 </div>
 
 
-   <div id="view-schedule" class="view-section">
+<div id="view-schedule" class="view-section p-4 sm:p-8">
 
-    <!-- CALENDAR SECTION — full bleed dark header like home -->
-    <div style="background:#111827; position:relative; overflow:hidden;">
-        <div style="height:3px;background:#CFB991;width:100%;"></div>
-        <div style="padding:1.25rem 1rem 1.5rem;">
+    <!-- HEADER -->
+    <header class="mb-6">
+        <h1 class="text-3xl font-black tracking-tight">Your Schedule</h1>
+        <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Tap a date to filter · scroll down for full list</p>
+    </header>
 
-            <!-- Month nav -->
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
-                <div>
-                    <p style="font-size:9px;font-weight:900;letter-spacing:0.2em;text-transform:uppercase;color:rgba(207,185,145,0.5);margin-bottom:2px;">Your Schedule</p>
-                    <h2 id="calendar-month-name" style="font-size:1.4rem;font-weight:900;color:#fff;letter-spacing:-0.02em;">May 2026</h2>
+    <!-- DESKTOP: side-by-side. MOBILE: stacked -->
+    <div class="flex flex-col lg:flex-row gap-6 items-start">
+
+        <!-- CALENDAR — constrained width on desktop -->
+        <div class="w-full lg:w-80 xl:w-96 flex-shrink-0">
+            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+
+                <!-- Month nav -->
+                <div class="flex items-center justify-between mb-4">
+                    <h2 id="calendar-month-name" class="font-black text-base tracking-tight">May 2026</h2>
+                    <div class="flex items-center gap-1">
+                        <button onclick="changeMonth(-1)" class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors font-black text-primary-gold text-sm">&#8592;</button>
+                        <button onclick="changeMonth(1)"  class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors font-black text-primary-gold text-sm">&#8594;</button>
+                    </div>
                 </div>
-                <div style="display:flex;align-items:center;gap:4px;">
-                    <button onclick="changeMonth(-1)" style="width:36px;height:36px;border-radius:50%;background:rgba(207,185,145,0.12);border:1px solid rgba(207,185,145,0.25);color:#CFB991;font-size:1rem;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;">&#8592;</button>
-                    <button onclick="changeMonth(1)"  style="width:36px;height:36px;border-radius:50%;background:rgba(207,185,145,0.12);border:1px solid rgba(207,185,145,0.25);color:#CFB991;font-size:1rem;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;">&#8594;</button>
-                </div>
-            </div>
 
-            <!-- Day labels -->
-            <div style="display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:6px;">
-                <div style="text-align:center;font-size:9px;font-weight:900;color:rgba(255,255,255,0.25);letter-spacing:0.08em;">S</div>
-                <div style="text-align:center;font-size:9px;font-weight:900;color:rgba(255,255,255,0.25);letter-spacing:0.08em;">M</div>
-                <div style="text-align:center;font-size:9px;font-weight:900;color:rgba(255,255,255,0.25);letter-spacing:0.08em;">T</div>
-                <div style="text-align:center;font-size:9px;font-weight:900;color:rgba(255,255,255,0.25);letter-spacing:0.08em;">W</div>
-                <div style="text-align:center;font-size:9px;font-weight:900;color:rgba(255,255,255,0.25);letter-spacing:0.08em;">T</div>
-                <div style="text-align:center;font-size:9px;font-weight:900;color:rgba(255,255,255,0.25);letter-spacing:0.08em;">F</div>
-                <div style="text-align:center;font-size:9px;font-weight:900;color:rgba(255,255,255,0.25);letter-spacing:0.08em;">S</div>
-            </div>
-
-            <!-- Calendar grid -->
-            <div id="calendar-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;"></div>
-
-            <!-- Legend -->
-            <div style="display:flex;align-items:center;gap:16px;margin-top:1rem;padding-top:0.75rem;border-top:1px solid rgba(255,255,255,0.07);">
-                <div style="display:flex;align-items:center;gap:5px;">
-                    <div style="width:8px;height:8px;border-radius:50%;background:#CFB991;"></div>
-                    <span style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">Tour day</span>
+                <!-- Day labels -->
+                <div class="grid grid-cols-7 mb-1">
+                    <div class="text-center text-[10px] font-black text-gray-300 py-1">S</div>
+                    <div class="text-center text-[10px] font-black text-gray-300 py-1">M</div>
+                    <div class="text-center text-[10px] font-black text-gray-300 py-1">T</div>
+                    <div class="text-center text-[10px] font-black text-gray-300 py-1">W</div>
+                    <div class="text-center text-[10px] font-black text-gray-300 py-1">T</div>
+                    <div class="text-center text-[10px] font-black text-gray-300 py-1">F</div>
+                    <div class="text-center text-[10px] font-black text-gray-300 py-1">S</div>
                 </div>
-                <div style="display:flex;align-items:center;gap:5px;">
-                    <div style="width:8px;height:8px;border-radius:50%;background:#374151;border:1px solid rgba(255,255,255,0.2);"></div>
-                    <span style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">No tours</span>
-                </div>
-                <div style="display:flex;align-items:center;gap:5px;">
-                    <div style="width:8px;height:8px;border-radius:50%;background:white;"></div>
-                    <span style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">Today</span>
+
+                <!-- Calendar grid -->
+                <div id="calendar-grid" class="grid grid-cols-7 gap-1"></div>
+
+                <!-- Legend -->
+                <div class="flex items-center gap-4 mt-4 pt-4 border-t border-gray-50">
+                    <div class="flex items-center gap-1.5">
+                        <div class="w-2 h-2 rounded-full bg-primary-gold"></div>
+                        <span class="text-[9px] font-black uppercase tracking-widest text-gray-400">Tour day</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <div class="w-2 h-2 rounded-full border-2 border-primary-gold bg-white"></div>
+                        <span class="text-[9px] font-black uppercase tracking-widest text-gray-400">Today</span>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- TOUR LIST SECTION -->
-    <div class="p-4 sm:p-8">
-
-        <!-- Summary bar -->
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
-            <div id="schedule-context-label" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#9CA3AF;">Upcoming tours</div>
-            <button id="schedule-clear-btn" onclick="selectDate(null, window.currentMyTours)" style="display:none;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:#CFB991;background:rgba(207,185,145,0.1);border:1px solid rgba(207,185,145,0.25);border-radius:99px;padding:4px 12px;cursor:pointer;">Show all</button>
+        <!-- TOUR LIST — fills remaining space -->
+        <div class="flex-1 min-w-0 w-full">
+            <div class="flex items-center justify-between mb-3">
+                <p id="schedule-context-label" class="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">Upcoming tours</p>
+                <button id="schedule-clear-btn" onclick="selectDate(null, window.currentMyTours)" style="display:none;" class="text-[10px] font-black uppercase tracking-widest text-primary-gold bg-primary-gold/10 border border-primary-gold/25 rounded-full px-3 py-1 cursor-pointer">Show all</button>
+            </div>
+            <div id="schedule-list-container"></div>
         </div>
-
-        <div id="schedule-list-container"></div>
 
     </div>
 </div>
@@ -1549,8 +1565,14 @@ async function init() {
 }
 
             // Hide overlay
-            document.getElementById('loading-overlay').classList.add('opacity-0');
-            setTimeout(() => document.getElementById('loading-overlay').style.display = 'none', 500);
+            const bar = document.getElementById('loading-bar');
+            const status = document.getElementById('loading-status');
+            if (bar) bar.style.width = '100%';
+            if (status) status.innerText = 'Ready';
+            setTimeout(() => {
+                document.getElementById('loading-overlay').classList.add('opacity-0');
+                setTimeout(() => document.getElementById('loading-overlay').style.display = 'none', 500);
+            }, 350);
 
             const myToursForHome = cachedData.tours.filter(tour => {
             const cleanName = tour.guide.replace(/[*~`]/g, '').trim();
@@ -1661,6 +1683,28 @@ function drawConfetti() {
 drawConfetti();
 }
 
+    // Animate the loading bar while init runs
+    (function animateLoader() {
+        const bar = document.getElementById('loading-bar');
+        const status = document.getElementById('loading-status');
+        if (!bar) return;
+        const steps = [
+            { w: 15, label: 'Connecting...' },
+            { w: 40, label: 'Loading profile...' },
+            { w: 70, label: 'Fetching schedule...' },
+            { w: 90, label: 'Almost there...' },
+        ];
+        let i = 0;
+        const tick = () => {
+            if (i < steps.length) {
+                bar.style.width = steps[i].w + '%';
+                if (status) status.innerText = steps[i].label;
+                i++;
+                setTimeout(tick, 900);
+            }
+        };
+        tick();
+    })();
     init();
 </script>
 <div class="lg:hidden bottom-nav-dedicated" id="bottom-nav-bar">
