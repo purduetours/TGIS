@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TGIS Wrapped 2025</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300;1,700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold: #CFB991;
+            --gold-light: #f5e6c8;
+            --gold-dark: #9a8060;
+            --black: #080808;
+            --card-bg: #111111;
+            --text: #f0ede8;
+            --muted: rgba(240,237,232,0.45);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--black);
+            color: var(--text);
+            height: 100vh;
+            overflow: hidden;
+            cursor: default;
+        }
+
+        /* ─── Slide System ─── */
+        #slide-container {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            opacity: 0;
+            transform: translateY(60px) scale(0.97);
+            pointer-events: none;
+            transition: opacity 0.55s cubic-bezier(0.22,1,0.36,1), transform 0.55s cubic-bezier(0.22,1,0.36,1);
+            text-align: center;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: all;
+        }
+
+        .slide.exit {
+            opacity: 0;
+            transform: translateY(-60px) scale(0.97);
+            pointer-events: none;
+            transition: opacity 0.4s ease-in, transform 0.4s ease-in;
+        }
+
+        /* ─── Progress Bar ─── */
+        #progress-bar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: rgba(255,255,255,0.08);
+            z-index: 100;
+        }
+
+        #progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--gold-dark), var(--gold), var(--gold-light));
+            transition: width 0.4s ease;
+        }
+
+        /* ─── Nav dots ─── */
+        #dots {
+            position: fixed;
+            bottom: 2.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 0.5rem;
+            z-index: 100;
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 99px;
+            background: rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .dot.active {
+            width: 24px;
+            background: var(--gold);
+        }
+
+        /* ─── Tap zones ─── */
+        #tap-prev, #tap-next {
+            position: fixed;
+            top: 0; bottom: 0;
+            width: 40%;
+            z-index: 50;
+            cursor: pointer;
+        }
+        #tap-prev { left: 0; }
+        #tap-next { right: 0; }
+
+        /* ─── Shared Typography ─── */
+        .eyebrow {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.25em;
+            color: var(--gold);
+            margin-bottom: 1.2rem;
+        }
+
+        .display-number {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(6rem, 22vw, 11rem);
+            line-height: 0.88;
+            color: var(--gold);
+            letter-spacing: -0.01em;
+            text-shadow: 0 0 120px rgba(207,185,145,0.35);
+        }
+
+        .display-label {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(1.5rem, 6vw, 3rem);
+            letter-spacing: 0.06em;
+            color: var(--text);
+            margin-top: 0.5rem;
+        }
+
+        .body-text {
+            font-size: 0.95rem;
+            font-weight: 300;
+            color: var(--muted);
+            line-height: 1.7;
+            max-width: 28rem;
+            margin-top: 1.2rem;
+        }
+
+        /* ─── Slide 1: Intro ─── */
+        #slide-1 { background: var(--black); }
+
+        .logo-mark {
+            width: 72px;
+            height: 72px;
+            border-radius: 22px;
+            background: var(--gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2rem;
+            box-shadow: 0 0 60px rgba(207,185,145,0.4);
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.8rem;
+            color: var(--black);
+            letter-spacing: 0.05em;
+        }
+
+        .intro-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(3.5rem, 14vw, 7rem);
+            line-height: 0.9;
+            letter-spacing: 0.02em;
+        }
+
+        .intro-title .year {
+            color: var(--gold);
+        }
+
+        .intro-subtitle {
+            font-size: 0.85rem;
+            font-weight: 400;
+            color: var(--muted);
+            margin-top: 1.5rem;
+            letter-spacing: 0.02em;
+        }
+
+        .name-pill {
+            background: rgba(207,185,145,0.12);
+            border: 1px solid rgba(207,185,145,0.3);
+            border-radius: 99px;
+            padding: 0.4rem 1.2rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--gold-light);
+            margin-top: 1.2rem;
+            display: inline-block;
+        }
+
+        /* ─── Slide 2: Tours ─── */
+        #slide-2 { background: radial-gradient(ellipse at center, #1a1400 0%, #080808 70%); }
+
+        /* ─── Slide 3: Miles ─── */
+        #slide-3 {
+            background: radial-gradient(ellipse at 60% 40%, #0d1a10 0%, #080808 70%);
+        }
+
+        .miles-accent {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(1rem, 4vw, 1.6rem);
+            color: var(--gold);
+            letter-spacing: 0.15em;
+            opacity: 0.6;
+            margin-top: 0.25rem;
+        }
+
+        /* ─── Slide 4: Steps ─── */
+        #slide-4 {
+            background: radial-gradient(ellipse at 40% 60%, #140d1a 0%, #080808 70%);
+        }
+
+        /* ─── Slide 5: Career ─── */
+        #slide-5 {
+            background: radial-gradient(ellipse at center, #1a1200 0%, #080808 70%);
+        }
+
+        /* ─── Slide 6: Rank ─── */
+        #slide-6 {
+            background: radial-gradient(ellipse at 50% 30%, #101a0d 0%, #080808 70%);
+        }
+
+        /* ─── Slide 7: Share ─── */
+        #slide-7 {
+            background: var(--black);
+        }
+
+        /* ─── Floating decorations ─── */
+        .deco-ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 1px solid rgba(207,185,145,0.08);
+            pointer-events: none;
+        }
+
+        /* ─── Stat Card ─── */
+        .stat-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(207,185,145,0.15);
+            border-radius: 1.5rem;
+            padding: 1.5rem 2rem;
+            margin-top: 1.5rem;
+            backdrop-filter: blur(10px);
+            width: 100%;
+            max-width: 20rem;
+        }
+
+        .stat-card-label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--muted);
+        }
+
+        .stat-card-val {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2.2rem;
+            color: var(--gold-light);
+            letter-spacing: 0.04em;
+            margin-top: 0.1rem;
+        }
+
+        /* ─── Big message text ─── */
+        .big-message {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(2.2rem, 9vw, 4.5rem);
+            letter-spacing: 0.04em;
+            line-height: 1;
+            max-width: 20rem;
+        }
+
+        .big-message .gold { color: var(--gold); }
+
+        /* ─── Rank display ─── */
+        .rank-wrap {
+            display: flex;
+            align-items: baseline;
+            gap: 0.25rem;
+        }
+
+        .rank-hash {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            color: var(--gold);
+            opacity: 0.7;
+            line-height: 1;
+        }
+
+        /* ─── Share card ─── */
+        .share-card {
+            background: linear-gradient(145deg, #161208, #1c1710);
+            border: 1px solid rgba(207,185,145,0.25);
+            border-radius: 2rem;
+            padding: 2.5rem 2rem;
+            width: 100%;
+            max-width: 22rem;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.5), 0 0 60px rgba(207,185,145,0.06);
+        }
+
+        .share-stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .share-stat-row:last-child { border-bottom: none; }
+
+        .share-stat-label {
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .share-stat-val {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.4rem;
+            color: var(--gold);
+            letter-spacing: 0.05em;
+        }
+
+        .share-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .share-header h3 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.1rem;
+            letter-spacing: 0.15em;
+            color: var(--gold-light);
+            opacity: 0.7;
+        }
+
+        .share-name {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem;
+            letter-spacing: 0.04em;
+            line-height: 1;
+            margin-top: 0.1rem;
+        }
+
+        /* ─── Loading overlay ─── */
+        #loading {
+            position: fixed;
+            inset: 0;
+            background: var(--black);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            transition: opacity 0.5s ease;
+        }
+
+        #loading.fade {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .spin {
+            width: 40px;
+            height: 40px;
+            border: 2px solid rgba(207,185,145,0.2);
+            border-top-color: var(--gold);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin-bottom: 1.5rem;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .loading-label {
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            color: var(--gold);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+        /* ─── Error ─── */
+        #error-screen {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: var(--black);
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 1rem;
+            z-index: 999;
+        }
+
+        /* ─── Scroll hint ─── */
+        .tap-hint {
+            position: fixed;
+            bottom: 5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.2);
+            z-index: 90;
+            pointer-events: none;
+            transition: opacity 0.5s;
+        }
+
+        /* ─── Animated number counter ─── */
+        .counter { display: inline-block; }
+
+        /* ─── Floating particles ─── */
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--gold);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* ─── Gradient text ─── */
+        .gradient-text {
+            background: linear-gradient(135deg, var(--gold-dark), var(--gold), var(--gold-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* ─── Slide-specific background patterns ─── */
+        .noise-bg::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            opacity: 0.025;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            background-repeat: repeat;
+            pointer-events: none;
+        }
+
+        /* stagger in children */
+        .slide.active .anim-child {
+            animation: childIn 0.6s cubic-bezier(0.22,1,0.36,1) both;
+        }
+        .slide.active .anim-child:nth-child(1) { animation-delay: 0.08s; }
+        .slide.active .anim-child:nth-child(2) { animation-delay: 0.18s; }
+        .slide.active .anim-child:nth-child(3) { animation-delay: 0.28s; }
+        .slide.active .anim-child:nth-child(4) { animation-delay: 0.38s; }
+        .slide.active .anim-child:nth-child(5) { animation-delay: 0.46s; }
+
+        @keyframes childIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Loading -->
+<div id="loading">
+    <div class="spin"></div>
+    <p class="loading-label">Wrapping your season...</p>
+</div>
+
+<!-- Error -->
+<div id="error-screen">
+    <div style="font-size:2rem">⚠️</div>
+    <p style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:0.1em;color:var(--gold)">Could Not Load Profile</p>
+    <p style="font-size:0.75rem;color:var(--muted);margin-top:0.5rem">Check the URL and try again.</p>
+    <button onclick="location.reload()" style="margin-top:1.5rem;background:var(--gold);color:var(--black);border:none;border-radius:99px;padding:0.6rem 1.8rem;font-weight:700;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.1em;cursor:pointer;">Retry</button>
+</div>
+
+<!-- Progress -->
+<div id="progress-bar"><div id="progress-fill" style="width:0%"></div></div>
+
+<!-- Tap zones -->
+<div id="tap-prev" onclick="navigate(-1)"></div>
+<div id="tap-next" onclick="navigate(1)"></div>
+
+<!-- Dots -->
+<div id="dots"></div>
+
+<!-- Tap hint (only slide 1) -->
+<p class="tap-hint" id="tap-hint">TAP TO CONTINUE →</p>
+
+<!-- ════════════════════════════════ SLIDES ════════════════════════════════ -->
+<div id="slide-container">
+
+    <!-- SLIDE 1: Welcome -->
+    <div class="slide noise-bg" id="slide-1">
+        <deco-rings></deco-rings>
+        <div class="deco-ring" style="width:600px;height:600px;top:50%;left:50%;transform:translate(-50%,-50%)"></div>
+        <div class="deco-ring" style="width:400px;height:400px;top:50%;left:50%;transform:translate(-50%,-50%)"></div>
+
+        <div class="logo-mark anim-child">🚂</div>
+        <p class="eyebrow anim-child" style="margin-bottom:0.5rem">Purdue Office of Admissions</p>
+        <h1 class="intro-title anim-child">TGIS<br><span class="year">Wrapped</span></h1>
+        <p class="intro-subtitle anim-child">Your semester, by the numbers.</p>
+        <div class="name-pill anim-child" id="welcome-pill">Loading…</div>
+    </div>
+
+    <!-- SLIDE 2: Semester Tours -->
+    <div class="slide noise-bg" id="slide-2">
+        <p class="eyebrow anim-child">This Semester You Gave</p>
+        <div class="display-number anim-child counter" id="sem-number">0</div>
+        <div class="display-label anim-child">TOURS</div>
+        <p class="body-text anim-child" id="sem-flavor">Every one of those tours started someone's Purdue story.</p>
+        <div class="stat-card anim-child">
+            <p class="stat-card-label">Current Semester</p>
+            <p class="stat-card-val" id="sem-name-display">—</p>
+        </div>
+    </div>
+
+    <!-- SLIDE 3: Miles -->
+    <div class="slide noise-bg" id="slide-3">
+        <p class="eyebrow anim-child">You Walked Backwards</p>
+        <div class="display-number anim-child counter" id="miles-number">0</div>
+        <div class="display-label anim-child">MILES</div>
+        <p class="miles-accent anim-child">this semester alone</p>
+        <p class="body-text anim-child">Walking backwards at 2.1 miles per tour — a skill most people never master. You? Practically a pro.</p>
+    </div>
+
+    <!-- SLIDE 4: Steps -->
+    <div class="slide noise-bg" id="slide-4">
+        <p class="eyebrow anim-child">That's</p>
+        <div class="display-number anim-child counter" id="steps-number">0</div>
+        <div class="display-label anim-child">STEPS BACKWARDS</div>
+        <p class="body-text anim-child" id="steps-compare">At 5,680 steps per tour, your backwards mileage could rival a Fitbit power-user.</p>
+    </div>
+
+    <!-- SLIDE 5: Career Tours -->
+    <div class="slide noise-bg" id="slide-5">
+        <p class="eyebrow anim-child">All-Time Career Total</p>
+        <div class="display-number anim-child counter" id="career-number">0</div>
+        <div class="display-label anim-child">CAREER TOURS</div>
+        <p class="body-text anim-child" id="career-flavor">The Purdue campus has never been the same.</p>
+        <div class="stat-card anim-child" style="display:flex;justify-content:space-between;align-items:center;max-width:20rem;">
+            <div>
+                <p class="stat-card-label">Career Miles Backwards</p>
+                <p class="stat-card-val" id="career-miles">—</p>
+            </div>
+            <div style="width:1px;height:2.5rem;background:rgba(255,255,255,0.08)"></div>
+            <div>
+                <p class="stat-card-label">Career Steps Back.</p>
+                <p class="stat-card-val" id="career-steps">—</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 6: Rank -->
+    <div class="slide noise-bg" id="slide-6">
+        <p class="eyebrow anim-child">Your Leaderboard Rank</p>
+        <div class="rank-wrap anim-child">
+            <span class="rank-hash">#</span>
+            <div class="display-number counter" id="rank-number">—</div>
+        </div>
+        <div class="display-label anim-child" style="margin-top:0.25rem">IN THE PROGRAM</div>
+        <p class="body-text anim-child" id="rank-flavor">Keep giving tours. The top is always within reach.</p>
+    </div>
+
+    <!-- SLIDE 7: Recap / Share Card -->
+    <div class="slide noise-bg" id="slide-7">
+        <p class="eyebrow anim-child" style="margin-bottom:1.5rem">Your Season at a Glance</p>
+        <div class="share-card anim-child">
+            <div class="share-header">
+                <h3>TGIS WRAPPED 2025</h3>
+                <div class="share-name gradient-text" id="share-name">—</div>
+            </div>
+            <div class="share-stat-row">
+                <span class="share-stat-label">Semester Tours</span>
+                <span class="share-stat-val" id="share-sem">—</span>
+            </div>
+            <div class="share-stat-row">
+                <span class="share-stat-label">Miles Backwards</span>
+                <span class="share-stat-val" id="share-miles">—</span>
+            </div>
+            <div class="share-stat-row">
+                <span class="share-stat-label">Steps Backwards</span>
+                <span class="share-stat-val" id="share-steps">—</span>
+            </div>
+            <div class="share-stat-row">
+                <span class="share-stat-label">Career Total</span>
+                <span class="share-stat-val" id="share-career">—</span>
+            </div>
+            <div class="share-stat-row">
+                <span class="share-stat-label">Leaderboard Rank</span>
+                <span class="share-stat-val" id="share-rank">—</span>
+            </div>
+        </div>
+        <p class="body-text anim-child" style="margin-top:1.5rem;font-size:0.75rem">
+            Boiler Up 🚂 — <span style="color:var(--gold)">purduetours.github.io/TGIS</span>
+        </p>
+    </div>
+
+</div><!-- /slide-container -->
+
+<script>
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyqIgk-V7XABUMluhLwjGudlHwkgldwRaBlAN6dFdbI1gNL-_cvN5PNTek2cfqNtc3j/exec';
+    const params = new URLSearchParams(location.search);
+    const userName = params.get('user');
+
+    const SLIDES = document.querySelectorAll('.slide');
+    const TOTAL = SLIDES.length;
+    let current = 0;
+    let isAnimating = false;
+
+    // ── Dots ──
+    const dotsEl = document.getElementById('dots');
+    for (let i = 0; i < TOTAL; i++) {
+        const d = document.createElement('div');
+        d.className = 'dot' + (i === 0 ? ' active' : '');
+        d.addEventListener('click', () => navigate(i - current));
+        dotsEl.appendChild(d);
+    }
+
+    function updateDots() {
+        document.querySelectorAll('.dot').forEach((d, i) => {
+            d.classList.toggle('active', i === current);
+        });
+    }
+
+    function updateProgress() {
+        const pct = ((current + 1) / TOTAL) * 100;
+        document.getElementById('progress-fill').style.width = pct + '%';
+    }
+
+    function navigate(dir) {
+        if (isAnimating) return;
+        const next = current + dir;
+        if (next < 0 || next >= TOTAL) return;
+        isAnimating = true;
+
+        SLIDES[current].classList.add('exit');
+        SLIDES[current].classList.remove('active');
+
+        setTimeout(() => {
+            SLIDES[current].classList.remove('exit');
+            current = next;
+            SLIDES[current].classList.add('active');
+            updateDots();
+            updateProgress();
+            document.getElementById('tap-hint').style.opacity = current === 0 ? '1' : '0';
+            // Trigger number counters when entering number slides
+            triggerCounter(current);
+            setTimeout(() => { isAnimating = false; }, 600);
+        }, 350);
+    }
+
+    // ── Keyboard nav ──
+    document.addEventListener('keydown', e => {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') navigate(1);
+        if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp') navigate(-1);
+    });
+
+    // ── Touch swipe ──
+    let touchStartY = 0, touchStartX = 0;
+    document.addEventListener('touchstart', e => {
+        touchStartY = e.touches[0].clientY;
+        touchStartX = e.touches[0].clientX;
+    });
+    document.addEventListener('touchend', e => {
+        const dy = touchStartY - e.changedTouches[0].clientY;
+        const dx = touchStartX - e.changedTouches[0].clientX;
+        if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 40) {
+            navigate(dy > 0 ? 1 : -1);
+        }
+    });
+
+    // ── Number counter animation ──
+    const countersRun = new Set();
+
+    function animateCounter(el, target, suffix = '', decimals = 0) {
+        const duration = 1200;
+        const start = performance.now();
+        const from = 0;
+        function step(now) {
+            const t = Math.min((now - start) / duration, 1);
+            const eased = 1 - Math.pow(1 - t, 3); // cubic ease-out
+            const val = from + (target - from) * eased;
+            el.textContent = (decimals > 0 ? val.toFixed(decimals) : Math.round(val).toLocaleString()) + suffix;
+            if (t < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+    }
+
+    function triggerCounter(idx) {
+        if (countersRun.has(idx)) return;
+        countersRun.add(idx);
+
+        const data = window._wrapped;
+        if (!data) return;
+
+        const sem = data.semTours;
+        const career = data.careerTours;
+        const miles = (sem * 2.1);
+        const steps = sem * 5680;
+        const careerMiles = (career * 2.1);
+        const careerSteps = career * 5680;
+        const rank = data.rank;
+
+        if (idx === 1) animateCounter(document.getElementById('sem-number'), sem);
+        if (idx === 2) animateCounter(document.getElementById('miles-number'), miles, '', 1);
+        if (idx === 3) animateCounter(document.getElementById('steps-number'), steps);
+        if (idx === 4) {
+            animateCounter(document.getElementById('career-number'), career);
+        }
+        if (idx === 5) animateCounter(document.getElementById('rank-number'), rank);
+    }
+
+    // ── Init ──
+    async function init() {
+        if (!userName) {
+            showError();
+            return;
+        }
+
+        try {
+            const res = await fetch(`${SCRIPT_URL}?user=${encodeURIComponent(userName)}`);
+            const data = await res.json();
+
+            if (!data || !data.profile || !data.stats) {
+                showError();
+                return;
+            }
+
+            const sem   = data.stats.semesterTotal || 0;
+            const career = data.stats.careerTotal || 0;
+            const rank  = data.rank || '—';
+            const miles = (sem * 2.1).toFixed(1);
+            const steps = (sem * 5680).toLocaleString();
+            const careerMiles = (career * 2.1).toFixed(1);
+            const careerSteps = (career * 5680).toLocaleString();
+            const semName = data.currentSemesterName || 'Current Semester';
+            const displayName = data.profile.displayName || data.profile.fullName;
+
+            window._wrapped = {
+                semTours: sem,
+                careerTours: career,
+                rank,
+                semName,
+                displayName
+            };
+
+            // Flavor text
+            const semFlavors = [
+                "Every one of those tours started someone's Purdue story.",
+                `That's ${sem} families who left knowing exactly why they chose Purdue.`,
+                `You turned ${sem} campus walks into life-changing decisions.`
+            ];
+            const rankFlavors = [
+                `#${rank} in the program — keep grinding.`,
+                rank <= 3  ? "Top 3?! You're a TGIS legend." :
+                rank <= 10 ? "Top 10. Elite company." :
+                             "The top is always within reach."
+            ];
+
+            // Populate text fields
+            document.getElementById('welcome-pill').textContent = displayName;
+            document.getElementById('sem-name-display').textContent = semName;
+            document.getElementById('sem-flavor').textContent = semFlavors[sem > 10 ? 0 : (sem > 5 ? 1 : 2)];
+            document.getElementById('career-flavor').textContent =
+                career >= 100 ? "Century Club. You're Purdue royalty." :
+                career >= 50  ? "Halfway to legendary. Bell Tower Boss status." :
+                                "The Purdue campus has never been the same.";
+            document.getElementById('career-miles').textContent = parseFloat(careerMiles).toFixed(1);
+            document.getElementById('career-steps').textContent = (career * 5680).toLocaleString();
+            document.getElementById('rank-flavor').textContent =
+                rank <= 3  ? "🏆 Top 3 in the entire program. Incredible." :
+                rank <= 10 ? "Top 10 — you're in elite company." :
+                             "Keep giving tours. The top is always within reach.";
+
+            // Share card
+            document.getElementById('share-name').textContent = displayName;
+            document.getElementById('share-sem').textContent = sem.toLocaleString();
+            document.getElementById('share-miles').textContent = miles;
+            document.getElementById('share-steps').textContent = steps;
+            document.getElementById('share-career').textContent = career.toLocaleString();
+            document.getElementById('share-rank').textContent = '#' + rank;
+
+            // Show app
+            const loading = document.getElementById('loading');
+            loading.classList.add('fade');
+            setTimeout(() => { loading.style.display = 'none'; }, 500);
+
+            SLIDES[0].classList.add('active');
+            updateDots();
+            updateProgress();
+
+        } catch (err) {
+            console.error(err);
+            showError();
+        }
+    }
+
+    function showError() {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('error-screen').style.display = 'flex';
+    }
+
+    init();
+</script>
+</body>
+</html>
