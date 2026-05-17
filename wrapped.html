@@ -611,6 +611,14 @@
         <p class="body-text anim-child" style="margin-top:1.5rem;font-size:0.75rem">
             Boiler Up — <span style="color:var(--gold)">See you in the fall!</span>
         </p>
+    <button 
+        onclick="window.location.href='https://purduetours.github.io/TGIS/app.html?user=' + (new URLSearchParams(location.search).get('user') || '')"
+        class="anim-child"
+        style="margin-top:1.25rem; background:rgba(207,185,145,0.12); border:1px solid rgba(207,185,145,0.35); color:var(--gold-light); font-size:0.65rem; font-weight:700; text-transform:uppercase; letter-spacing:0.2em; padding:0.75rem 2rem; border-radius:99px; cursor:pointer; transition:all 0.2s; backdrop-filter:blur(8px);"
+        onmouseover="this.style.background='rgba(207,185,145,0.22)'"
+        onmouseout="this.style.background='rgba(207,185,145,0.12)'">
+        ← Back to TGIS
+    </button>
     </div>
 
 </div><!-- /slide-container -->
