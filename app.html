@@ -357,114 +357,84 @@
 </header> -->
 
 
-<div class="content-area">    
+<div class="content-area p-4 sm:p-8">
+    
 
 <div id="view-home" class="view-section active">
 
-    <!-- HERO HEADER — full bleed, no side padding -->
-    <div style="background: linear-gradient(135deg, #1a1408 0%, #0f0c04 60%, #1c1a00 100%); position: relative; overflow: hidden;">
+    <header class="mb-6">
+        <h1 class="text-4xl font-black">Welcome, <span id="welcome-name" class="text-primary-gold text-nowrap">Guide</span></h1>
+        <p id="live-clock" class="text-sm font-bold text-gray-400 uppercase tracking-wider mt-1">Loading...</p>
+    </header>
 
-        <!-- subtle texture lines -->
-        <div style="position:absolute;inset:0;opacity:0.04;background-image:repeating-linear-gradient(90deg,#CFB991 0px,#CFB991 1px,transparent 1px,transparent 40px);pointer-events:none;"></div>
-
-        <!-- gold top accent line -->
-        <div style="height:3px;background:#CFB991;width:100%;"></div>
-
-        <div style="padding: 1.5rem 1.25rem 1.75rem;">
-
-            <!-- TGIS label -->
-            <p style="font-size:9px;font-weight:900;letter-spacing:0.25em;text-transform:uppercase;color:rgba(207,185,145,0.6);margin-bottom:0.75rem;">
-                Purdue Tour Guide Information System
-            </p>
-
-            <!-- Welcome + name -->
-            <h1 style="font-size:2rem;font-weight:900;color:#ffffff;line-height:1.1;margin-bottom:0.25rem;">
-                Welcome back,<br><span id="welcome-name" style="color:#CFB991;">Guide</span>
-            </h1>
-
-            <!-- Live clock -->
-            <p id="live-clock" style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.1em;margin-top:0.5rem;">
-                Loading...
-            </p>
-
-            <!-- gold divider -->
-            <div style="height:1px;background:rgba(207,185,145,0.2);margin:1.25rem 0;"></div>
-
-            <!-- NEXT TOUR embedded in hero -->
-            <p style="font-size:9px;font-weight:900;letter-spacing:0.2em;text-transform:uppercase;color:rgba(207,185,145,0.5);margin-bottom:0.6rem;">Next Tour</p>
-            <div id="home-next-tour-container">
-                <div style="border:1px dashed rgba(207,185,145,0.25);border-radius:1rem;padding:1rem;text-align:center;">
-                    <p style="color:rgba(255,255,255,0.3);font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;">No tours scheduled</p>
-                </div>
-            </div>
-
+    <!-- NEXT TOUR -->
+    <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] ml-1 mb-2">Next Tour</p>
+    <div id="home-next-tour-container" class="mb-5">
+        <div class="bg-gray-50 border-2 border-dashed border-gray-200 rounded-[2rem] p-5 flex items-center justify-center text-center">
+            <p class="text-gray-400 text-[10px] font-black uppercase tracking-widest">No tours scheduled</p>
         </div>
     </div>
 
-    <!-- REST OF HOME — padded normally -->
-    <div class="p-4 sm:p-8">
-
-        <!-- QUICK STATS -->
-        <div class="grid grid-cols-2 gap-3 mb-5">
-            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
-                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">This Semester</p>
-                <p id="home-sem-total" class="text-4xl font-black text-status-green">--</p>
-                <p class="text-[10px] font-bold text-gray-400 mt-0.5">tours given</p>
-            </div>
-            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
-                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Upcoming</p>
-                <p id="home-upcoming-count" class="text-4xl font-black text-primary-gold">--</p>
-                <p class="text-[10px] font-bold text-gray-400 mt-0.5">tours scheduled</p>
-            </div>
+    <!-- QUICK STATS -->
+    <div class="grid grid-cols-2 gap-3 mb-5">
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">This Semester</p>
+            <p id="home-sem-total" class="text-4xl font-black text-status-green">--</p>
+            <p class="text-[10px] font-bold text-gray-400 mt-0.5">tours given</p>
         </div>
-
-        <!-- TODAY'S SCHEDULE -->
-        <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] ml-1 mb-2">Today's Schedule</p>
-        <div id="home-today-container" class="mb-5">
-            <div class="bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl p-4 text-center">
-                <p class="text-gray-400 text-[10px] font-black uppercase tracking-widest">No tours today</p>
-            </div>
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Upcoming</p>
+            <p id="home-upcoming-count" class="text-4xl font-black text-primary-gold">--</p>
+            <p class="text-[10px] font-bold text-gray-400 mt-0.5">tours scheduled</p>
         </div>
-
-        <!-- ALERTS -->
-        <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] ml-1 mb-2">Alerts</p>
-        <div class="space-y-3 mb-5">
-            <div class="bg-yellow-400 rounded-2xl p-4 flex items-start gap-3 border-b-4 border-yellow-600 text-black">
-                <div class="text-2xl leading-none mt-0.5">🛑</div>
-                <div>
-                    <p class="font-black uppercase tracking-tighter text-sm leading-tight">Use Caution Inside Ford</p>
-                    <p class="text-yellow-900 text-[10px] font-bold uppercase tracking-widest leading-tight mt-1">
-                        Only give your stop inside if there are no groups and the room is clear.
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <!-- ANNOUNCEMENTS -->
-        <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] ml-1 mb-2">Announcements</p>
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mb-5">
-            <div class="flex gap-3 items-start p-4 border-b border-gray-50">
-                <div class="w-2 h-2 rounded-full bg-primary-gold mt-1.5 shrink-0"></div>
-                <div>
-                    <p class="font-bold text-sm">Tour Tracker</p>
-                    <p class="text-xs text-gray-500">Updated every Thursday.</p>
-                </div>
-            </div>
-            <div class="flex gap-3 items-start p-4">
-                <div class="w-2 h-2 rounded-full bg-gray-200 mt-1.5 shrink-0"></div>
-                <div>
-                    <p class="font-bold text-sm text-gray-400">Construction Update</p>
-                    <p class="text-[10px] text-gray-400 uppercase font-black tracking-wider">Resolved</p>
-                </div>
-            </div>
-        </div>
-
     </div>
+
+    <!-- TODAY'S SCHEDULE -->
+    <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] ml-1 mb-2">Today's Schedule</p>
+    <div id="home-today-container" class="mb-5">
+        <div class="bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl p-4 text-center">
+            <p class="text-gray-400 text-[10px] font-black uppercase tracking-widest">No tours today</p>
+        </div>
+    </div>
+
+    <!-- ALERTS -->
+    <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] ml-1 mb-2">Alerts</p>
+    <div class="space-y-3 mb-5">
+        <div class="bg-yellow-400 rounded-2xl p-4 flex items-start gap-3 border-b-4 border-yellow-600 text-black">
+            <div class="text-2xl leading-none mt-0.5">🛑</div>
+            <div>
+                <p class="font-black uppercase tracking-tighter text-sm leading-tight">Use Caution Inside Ford</p>
+                <p class="text-yellow-900 text-[10px] font-bold uppercase tracking-widest leading-tight mt-1">
+                    Only give your stop inside if there are no groups and the room is clear.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ANNOUNCEMENTS -->
+    <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] ml-1 mb-2">Announcements</p>
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mb-5">
+        <div class="flex gap-3 items-start p-4 border-b border-gray-50">
+            <div class="w-2 h-2 rounded-full bg-primary-gold mt-1.5 shrink-0"></div>
+            <div>
+                <p class="font-bold text-sm">Tour Tracker</p>
+                <p class="text-xs text-gray-500">Updated every Thursday.</p>
+            </div>
+        </div>
+        <div class="flex gap-3 items-start p-4">
+            <div class="w-2 h-2 rounded-full bg-gray-200 mt-1.5 shrink-0"></div>
+            <div>
+                <p class="font-bold text-sm text-gray-400">Construction Update</p>
+                <p class="text-[10px] text-gray-400 uppercase font-black tracking-wider">Resolved</p>
+            </div>
+        </div>
+    </div>
+
 </div>
 
     
 
-    <div id="view-tracker" class="view-section p-4 sm:p-8">
+    <div id="view-tracker" class="view-section">
         <header class="mb-8">
             <h1 class="text-3xl font-black">Tour Tracker</h1>
             <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Last Updated: Tuesday, April 28</p>
@@ -536,7 +506,7 @@
         </div>
     </div>
 
-    <div id="view-families" class="view-section p-4 sm:p-8">
+    <div id="view-families" class="view-section">
         <h1 class="text-3xl font-black mb-8">Family Points</h1>
         <div class="bg-white rounded-3xl shadow-xl p-8 border border-gray-100">
             <div id="podium-display" class="podium-container mb-10"></div>
@@ -544,7 +514,7 @@
         </div>
     </div>
 
-    <div id="view-forms" class="view-section p-4 sm:p-8">
+    <div id="view-forms" class="view-section">
     <header class="mb-8">
         <h1 class="text-3xl font-black">Required Forms</h1>
         <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Please complete all required forms by the posted deadline</p>
@@ -590,7 +560,7 @@
 </div>
 
 
-   <div id="view-schedule" class="view-section p-4 sm:p-8">
+   <div id="view-schedule" class="view-section">
     <header class="mb-8">
         <h1 class="text-4xl font-black tracking-tighter">Your Schedule</h1>
         <p class="text-gray-400 font-bold uppercase text-xs tracking-widest mt-2">Click on the calendar to filter by date</p>
@@ -640,7 +610,7 @@
 
 
     
-<div id="view-desk-dashboard" class="view-section p-4 sm:p-8">
+<div id="view-desk-dashboard" class="view-section">
     <header class="mb-6">
         <div class="flex justify-between items-center mb-4">
             <h1 class="text-4xl font-black uppercase tracking-tighter">Desk Operations</h1>
@@ -666,7 +636,7 @@
 
     
 
-    <div id="view-desk" class="view-section p-4 sm:p-8">
+    <div id="view-desk" class="view-section">
         <header class="mb-10 text-nowrap">
             <h1 class="text-3xl font-black">Desk Schedule</h1>
         </header>
