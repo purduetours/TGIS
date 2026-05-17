@@ -100,6 +100,25 @@
     margin-top: 2px;
 }
 
+/* ─── Wrapped Popup ─── */
+#wrapped-popup {
+    position: fixed;
+    bottom: 5.5rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    opacity: 0;
+    z-index: 200;
+    transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+    width: calc(100% - 2rem);
+    max-width: 24rem;
+}
+#wrapped-popup.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    pointer-events: all;
+}
+
 /* Glassmorphism Badge for Up Next */
 .up-next-badge {
     background: rgba(255, 255, 255, 0.2);
@@ -1782,6 +1801,7 @@ drawConfetti();
         };
         tick();
     })();
+    setTimeout(() => document.getElementById('wrapped-popup').classList.add('show'), 1500);
     init();
 </script>
 <div class="lg:hidden bottom-nav-dedicated" id="bottom-nav-bar">
@@ -1887,6 +1907,22 @@ drawConfetti();
             <div class="h-px flex-1 bg-gradient-to-r from-transparent to-primary-gold opacity-50"></div>
             <span class="text-xs font-black text-primary-gold opacity-60 tracking-widest uppercase">Boiler Up</span>
             <div class="h-px flex-1 bg-gradient-to-l from-transparent to-primary-gold opacity-50"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Wrapped Popup -->
+<div id="wrapped-popup">
+    <div style="background: linear-gradient(135deg, #1a1408, #2a2010); border: 1px solid rgba(207,185,145,0.4); border-radius: 1.5rem; padding: 1rem 1.25rem; display: flex; align-items: center; gap: 1rem; box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 40px rgba(207,185,145,0.08);">
+        <div style="width:44px;height:44px;background:#CFB991;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">🎁</div>
+        <div style="flex:1;min-width:0;">
+            <p style="font-size:0.6rem;font-weight:800;text-transform:uppercase;letter-spacing:0.2em;color:#CFB991;margin-bottom:1px;">New ✦</p>
+            <p style="font-size:0.9rem;font-weight:800;color:white;line-height:1.2;">Tour Guide Wrapped is Out!</p>
+            <p style="font-size:0.65rem;color:rgba(255,255,255,0.45);margin-top:1px;">Your semester, by the numbers.</p>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0.4rem;align-items:flex-end;">
+            <button onclick="document.getElementById('wrapped-popup').classList.remove('show')" style="background:rgba(255,255,255,0.08);border:none;color:rgba(255,255,255,0.4);width:22px;height:22px;border-radius:99px;cursor:pointer;font-size:0.7rem;display:flex;align-items:center;justify-content:center;">✕</button>
+            <button onclick="window.location.href='https://purduetours.github.io/TGIS/wrapped.html?user='+userName" style="background:#CFB991;border:none;color:#111;font-size:0.6rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;padding:0.3rem 0.75rem;border-radius:99px;cursor:pointer;white-space:nowrap;">View →</button>
         </div>
     </div>
 </div>
