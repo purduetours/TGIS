@@ -561,48 +561,67 @@
 
 
    <div id="view-schedule" class="view-section">
-    <header class="mb-8">
-        <h1 class="text-4xl font-black tracking-tighter">Your Schedule</h1>
-        <p class="text-gray-400 font-bold uppercase text-xs tracking-widest mt-2">Click on the calendar to filter by date</p>
-    </header>
 
-    <div class="schedule-grid">
-        <div id="schedule-list-container" class="space-y-4">
-            </div>
+    <!-- CALENDAR SECTION — full bleed dark header like home -->
+    <div style="background:#111827; position:relative; overflow:hidden;">
+        <div style="height:3px;background:#CFB991;width:100%;"></div>
+        <div style="padding:1.25rem 1rem 1.5rem;">
 
-        <div class="bg-white rounded-[2.5rem] p-8 border border-gray-100 shadow-sm self-start">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="font-black uppercase tracking-widest text-[10px] text-gray-400">Monthly View</h3>
-                <div class="flex items-center gap-4">
-                    <button onclick="changeMonth(-1)" class="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-full transition-colors text-lg font-black text-primary-gold">←</button>
-                    <span class="text-xs font-black uppercase text-primary-gold min-w-[120px] text-center" id="calendar-month-name">October 2023</span>
-                    <button onclick="changeMonth(1)" class="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-full transition-colors text-lg font-black text-primary-gold">→</button>
+            <!-- Month nav -->
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+                <div>
+                    <p style="font-size:9px;font-weight:900;letter-spacing:0.2em;text-transform:uppercase;color:rgba(207,185,145,0.5);margin-bottom:2px;">Your Schedule</p>
+                    <h2 id="calendar-month-name" style="font-size:1.4rem;font-weight:900;color:#fff;letter-spacing:-0.02em;">May 2026</h2>
+                </div>
+                <div style="display:flex;align-items:center;gap:4px;">
+                    <button onclick="changeMonth(-1)" style="width:36px;height:36px;border-radius:50%;background:rgba(207,185,145,0.12);border:1px solid rgba(207,185,145,0.25);color:#CFB991;font-size:1rem;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;">&#8592;</button>
+                    <button onclick="changeMonth(1)"  style="width:36px;height:36px;border-radius:50%;background:rgba(207,185,145,0.12);border:1px solid rgba(207,185,145,0.25);color:#CFB991;font-size:1rem;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;">&#8594;</button>
                 </div>
             </div>
 
-
-            
-            
-            <div class="grid grid-cols-7 gap-2 mb-2">
-                <div class="text-center text-[10px] font-black text-gray-300">S</div>
-                <div class="text-center text-[10px] font-black text-gray-300">M</div>
-                <div class="text-center text-[10px] font-black text-gray-300">T</div>
-                <div class="text-center text-[10px] font-black text-gray-300">W</div>
-                <div class="text-center text-[10px] font-black text-gray-300">T</div>
-                <div class="text-center text-[10px] font-black text-gray-300">F</div>
-                <div class="text-center text-[10px] font-black text-gray-300">S</div>
+            <!-- Day labels -->
+            <div style="display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:6px;">
+                <div style="text-align:center;font-size:9px;font-weight:900;color:rgba(255,255,255,0.25);letter-spacing:0.08em;">S</div>
+                <div style="text-align:center;font-size:9px;font-weight:900;color:rgba(255,255,255,0.25);letter-spacing:0.08em;">M</div>
+                <div style="text-align:center;font-size:9px;font-weight:900;color:rgba(255,255,255,0.25);letter-spacing:0.08em;">T</div>
+                <div style="text-align:center;font-size:9px;font-weight:900;color:rgba(255,255,255,0.25);letter-spacing:0.08em;">W</div>
+                <div style="text-align:center;font-size:9px;font-weight:900;color:rgba(255,255,255,0.25);letter-spacing:0.08em;">T</div>
+                <div style="text-align:center;font-size:9px;font-weight:900;color:rgba(255,255,255,0.25);letter-spacing:0.08em;">F</div>
+                <div style="text-align:center;font-size:9px;font-weight:900;color:rgba(255,255,255,0.25);letter-spacing:0.08em;">S</div>
             </div>
 
-            <div id="calendar-grid" class="grid grid-cols-7 gap-2 text-center">
+            <!-- Calendar grid -->
+            <div id="calendar-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;"></div>
+
+            <!-- Legend -->
+            <div style="display:flex;align-items:center;gap:16px;margin-top:1rem;padding-top:0.75rem;border-top:1px solid rgba(255,255,255,0.07);">
+                <div style="display:flex;align-items:center;gap:5px;">
+                    <div style="width:8px;height:8px;border-radius:50%;background:#CFB991;"></div>
+                    <span style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">Tour day</span>
                 </div>
-            
-            <div class="mt-6 flex items-center gap-4">
-                <div class="flex items-center gap-2">
-                    <div class="w-3 h-3 rounded-full bg-primary-gold"></div>
-                    <span class="text-[10px] font-black uppercase text-gray-400">Tour Scheduled</span>
+                <div style="display:flex;align-items:center;gap:5px;">
+                    <div style="width:8px;height:8px;border-radius:50%;background:#374151;border:1px solid rgba(255,255,255,0.2);"></div>
+                    <span style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">No tours</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:5px;">
+                    <div style="width:8px;height:8px;border-radius:50%;background:white;"></div>
+                    <span style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">Today</span>
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- TOUR LIST SECTION -->
+    <div class="p-4 sm:p-8">
+
+        <!-- Summary bar -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+            <div id="schedule-context-label" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#9CA3AF;">Upcoming tours</div>
+            <button id="schedule-clear-btn" onclick="selectDate(null, window.currentMyTours)" style="display:none;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:#CFB991;background:rgba(207,185,145,0.1);border:1px solid rgba(207,185,145,0.25);border-radius:99px;padding:4px 12px;cursor:pointer;">Show all</button>
+        </div>
+
+        <div id="schedule-list-container"></div>
+
     </div>
 </div>
 
@@ -1182,97 +1201,167 @@ function selectDate(dateString, myTours) {
 }
 
 function updateScheduleView(myTours, displayName) {
-    window.currentMyTours = myTours; // Store for the nav buttons
+    window.currentMyTours = myTours;
     const listContainer = document.getElementById('schedule-list-container');
     const calendarGrid = document.getElementById('calendar-grid');
     const monthLabel = document.getElementById('calendar-month-name');
+    const contextLabel = document.getElementById('schedule-context-label');
+    const clearBtn = document.getElementById('schedule-clear-btn');
     if (!listContainer || !calendarGrid) return;
 
-    // 1. Update Month Label
-    const monthName = calendarViewDate.toLocaleString('default', { month: 'long' });
-    if (monthLabel) monthLabel.innerText = `${monthName} ${calendarViewDate.getFullYear()}`;
-
-    // 2. Filter the List
-    let filteredTours = [...myTours];
-    const today = new Date();
-    today.setHours(0, 0, 0, 0); // Reset time to midnight for accurate day comparison
-
-    if (selectedCalendarDate) {
-        // If a specific day is clicked, show tours for THAT day (even if past)
-        filteredTours = myTours.filter(t => new Date(t.date).toDateString() === selectedCalendarDate);
-    } else {
-        // DEFAULT VIEW: Only show tours where the date is TODAY or in the FUTURE
-        filteredTours = myTours.filter(t => {
-            const tourDate = new Date(t.date);
-            tourDate.setHours(0, 0, 0, 0);
-            return tourDate >= today;
-        });
-    }
-    
-    // Sort chronologically
-    filteredTours.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-    // 3. Render the List Side
-    listContainer.innerHTML = selectedCalendarDate 
-        ? `<div class="mb-4 flex items-center justify-between">
-            <p class="text-[10px] font-black uppercase text-primary-gold">Viewing: ${new Date(selectedCalendarDate).toLocaleDateString()}</p>
-            <button onclick="selectDate(null, window.currentMyTours)" class="text-[10px] font-black uppercase text-gray-400 underline">Show All Upcoming</button>
-           </div>`
-        : `<div class="mb-4">
-            <p class="text-[10px] font-black uppercase text-gray-400 tracking-[0.2em]">Upcoming Assignments</p>
-           </div>`;
-
-    if (filteredTours.length === 0) {
-        listContainer.innerHTML += `<p class="text-gray-400 text-[10px] font-black uppercase py-20 text-center tracking-widest">No upcoming tours</p>`;
-    }
-
-    filteredTours.forEach(tour => {
-        const info = TOUR_MAP[tour.type] || { color: 'bg-gray-500', name: tour.type };
-        const d = new Date(tour.date);
-        listContainer.innerHTML += `
-            <div class="bg-white p-4 rounded-3xl border border-gray-100 shadow-sm flex items-center justify-between hover:border-primary-gold transition-colors mb-3">
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 ${info.color} rounded-2xl flex flex-col items-center justify-center text-white shrink-0 shadow-sm">
-                        <span class="text-[9px] font-black leading-none opacity-80">${d.toLocaleDateString('en-US', {month:'short'}).toUpperCase()}</span>
-                        <span class="text-lg font-black leading-none">${d.getDate()}</span>
-                    </div>
-                    <div>
-                        <h4 class="font-black text-sm uppercase tracking-tighter">${tour.time || info.time}</h4>
-                        <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">${info.name}</p>
-                    </div>
-                </div>
-            </div>
-        `;
-    });
-
-    // 4. Render Calendar Grid (Always shows all tours for the month)
     const year = calendarViewDate.getFullYear();
     const month = calendarViewDate.getMonth();
+    const today = new Date(); today.setHours(0,0,0,0);
+
+    // Month label
+    if (monthLabel) monthLabel.innerText = calendarViewDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+
+    // ── CALENDAR GRID ──────────────────────────────────────────────
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const firstDay = new Date(year, month, 1).getDay();
+    const todayStr = today.toDateString();
 
     calendarGrid.innerHTML = '';
-    for (let i = 0; i < firstDay; i++) calendarGrid.innerHTML += `<div></div>`;
+    for (let i = 0; i < firstDay; i++) {
+        calendarGrid.innerHTML += `<div></div>`;
+    }
 
     for (let day = 1; day <= daysInMonth; day++) {
         const dateObj = new Date(year, month, day);
-        const dateString = dateObj.toDateString();
-        const hasTour = myTours.some(t => new Date(t.date).toDateString() === dateString);
-        const isSelected = selectedCalendarDate === dateString;
+        const dateStr = dateObj.toDateString();
+        const toursOnDay = myTours.filter(t => new Date(t.date).toDateString() === dateStr);
+        const count = toursOnDay.length;
+        const isToday = dateStr === todayStr;
+        const isSelected = selectedCalendarDate === dateStr;
+        const isPast = dateObj < today;
 
-        let styleClass = "text-gray-400 bg-gray-50/50 hover:bg-gray-100";
-        if (hasTour) styleClass = "bg-primary-gold text-black font-black shadow-md scale-105 border-2 border-white";
-        if (isSelected) styleClass = "bg-black text-white ring-4 ring-primary-gold/30 scale-110 z-10";
+        // Build dot indicators (up to 3) for tour types
+        let dots = '';
+        if (count > 0 && !isSelected) {
+            const types = [...new Set(toursOnDay.map(t => {
+                const info = TOUR_MAP[t.type];
+                if (!info) return 'gray';
+                if (info.name.includes('Program')) return 'purple';
+                if (info.name.includes('Group')) return 'blue';
+                return 'green';
+            }))];
+            dots = `<div style="display:flex;justify-content:center;gap:2px;margin-top:3px;">${
+                types.slice(0,3).map(c => {
+                    const bg = c === 'purple' ? '#8B5CF6' : c === 'blue' ? '#3B82F6' : '#10B981';
+                    return `<div style="width:4px;height:4px;border-radius:50%;background:${bg};"></div>`;
+                }).join('')
+            }</div>`;
+        }
+
+        let cellBg, cellColor, cellBorder, cellOpacity;
+        if (isSelected) {
+            cellBg = '#CFB991'; cellColor = '#000'; cellBorder = 'none'; cellOpacity = '1';
+        } else if (isToday) {
+            cellBg = 'white'; cellColor = '#111827'; cellBorder = '2px solid #CFB991'; cellOpacity = '1';
+        } else if (count > 0 && !isPast) {
+            cellBg = 'rgba(207,185,145,0.15)'; cellColor = '#CFB991'; cellBorder = '1px solid rgba(207,185,145,0.3)'; cellOpacity = '1';
+        } else if (count > 0 && isPast) {
+            cellBg = 'rgba(207,185,145,0.06)'; cellColor = 'rgba(207,185,145,0.4)'; cellBorder = '1px solid rgba(207,185,145,0.1)'; cellOpacity = '1';
+        } else {
+            cellBg = 'transparent'; cellColor = isPast ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.4)'; cellBorder = 'none'; cellOpacity = '1';
+        }
 
         calendarGrid.innerHTML += `
-            <div onclick="selectDate('${dateString}', window.currentMyTours)" 
-                 class="calendar-day cursor-pointer ${styleClass} transition-all active:scale-95">
+            <div onclick="selectDate('${dateStr}', window.currentMyTours)"
+                 style="aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+                        border-radius:10px;cursor:pointer;background:${cellBg};color:${cellColor};
+                        border:${cellBorder};opacity:${cellOpacity};transition:all 0.15s;user-select:none;
+                        font-size:12px;font-weight:${count > 0 || isToday ? '900' : '600'};padding-bottom:2px;">
                 ${day}
-            </div>
-        `;
+                ${dots}
+            </div>`;
     }
-}
 
+    // ── TOUR LIST ──────────────────────────────────────────────────
+    let filteredTours;
+    if (selectedCalendarDate) {
+        filteredTours = myTours.filter(t => new Date(t.date).toDateString() === selectedCalendarDate);
+        const selDate = new Date(selectedCalendarDate);
+        const label = selDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+        if (contextLabel) contextLabel.innerText = label;
+        if (clearBtn) clearBtn.style.display = 'block';
+    } else {
+        filteredTours = myTours.filter(t => {
+            const d = new Date(t.date); d.setHours(0,0,0,0); return d >= today;
+        });
+        if (contextLabel) contextLabel.innerText = `Upcoming — ${filteredTours.length} tour${filteredTours.length !== 1 ? 's' : ''}`;
+        if (clearBtn) clearBtn.style.display = 'none';
+    }
+
+    filteredTours.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    if (filteredTours.length === 0) {
+        listContainer.innerHTML = `
+            <div style="border:2px dashed #E5E7EB;border-radius:1rem;padding:2.5rem;text-align:center;">
+                <p style="color:#9CA3AF;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;">
+                    ${selectedCalendarDate ? 'No tours on this day' : 'No upcoming tours scheduled'}
+                </p>
+            </div>`;
+        return;
+    }
+
+    // Group by month for full semester view
+    const grouped = {};
+    filteredTours.forEach(t => {
+        const d = new Date(t.date);
+        const key = d.toLocaleString('default', { month: 'long', year: 'numeric' });
+        if (!grouped[key]) grouped[key] = [];
+        grouped[key].push(t);
+    });
+
+    const TYPE_COLORS = {
+        'Daily Visit':               { bg: '#ECFDF5', accent: '#10B981', text: '#065F46', label: 'Daily Visit' },
+        'Group Visit':               { bg: '#EFF6FF', accent: '#3B82F6', text: '#1E40AF', label: 'Group Visit' },
+        'Program Day (Academic)':    { bg: '#F5F3FF', accent: '#8B5CF6', text: '#5B21B6', label: 'Program (Academic)' },
+        'Program Day (Full)':        { bg: '#F5F3FF', accent: '#8B5CF6', text: '#5B21B6', label: 'Program (Full)' },
+    };
+
+    listContainer.innerHTML = Object.entries(grouped).map(([monthLabel, tours]) => {
+        const rows = tours.map(tour => {
+            const info = TOUR_MAP[tour.type] || { name: tour.type, time: '--' };
+            const displayTime = tour.time || info.time;
+            const scheme = TYPE_COLORS[info.name] || { bg: '#F9FAFB', accent: '#9CA3AF', text: '#374151', label: info.name };
+            const d = new Date(tour.date);
+            const isPast = d < today;
+            const dayNum = d.getDate();
+            const dayName = d.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
+
+            return `
+                <div style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;
+                            background:${isPast ? '#F9FAFB' : 'white'};border:1px solid ${isPast ? '#F3F4F6' : '#E5E7EB'};
+                            margin-bottom:8px;opacity:${isPast ? '0.55' : '1'};">
+                    <!-- Date badge -->
+                    <div style="width:44px;min-width:44px;height:52px;border-radius:10px;
+                                background:${isPast ? '#F3F4F6' : scheme.bg};
+                                display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;">
+                        <span style="font-size:18px;font-weight:900;color:${isPast ? '#9CA3AF' : scheme.accent};line-height:1;">${dayNum}</span>
+                        <span style="font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:${isPast ? '#D1D5DB' : scheme.accent};opacity:0.8;">${dayName}</span>
+                    </div>
+                    <!-- Info -->
+                    <div style="flex:1;min-width:0;">
+                        <p style="font-size:13px;font-weight:900;color:${isPast ? '#6B7280' : '#111827'};margin-bottom:2px;">${displayTime}</p>
+                        <div style="display:flex;align-items:center;gap:6px;">
+                            <div style="width:6px;height:6px;border-radius:50%;background:${isPast ? '#D1D5DB' : scheme.accent};flex-shrink:0;"></div>
+                            <p style="font-size:11px;font-weight:700;color:${isPast ? '#9CA3AF' : scheme.text};">${scheme.label}</p>
+                        </div>
+                    </div>
+                    ${isPast ? `<span style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:#D1D5DB;background:#F3F4F6;padding:3px 8px;border-radius:99px;">Done</span>` : ''}
+                </div>`;
+        }).join('');
+
+        return `
+            <div style="margin-bottom:1.5rem;">
+                <p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;
+                           color:#9CA3AF;margin-bottom:10px;padding-left:2px;">${monthLabel}</p>
+                ${rows}
+            </div>`;
+    }).join('');
+}
 
 function updateNavigation(profile) {
     const nav = document.getElementById('bottom-nav');
