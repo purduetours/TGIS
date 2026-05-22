@@ -1,0 +1,1447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TGIS | Manager Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        'primary-gold': '#CFB991',
+                        'text-dark': '#374151',
+                        'status-green': '#10B981',
+                        'tgis-blue': '#1D4ED8',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; font-family: 'Inter', sans-serif; background: #F9FAFB; color: #111827; }
+        .content-area { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; margin-left: 18rem; transition: margin 0.3s ease; }
+        @media (max-width: 1024px) { .content-area { margin-left: 0; } #sidebar { transform: translateX(-100%); transition: transform 0.3s ease; } #sidebar.open { transform: translateX(0); display: block !important; } }
+        .nav-button { cursor: pointer; display: flex; align-items: center; padding: 0.65rem 1rem; border-radius: 0.75rem; font-weight: 700; font-size: 0.8rem; color: #4B5563; margin-bottom: 0.25rem; transition: 0.2s; gap: 0.6rem; }
+        .nav-button:hover { background-color: #F3F4F6; }
+        .nav-button.active { background-color: #CFB991; color: white; box-shadow: 0 4px 6px -1px rgba(207, 185, 145, 0.4); }
+        .view-section { display: none; }
+        .view-section.active { display: block; animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .loader { border-top-color: #CFB991; border-left-color: #CFB991; animation: spinner 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes pulse-soft { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .loading-text { animation: pulse-soft 2s ease-in-out infinite; }
+        .stat-card { background: white; padding: 1.5rem; border-radius: 1.5rem; border: 1px solid #F3F4F6; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+        .guide-row { display: flex; align-items: center; padding: 0.875rem 1rem; border-bottom: 1px solid #F9FAFB; transition: background 0.15s; cursor: pointer; }
+        .guide-row:hover { background: #FAFAFA; }
+        .badge-pill { display: inline-flex; align-items: center; gap: 4px; font-size: 9px; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; padding: 3px 8px; border-radius: 99px; }
+        .status-active { background: #D1FAE5; color: #065F46; }
+        .status-retired { background: #F3F4F6; color: #6B7280; }
+        .status-manager { background: #EDE9FE; color: #5B21B6; }
+        .status-codirector { background: #FEF3C7; color: #92400E; }
+        .status-pending { background: #FEE2E2; color: #991B1B; }
+        .tour-live { background: #7C3AED; color: white; }
+        .tour-upcoming { background: #D1FAE5; color: #065F46; }
+        .tour-done { background: #F3F4F6; color: #9CA3AF; }
+        .mini-bar-wrap { height: 6px; background: #F3F4F6; border-radius: 99px; overflow: hidden; }
+        .mini-bar-fill { height: 100%; background: #CFB991; border-radius: 99px; transition: width 1.2s ease-out; }
+        .profile-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+        .profile-modal { background: white; border-radius: 2rem; max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 60px rgba(0,0,0,0.2); animation: fadeIn 0.25s ease-out; }
+        .bottom-nav-dedicated { height: 75px; background: white; border-top: 1px solid #F3F4F6; display: flex; justify-content: space-around; align-items: center; flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom); }
+        .chart-bar { transition: height 0.8s ease-out; border-radius: 6px 6px 0 0; }
+        /* Donut chart */
+        .donut-ring { transition: stroke-dashoffset 1s ease-out; }
+        @keyframes shimmer { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
+        .gold-shimmer { background: linear-gradient(90deg, #CFB991, #f5e6c8, #b39a6d, #f5e6c8, #CFB991); background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: shimmer 3s linear infinite; }
+        .live-pulse { animation: live-glow 2s ease-in-out infinite; }
+        @keyframes live-glow { 0%, 100% { box-shadow: 0 0 0 0 rgba(124,58,237,0.4); } 50% { box-shadow: 0 0 0 8px rgba(124,58,237,0); } }
+        .sort-btn { cursor: pointer; }
+        .sort-btn:hover { color: #CFB991; }
+        input[type="search"]:focus { outline: none; border-color: #CFB991; box-shadow: 0 0 0 3px rgba(207,185,145,0.15); }
+        select:focus { outline: none; border-color: #CFB991; }
+        .nav-section-label { font-size: 9px; font-weight: 900; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.12em; padding: 0.5rem 0.5rem 0.25rem; margin-top: 0.5rem; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans antialiased">
+
+<!-- LOADING OVERLAY -->
+<div id="loading-overlay" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center transition-opacity duration-500 p-6">
+    <div id="loader-content" class="flex flex-col items-center">
+        <div class="relative flex items-center justify-center mb-6">
+            <div class="loader ease-linear rounded-full border-4 border-gray-100 h-16 w-16"></div>
+            <div class="absolute text-xl">🏛️</div>
+        </div>
+        <div class="text-center loading-text">
+            <h2 class="font-black text-xl tracking-tight text-gray-800">TGIS Manager</h2>
+            <p class="text-[10px] font-bold text-primary-gold uppercase tracking-[0.3em] mt-1">Loading operations center...</p>
+        </div>
+    </div>
+    <div id="error-content" class="hidden flex flex-col items-center text-center max-w-xs">
+        <div class="text-4xl mb-4">⚠️</div>
+        <h2 class="font-black text-xl text-gray-800 uppercase tracking-tight">Connection Failed</h2>
+        <p class="text-xs font-bold text-gray-400 mt-2 leading-relaxed">Could not reach TGIS server. Check connection and try again.</p>
+        <div class="mt-4 bg-gray-50 p-3 rounded-xl border border-gray-100 w-full">
+            <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Error</p>
+            <p id="error-code-display" class="text-sm font-mono font-bold text-red-500">UNKNOWN</p>
+        </div>
+        <button onclick="window.location.reload()" class="mt-4 bg-gray-900 text-white px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest">Retry</button>
+    </div>
+</div>
+
+<!-- PROFILE MODAL -->
+<div id="profile-modal" class="profile-modal-overlay hidden" onclick="closeProfileModal(event)">
+    <div class="profile-modal p-0 overflow-hidden">
+        <div id="modal-header" class="p-6 bg-primary-gold text-white">
+            <div class="flex justify-between items-start">
+                <div>
+                    <div id="modal-initial" class="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center text-white font-black text-2xl mb-3">?</div>
+                    <h2 id="modal-name" class="text-2xl font-black leading-tight">Guide Name</h2>
+                    <p id="modal-displayname" class="text-white/70 text-xs font-bold mt-0.5"></p>
+                </div>
+                <div class="text-right">
+                    <span id="modal-status-badge" class="bg-white/20 text-white text-[9px] font-black px-2 py-1 rounded-lg uppercase tracking-wider">Status</span>
+                    <p id="modal-rank" class="text-white/60 text-[10px] font-black mt-2 uppercase tracking-wider">#-- on leaderboard</p>
+                </div>
+            </div>
+        </div>
+        <div class="p-6 space-y-5">
+            <!-- Tour Stats -->
+            <div>
+                <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-3">Tour Statistics</p>
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="bg-gray-50 rounded-2xl p-3 text-center">
+                        <p id="modal-career" class="text-2xl font-black">--</p>
+                        <p class="text-[9px] font-bold text-gray-400 uppercase mt-0.5">Career</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-2xl p-3 text-center">
+                        <p id="modal-semester" class="text-2xl font-black text-status-green">--</p>
+                        <p class="text-[9px] font-bold text-gray-400 uppercase mt-0.5">Semester</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-2xl p-3 text-center">
+                        <p id="modal-upcoming" class="text-2xl font-black text-tgis-blue">--</p>
+                        <p class="text-[9px] font-bold text-gray-400 uppercase mt-0.5">Upcoming</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Semester History -->
+            <div>
+                <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-3">Semester History</p>
+                <div id="modal-history" class="space-y-2"></div>
+            </div>
+            <!-- Profile Info -->
+            <div>
+                <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-3">Profile Information</p>
+                <div id="modal-profile-info" class="grid grid-cols-2 gap-2"></div>
+            </div>
+            <!-- Upcoming Tours -->
+            <div>
+                <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-3">Upcoming Tours</p>
+                <div id="modal-upcoming-tours" class="space-y-2"></div>
+            </div>
+            <!-- Badges -->
+            <div>
+                <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-3">Badges</p>
+                <div id="modal-badges" class="flex gap-3"></div>
+            </div>
+        </div>
+        <div class="px-6 pb-6">
+            <button onclick="closeProfileModal()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-600 font-black py-3 rounded-2xl text-xs uppercase tracking-widest transition-colors">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- SIDEBAR -->
+<nav id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white shadow-2xl border-r border-gray-100 p-5 z-40 hidden lg:block overflow-y-auto">
+    <div class="mb-6">
+        <p class="text-[9px] font-black text-primary-gold uppercase tracking-[0.2em] mb-0.5">Purdue University</p>
+        <h1 class="text-lg font-black leading-tight">TGIS Manager</h1>
+        <p class="text-[10px] font-bold text-gray-400 mt-0.5">Operations Center</p>
+    </div>
+
+    <div class="mb-5 p-3 bg-gray-50 rounded-2xl border border-gray-100">
+        <div class="flex items-center gap-3">
+            <div id="sidebar-initial" class="w-10 h-10 rounded-xl bg-primary-gold flex items-center justify-center text-white font-black text-base">?</div>
+            <div>
+                <p id="sidebar-name" class="font-bold text-sm leading-tight">Loading...</p>
+                <p id="sidebar-role" class="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">Manager</p>
+            </div>
+        </div>
+        <div class="flex items-center text-[9px] text-status-green font-bold bg-white w-fit px-2 py-1 rounded-md border border-gray-100 mt-2">
+            <span class="w-1.5 h-1.5 bg-status-green rounded-full mr-1.5 animate-pulse"></span> LIVE OPERATIONS
+        </div>
+    </div>
+
+    <div class="nav-section-label">Overview</div>
+    <div id="nav-dashboard" class="nav-button active" onclick="switchView('dashboard')">
+        <span>📊</span> Command Center
+    </div>
+    <div id="nav-live" class="nav-button" onclick="switchView('live')">
+        <span>🔴</span> Live Operations
+        <span id="live-badge" class="ml-auto bg-purple-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded-md hidden">0</span>
+    </div>
+
+    <div class="nav-section-label">People</div>
+    <div id="nav-guides" class="nav-button" onclick="switchView('guides')">
+        <span>👥</span> All Tour Guides
+    </div>
+    <div id="nav-tracker" class="nav-button" onclick="switchView('tracker')">
+        <span>📈</span> Tour Tracker
+    </div>
+
+    <div class="nav-section-label">Schedule</div>
+    <div id="nav-today" class="nav-button" onclick="switchView('today')">
+        <span>📅</span> Today's Schedule
+    </div>
+    <div id="nav-week" class="nav-button" onclick="switchView('week')">
+        <span>🗓️</span> Weekly View
+    </div>
+    <div id="nav-deskops" class="nav-button" onclick="switchView('deskops')">
+        <span>🖥️</span> Desk Operations
+    </div>
+
+    <div class="nav-section-label">Analytics</div>
+    <div id="nav-analytics" class="nav-button" onclick="switchView('analytics')">
+        <span>📉</span> Program Analytics
+    </div>
+    <div id="nav-families" class="nav-button" onclick="switchView('families')">
+        <span>🏆</span> Family Points
+    </div>
+
+    <div class="mt-4 pt-4 border-t border-gray-100">
+        <p id="last-sync" class="text-[9px] font-bold text-gray-300 uppercase tracking-widest">Syncing...</p>
+        <button onclick="window.location.reload()" class="mt-2 text-[9px] font-black text-gray-400 hover:text-primary-gold uppercase tracking-widest transition-colors">↻ Refresh Data</button>
+    </div>
+</nav>
+
+<!-- MOBILE HEADER -->
+<header class="lg:hidden p-4 bg-white shadow-md flex justify-between items-center z-20 sticky top-0 flex-shrink-0">
+    <div>
+        <div class="text-sm font-black">TGIS Manager</div>
+        <div class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Operations Center</div>
+    </div>
+    <button id="mobile-menu-button" class="text-2xl p-1">☰</button>
+</header>
+
+<!-- MAIN CONTENT -->
+<div class="content-area p-4 sm:p-6 pb-20 lg:pb-6">
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- COMMAND CENTER / DASHBOARD -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <div id="view-dashboard" class="view-section active">
+        <header class="mb-6">
+            <h1 class="text-3xl font-black tracking-tight">Command Center</h1>
+            <p id="dashboard-clock" class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Loading...</p>
+        </header>
+
+        <!-- KPI Row -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div class="stat-card text-center">
+                <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Active Guides</p>
+                <p id="kpi-active" class="text-4xl font-black">--</p>
+            </div>
+            <div class="stat-card text-center border-l-4 border-purple-600">
+                <p class="text-[9px] font-black text-purple-500 uppercase tracking-widest mb-1">On Tour Now</p>
+                <p id="kpi-ontour" class="text-4xl font-black text-purple-600">--</p>
+            </div>
+            <div class="stat-card text-center border-l-4 border-status-green">
+                <p class="text-[9px] font-black text-status-green uppercase tracking-widest mb-1">Tours Today</p>
+                <p id="kpi-today" class="text-4xl font-black text-status-green">--</p>
+            </div>
+            <div class="stat-card text-center border-l-4 border-primary-gold">
+                <p class="text-[9px] font-black text-primary-gold uppercase tracking-widest mb-1">Sem Tours Total</p>
+                <p id="kpi-semester" class="text-4xl font-black text-primary-gold">--</p>
+            </div>
+        </div>
+
+        <!-- Live Now + Today Overview -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+
+            <!-- Live Now Panel -->
+            <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+                <div class="px-5 py-4 border-b border-gray-50 flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-purple-600 animate-pulse"></span>
+                        <h3 class="font-black text-xs uppercase tracking-widest">Live Right Now</h3>
+                    </div>
+                    <span id="live-count-badge" class="bg-purple-100 text-purple-700 text-[9px] font-black px-2 py-0.5 rounded-md">0 active</span>
+                </div>
+                <div id="live-panel" class="p-4 space-y-2 min-h-[100px]">
+                    <p class="text-gray-400 text-[10px] font-black uppercase text-center py-6">No tours currently active</p>
+                </div>
+            </div>
+
+            <!-- Today's Slot Overview -->
+            <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+                <div class="px-5 py-4 border-b border-gray-50">
+                    <h3 class="font-black text-xs uppercase tracking-widest">Today's Tour Slots</h3>
+                </div>
+                <div id="today-slot-overview" class="p-4 space-y-2 min-h-[100px]">
+                    <p class="text-gray-400 text-[10px] font-black uppercase text-center py-6">Loading...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leaderboard Snapshot + Pending Drop Alert -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <!-- Top Guides -->
+            <div class="lg:col-span-2 bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+                <div class="px-5 py-4 border-b border-gray-50 flex justify-between items-center">
+                    <h3 class="font-black text-xs uppercase tracking-widest">Top Guides (Career)</h3>
+                    <button onclick="switchView('tracker')" class="text-[9px] font-black text-primary-gold uppercase tracking-widest hover:underline">View All →</button>
+                </div>
+                <div id="dashboard-leaderboard" class="p-2 space-y-1"></div>
+            </div>
+
+            <!-- Alerts Panel -->
+            <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+                <div class="px-5 py-4 border-b border-gray-50">
+                    <h3 class="font-black text-xs uppercase tracking-widest">Attention Required</h3>
+                </div>
+                <div id="alerts-panel" class="p-4 space-y-3"></div>
+            </div>
+        </div>
+
+        <!-- Week Ahead Mini Preview -->
+        <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+            <div class="px-5 py-4 border-b border-gray-50 flex justify-between items-center">
+                <h3 class="font-black text-xs uppercase tracking-widest">This Week at a Glance</h3>
+                <button onclick="switchView('week')" class="text-[9px] font-black text-primary-gold uppercase tracking-widest hover:underline">Full View →</button>
+            </div>
+            <div id="week-mini" class="p-5 grid grid-cols-5 gap-3"></div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- LIVE OPERATIONS -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <div id="view-live" class="view-section">
+        <header class="mb-6 flex justify-between items-start">
+            <div>
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="w-2.5 h-2.5 rounded-full bg-purple-600 animate-pulse"></span>
+                    <h1 class="text-3xl font-black tracking-tight">Live Operations</h1>
+                </div>
+                <p id="live-ops-date" class="text-xs font-bold text-gray-400 uppercase tracking-widest">Today</p>
+            </div>
+            <div id="live-time-display" class="text-right">
+                <p id="live-clock-display" class="text-2xl font-black text-gray-700">--:-- --</p>
+                <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Current Time</p>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 gap-6">
+            <!-- All tour slots for today rendered live -->
+            <div id="live-all-slots" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- ALL GUIDES -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <div id="view-guides" class="view-section">
+        <header class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+                <h1 class="text-3xl font-black tracking-tight">All Tour Guides</h1>
+                <p id="guides-count-label" class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Loading...</p>
+            </div>
+            <div class="flex gap-2 w-full sm:w-auto">
+                <input type="search" id="guide-search" placeholder="Search guides..." oninput="filterGuides()" class="flex-1 border border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold transition-all">
+                <select id="guide-status-filter" onchange="filterGuides()" class="border border-gray-200 rounded-xl px-3 py-2 text-xs font-bold transition-all">
+                    <option value="">All Status</option>
+                    <option value="Tour Guide">Tour Guides</option>
+                    <option value="Manager">Managers</option>
+                    <option value="Codirector">Co-Directors</option>
+                    <option value="Retired">Retired</option>
+                </select>
+            </div>
+        </header>
+
+        <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="border-b border-gray-50 bg-gray-50/50">
+                            <th class="px-4 py-3 text-left text-[9px] font-black text-gray-400 uppercase tracking-widest sort-btn" onclick="sortGuides('name')">Guide ↕</th>
+                            <th class="px-4 py-3 text-left text-[9px] font-black text-gray-400 uppercase tracking-widest">Status</th>
+                            <th class="px-4 py-3 text-center text-[9px] font-black text-gray-400 uppercase tracking-widest sort-btn" onclick="sortGuides('career')">Career ↕</th>
+                            <th class="px-4 py-3 text-center text-[9px] font-black text-gray-400 uppercase tracking-widest sort-btn" onclick="sortGuides('semester')">Semester ↕</th>
+                            <th class="px-4 py-3 text-center text-[9px] font-black text-gray-400 uppercase tracking-widest">Upcoming</th>
+                            <th class="px-4 py-3 text-center text-[9px] font-black text-gray-400 uppercase tracking-widest">Badges</th>
+                            <th class="px-4 py-3 text-right text-[9px] font-black text-gray-400 uppercase tracking-widest">Rank</th>
+                        </tr>
+                    </thead>
+                    <tbody id="guides-table-body">
+                        <tr><td colspan="7" class="p-8 text-center text-gray-400 text-sm">Loading guides...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- TOUR TRACKER (FULL LEADERBOARD) -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <div id="view-tracker" class="view-section">
+        <header class="mb-6">
+            <h1 class="text-3xl font-black tracking-tight">Tour Tracker</h1>
+            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Full program leaderboard & statistics</p>
+        </header>
+
+        <!-- Summary Stats -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div class="stat-card text-center">
+                <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Program Total (Career)</p>
+                <p id="tracker-program-career" class="text-3xl font-black">--</p>
+            </div>
+            <div class="stat-card text-center">
+                <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Semester Total</p>
+                <p id="tracker-program-semester" class="text-3xl font-black text-status-green">--</p>
+            </div>
+            <div class="stat-card text-center">
+                <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Avg Career / Guide</p>
+                <p id="tracker-avg-career" class="text-3xl font-black text-primary-gold">--</p>
+            </div>
+            <div class="stat-card text-center">
+                <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Avg Semester / Guide</p>
+                <p id="tracker-avg-semester" class="text-3xl font-black text-tgis-blue">--</p>
+            </div>
+        </div>
+
+        <!-- Full Leaderboard -->
+        <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+            <div class="px-5 py-4 border-b border-gray-50 flex justify-between items-center">
+                <h3 class="font-black text-xs uppercase tracking-widest">Full Leaderboard</h3>
+                <div class="bg-gray-100 p-1 rounded-xl flex">
+                    <button id="tlb-career-btn" onclick="renderFullLeaderboard('career')" class="px-4 py-1.5 text-[9px] font-black uppercase rounded-lg tracking-widest bg-white text-gray-700 shadow-sm">All Time</button>
+                    <button id="tlb-semester-btn" onclick="renderFullLeaderboard('semester')" class="px-4 py-1.5 text-[9px] font-black uppercase rounded-lg tracking-widest text-gray-400">Semester</button>
+                </div>
+            </div>
+            <div id="full-leaderboard" class="divide-y divide-gray-50"></div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- TODAY'S SCHEDULE -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <div id="view-today" class="view-section">
+        <header class="mb-6">
+            <h1 class="text-3xl font-black tracking-tight">Today's Schedule</h1>
+            <p id="today-header-date" class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Loading...</p>
+        </header>
+
+        <div class="grid grid-cols-1 gap-5">
+            <div id="today-schedule-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- WEEKLY VIEW -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <div id="view-week" class="view-section">
+        <header class="mb-6 flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-black tracking-tight">Weekly View</h1>
+                <p id="week-range-label" class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Loading...</p>
+            </div>
+            <div class="flex items-center gap-3 bg-white p-1 rounded-2xl border shadow-sm">
+                <button onclick="changeWeek(-1)" class="p-2 hover:bg-gray-100 rounded-xl transition-all text-sm font-black text-primary-gold">◀</button>
+                <button onclick="changeWeek(0)" class="px-3 py-1.5 text-[9px] font-black uppercase tracking-widest hover:bg-gray-100 rounded-xl transition-all">Today</button>
+                <button onclick="changeWeek(1)" class="p-2 hover:bg-gray-100 rounded-xl transition-all text-sm font-black text-primary-gold">▶</button>
+            </div>
+        </header>
+        <div id="week-grid" class="grid grid-cols-1 lg:grid-cols-5 gap-4"></div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- DESK OPERATIONS -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <div id="view-deskops" class="view-section">
+        <header class="mb-6 flex justify-between items-start">
+            <div>
+                <h1 class="text-3xl font-black tracking-tight">Desk Operations</h1>
+                <p id="desk-header-date" class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Loading...</p>
+            </div>
+            <div class="flex items-center gap-2 bg-white p-1 rounded-2xl border shadow-sm">
+                <button onclick="changeDeskDate(-1)" class="p-2 hover:bg-gray-100 rounded-xl transition-all text-sm font-black text-primary-gold">◀</button>
+                <p id="desk-ops-date-display" class="font-bold text-sm px-3">--</p>
+                <button onclick="changeDeskDate(1)" class="p-2 hover:bg-gray-100 rounded-xl transition-all text-sm font-black text-primary-gold">▶</button>
+            </div>
+        </header>
+
+        <div id="desk-status-bar" class="flex gap-2 flex-wrap mb-5"></div>
+
+        <div class="mb-6">
+            <p class="text-[9px] font-black text-gray-400 uppercase tracking-[0.3em] mb-3">Daily Visits & Group Visits</p>
+            <div id="desk-daily-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4"></div>
+        </div>
+        <div>
+            <p class="text-[9px] font-black text-gray-400 uppercase tracking-[0.3em] mb-3">Program Days</p>
+            <div id="desk-program-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4"></div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- ANALYTICS -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <div id="view-analytics" class="view-section">
+        <header class="mb-6">
+            <h1 class="text-3xl font-black tracking-tight">Program Analytics</h1>
+            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Program-wide statistics and trends</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <!-- Tour Distribution by Type -->
+            <div class="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
+                <h3 class="font-black text-xs uppercase tracking-widest mb-5">Tour Type Distribution (Upcoming)</h3>
+                <div id="tour-type-chart" class="flex items-end gap-3 h-40 mb-4"></div>
+                <div id="tour-type-legend" class="flex flex-wrap gap-3"></div>
+            </div>
+
+            <!-- Status Breakdown Donut -->
+            <div class="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
+                <h3 class="font-black text-xs uppercase tracking-widest mb-5">Guide Status Breakdown</h3>
+                <div class="flex items-center justify-center gap-8">
+                    <svg id="status-donut" width="130" height="130" viewBox="0 0 130 130">
+                        <circle cx="65" cy="65" r="52" fill="none" stroke="#F3F4F6" stroke-width="18"/>
+                        <circle id="donut-guides" cx="65" cy="65" r="52" fill="none" stroke="#CFB991" stroke-width="18" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="326.7" transform="rotate(-90 65 65)" class="donut-ring"/>
+                        <circle id="donut-managers" cx="65" cy="65" r="52" fill="none" stroke="#7C3AED" stroke-width="18" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="326.7" transform="rotate(-90 65 65)" class="donut-ring" style="transition-delay:0.2s"/>
+                        <text x="65" y="60" text-anchor="middle" class="text-2xl font-black" style="font-family:Inter;font-weight:900;font-size:22px;fill:#111827;" id="donut-center-num">--</text>
+                        <text x="65" y="76" text-anchor="middle" style="font-family:Inter;font-weight:700;font-size:9px;fill:#9CA3AF;text-transform:uppercase;letter-spacing:0.05em;">Guides</text>
+                    </svg>
+                    <div id="donut-legend" class="space-y-2"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Performers -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div class="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
+                <h3 class="font-black text-xs uppercase tracking-widest mb-5">Milestone Achievers</h3>
+                <div id="milestone-achievers" class="space-y-3"></div>
+            </div>
+            <div class="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
+                <h3 class="font-black text-xs uppercase tracking-widest mb-5">Semester Performance</h3>
+                <div id="semester-perf-bars" class="space-y-3"></div>
+            </div>
+        </div>
+
+        <!-- Semester Trend Chart -->
+        <div class="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
+            <h3 class="font-black text-xs uppercase tracking-widest mb-5">Historical Program Output (by Semester)</h3>
+            <div id="semester-trend-chart" class="flex items-end gap-2 h-40 overflow-x-auto pb-2"></div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- FAMILY POINTS -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <div id="view-families" class="view-section">
+        <header class="mb-6">
+            <h1 class="text-3xl font-black tracking-tight">Family Points</h1>
+        </header>
+        <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+            <div id="mgr-podium" class="flex items-end justify-center gap-4 h-52 mb-8"></div>
+            <div id="mgr-family-list" class="space-y-3"></div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Mobile Bottom Nav -->
+<div class="lg:hidden bottom-nav-dedicated flex-shrink-0">
+    <button onclick="switchView('dashboard')" class="flex flex-col items-center">
+        <span class="text-lg">📊</span>
+        <span class="text-[8px] font-black uppercase">Command</span>
+    </button>
+    <button onclick="switchView('live')" class="flex flex-col items-center">
+        <span class="text-lg">🔴</span>
+        <span class="text-[8px] font-black uppercase">Live</span>
+    </button>
+    <button onclick="switchView('guides')" class="flex flex-col items-center">
+        <span class="text-lg">👥</span>
+        <span class="text-[8px] font-black uppercase">Guides</span>
+    </button>
+    <button onclick="switchView('today')" class="flex flex-col items-center">
+        <span class="text-lg">📅</span>
+        <span class="text-[8px] font-black uppercase">Today</span>
+    </button>
+    <button onclick="switchView('analytics')" class="flex flex-col items-center">
+        <span class="text-lg">📉</span>
+        <span class="text-[8px] font-black uppercase">Analytics</span>
+    </button>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════════════════════════
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyqIgk-V7XABUMluhLwjGudlHwkgldwRaBlAN6dFdbI1gNL-_cvN5PNTek2cfqNtc3j/exec';
+const MANAGER_USER = new URLSearchParams(window.location.search).get('user') || 'manager';
+
+const TOUR_MAP = {
+    '9DV':  { time: '9:30 AM',  name: 'Daily Visit',             color: '#10B981', duration: 105, h: 9,  m: 30 },
+    '0DV':  { time: '10:30 AM', name: 'Daily Visit',             color: '#10B981', duration: 105, h: 10, m: 30 },
+    '1DV':  { time: '1:30 PM',  name: 'Daily Visit',             color: '#10B981', duration: 105, h: 13, m: 30 },
+    '2DV':  { time: '2:30 PM',  name: 'Daily Visit',             color: '#10B981', duration: 105, h: 14, m: 30 },
+    '0GV':  { time: '10:30 AM', name: 'Group Visit',             color: '#3B82F6', duration: 105, h: 10, m: 30 },
+    '8PA':  { time: '8:15 AM',  name: 'Program Day (Academic)',  color: '#7C3AED', duration: 105, h: 8,  m: 15 },
+    '1PF':  { time: '1:30 PM',  name: 'Program Day (Full)',      color: '#7C3AED', duration: 105, h: 13, m: 30 },
+    '1PA':  { time: '1:30 PM',  name: 'Program Day (Academic)',  color: '#7C3AED', duration: 105, h: 13, m: 30 },
+    '2PA':  { time: '2:30 PM',  name: 'Program Day (Academic)',  color: '#7C3AED', duration: 105, h: 14, m: 30 },
+};
+
+const DAILY_VISITS  = ['9DV','0DV','0GV','1DV','2DV'];
+const PROGRAM_DAYS  = ['8PA','1PF','1PA','2PA'];
+const ALL_SLOTS     = [...DAILY_VISITS, ...PROGRAM_DAYS];
+
+const FAMILY_DATA = [
+    { name: "Marley",   points: 164 },
+    { name: "Jacob",    points: 138 },
+    { name: "Samantha", points: 128 },
+    { name: "Kristina", points: 116 }
+];
+
+let cachedData = null;
+let guidesSortKey = 'career';
+let guidesSortDir = -1;
+let deskDate = new Date(); deskDate.setHours(0,0,0,0);
+let weekOffset = 0;
+
+// ══════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════
+async function init() {
+    if (!MANAGER_USER) { showError('NO_USER_PARAM'); return; }
+    const controller = new AbortController();
+    const timeout = setTimeout(() => { controller.abort(); showError('TIMEOUT'); }, 12000);
+    try {
+        const res = await fetch(`${SCRIPT_URL}?user=${MANAGER_USER}`, { signal: controller.signal });
+        if (!res.ok) { showError(`HTTP_${res.status}`); return; }
+        cachedData = await res.json();
+        clearTimeout(timeout);
+        if (!cachedData || !cachedData.profile) { showError('PROFILE_NOT_FOUND'); return; }
+        cachedData.fullList = cachedData.fullList || cachedData.leaderboard || [];
+        postLoad();
+    } catch (e) {
+        if (e.name !== 'AbortError') showError(e.message.toUpperCase().replace(/\s+/g,'_'));
+    }
+}
+
+function postLoad() {
+    // Sidebar
+    const name = cachedData.profile.fullName || 'Manager';
+    document.getElementById('sidebar-name').innerText = name;
+    document.getElementById('sidebar-role').innerText = cachedData.profile.status || 'Manager';
+    document.getElementById('sidebar-initial').innerText = name.charAt(0);
+    document.getElementById('last-sync').innerText = `Synced ${new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}`;
+
+    // Compute upcoming counts per guide
+    const now = new Date(); now.setHours(0,0,0,0);
+    cachedData.fullList.forEach(g => {
+        if (cachedData.tours) {
+            g.upcomingCount = cachedData.tours.filter(t => {
+                const cn = t.guide.replace(/[*~`+]/g,'').trim().toLowerCase();
+                const tourDate = new Date(t.date); tourDate.setHours(0,0,0,0);
+                return cn === g.displayName.toLowerCase() && tourDate >= now;
+            }).length;
+        } else { g.upcomingCount = 0; }
+    });
+
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    renderDashboard();
+    renderGuidesTable();
+    renderFullLeaderboard('career');
+    renderTodaySchedule();
+    renderWeekView();
+    renderDeskOps();
+    renderAnalytics();
+    renderFamilies();
+    renderLiveOps();
+
+    // Update live badge
+    const liveCount = getLiveSlots().length;
+    const liveBadge = document.getElementById('live-badge');
+    if (liveCount > 0) { liveBadge.classList.remove('hidden'); liveBadge.innerText = liveCount; }
+
+    // Refresh live section every 60s
+    setInterval(() => { renderLiveOps(); renderDashboard(); }, 60000);
+
+    // Hide overlay
+    document.getElementById('loading-overlay').classList.add('opacity-0');
+    setTimeout(() => document.getElementById('loading-overlay').style.display = 'none', 500);
+}
+
+function updateClock() {
+    const now = new Date();
+    const str = now.toLocaleDateString('en-US', { weekday:'long', month:'short', day:'numeric' }) + ' — ' +
+                now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    document.getElementById('dashboard-clock').innerText = str;
+    const live = document.getElementById('live-clock-display');
+    if (live) live.innerText = now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    const lod = document.getElementById('live-ops-date');
+    if (lod) lod.innerText = now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'}).toUpperCase();
+}
+
+// ══════════════════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════════════════
+function parse12Hour(str) {
+    const [time, mod] = str.split(' ');
+    let [h, m] = time.split(':').map(Number);
+    if (mod === 'PM' && h < 12) h += 12;
+    if (mod === 'AM' && h === 12) h = 0;
+    return { h, m };
+}
+
+function getSlotStatus(typeCode, tourDate) {
+    const info = TOUR_MAP[typeCode];
+    if (!info) return 'unknown';
+    const now = new Date();
+    const start = new Date(tourDate); start.setHours(info.h, info.m, 0);
+    const end   = new Date(start.getTime() + info.duration * 60000);
+    const d = new Date(tourDate); d.setHours(0,0,0,0);
+    const today = new Date(); today.setHours(0,0,0,0);
+    if (d.getTime() !== today.getTime()) {
+        return d < today ? 'done' : 'future';
+    }
+    if (now < start) return 'upcoming';
+    if (now >= start && now <= end) return 'live';
+    return 'done';
+}
+
+function getLiveSlots() {
+    if (!cachedData || !cachedData.tours) return [];
+    const today = new Date(); today.setHours(0,0,0,0);
+    return cachedData.tours.filter(t => {
+        const tDate = new Date(t.date); tDate.setHours(0,0,0,0);
+        return tDate.getTime() === today.getTime() && getSlotStatus(t.type, t.date) === 'live' &&
+               !['N/A','#N/A'].includes(String(t.guide).trim().toUpperCase());
+    });
+}
+
+function getPendingDrops() {
+    if (!cachedData || !cachedData.tours) return [];
+    const today = new Date(); today.setHours(0,0,0,0);
+    return cachedData.tours.filter(t => {
+        const tDate = new Date(t.date); tDate.setHours(0,0,0,0);
+        return tDate >= today && String(t.guide).includes('*');
+    });
+}
+
+function parseGuide(guideStr) {
+    let name = String(guideStr);
+    let label = 'SCHEDULED'; let cls = 'bg-gray-50 border-gray-100'; let badgeCls = 'bg-green-100 text-green-700';
+    if (name.includes('*')) { name = name.replace(/\*/g,'').trim(); label='PENDING DROP'; cls='bg-red-50 border-red-200'; badgeCls='bg-red-600 text-white'; }
+    else if (name.includes('`')) { name = name.replace(/`/g,'').trim(); label='NOT GIVEN'; badgeCls='bg-blue-100 text-blue-700'; }
+    else if (name.includes('+')) { name = name.replace(/\+/g,'').trim(); label='PICKED UP'; badgeCls='bg-purple-100 text-purple-700'; }
+    name = name.replace(/~/g,'').trim();
+    return { name, label, cls, badgeCls };
+}
+
+function statusBadgeHtml(status) {
+    const map = {
+        'Tour Guide':  'status-active',
+        'Manager':     'status-manager',
+        'Codirector':  'status-codirector',
+        'Retired':     'status-retired',
+    };
+    const cls = map[status] || 'status-active';
+    return `<span class="badge-pill ${cls}">${status || 'Guide'}</span>`;
+}
+
+function badgeHtml(careerTotal, size = 'sm') {
+    const s = size === 'sm' ? 'text-sm' : 'text-lg';
+    let html = '';
+    if (careerTotal >= 50)  html += `<span title="Bell Tower Boss (50+)" class="${s}">🔔</span>`;
+    if (careerTotal >= 100) html += `<span title="Century Club (100+)" class="${s}">💯</span>`;
+    if (careerTotal >= 200) html += `<span title="Golden Guide (200+)" class="${s}">✨</span>`;
+    return html || '<span class="text-gray-200 text-xs">—</span>';
+}
+
+// ══════════════════════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════════════════════
+function renderDashboard() {
+    if (!cachedData) return;
+    const all = cachedData.fullList;
+    const tours = cachedData.tours || [];
+    const today = new Date(); today.setHours(0,0,0,0);
+
+    // KPIs
+    const activeGuides = all.filter(g => g.careerTotal > 0 || g.semesterTotal > 0).length;
+    const liveSlots = getLiveSlots();
+    const todayTours = tours.filter(t => { const d = new Date(t.date); d.setHours(0,0,0,0); return d.getTime()===today.getTime() && !['N/A','#N/A'].includes(String(t.guide).trim().toUpperCase()); });
+    const semTotal = all.reduce((s,g) => s + (g.semesterTotal||0), 0);
+
+    document.getElementById('kpi-active').innerText = all.length;
+    document.getElementById('kpi-ontour').innerText = liveSlots.length;
+    document.getElementById('kpi-today').innerText = todayTours.length;
+    document.getElementById('kpi-semester').innerText = semTotal;
+
+    // Live panel
+    const livePanel = document.getElementById('live-panel');
+    document.getElementById('live-count-badge').innerText = `${liveSlots.length} active`;
+    if (liveSlots.length === 0) {
+        livePanel.innerHTML = '<p class="text-gray-400 text-[10px] font-black uppercase text-center py-6">No tours currently active</p>';
+    } else {
+        livePanel.innerHTML = liveSlots.map(t => {
+            const info = TOUR_MAP[t.type] || {};
+            const p = parseGuide(t.guide);
+            return `<div class="flex items-center justify-between p-2.5 rounded-2xl bg-purple-50 border border-purple-100">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-xl flex items-center justify-center text-white text-sm font-black live-pulse" style="background:${info.color||'#7C3AED'}">🚶</div>
+                    <div><p class="font-black text-sm leading-tight">${p.name}</p><p class="text-[9px] font-bold text-gray-400 uppercase">${info.name||t.type} · ${info.time||''}</p></div>
+                </div>
+                <span class="badge-pill bg-purple-100 text-purple-700">LIVE</span>
+            </div>`;
+        }).join('');
+    }
+
+    // Today slot overview
+    const slotOverview = document.getElementById('today-slot-overview');
+    const todaySlotHtml = ALL_SLOTS.map(code => {
+        const info = TOUR_MAP[code];
+        const guides = tours.filter(t => { const d = new Date(t.date); d.setHours(0,0,0,0); return t.type===code && d.getTime()===today.getTime() && !['N/A','#N/A'].includes(String(t.guide).trim().toUpperCase()); });
+        const status = guides.length > 0 ? getSlotStatus(code, new Date()) : 'empty';
+        let dotColor = '#E5E7EB';
+        if (status === 'live') dotColor = '#7C3AED';
+        else if (status === 'upcoming') dotColor = '#10B981';
+        else if (status === 'done') dotColor = '#9CA3AF';
+        else if (guides.length > 0) dotColor = '#10B981';
+        return `<div class="flex items-center justify-between py-1.5 border-b border-gray-50 last:border-0">
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full" style="background:${dotColor}"></span>
+                <span class="text-xs font-bold">${info?.time || code}</span>
+                <span class="text-[9px] text-gray-400 font-bold">${info?.name || code}</span>
+            </div>
+            <span class="text-[9px] font-black ${guides.length?'text-gray-700':'text-gray-300'}">${guides.length ? guides.map(g=>parseGuide(g.guide).name).join(', ') : 'Empty'}</span>
+        </div>`;
+    }).join('');
+    slotOverview.innerHTML = todaySlotHtml || '<p class="text-gray-400 text-[10px] font-black uppercase text-center py-6">No tour data</p>';
+
+    // Leaderboard snapshot (top 6)
+    const top6 = [...all].sort((a,b)=>b.careerTotal-a.careerTotal).slice(0,6);
+    document.getElementById('dashboard-leaderboard').innerHTML = top6.map((g,i) => `
+        <div class="guide-row rounded-xl cursor-pointer" onclick="openGuideProfile('${g.displayName}')">
+            <span class="font-black text-gray-200 w-6 text-xs mr-3">#${i+1}</span>
+            <div class="w-7 h-7 rounded-lg bg-primary-gold/10 flex items-center justify-center text-primary-gold font-black text-xs mr-3">${(g.displayName||'?').charAt(0)}</div>
+            <div class="flex-1"><p class="font-bold text-sm leading-tight">${g.displayName}</p></div>
+            <div class="flex items-center gap-3">
+                <span class="text-[9px] font-black text-primary-gold">${g.careerTotal} career</span>
+                <span class="text-[9px] font-black text-status-green">${g.semesterTotal} sem</span>
+            </div>
+        </div>
+    `).join('');
+
+    // Alerts
+    const pendingDrops = getPendingDrops();
+    const noProfile = all.filter(g => g.careerTotal === 0 && g.semesterTotal === 0);
+    let alertsHtml = '';
+    if (pendingDrops.length > 0) {
+        alertsHtml += `<div class="p-3 bg-red-50 border border-red-100 rounded-2xl">
+            <p class="text-[9px] font-black text-red-600 uppercase tracking-widest mb-1">⚠️ Pending Drops</p>
+            <p class="font-bold text-sm">${pendingDrops.length} tour${pendingDrops.length>1?'s':''} with pending drops</p>
+            ${pendingDrops.slice(0,3).map(t=>`<p class="text-[10px] text-gray-500 font-bold mt-0.5">${parseGuide(t.guide).name} — ${TOUR_MAP[t.type]?.time||t.type} on ${new Date(t.date).toLocaleDateString()}</p>`).join('')}
+        </div>`;
+    }
+    if (!alertsHtml) alertsHtml = '<p class="text-gray-400 text-[10px] font-black uppercase text-center py-4">No alerts at this time</p>';
+    document.getElementById('alerts-panel').innerHTML = alertsHtml;
+
+    // Week mini preview
+    const weekStart = getWeekStart(0);
+    let weekMiniHtml = '';
+    for (let i = 0; i < 5; i++) {
+        const day = new Date(weekStart); day.setDate(day.getDate() + i);
+        const dayStr = day.toDateString();
+        const dayTours = tours.filter(t => { const d = new Date(t.date); d.setHours(0,0,0,0); return d.toDateString()===dayStr && !['N/A','#N/A'].includes(String(t.guide).trim().toUpperCase()); });
+        const isToday = day.toDateString() === new Date().toDateString();
+        weekMiniHtml += `<div class="text-center p-3 rounded-2xl ${isToday?'bg-primary-gold/10 border border-primary-gold/30':'bg-gray-50'} cursor-pointer hover:bg-gray-100 transition-colors" onclick="switchView('week')">
+            <p class="text-[9px] font-black text-gray-400 uppercase mb-1">${day.toLocaleDateString('en-US',{weekday:'short'})}</p>
+            <p class="text-xl font-black ${isToday?'text-primary-gold':''}">${day.getDate()}</p>
+            <p class="text-[9px] font-black mt-1 ${dayTours.length>0?'text-status-green':'text-gray-300'}">${dayTours.length} tours</p>
+        </div>`;
+    }
+    document.getElementById('week-mini').innerHTML = weekMiniHtml;
+}
+
+// ══════════════════════════════════════════════════════════
+// LIVE OPS
+// ══════════════════════════════════════════════════════════
+function renderLiveOps() {
+    if (!cachedData) return;
+    const tours = cachedData.tours || [];
+    const today = new Date(); today.setHours(0,0,0,0);
+    const container = document.getElementById('live-all-slots');
+
+    const html = ALL_SLOTS.map(code => {
+        const info = TOUR_MAP[code];
+        const guides = tours.filter(t => {
+            const d = new Date(t.date); d.setHours(0,0,0,0);
+            return t.type === code && d.getTime() === today.getTime() && !['N/A','#N/A'].includes(String(t.guide).trim().toUpperCase());
+        });
+        const status = guides.length > 0 ? getSlotStatus(code, new Date()) : 'empty';
+        let cardBg = 'bg-white border-gray-100';
+        let statusLabel = 'Empty'; let statusCls = 'bg-gray-100 text-gray-400';
+        if (status === 'live') { cardBg = 'bg-purple-600 border-purple-700 text-white'; statusLabel = 'LIVE NOW'; statusCls = 'bg-white/20 text-white'; }
+        else if (status === 'upcoming' || (guides.length > 0 && status !== 'done')) { statusLabel = 'UPCOMING'; statusCls = 'bg-green-100 text-green-700'; }
+        else if (status === 'done' && guides.length > 0) { statusLabel = 'COMPLETED'; statusCls = 'bg-gray-100 text-gray-400'; cardBg='bg-white border-gray-100 opacity-50'; }
+
+        const isLive = status === 'live';
+        return `<div class="rounded-3xl border p-5 ${cardBg} ${isLive?'live-pulse shadow-lg shadow-purple-200':''} transition-all">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <p class="text-[9px] font-black uppercase tracking-widest ${isLive?'text-white/70':'text-gray-400'} mb-0.5">${info?.name || code}</p>
+                    <h3 class="text-2xl font-black leading-tight ${isLive?'text-white':''}">${info?.time || code}</h3>
+                </div>
+                <span class="badge-pill ${statusCls}">${statusLabel}</span>
+            </div>
+            <div class="space-y-1.5 ${guides.length===0?'opacity-40':''}">
+                ${guides.length > 0 ? guides.map(g => {
+                    const p = parseGuide(g.guide);
+                    return `<div class="p-2 rounded-xl text-[11px] font-bold flex justify-between items-center ${isLive?'bg-white/20':'bg-gray-50 border border-gray-100'}">
+                        <span class="${isLive?'text-white':''}">${p.name}</span>
+                        <span class="text-[7px] px-2 py-0.5 rounded-md font-black uppercase ${p.badgeCls}">${p.label}</span>
+                    </div>`;
+                }).join('') : `<p class="text-[10px] italic ${isLive?'text-white/50':'text-gray-400'} font-bold">No guides assigned</p>`}
+            </div>
+        </div>`;
+    }).join('');
+    container.innerHTML = html;
+}
+
+// ══════════════════════════════════════════════════════════
+// GUIDES TABLE
+// ══════════════════════════════════════════════════════════
+function filterGuides() {
+    const q = document.getElementById('guide-search').value.toLowerCase();
+    const statusFilter = document.getElementById('guide-status-filter').value;
+    renderGuidesTable(q, statusFilter);
+}
+
+function sortGuides(key) {
+    if (guidesSortKey === key) guidesSortDir *= -1;
+    else { guidesSortKey = key; guidesSortDir = -1; }
+    filterGuides();
+}
+
+function renderGuidesTable(q = '', statusFilter = '') {
+    if (!cachedData) return;
+    let list = [...cachedData.fullList];
+    if (q) list = list.filter(g => g.displayName.toLowerCase().includes(q));
+    
+    // Find status for each guide from profile data
+    list = list.map(g => ({
+        ...g,
+        status: getGuideStatus(g.displayName)
+    }));
+    
+    if (statusFilter) list = list.filter(g => (g.status||'Tour Guide') === statusFilter);
+    list.sort((a,b) => {
+        if (guidesSortKey === 'name') return guidesSortDir * a.displayName.localeCompare(b.displayName);
+        if (guidesSortKey === 'semester') return guidesSortDir * ((b.semesterTotal||0)-(a.semesterTotal||0));
+        return guidesSortDir * ((b.careerTotal||0)-(a.careerTotal||0));
+    });
+
+    document.getElementById('guides-count-label').innerText = `${list.length} guides found`;
+    const ranked = [...cachedData.fullList].sort((a,b)=>b.careerTotal-a.careerTotal);
+    document.getElementById('guides-table-body').innerHTML = list.map(g => {
+        const rank = ranked.findIndex(x=>x.displayName===g.displayName)+1;
+        return `<tr class="guide-row" onclick="openGuideProfile('${g.displayName}')">
+            <td class="px-4 py-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-xl bg-primary-gold/10 flex items-center justify-center text-primary-gold font-black text-xs">${g.displayName.charAt(0)}</div>
+                    <span class="font-bold text-sm">${g.displayName}</span>
+                </div>
+            </td>
+            <td class="px-4 py-3">${statusBadgeHtml(g.status||'Tour Guide')}</td>
+            <td class="px-4 py-3 text-center font-black text-sm">${g.careerTotal||0}</td>
+            <td class="px-4 py-3 text-center font-black text-sm text-status-green">${g.semesterTotal||0}</td>
+            <td class="px-4 py-3 text-center">
+                <span class="badge-pill ${g.upcomingCount>0?'bg-blue-50 text-blue-700':'bg-gray-50 text-gray-400'}">${g.upcomingCount||0}</span>
+            </td>
+            <td class="px-4 py-3 text-center">${badgeHtml(g.careerTotal||0)}</td>
+            <td class="px-4 py-3 text-right">
+                <span class="text-xs font-black text-gray-400">#${rank}</span>
+            </td>
+        </tr>`;
+    }).join('') || '<tr><td colspan="7" class="p-8 text-center text-gray-400 text-sm">No guides found</td></tr>';
+}
+
+function getGuideStatus(displayName) {
+    // If the current user profile matches, return their status
+    if (cachedData.profile && cachedData.profile.displayName === displayName) {
+        return cachedData.profile.status;
+    }
+    return 'Tour Guide'; // Default — we only have the current user's status from the API
+}
+
+// ══════════════════════════════════════════════════════════
+// PROFILE MODAL
+// ══════════════════════════════════════════════════════════
+function openGuideProfile(displayName) {
+    const g = cachedData.fullList.find(x => x.displayName === displayName);
+    if (!g) return;
+    const ranked = [...cachedData.fullList].sort((a,b)=>b.careerTotal-a.careerTotal);
+    const rank = ranked.findIndex(x=>x.displayName===displayName)+1;
+    const tours = cachedData.tours || [];
+    const today = new Date(); today.setHours(0,0,0,0);
+    const upcoming = tours.filter(t => {
+        const cn = t.guide.replace(/[*~`+]/g,'').trim().toLowerCase();
+        const d = new Date(t.date); d.setHours(0,0,0,0);
+        return cn === displayName.toLowerCase() && d >= today;
+    }).sort((a,b) => new Date(a.date)-new Date(b.date));
+
+    document.getElementById('modal-initial').innerText = displayName.charAt(0);
+    document.getElementById('modal-name').innerText = displayName;
+    document.getElementById('modal-displayname').innerText = `@${displayName.toLowerCase().replace(/\s/g,'_')}`;
+    document.getElementById('modal-status-badge').innerText = getGuideStatus(displayName);
+    document.getElementById('modal-rank').innerText = `#${rank} on career leaderboard`;
+    document.getElementById('modal-career').innerText = g.careerTotal || 0;
+    document.getElementById('modal-semester').innerText = g.semesterTotal || 0;
+    document.getElementById('modal-upcoming').innerText = upcoming.length;
+
+    // Semester history
+    const hist = [...(g.history||[])].reverse();
+    document.getElementById('modal-history').innerHTML = hist.length > 0 ? hist.map(h => `
+        <div class="flex items-center gap-3">
+            <span class="text-[9px] font-black text-gray-400 uppercase w-24">${h.semester}</span>
+            <div class="flex-1 mini-bar-wrap"><div class="mini-bar-fill" style="width:${Math.min((h.count/40)*100,100)}%"></div></div>
+            <span class="text-xs font-black w-6 text-right">${h.count}</span>
+        </div>
+    `).join('') : '<p class="text-gray-400 text-xs">No history available</p>';
+
+    // Profile info (if available for current user)
+    document.getElementById('modal-profile-info').innerHTML = '';
+
+    // Upcoming tours
+    document.getElementById('modal-upcoming-tours').innerHTML = upcoming.length > 0 ? upcoming.slice(0,5).map(t => {
+        const info = TOUR_MAP[t.type] || {};
+        const d = new Date(t.date);
+        return `<div class="flex items-center gap-3 p-2 rounded-xl bg-gray-50">
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center text-white font-black text-xs" style="background:${info.color||'#CFB991'}">
+                <span>${d.getDate()}</span>
+            </div>
+            <div><p class="text-xs font-black leading-tight">${info.time||t.type}</p><p class="text-[9px] text-gray-400 font-bold uppercase">${info.name||t.type} · ${d.toLocaleDateString('en-US',{month:'short',day:'numeric'})}</p></div>
+        </div>`;
+    }).join('') : '<p class="text-gray-400 text-xs">No upcoming tours scheduled</p>';
+
+    // Badges
+    document.getElementById('modal-badges').innerHTML = `
+        <div class="flex flex-col items-center gap-1 ${g.careerTotal>=50?'':'opacity-20 grayscale'}">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-gold to-yellow-600 flex items-center justify-center text-xl shadow">🔔</div>
+            <p class="text-[8px] font-black uppercase text-center">Bell Tower Boss</p>
+        </div>
+        <div class="flex flex-col items-center gap-1 ${g.careerTotal>=100?'':'opacity-20 grayscale'}">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-gold to-yellow-600 flex items-center justify-center text-xl shadow">💯</div>
+            <p class="text-[8px] font-black uppercase text-center">Century Club</p>
+        </div>
+        <div class="flex flex-col items-center gap-1 ${g.careerTotal>=200?'':'opacity-20 grayscale'}">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-gold to-yellow-600 flex items-center justify-center text-xl shadow">✨</div>
+            <p class="text-[8px] font-black uppercase text-center">Golden Guide</p>
+        </div>
+    `;
+
+    document.getElementById('profile-modal').classList.remove('hidden');
+}
+
+function closeProfileModal(e) {
+    if (!e || e.target === document.getElementById('profile-modal')) {
+        document.getElementById('profile-modal').classList.add('hidden');
+    }
+}
+
+// ══════════════════════════════════════════════════════════
+// FULL LEADERBOARD
+// ══════════════════════════════════════════════════════════
+function renderFullLeaderboard(mode = 'career') {
+    if (!cachedData) return;
+    document.getElementById('tlb-career-btn').className = `px-4 py-1.5 text-[9px] font-black uppercase rounded-lg tracking-widest ${mode==='career'?'bg-white text-gray-700 shadow-sm':'text-gray-400'}`;
+    document.getElementById('tlb-semester-btn').className = `px-4 py-1.5 text-[9px] font-black uppercase rounded-lg tracking-widest ${mode==='semester'?'bg-white text-gray-700 shadow-sm':'text-gray-400'}`;
+
+    const all = cachedData.fullList;
+    const sorted = [...all].sort((a,b) => mode==='career' ? (b.careerTotal-a.careerTotal) : (b.semesterTotal-a.semesterTotal));
+    const max = sorted[0] ? (mode==='career'?sorted[0].careerTotal:sorted[0].semesterTotal) : 1;
+
+    // Stats
+    const totalCareer = all.reduce((s,g)=>s+(g.careerTotal||0),0);
+    const totalSem = all.reduce((s,g)=>s+(g.semesterTotal||0),0);
+    document.getElementById('tracker-program-career').innerText = totalCareer;
+    document.getElementById('tracker-program-semester').innerText = totalSem;
+    document.getElementById('tracker-avg-career').innerText = all.length ? Math.round(totalCareer/all.length) : 0;
+    document.getElementById('tracker-avg-semester').innerText = all.length ? Math.round(totalSem/all.length) : 0;
+
+    document.getElementById('full-leaderboard').innerHTML = sorted.map((g, i) => {
+        const val = mode==='career' ? g.careerTotal : g.semesterTotal;
+        const pct = max > 0 ? (val/max)*100 : 0;
+        const medals = ['🥇','🥈','🥉'];
+        return `<div class="flex items-center gap-4 px-5 py-3 hover:bg-gray-50 transition-colors cursor-pointer border-b border-gray-50 last:border-0" onclick="openGuideProfile('${g.displayName}')">
+            <span class="font-black text-sm w-8 text-center">${i < 3 ? medals[i] : `<span class="text-gray-300">#${i+1}</span>`}</span>
+            <div class="w-8 h-8 rounded-xl bg-primary-gold/10 flex items-center justify-center text-primary-gold font-black text-xs">${g.displayName.charAt(0)}</div>
+            <div class="flex-1 min-w-0">
+                <p class="font-bold text-sm truncate">${g.displayName}</p>
+                <div class="mini-bar-wrap mt-1"><div class="mini-bar-fill" style="width:${pct}%"></div></div>
+            </div>
+            <div class="text-right shrink-0">
+                <p class="font-black text-sm text-primary-gold">${val}</p>
+                <p class="text-[9px] text-gray-400 font-bold">${mode==='career'?`${g.semesterTotal||0} sem`:`${g.careerTotal||0} career`}</p>
+            </div>
+            <div class="shrink-0">${badgeHtml(g.careerTotal||0)}</div>
+        </div>`;
+    }).join('');
+}
+
+// ══════════════════════════════════════════════════════════
+// TODAY SCHEDULE
+// ══════════════════════════════════════════════════════════
+function renderTodaySchedule() {
+    if (!cachedData) return;
+    const tours = cachedData.tours || [];
+    const today = new Date(); today.setHours(0,0,0,0);
+    document.getElementById('today-header-date').innerText = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'}).toUpperCase();
+
+    document.getElementById('today-schedule-grid').innerHTML = ALL_SLOTS.map(code => {
+        const info = TOUR_MAP[code];
+        const guides = tours.filter(t => {
+            const d = new Date(t.date); d.setHours(0,0,0,0);
+            return t.type===code && d.getTime()===today.getTime() && !['N/A','#N/A'].includes(String(t.guide).trim().toUpperCase());
+        });
+        const status = guides.length > 0 ? getSlotStatus(code, new Date()) : 'empty';
+        let headerColor = '#F9FAFB'; let headerText = '#6B7280';
+        if (status === 'live') { headerColor = '#7C3AED'; headerText = 'white'; }
+        else if (status === 'upcoming' || guides.length>0) { headerColor = '#F0FDF4'; headerText = '#065F46'; }
+        else if (status === 'done' && guides.length>0) { headerColor = '#F3F4F6'; headerText = '#9CA3AF'; }
+
+        return `<div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden ${guides.length===0?'opacity-50':''}">
+            <div class="px-4 py-3 flex justify-between items-center" style="background:${headerColor}">
+                <div>
+                    <p class="text-[9px] font-black uppercase tracking-widest" style="color:${headerText};opacity:0.7">${info?.name||code}</p>
+                    <h4 class="font-black text-base leading-tight" style="color:${headerText}">${info?.time||code}</h4>
+                </div>
+                <span class="badge-pill ${status==='live'?'bg-white/20 text-white':status==='upcoming'||guides.length>0?'bg-green-100 text-green-700':'bg-gray-100 text-gray-400'}">${status==='live'?'LIVE':status==='upcoming'?'UPCOMING':guides.length>0?'SCHEDULED':'EMPTY'}</span>
+            </div>
+            <div class="p-3 space-y-1.5">
+                ${guides.length>0 ? guides.map(g => {
+                    const p = parseGuide(g.guide);
+                    return `<div class="flex items-center justify-between p-2 rounded-xl bg-gray-50 border border-gray-100 cursor-pointer hover:bg-gray-100" onclick="openGuideProfile('${p.name}')">
+                        <span class="font-bold text-sm">${p.name}</span>
+                        <span class="badge-pill ${p.badgeCls}">${p.label}</span>
+                    </div>`;
+                }).join('') : '<p class="text-[10px] font-black text-gray-300 uppercase italic py-1">No guides assigned</p>'}
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// ══════════════════════════════════════════════════════════
+// WEEKLY VIEW
+// ══════════════════════════════════════════════════════════
+function getWeekStart(offset) {
+    const d = new Date();
+    d.setDate(d.getDate() - d.getDay() + 1 + (offset * 7)); // Monday
+    d.setHours(0,0,0,0);
+    return d;
+}
+
+function changeWeek(direction) {
+    if (direction === 0) weekOffset = 0;
+    else weekOffset += direction;
+    renderWeekView();
+}
+
+function renderWeekView() {
+    if (!cachedData) return;
+    const tours = cachedData.tours || [];
+    const ws = getWeekStart(weekOffset);
+    const we = new Date(ws); we.setDate(we.getDate() + 4);
+    document.getElementById('week-range-label').innerText = `${ws.toLocaleDateString('en-US',{month:'short',day:'numeric'})} – ${we.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}`.toUpperCase();
+
+    const today = new Date().toDateString();
+    let html = '';
+    for (let i = 0; i < 5; i++) {
+        const day = new Date(ws); day.setDate(day.getDate() + i);
+        const dayStr = day.toDateString();
+        const isToday = dayStr === today;
+        const dayTours = tours.filter(t => {
+            const d = new Date(t.date); d.setHours(0,0,0,0);
+            return d.toDateString() === dayStr && !['N/A','#N/A'].includes(String(t.guide).trim().toUpperCase());
+        });
+        html += `<div class="bg-white rounded-3xl border ${isToday?'border-primary-gold/50 shadow-md':'border-gray-100'} overflow-hidden">
+            <div class="px-4 py-3 border-b ${isToday?'bg-primary-gold/10 border-primary-gold/20':'bg-gray-50 border-gray-100'}">
+                <p class="text-[9px] font-black uppercase tracking-widest ${isToday?'text-primary-gold':'text-gray-400'}">${day.toLocaleDateString('en-US',{weekday:'short'})}</p>
+                <p class="font-black text-lg ${isToday?'text-primary-gold':''}">${day.getDate()}</p>
+                <p class="text-[9px] font-bold text-gray-400">${dayTours.length} tour${dayTours.length!==1?'s':''}</p>
+            </div>
+            <div class="p-3 space-y-1.5">
+                ${dayTours.length > 0 ? dayTours.map(t => {
+                    const info = TOUR_MAP[t.type] || {};
+                    const p = parseGuide(t.guide);
+                    return `<div class="p-2 rounded-xl text-[10px] font-bold cursor-pointer hover:opacity-80" style="background:${info.color||'#CFB991'}18;border:1px solid ${info.color||'#CFB991'}30" onclick="openGuideProfile('${p.name}')">
+                        <p style="color:${info.color||'#CFB991'}">${info.time||t.type}</p>
+                        <p class="text-gray-700">${p.name}</p>
+                    </div>`;
+                }).join('') : '<p class="text-[9px] font-black text-gray-200 uppercase text-center py-3">No tours</p>'}
+            </div>
+        </div>`;
+    }
+    document.getElementById('week-grid').innerHTML = html;
+}
+
+// ══════════════════════════════════════════════════════════
+// DESK OPS
+// ══════════════════════════════════════════════════════════
+function changeDeskDate(d) {
+    deskDate.setDate(deskDate.getDate() + d);
+    renderDeskOps();
+}
+
+function renderDeskOps() {
+    if (!cachedData) return;
+    const tours = cachedData.tours || [];
+    const now = new Date();
+    document.getElementById('desk-ops-date-display').innerText = deskDate.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+    document.getElementById('desk-header-date').innerText = deskDate.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'}).toUpperCase();
+
+    let statusBarHtml = '';
+    let dailyHtml = '';
+    let programHtml = '';
+
+    ALL_SLOTS.forEach(code => {
+        const info = TOUR_MAP[code];
+        const guides = tours.filter(t => {
+            const d = new Date(t.date); d.setHours(0,0,0,0);
+            return t.type===code && d.getTime()===deskDate.getTime() && !['N/A','#N/A'].includes(String(t.guide).trim().toUpperCase());
+        });
+        const hasGuide = guides.length > 0;
+        let sCls = 'bg-gray-100 text-gray-400'; let sText = 'Empty';
+        if (hasGuide) {
+            const start = new Date(deskDate); start.setHours(info.h, info.m, 0);
+            const end = new Date(start.getTime() + info.duration * 60000);
+            if (deskDate.toDateString() === now.toDateString()) {
+                if (now>=start && now<=end) { sCls='bg-purple-600 text-white'; sText='LIVE'; }
+                else if (now<start) { sCls='bg-green-500 text-white'; sText='Ready'; }
+                else { sCls='bg-gray-400 text-white'; sText='Done'; }
+            } else { sCls='bg-green-600 text-white'; sText='Sched'; }
+        }
+        statusBarHtml += `<span class="${sCls} text-[9px] font-black px-2 py-1 rounded-lg uppercase tracking-wider whitespace-nowrap">${code}: ${sText}</span>`;
+
+        const cardHtml = `<div class="bg-white border border-gray-100 rounded-3xl p-5 shadow-sm ${!hasGuide?'opacity-40':''}">
+            <p class="text-[9px] font-black text-primary-gold uppercase tracking-widest mb-0.5">${code}</p>
+            <h3 class="font-black text-lg mb-3">${info?.time||code}</h3>
+            <p class="text-[9px] font-bold text-gray-400 uppercase mb-3">${info?.name||''}</p>
+            <div class="space-y-1.5">
+                ${guides.length > 0 ? guides.map(g => {
+                    const p = parseGuide(g.guide);
+                    return `<div class="flex justify-between items-center p-2 rounded-xl ${p.cls} border text-xs font-bold cursor-pointer hover:opacity-80" onclick="openGuideProfile('${p.name}')">
+                        <span>${p.name}</span>
+                        <span class="badge-pill ${p.badgeCls}">${p.label}</span>
+                    </div>`;
+                }).join('') : '<p class="text-[10px] italic text-gray-300 font-bold">No guides</p>'}
+            </div>
+        </div>`;
+
+        if (DAILY_VISITS.includes(code)) dailyHtml += cardHtml;
+        else programHtml += cardHtml;
+    });
+
+    document.getElementById('desk-status-bar').innerHTML = statusBarHtml;
+    document.getElementById('desk-daily-grid').innerHTML = dailyHtml;
+    document.getElementById('desk-program-grid').innerHTML = programHtml;
+}
+
+// ══════════════════════════════════════════════════════════
+// ANALYTICS
+// ══════════════════════════════════════════════════════════
+function renderAnalytics() {
+    if (!cachedData) return;
+    const all = cachedData.fullList;
+    const tours = cachedData.tours || [];
+
+    // Tour type distribution
+    const typeCounts = {};
+    tours.forEach(t => {
+        if (!['N/A','#N/A'].includes(String(t.guide).trim().toUpperCase())) {
+            typeCounts[t.type] = (typeCounts[t.type]||0) + 1;
+        }
+    });
+    const maxCount = Math.max(...Object.values(typeCounts), 1);
+    const typeColors = { '9DV':'#10B981','0DV':'#34D399','1DV':'#6EE7B7','2DV':'#A7F3D0','0GV':'#3B82F6','8PA':'#7C3AED','1PF':'#8B5CF6','1PA':'#A78BFA','2PA':'#C4B5FD' };
+    const sortedTypes = Object.entries(typeCounts).sort((a,b)=>b[1]-a[1]);
+    document.getElementById('tour-type-chart').innerHTML = sortedTypes.map(([code, count]) => `
+        <div class="flex flex-col items-center gap-1 flex-1 min-w-0">
+            <span class="text-[9px] font-black">${count}</span>
+            <div class="chart-bar w-full" style="height:${(count/maxCount)*120}px;background:${typeColors[code]||'#CFB991'}"></div>
+            <span class="text-[8px] font-black text-gray-400 uppercase">${code}</span>
+        </div>
+    `).join('');
+    document.getElementById('tour-type-legend').innerHTML = sortedTypes.map(([code]) => `
+        <div class="flex items-center gap-1.5">
+            <div class="w-2.5 h-2.5 rounded-full" style="background:${typeColors[code]||'#CFB991'}"></div>
+            <span class="text-[9px] font-bold text-gray-500">${TOUR_MAP[code]?.name||code}</span>
+        </div>
+    `).join('');
+
+    // Status donut
+    const statuses = {};
+    // We only know the current user's real status; label others generically
+    all.forEach(g => {
+        const s = getGuideStatus(g.displayName);
+        statuses[s] = (statuses[s]||0) + 1;
+    });
+    const total = all.length;
+    const donutColors = {'Tour Guide':'#CFB991','Manager':'#7C3AED','Codirector':'#F59E0B','Retired':'#9CA3AF'};
+    const CIRC = 326.7;
+    let offset = 0;
+    const donutParts = Object.entries(statuses).map(([s, cnt]) => ({ s, cnt, pct: cnt/total }));
+    // Render text
+    document.getElementById('donut-center-num').textContent = total;
+    document.getElementById('donut-legend').innerHTML = donutParts.map(p => `
+        <div class="flex items-center gap-2">
+            <div class="w-2.5 h-2.5 rounded-full" style="background:${donutColors[p.s]||'#CFB991'}"></div>
+            <span class="text-[10px] font-bold text-gray-600">${p.s}: <strong>${p.cnt}</strong></span>
+        </div>
+    `).join('');
+    // Animate guide arc only (simplified)
+    const guideCount = statuses['Tour Guide'] || total;
+    const guideArc = (guideCount/total)*CIRC;
+    setTimeout(() => {
+        const el = document.getElementById('donut-guides');
+        if (el) { el.style.strokeDasharray = `${guideArc} ${CIRC}`; el.style.strokeDashoffset = 0; }
+        const mgr = statuses['Manager']||0;
+        const mgrArc = (mgr/total)*CIRC;
+        const el2 = document.getElementById('donut-managers');
+        if (el2) {
+            el2.style.strokeDasharray = `${mgrArc} ${CIRC}`;
+            el2.style.strokeDashoffset = -(guideArc);
+        }
+    }, 200);
+
+    // Milestone achievers
+    const achievers50  = all.filter(g=>(g.careerTotal||0)>=50).length;
+    const achievers100 = all.filter(g=>(g.careerTotal||0)>=100).length;
+    const achievers200 = all.filter(g=>(g.careerTotal||0)>=200).length;
+    document.getElementById('milestone-achievers').innerHTML = [
+        { label:'Bell Tower Boss (50+)', emoji:'🔔', count:achievers50,  pct:achievers50/all.length },
+        { label:'Century Club (100+)',   emoji:'💯', count:achievers100, pct:achievers100/all.length },
+        { label:'Golden Guide (200+)',   emoji:'✨', count:achievers200, pct:achievers200/all.length },
+    ].map(m => `
+        <div>
+            <div class="flex justify-between items-center mb-1">
+                <span class="text-sm font-bold">${m.emoji} ${m.label}</span>
+                <span class="text-xs font-black text-primary-gold">${m.count} guides</span>
+            </div>
+            <div class="mini-bar-wrap"><div class="mini-bar-fill" style="width:${(m.pct||0)*100}%"></div></div>
+        </div>
+    `).join('');
+
+    // Semester performance top 10
+    const topSem = [...all].sort((a,b)=>(b.semesterTotal||0)-(a.semesterTotal||0)).slice(0,8);
+    const maxSem = topSem[0]?.semesterTotal || 1;
+    document.getElementById('semester-perf-bars').innerHTML = topSem.map(g => `
+        <div class="flex items-center gap-3">
+            <span class="text-[9px] font-black text-gray-400 w-20 truncate">${g.displayName.split(' ')[0]}</span>
+            <div class="flex-1 mini-bar-wrap"><div class="mini-bar-fill" style="width:${((g.semesterTotal||0)/maxSem)*100}%"></div></div>
+            <span class="text-xs font-black w-6 text-right text-status-green">${g.semesterTotal||0}</span>
+        </div>
+    `).join('');
+
+    // Semester trend — aggregate all guides' history
+    const semMap = {};
+    all.forEach(g => (g.history||[]).forEach(h => {
+        semMap[h.semester] = (semMap[h.semester]||0) + (h.count||0);
+    }));
+    const semKeys = Object.keys(semMap).sort();
+    const maxSemTot = Math.max(...Object.values(semMap), 1);
+    document.getElementById('semester-trend-chart').innerHTML = semKeys.map(s => `
+        <div class="flex flex-col items-center gap-1 flex-shrink-0" style="min-width:60px">
+            <span class="text-[9px] font-black text-gray-600">${semMap[s]}</span>
+            <div class="chart-bar w-10" style="height:${(semMap[s]/maxSemTot)*120}px;background:#CFB991"></div>
+            <span class="text-[8px] font-bold text-gray-400 text-center leading-tight">${s.replace(' ','\n')}</span>
+        </div>
+    `).join('') || '<p class="text-gray-400 text-sm">No historical data</p>';
+}
+
+// ══════════════════════════════════════════════════════════
+// FAMILIES
+// ══════════════════════════════════════════════════════════
+function renderFamilies() {
+    const sorted = [...FAMILY_DATA].sort((a,b)=>b.points-a.points);
+    const podOrder = [sorted[1],sorted[0],sorted[2]];
+    const heights = ['110px','160px','80px'];
+    const colors = ['#E5E7EB','#CFB991','#FED7AA'];
+    document.getElementById('mgr-podium').innerHTML = podOrder.map((f,i) => `
+        <div class="flex flex-col items-center justify-end" style="width:80px">
+            <span class="text-xs font-black mb-1">${f.points}</span>
+            <div style="height:${heights[i]};background:${colors[i]};border-radius:12px 12px 0 0;width:100%;display:flex;align-items:center;justify-content:center;">
+                <span class="text-[10px] font-black text-center px-1">${f.name}</span>
+            </div>
+        </div>
+    `).join('');
+    document.getElementById('mgr-family-list').innerHTML = sorted.map((f,i) => `
+        <div class="flex justify-between p-4 bg-gray-50 rounded-2xl font-bold">
+            <span>#${i+1} ${f.name} Family</span>
+            <span class="text-primary-gold font-black">${f.points} PTS</span>
+        </div>
+    `).join('');
+}
+
+// ══════════════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════════════
+function switchView(viewId) {
+    document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+    const v = document.getElementById(`view-${viewId}`);
+    if (v) v.classList.add('active');
+    document.querySelectorAll('.nav-button').forEach(b => b.classList.remove('active'));
+    const nb = document.getElementById(`nav-${viewId}`);
+    if (nb) nb.classList.add('active');
+    document.querySelector('.content-area').scrollTop = 0;
+    document.getElementById('sidebar').classList.remove('open');
+}
+
+function showError(code) {
+    document.getElementById('loader-content').classList.add('hidden');
+    document.getElementById('error-content').classList.remove('hidden');
+    document.getElementById('error-code-display').innerText = code;
+}
+
+// Mobile sidebar
+document.getElementById('mobile-menu-button').onclick = () => document.getElementById('sidebar').classList.add('open');
+document.getElementById('close-menu') && (document.getElementById('close-menu').onclick = () => document.getElementById('sidebar').classList.remove('open'));
+
+// Sidebar close on outside tap
+document.addEventListener('click', (e) => {
+    const sidebar = document.getElementById('sidebar');
+    const btn = document.getElementById('mobile-menu-button');
+    if (sidebar.classList.contains('open') && !sidebar.contains(e.target) && e.target !== btn) {
+        sidebar.classList.remove('open');
+    }
+});
+
+init();
+</script>
+
+<!-- Close button for sidebar on mobile -->
+<script>
+const cmBtn = document.getElementById('mobile-menu-button');
+const sidebar = document.getElementById('sidebar');
+// Add close button to sidebar if not present
+if (!document.getElementById('close-menu')) {
+    const cb = document.createElement('button');
+    cb.id = 'close-menu';
+    cb.className = 'lg:hidden absolute top-5 right-5 text-gray-400 text-2xl font-bold';
+    cb.innerHTML = '&times;';
+    cb.onclick = () => sidebar.classList.remove('open');
+    sidebar.style.position = 'relative';
+    sidebar.insertBefore(cb, sidebar.firstChild);
+}
+</script>
+
+</body>
+</html>
