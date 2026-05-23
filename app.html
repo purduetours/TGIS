@@ -596,68 +596,80 @@
 </div>
 
 
-<div id="view-schedule" class="view-section p-4 sm:p-8">
+<div id="view-schedule" class="view-section">
 
     <!-- HEADER -->
-    <header class="mb-6">
+    <div class="px-4 sm:px-8 pt-6 pb-4">
         <h1 class="text-3xl font-black tracking-tight">Your Schedule</h1>
-        <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Tap a date to filter · scroll down for full list</p>
-    </header>
-
-    <!-- DESKTOP: side-by-side. MOBILE: stacked -->
-    <div class="flex flex-col lg:flex-row gap-6 items-start">
-
-        <!-- CALENDAR — constrained width on desktop -->
-        <div class="w-full lg:w-80 xl:w-96 flex-shrink-0">
-            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-
-                <!-- Month nav -->
-                <div class="flex items-center justify-between mb-4">
-                    <h2 id="calendar-month-name" class="font-black text-base tracking-tight">May 2026</h2>
-                    <div class="flex items-center gap-1">
-                        <button onclick="changeMonth(-1)" class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors font-black text-primary-gold text-sm">&#8592;</button>
-                        <button onclick="changeMonth(1)"  class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors font-black text-primary-gold text-sm">&#8594;</button>
-                    </div>
-                </div>
-
-                <!-- Day labels -->
-                <div class="grid grid-cols-7 mb-1">
-                    <div class="text-center text-[10px] font-black text-gray-300 py-1">S</div>
-                    <div class="text-center text-[10px] font-black text-gray-300 py-1">M</div>
-                    <div class="text-center text-[10px] font-black text-gray-300 py-1">T</div>
-                    <div class="text-center text-[10px] font-black text-gray-300 py-1">W</div>
-                    <div class="text-center text-[10px] font-black text-gray-300 py-1">T</div>
-                    <div class="text-center text-[10px] font-black text-gray-300 py-1">F</div>
-                    <div class="text-center text-[10px] font-black text-gray-300 py-1">S</div>
-                </div>
-
-                <!-- Calendar grid -->
-                <div id="calendar-grid" class="grid grid-cols-7 gap-1"></div>
-
-                <!-- Legend -->
-                <div class="flex items-center gap-4 mt-4 pt-4 border-t border-gray-50">
-                    <div class="flex items-center gap-1.5">
-                        <div class="w-2 h-2 rounded-full bg-primary-gold"></div>
-                        <span class="text-[9px] font-black uppercase tracking-widest text-gray-400">Tour day</span>
-                    </div>
-                    <div class="flex items-center gap-1.5">
-                        <div class="w-2 h-2 rounded-full border-2 border-primary-gold bg-white"></div>
-                        <span class="text-[9px] font-black uppercase tracking-widest text-gray-400">Today</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- TOUR LIST — fills remaining space -->
-        <div class="flex-1 min-w-0 w-full">
-            <div class="flex items-center justify-between mb-3">
-                <p id="schedule-context-label" class="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">Upcoming tours</p>
-                <button id="schedule-clear-btn" onclick="selectDate(null, window.currentMyTours)" style="display:none;" class="text-[10px] font-black uppercase tracking-widest text-primary-gold bg-primary-gold/10 border border-primary-gold/25 rounded-full px-3 py-1 cursor-pointer">Show all</button>
-            </div>
-            <div id="schedule-list-container"></div>
-        </div>
-
+        <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Tap a date to filter · scroll for full list</p>
     </div>
+
+    <!-- CALENDAR PANEL (sticky on mobile) -->
+    <div id="schedule-calendar-panel" class="bg-white border-b border-gray-100 shadow-sm px-4 sm:px-8 pb-4 transition-all duration-400 ease-in-out overflow-hidden" style="max-height:400px;">
+
+        <!-- Week strip (default) -->
+        <div id="week-strip-container">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                    <button onclick="changeWeekStrip(-1)" class="w-7 h-7 rounded-full flex items-center justify-center hover:bg-gray-100 transition font-black text-primary-gold text-sm">&#8592;</button>
+                    <h2 id="week-strip-label" class="font-black text-sm tracking-tight text-gray-700"></h2>
+                    <button onclick="changeWeekStrip(1)" class="w-7 h-7 rounded-full flex items-center justify-center hover:bg-gray-100 transition font-black text-primary-gold text-sm">&#8594;</button>
+                </div>
+                <button onclick="expandToMonth()" id="expand-btn" class="text-[10px] font-black uppercase tracking-widest text-primary-gold bg-primary-gold/10 border border-primary-gold/25 rounded-full px-3 py-1">
+                    Month ↓
+                </button>
+            </div>
+
+            <!-- 7-day strip -->
+            <div id="week-strip" class="grid grid-cols-7 gap-1.5"></div>
+
+            <!-- Color legend -->
+            <div class="flex items-center gap-4 mt-3 pt-3 border-t border-gray-50">
+                <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-status-green"></div><span class="text-[9px] font-black uppercase tracking-widest text-gray-400">Daily/Group</span></div>
+                <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-purple-500"></div><span class="text-[9px] font-black uppercase tracking-widest text-gray-400">Program</span></div>
+                <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full border-2 border-primary-gold bg-white"></div><span class="text-[9px] font-black uppercase tracking-widest text-gray-400">Today</span></div>
+            </div>
+        </div>
+
+        <!-- Full month (hidden by default) -->
+        <div id="month-expand-container" class="hidden">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                    <button onclick="changeMonth(-1)" class="w-7 h-7 rounded-full flex items-center justify-center hover:bg-gray-100 transition font-black text-primary-gold text-sm">&#8592;</button>
+                    <h2 id="calendar-month-name" class="font-black text-sm tracking-tight text-gray-700"></h2>
+                    <button onclick="changeMonth(1)" class="w-7 h-7 rounded-full flex items-center justify-center hover:bg-gray-100 transition font-black text-primary-gold text-sm">&#8594;</button>
+                </div>
+                <button onclick="collapseToWeek()" class="text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-100 rounded-full px-3 py-1">
+                    Week ↑
+                </button>
+            </div>
+            <div class="grid grid-cols-7 mb-1">
+                <div class="text-center text-[10px] font-black text-gray-300 py-1">S</div>
+                <div class="text-center text-[10px] font-black text-gray-300 py-1">M</div>
+                <div class="text-center text-[10px] font-black text-gray-300 py-1">T</div>
+                <div class="text-center text-[10px] font-black text-gray-300 py-1">W</div>
+                <div class="text-center text-[10px] font-black text-gray-300 py-1">T</div>
+                <div class="text-center text-[10px] font-black text-gray-300 py-1">F</div>
+                <div class="text-center text-[10px] font-black text-gray-300 py-1">S</div>
+            </div>
+            <div id="calendar-grid" class="grid grid-cols-7 gap-1"></div>
+            <div class="flex items-center gap-4 mt-3 pt-3 border-t border-gray-50">
+                <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-status-green"></div><span class="text-[9px] font-black uppercase tracking-widest text-gray-400">Daily/Group</span></div>
+                <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-purple-500"></div><span class="text-[9px] font-black uppercase tracking-widest text-gray-400">Program</span></div>
+                <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full border-2 border-primary-gold bg-white"></div><span class="text-[9px] font-black uppercase tracking-widest text-gray-400">Today</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOUR LIST -->
+    <div class="px-4 sm:px-8 pt-4">
+        <div class="flex items-center justify-between mb-3">
+            <p id="schedule-context-label" class="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">Upcoming tours</p>
+            <button id="schedule-clear-btn" onclick="selectDate(null, window.currentMyTours)" style="display:none;" class="text-[10px] font-black uppercase tracking-widest text-primary-gold bg-primary-gold/10 border border-primary-gold/25 rounded-full px-3 py-1 cursor-pointer">Show all</button>
+        </div>
+        <div id="schedule-list-container"></div>
+    </div>
+
 </div>
 
 
@@ -1312,6 +1324,103 @@ function selectDate(dateString, myTours) {
     updateScheduleView(myTours);
 }
 
+// ── Week-strip state ─────────────────────────────────────────
+let weekStripAnchor = (() => { const d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate() - d.getDay()); return d; })(); // Sunday of current week
+let calendarExpanded = false;
+
+function expandToMonth() {
+    calendarExpanded = true;
+    document.getElementById('week-strip-container').classList.add('hidden');
+    document.getElementById('month-expand-container').classList.remove('hidden');
+    updateScheduleView(window.currentMyTours || []);
+}
+
+function collapseToWeek() {
+    calendarExpanded = false;
+    document.getElementById('month-expand-container').classList.add('hidden');
+    document.getElementById('week-strip-container').classList.remove('hidden');
+    updateScheduleView(window.currentMyTours || []);
+}
+
+function changeWeekStrip(offset) {
+    weekStripAnchor = new Date(weekStripAnchor);
+    weekStripAnchor.setDate(weekStripAnchor.getDate() + offset * 7);
+    updateScheduleView(window.currentMyTours || []);
+}
+
+function renderWeekStrip(myTours) {
+    const strip = document.getElementById('week-strip');
+    const label = document.getElementById('week-strip-label');
+    if (!strip) return;
+
+    const today = new Date(); today.setHours(0,0,0,0);
+
+    // Label: "May 19 – 25"
+    const end = new Date(weekStripAnchor); end.setDate(end.getDate() + 6);
+    const startFmt = weekStripAnchor.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const endFmt   = end.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    if (label) label.innerText = `${startFmt} – ${endFmt}`;
+
+    const DAY_LABELS = ['S','M','T','W','T','F','S'];
+    strip.innerHTML = '';
+
+    for (let i = 0; i < 7; i++) {
+        const d = new Date(weekStripAnchor); d.setDate(d.getDate() + i);
+        const dateStr = d.toDateString();
+        const toursOnDay = myTours.filter(t => new Date(t.date).toDateString() === dateStr);
+        const count = toursOnDay.length;
+        const isToday = dateStr === today.toDateString();
+        const isSelected = selectedCalendarDate === dateStr;
+        const isPast = d < today;
+
+        // Dot colors per type
+        const dots = buildTypeDots(toursOnDay, isPast);
+
+        let bg, color, border, opacity;
+        if (isSelected) {
+            bg = '#CFB991'; color = '#000'; border = 'none'; opacity = '1';
+        } else if (isToday) {
+            bg = 'white'; color = '#111827'; border = '2px solid #CFB991'; opacity = '1';
+        } else if (count > 0 && !isPast) {
+            bg = '#F0FDF4'; color = '#065F46'; border = '1px solid #BBF7D0'; opacity = '1';
+        } else if (count > 0 && isPast) {
+            bg = '#F9FAFB'; color = '#9CA3AF'; border = '1px solid #F3F4F6'; opacity = '1';
+        } else {
+            bg = 'transparent'; color = isPast ? '#D1D5DB' : '#6B7280'; border = '1px solid transparent'; opacity = '1';
+        }
+
+        strip.innerHTML += `
+            <div onclick="selectDate('${dateStr}', window.currentMyTours)"
+                 style="display:flex;flex-direction:column;align-items:center;justify-content:center;
+                        padding:6px 2px 5px;border-radius:12px;cursor:pointer;
+                        background:${bg};color:${color};border:${border};opacity:${opacity};
+                        transition:all 0.15s;user-select:none;min-height:56px;gap:2px;">
+                <span style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.05em;opacity:0.7;">${DAY_LABELS[i]}</span>
+                <span style="font-size:15px;font-weight:900;line-height:1;">${d.getDate()}</span>
+                <div style="display:flex;gap:2px;min-height:6px;">${dots}</div>
+            </div>`;
+    }
+}
+
+function buildTypeDots(toursOnDay, isPast) {
+    if (toursOnDay.length === 0) return '';
+    const types = [...new Set(toursOnDay.map(t => {
+        const info = TOUR_MAP[t.type];
+        if (!info) return 'gray';
+        if (info.name.includes('Program')) return 'purple';
+        if (info.name.includes('Group')) return 'blue';
+        return 'green';
+    }))];
+    return types.slice(0, 3).map(c => {
+        let bg;
+        if (isPast) { bg = '#D1D5DB'; }
+        else if (c === 'purple') { bg = '#8B5CF6'; }
+        else if (c === 'blue') { bg = '#3B82F6'; }
+        else { bg = '#10B981'; }
+        return `<div style="width:4px;height:4px;border-radius:50%;background:${bg};"></div>`;
+    }).join('');
+}
+
 function updateScheduleView(myTours, displayName) {
     window.currentMyTours = myTours;
     const listContainer = document.getElementById('schedule-list-container');
@@ -1319,88 +1428,66 @@ function updateScheduleView(myTours, displayName) {
     const monthLabel = document.getElementById('calendar-month-name');
     const contextLabel = document.getElementById('schedule-context-label');
     const clearBtn = document.getElementById('schedule-clear-btn');
-    if (!listContainer || !calendarGrid) return;
+    if (!listContainer) return;
 
-    const year = calendarViewDate.getFullYear();
-    const month = calendarViewDate.getMonth();
     const today = new Date(); today.setHours(0,0,0,0);
 
-    // Month label
-    if (monthLabel) monthLabel.innerText = calendarViewDate.toLocaleString('default', { month: 'long', year: 'numeric' });
-
-    // ── CALENDAR GRID ──────────────────────────────────────────────
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const firstDay = new Date(year, month, 1).getDay();
-    const todayStr = today.toDateString();
-
-    calendarGrid.innerHTML = '';
-    for (let i = 0; i < firstDay; i++) {
-        calendarGrid.innerHTML += `<div></div>`;
+    // ── WEEK STRIP (default view) ──────────────────────────────
+    if (!calendarExpanded) {
+        renderWeekStrip(myTours);
     }
 
-    for (let day = 1; day <= daysInMonth; day++) {
-        const dateObj = new Date(year, month, day);
-        const dateStr = dateObj.toDateString();
-        const toursOnDay = myTours.filter(t => new Date(t.date).toDateString() === dateStr);
-        const count = toursOnDay.length;
-        const isToday = dateStr === todayStr;
-        const isSelected = selectedCalendarDate === dateStr;
-        const isPast = dateObj < today;
+    // ── MONTH GRID (expanded view) ─────────────────────────────
+    if (calendarExpanded && calendarGrid) {
+        const year = calendarViewDate.getFullYear();
+        const month = calendarViewDate.getMonth();
+        if (monthLabel) monthLabel.innerText = calendarViewDate.toLocaleString('default', { month: 'long', year: 'numeric' });
 
-        // Build dot indicators (up to 3) for tour types
-        let dots = '';
-        if (count > 0 && !isSelected) {
-            const types = [...new Set(toursOnDay.map(t => {
-                const info = TOUR_MAP[t.type];
-                if (!info) return 'gray';
-                if (info.name.includes('Program')) return 'purple';
-                if (info.name.includes('Group')) return 'blue';
-                return 'green';
-            }))];
-            dots = `<div style="display:flex;justify-content:center;gap:2px;margin-top:3px;">${
-                types.slice(0,3).map(c => {
-                    const bg = c === 'purple' ? '#8B5CF6' : c === 'blue' ? '#3B82F6' : '#10B981';
-                    return `<div style="width:4px;height:4px;border-radius:50%;background:${bg};"></div>`;
-                }).join('')
-            }</div>`;
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const firstDay   = new Date(year, month, 1).getDay();
+        const todayStr   = today.toDateString();
+
+        calendarGrid.innerHTML = '';
+        for (let i = 0; i < firstDay; i++) calendarGrid.innerHTML += `<div></div>`;
+
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dateObj  = new Date(year, month, day);
+            const dateStr  = dateObj.toDateString();
+            const toursOnDay = myTours.filter(t => new Date(t.date).toDateString() === dateStr);
+            const count    = toursOnDay.length;
+            const isToday  = dateStr === todayStr;
+            const isSelected = selectedCalendarDate === dateStr;
+            const isPast   = dateObj < today;
+
+            const dots = (count > 0 && !isSelected) ? `<div style="display:flex;justify-content:center;gap:2px;margin-top:2px;">${buildTypeDots(toursOnDay, isPast)}</div>` : '';
+
+            let cellBg, cellColor, cellBorder;
+            if (isSelected)          { cellBg='#CFB991';                        cellColor='#000';            cellBorder='none'; }
+            else if (isToday)        { cellBg='white';                          cellColor='#111827';         cellBorder='2px solid #CFB991'; }
+            else if (count>0&&!isPast){ cellBg='#F0FDF4';                       cellColor='#065F46';         cellBorder='1px solid #BBF7D0'; }
+            else if (count>0&&isPast) { cellBg='#F9FAFB';                       cellColor='#9CA3AF';         cellBorder='1px solid #F3F4F6'; }
+            else                     { cellBg='transparent';                    cellColor=isPast?'#D1D5DB':'#6B7280'; cellBorder='1px solid transparent'; }
+
+            calendarGrid.innerHTML += `
+                <div onclick="selectDate('${dateStr}', window.currentMyTours)"
+                     style="aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+                            border-radius:10px;cursor:pointer;background:${cellBg};color:${cellColor};
+                            border:${cellBorder};transition:all 0.15s;user-select:none;
+                            font-size:12px;font-weight:${count>0||isToday?'900':'600'};padding-bottom:2px;">
+                    ${day}${dots}
+                </div>`;
         }
-
-        let cellBg, cellColor, cellBorder, cellOpacity;
-        if (isSelected) {
-            cellBg = '#CFB991'; cellColor = '#000'; cellBorder = 'none'; cellOpacity = '1';
-        } else if (isToday) {
-            cellBg = 'white'; cellColor = '#111827'; cellBorder = '2px solid #CFB991'; cellOpacity = '1';
-        } else if (count > 0 && !isPast) {
-            cellBg = 'rgba(207,185,145,0.15)'; cellColor = '#CFB991'; cellBorder = '1px solid rgba(207,185,145,0.3)'; cellOpacity = '1';
-        } else if (count > 0 && isPast) {
-            cellBg = 'rgba(207,185,145,0.06)'; cellColor = 'rgba(207,185,145,0.4)'; cellBorder = '1px solid rgba(207,185,145,0.1)'; cellOpacity = '1';
-        } else {
-            cellBg = 'transparent'; cellColor = isPast ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.4)'; cellBorder = 'none'; cellOpacity = '1';
-        }
-
-        calendarGrid.innerHTML += `
-            <div onclick="selectDate('${dateStr}', window.currentMyTours)"
-                 style="aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-                        border-radius:10px;cursor:pointer;background:${cellBg};color:${cellColor};
-                        border:${cellBorder};opacity:${cellOpacity};transition:all 0.15s;user-select:none;
-                        font-size:12px;font-weight:${count > 0 || isToday ? '900' : '600'};padding-bottom:2px;">
-                ${day}
-                ${dots}
-            </div>`;
     }
 
-    // ── TOUR LIST ──────────────────────────────────────────────────
+    // ── TOUR LIST ──────────────────────────────────────────────
     let filteredTours;
     if (selectedCalendarDate) {
         filteredTours = myTours.filter(t => new Date(t.date).toDateString() === selectedCalendarDate);
         const selDate = new Date(selectedCalendarDate);
-        const label = selDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-        if (contextLabel) contextLabel.innerText = label;
+        if (contextLabel) contextLabel.innerText = selDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
         if (clearBtn) clearBtn.style.display = 'block';
     } else {
-        filteredTours = myTours.filter(t => {
-            const d = new Date(t.date); d.setHours(0,0,0,0); return d >= today;
-        });
+        filteredTours = myTours.filter(t => { const d = new Date(t.date); d.setHours(0,0,0,0); return d >= today; });
         if (contextLabel) contextLabel.innerText = `Upcoming — ${filteredTours.length} tour${filteredTours.length !== 1 ? 's' : ''}`;
         if (clearBtn) clearBtn.style.display = 'none';
     }
@@ -1409,7 +1496,7 @@ function updateScheduleView(myTours, displayName) {
 
     if (filteredTours.length === 0) {
         listContainer.innerHTML = `
-            <div style="border:2px dashed #E5E7EB;border-radius:1rem;padding:2.5rem;text-align:center;">
+            <div style="border:2px dashed #E5E7EB;border-radius:1rem;padding:2.5rem;text-align:center;margin-bottom:2rem;">
                 <p style="color:#9CA3AF;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;">
                     ${selectedCalendarDate ? 'No tours on this day' : 'No upcoming tours scheduled'}
                 </p>
@@ -1417,60 +1504,80 @@ function updateScheduleView(myTours, displayName) {
         return;
     }
 
-    // Group by month for full semester view
+    // Group by date for the new card style (date-grouped, not month-grouped when filtered)
+    // For "all upcoming", group by month header then show per-day blocks
+    const TYPE_COLORS = {
+        'Daily Visit':            { accent: '#10B981', light: '#ECFDF5', text: '#065F46',  label: 'Daily Visit',        border: '#BBF7D0' },
+        'Group Visit':            { accent: '#3B82F6', light: '#EFF6FF', text: '#1E40AF',  label: 'Group Visit',        border: '#BFDBFE' },
+        'Program Day (Academic)': { accent: '#8B5CF6', light: '#F5F3FF', text: '#5B21B6',  label: 'Program (Academic)', border: '#DDD6FE' },
+        'Program Day (Full)':     { accent: '#8B5CF6', light: '#F5F3FF', text: '#5B21B6',  label: 'Program (Full)',     border: '#DDD6FE' },
+    };
+
+    // Group by month
     const grouped = {};
     filteredTours.forEach(t => {
         const d = new Date(t.date);
         const key = d.toLocaleString('default', { month: 'long', year: 'numeric' });
-        if (!grouped[key]) grouped[key] = [];
-        grouped[key].push(t);
+        if (!grouped[key]) grouped[key] = {};
+        const dayKey = d.toDateString();
+        if (!grouped[key][dayKey]) grouped[key][dayKey] = [];
+        grouped[key][dayKey].push(t);
     });
 
-    const TYPE_COLORS = {
-        'Daily Visit':               { bg: '#ECFDF5', accent: '#10B981', text: '#065F46', label: 'Daily Visit' },
-        'Group Visit':               { bg: '#EFF6FF', accent: '#3B82F6', text: '#1E40AF', label: 'Group Visit' },
-        'Program Day (Academic)':    { bg: '#F5F3FF', accent: '#8B5CF6', text: '#5B21B6', label: 'Program (Academic)' },
-        'Program Day (Full)':        { bg: '#F5F3FF', accent: '#8B5CF6', text: '#5B21B6', label: 'Program (Full)' },
-    };
-
-    listContainer.innerHTML = Object.entries(grouped).map(([monthLabel, tours]) => {
-        const rows = tours.map(tour => {
-            const info = TOUR_MAP[tour.type] || { name: tour.type, time: '--' };
-            const displayTime = tour.time || info.time;
-            const scheme = TYPE_COLORS[info.name] || { bg: '#F9FAFB', accent: '#9CA3AF', text: '#374151', label: info.name };
-            const d = new Date(tour.date);
+    listContainer.innerHTML = Object.entries(grouped).map(([mLabel, dayMap]) => {
+        const dayBlocks = Object.entries(dayMap).map(([dayKey, tours]) => {
+            const d = new Date(dayKey);
             const isPast = d < today;
-            const dayNum = d.getDate();
+            const dayNum  = d.getDate();
             const dayName = d.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
+            const monthShort = d.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
+            const isToday = d.toDateString() === today.toDateString();
+
+            // Multi-tour on same day? Stack them inside one card
+            const tourRows = tours.map(tour => {
+                const info = TOUR_MAP[tour.type] || { name: tour.type, time: '--' };
+                const displayTime = tour.time || info.time;
+                const scheme = TYPE_COLORS[info.name] || { accent: '#9CA3AF', light: '#F9FAFB', text: '#374151', label: info.name, border: '#E5E7EB' };
+                return `
+                    <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;
+                                border-radius:10px;background:${isPast ? '#F9FAFB' : scheme.light};
+                                border:1px solid ${isPast ? '#F3F4F6' : scheme.border};">
+                        <div style="width:4px;min-width:4px;height:36px;border-radius:99px;background:${isPast ? '#D1D5DB' : scheme.accent};"></div>
+                        <div style="flex:1;min-width:0;">
+                            <p style="font-size:14px;font-weight:900;color:${isPast ? '#6B7280' : '#111827'};line-height:1.1;">${displayTime}</p>
+                            <p style="font-size:11px;font-weight:700;color:${isPast ? '#9CA3AF' : scheme.text};margin-top:2px;">${scheme.label}</p>
+                        </div>
+                        ${isPast ? `<span style="font-size:9px;font-weight:900;text-transform:uppercase;color:#D1D5DB;background:#F3F4F6;padding:3px 8px;border-radius:99px;">Done</span>` : ''}
+                    </div>`;
+            }).join('');
 
             return `
-                <div style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;
-                            background:${isPast ? '#F9FAFB' : 'white'};border:1px solid ${isPast ? '#F3F4F6' : '#E5E7EB'};
-                            margin-bottom:8px;opacity:${isPast ? '0.55' : '1'};">
+                <div style="display:flex;gap:12px;margin-bottom:10px;opacity:${isPast ? '0.6' : '1'};">
                     <!-- Date badge -->
-                    <div style="width:44px;min-width:44px;height:52px;border-radius:10px;
-                                background:${isPast ? '#F3F4F6' : scheme.bg};
-                                display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;">
-                        <span style="font-size:18px;font-weight:900;color:${isPast ? '#9CA3AF' : scheme.accent};line-height:1;">${dayNum}</span>
-                        <span style="font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:${isPast ? '#D1D5DB' : scheme.accent};opacity:0.8;">${dayName}</span>
+                    <div style="width:48px;min-width:48px;height:auto;border-radius:12px;
+                                background:${isToday ? '#CFB991' : isPast ? '#F3F4F6' : 'white'};
+                                border:${isToday ? 'none' : '1px solid #E5E7EB'};
+                                display:flex;flex-direction:column;align-items:center;
+                                justify-content:center;padding:8px 4px;gap:1px;">
+                        <span style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;
+                                     color:${isToday ? 'rgba(255,255,255,0.8)' : '#9CA3AF'};">${monthShort}</span>
+                        <span style="font-size:22px;font-weight:900;line-height:1;
+                                     color:${isToday ? 'white' : isPast ? '#9CA3AF' : '#111827'};">${dayNum}</span>
+                        <span style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.05em;
+                                     color:${isToday ? 'rgba(255,255,255,0.7)' : '#D1D5DB'};">${dayName}</span>
                     </div>
-                    <!-- Info -->
-                    <div style="flex:1;min-width:0;">
-                        <p style="font-size:13px;font-weight:900;color:${isPast ? '#6B7280' : '#111827'};margin-bottom:2px;">${displayTime}</p>
-                        <div style="display:flex;align-items:center;gap:6px;">
-                            <div style="width:6px;height:6px;border-radius:50%;background:${isPast ? '#D1D5DB' : scheme.accent};flex-shrink:0;"></div>
-                            <p style="font-size:11px;font-weight:700;color:${isPast ? '#9CA3AF' : scheme.text};">${scheme.label}</p>
-                        </div>
+                    <!-- Tour(s) -->
+                    <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;">
+                        ${tourRows}
                     </div>
-                    ${isPast ? `<span style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:#D1D5DB;background:#F3F4F6;padding:3px 8px;border-radius:99px;">Done</span>` : ''}
                 </div>`;
         }).join('');
 
         return `
-            <div style="margin-bottom:1.5rem;">
+            <div style="margin-bottom:1.75rem;">
                 <p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;
-                           color:#9CA3AF;margin-bottom:10px;padding-left:2px;">${monthLabel}</p>
-                ${rows}
+                           color:#9CA3AF;margin-bottom:10px;padding-left:2px;">${mLabel}</p>
+                ${dayBlocks}
             </div>`;
     }).join('');
 }
