@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TGIS | Manager Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: { 'primary-gold': '#CFB991' }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #0f0c04; color: #f9fafb; }
+
+        .card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 1.5rem;
+        }
+        .card-white {
+            background: white;
+            border-radius: 1.5rem;
+            color: #111827;
+        }
+        .input-field {
+            width: 100%;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 0.875rem;
+            padding: 0.75rem 1rem;
+            font-weight: 600;
+            font-size: 14px;
+            color: white;
+            outline: none;
+            transition: all 0.2s;
+        }
+        .input-field:focus { border-color: #CFB991; box-shadow: 0 0 0 3px rgba(207,185,145,0.15); }
+        .input-field option { background: #1a1710; color: white; }
+        .label { font-size: 10px; font-weight: 900; color: rgba(207,185,145,0.7); text-transform: uppercase; letter-spacing: 0.12em; display: block; margin-bottom: 0.4rem; }
+        .btn-gold { background: #CFB991; color: #0f0c04; font-weight: 900; font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; border: none; cursor: pointer; border-radius: 0.875rem; padding: 0.875rem 1.5rem; transition: all 0.2s; }
+        .btn-gold:hover { background: #b39a6d; }
+        .btn-gold:disabled { opacity: 0.4; cursor: not-allowed; }
+        .btn-outline { background: transparent; color: rgba(255,255,255,0.5); font-weight: 800; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; border: 1px solid rgba(255,255,255,0.15); cursor: pointer; border-radius: 0.875rem; padding: 0.75rem 1.25rem; transition: all 0.2s; }
+        .btn-outline:hover { background: rgba(255,255,255,0.06); color: white; }
+
+        .tab { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.12em; padding: 0.6rem 1.25rem; border-radius: 0.625rem; cursor: pointer; transition: all 0.2s; color: rgba(255,255,255,0.35); }
+        .tab.active { background: #CFB991; color: #0f0c04; }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; animation: fadeUp 0.3s ease; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        .guide-chip { display: flex; align-items: center; justify-content: space-between; padding: 0.625rem 0.875rem; border-radius: 0.75rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); font-size: 13px; font-weight: 700; }
+
+        .log-row { display: flex; align-items: center; gap: 12px; padding: 0.75rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 12px; }
+        .log-row:last-child { border-bottom: none; }
+
+        .pill { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; padding: 3px 8px; border-radius: 99px; }
+        .pill-green { background: rgba(16,185,129,0.15); color: #10B981; }
+        .pill-purple { background: rgba(139,92,246,0.15); color: #8B5CF6; }
+        .pill-blue { background: rgba(59,130,246,0.15); color: #3B82F6; }
+        .pill-gold { background: rgba(207,185,145,0.15); color: #CFB991; }
+        .pill-red { background: rgba(239,68,68,0.15); color: #EF4444; }
+
+        .stat-box { text-align: center; padding: 1.25rem; border-radius: 1rem; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); }
+
+        .semester-row { display: flex; align-items: center; justify-content: space-between; padding: 0.875rem 1rem; border-radius: 0.875rem; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); margin-bottom: 0.5rem; }
+
+        #toast {
+            position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(20px);
+            background: #CFB991; color: #0f0c04; font-weight: 900; font-size: 12px;
+            text-transform: uppercase; letter-spacing: 0.1em; padding: 0.75rem 1.5rem;
+            border-radius: 99px; opacity: 0; transition: all 0.4s cubic-bezier(0.22,1,0.36,1);
+            pointer-events: none; white-space: nowrap; z-index: 999;
+        }
+        #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        #toast.error { background: #EF4444; color: white; }
+    </style>
+</head>
+<body class="min-h-screen">
+
+<!-- Loading overlay -->
+<div id="loading-overlay" class="fixed inset-0 z-50 flex flex-col items-center justify-center" style="background:#0f0c04;">
+    <p style="font-size:9px;font-weight:900;letter-spacing:0.3em;text-transform:uppercase;color:rgba(207,185,145,0.4);margin-bottom:8px;">Purdue University</p>
+    <h1 style="font-size:2rem;font-weight:900;color:white;letter-spacing:-0.02em;">TGIS Admin</h1>
+    <div style="width:200px;height:2px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden;margin-top:1.5rem;">
+        <div id="load-bar" style="height:100%;width:0%;background:#CFB991;border-radius:99px;transition:width 0.5s ease;"></div>
+    </div>
+    <p id="load-status" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:rgba(207,185,145,0.4);margin-top:1rem;">Connecting...</p>
+    <div id="load-error" class="hidden mt-6 text-center max-w-xs">
+        <p style="color:#EF4444;font-size:12px;font-weight:700;" id="load-error-msg">Could not connect.</p>
+        <button onclick="window.location.reload()" class="btn-gold mt-4 px-6 py-3 text-[11px]">Retry</button>
+    </div>
+</div>
+
+<div id="app" class="hidden max-w-5xl mx-auto px-4 py-8 pb-20">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <p style="font-size:9px;font-weight:900;letter-spacing:0.3em;text-transform:uppercase;color:rgba(207,185,145,0.5);">Purdue University</p>
+            <h1 class="text-2xl font-black mt-0.5">TGIS <span style="color:#CFB991;">Admin</span></h1>
+        </div>
+        <div class="text-right">
+            <p id="admin-name" class="font-black text-sm">Loading...</p>
+            <p id="admin-sem" style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.1em;"></p>
+        </div>
+    </div>
+
+    <!-- Quick stats row -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+        <div class="stat-box">
+            <p id="stat-guides" class="text-3xl font-black" style="color:#CFB991;">--</p>
+            <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.3);margin-top:4px;">Active Guides</p>
+        </div>
+        <div class="stat-box">
+            <p id="stat-tours-today" class="text-3xl font-black" style="color:#10B981;">--</p>
+            <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.3);margin-top:4px;">Tours Today</p>
+        </div>
+        <div class="stat-box">
+            <p id="stat-sem-total" class="text-3xl font-black text-white">--</p>
+            <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.3);margin-top:4px;">Sem Total</p>
+        </div>
+        <div class="stat-box">
+            <p id="stat-special" class="text-3xl font-black" style="color:#8B5CF6;">--</p>
+            <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.3);margin-top:4px;">Special Req.</p>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex gap-2 mb-6 flex-wrap">
+        <button class="tab active" onclick="switchTab('special')">Special Requests</button>
+        <button class="tab" onclick="switchTab('manual')">Manual Adjust</button>
+        <button class="tab" onclick="switchTab('rollover')">Semester Rollover</button>
+        <button class="tab" onclick="switchTab('log')">Activity Log</button>
+    </div>
+
+    <!-- ── TAB: SPECIAL REQUESTS ── -->
+    <div id="tab-special" class="tab-panel active">
+        <div class="card p-6 mb-6">
+            <h2 class="font-black text-lg mb-1">Add Special Request Tour</h2>
+            <p style="font-size:11px;color:rgba(255,255,255,0.35);font-weight:600;margin-bottom:1.5rem;">Private tours, VIP visits, recruitment events, and other non-scheduled tours that count toward a guide's total.</p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="label">Guide</label>
+                    <select id="sr-guide" class="input-field">
+                        <option value="">Select a guide...</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="label">Tour Date</label>
+                    <input type="date" id="sr-date" class="input-field">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="label">Tour Type / Label</label>
+                    <select id="sr-type" class="input-field">
+                        <option value="Special Request">Special Request</option>
+                        <option value="Private Tour">Private Tour</option>
+                        <option value="VIP Visit">VIP Visit</option>
+                        <option value="Recruitment Event">Recruitment Event</option>
+                        <option value="Make-up Tour">Make-up Tour</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="label">Count (# tours to credit)</label>
+                    <input type="number" id="sr-count" min="1" max="10" value="1" class="input-field">
+                </div>
+            </div>
+
+            <div class="mb-5">
+                <label class="label">Notes (optional)</label>
+                <input type="text" id="sr-notes" placeholder="e.g. Alumni family, Dean's office request..." class="input-field">
+            </div>
+
+            <button class="btn-gold w-full sm:w-auto px-8" onclick="submitSpecialRequest()">
+                Add to Tracker
+            </button>
+        </div>
+
+        <!-- Pending special requests log -->
+        <div class="card p-6">
+            <h3 class="font-black mb-4" style="font-size:13px;text-transform:uppercase;letter-spacing:0.1em;color:rgba(207,185,145,0.8);">Recent Special Requests This Semester</h3>
+            <div id="sr-log">
+                <p style="font-size:12px;color:rgba(255,255,255,0.25);font-style:italic;">Loading...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── TAB: MANUAL ADJUST ── -->
+    <div id="tab-manual" class="tab-panel">
+        <div class="card p-6 mb-6">
+            <h2 class="font-black text-lg mb-1">Manual Count Adjustment</h2>
+            <p style="font-size:11px;color:rgba(255,255,255,0.35);font-weight:600;margin-bottom:1.5rem;">Correct a guide's semester or career total directly. Use sparingly — prefer Special Request for additions. A reason is required for the audit log.</p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="label">Guide</label>
+                    <select id="adj-guide" class="input-field">
+                        <option value="">Select a guide...</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="label">Adjust Which Column</label>
+                    <select id="adj-col" class="input-field">
+                        <option value="semester">Current Semester</option>
+                        <option value="career">Career Total</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="label">Delta (positive to add, negative to subtract)</label>
+                    <input type="number" id="adj-delta" placeholder="e.g. +2 or -1" class="input-field">
+                </div>
+                <div>
+                    <label class="label">Current Value (for verification)</label>
+                    <p id="adj-current-display" style="font-size:2rem;font-weight:900;color:#CFB991;margin-top:4px;">--</p>
+                </div>
+            </div>
+
+            <div class="mb-5">
+                <label class="label">Reason (required for audit log)</label>
+                <input type="text" id="adj-reason" placeholder="e.g. Corrected double-count on 5/12, system sync error..." class="input-field">
+            </div>
+
+            <button class="btn-gold w-full sm:w-auto px-8" onclick="submitManualAdjust()">
+                Apply Adjustment
+            </button>
+        </div>
+
+        <!-- Guide totals quick view -->
+        <div class="card p-6">
+            <h3 class="font-black mb-4" style="font-size:13px;text-transform:uppercase;letter-spacing:0.1em;color:rgba(207,185,145,0.8);">Current Tracker Totals</h3>
+            <div id="tracker-table">
+                <p style="font-size:12px;color:rgba(255,255,255,0.25);font-style:italic;">Loading...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── TAB: SEMESTER ROLLOVER ── -->
+    <div id="tab-rollover" class="tab-panel">
+        <div class="card p-6 mb-6" style="border-color:rgba(239,68,68,0.3);">
+            <div class="flex items-start gap-4 mb-4">
+                <div style="width:44px;height:44px;border-radius:10px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2.5" stroke-linecap="round"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+                </div>
+                <div>
+                    <h2 class="font-black text-lg" style="color:#EF4444;">Semester Rollover</h2>
+                    <p style="font-size:11px;color:rgba(255,255,255,0.4);font-weight:600;line-height:1.6;">This operation archives the current semester column into history and creates a fresh column for the new semester. <strong style="color:rgba(255,255,255,0.7);">This cannot be undone.</strong> Run this at the end of each semester before new tours begin.</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label class="label">Current Semester Name</label>
+                    <p id="rollover-current-sem" class="font-black text-base" style="color:#CFB991;">--</p>
+                </div>
+                <div>
+                    <label class="label">New Semester Name</label>
+                    <input type="text" id="rollover-new-sem" placeholder="e.g. Fall 2026" class="input-field">
+                </div>
+            </div>
+
+            <div class="mb-6 p-4 rounded-xl" style="background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2);">
+                <p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;color:#EF4444;margin-bottom:6px;">What this does in your Google Sheet</p>
+                <ul style="font-size:11px;color:rgba(255,255,255,0.5);font-weight:600;line-height:2;">
+                    <li>✦ Renames the active "Current Semester" column to the semester name</li>
+                    <li>✦ Inserts a new blank column for the new semester</li>
+                    <li>✦ Updates the TOTAL formula to include the new column</li>
+                    <li>✦ Logs the action in the Activity Log</li>
+                    <li>✦ All tour history is preserved — career totals are unaffected</li>
+                </ul>
+            </div>
+
+            <div class="mb-5">
+                <label class="label">Type "ROLLOVER" to confirm</label>
+                <input type="text" id="rollover-confirm" placeholder="ROLLOVER" class="input-field" style="font-family:monospace;letter-spacing:0.15em;">
+            </div>
+
+            <button class="btn-gold w-full sm:w-auto px-8" style="background:#EF4444;" id="rollover-btn" onclick="submitRollover()">
+                Execute Rollover
+            </button>
+        </div>
+
+        <!-- Semester history -->
+        <div class="card p-6">
+            <h3 class="font-black mb-4" style="font-size:13px;text-transform:uppercase;letter-spacing:0.1em;color:rgba(207,185,145,0.8);">Semester History on Record</h3>
+            <div id="sem-history">
+                <p style="font-size:12px;color:rgba(255,255,255,0.25);font-style:italic;">Loading...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── TAB: ACTIVITY LOG ── -->
+    <div id="tab-log" class="tab-panel">
+        <div class="card p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="font-black text-lg">Activity Log</h2>
+                <span style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.25);">Admin actions only</span>
+            </div>
+            <div id="activity-log">
+                <p style="font-size:12px;color:rgba(255,255,255,0.25);font-style:italic;">Loading...</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ─── CONFIG ─────────────────────────────────────────────────────────
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyqIgk-V7XABUMluhLwjGudlHwkgldwRaBlAN6dFdbI1gNL-_cvN5PNTek2cfqNtc3j/exec';
+const params = new URLSearchParams(window.location.search);
+const userName = params.get('user');
+
+// ─── STATE ───────────────────────────────────────────────────────────
+let cachedData = null; // full doGet response from the existing backend
+let guideList = [];    // [{displayName, semesterTotal, careerTotal}, ...]
+
+// ─── INIT ────────────────────────────────────────────────────────────
+window.onload = async () => {
+    animateLoadBar();
+
+    if (!userName) { showLoadError('NO_USER_PARAM — add ?user=yourUsername to the URL'); return; }
+
+    try {
+        setLoadStatus('Loading data...');
+        const res = await fetch(`${SCRIPT_URL}?user=${userName}&adminView=true`);
+        if (!res.ok) throw new Error(`HTTP_${res.status}`);
+        cachedData = await res.json();
+        if (cachedData.error) throw new Error(cachedData.error);
+
+        const profile = cachedData.profile;
+        if (!['Codirector','Manager'].includes(profile.status)) {
+            showLoadError('ACCESS_DENIED — admin access requires Manager or Codirector status');
+            return;
+        }
+
+        // Populate state
+        guideList = cachedData.leaderboard || [];
+
+        // Render UI
+        document.getElementById('admin-name').innerText = profile.displayName;
+        document.getElementById('admin-sem').innerText = cachedData.currentSemesterName || 'Current Semester';
+
+        populateGuideSelects();
+        renderStats();
+        renderTrackerTable();
+        renderSemesterHistory();
+        renderSRLog();
+        renderActivityLog();
+        setupAdjustWatcher();
+
+        setLoadStatus('Ready');
+        document.getElementById('load-bar').style.width = '100%';
+        setTimeout(() => {
+            document.getElementById('loading-overlay').style.opacity = '0';
+            document.getElementById('loading-overlay').style.transition = 'opacity 0.4s';
+            setTimeout(() => {
+                document.getElementById('loading-overlay').style.display = 'none';
+                document.getElementById('app').classList.remove('hidden');
+            }, 400);
+        }, 300);
+
+    } catch(e) {
+        showLoadError(e.message.toUpperCase().replace(/\s+/g,'_').slice(0,60));
+    }
+};
+
+// ─── LOAD HELPERS ────────────────────────────────────────────────────
+let loadBarInterval;
+function animateLoadBar() {
+    const bar = document.getElementById('load-bar');
+    let w = 0;
+    loadBarInterval = setInterval(() => {
+        if (w < 85) { w += Math.random() * 12; bar.style.width = Math.min(w, 85) + '%'; }
+    }, 600);
+}
+function setLoadStatus(msg) { document.getElementById('load-status').innerText = msg; }
+function showLoadError(msg) {
+    clearInterval(loadBarInterval);
+    document.getElementById('load-error-msg').innerText = msg;
+    document.getElementById('load-error').classList.remove('hidden');
+    document.getElementById('load-status').style.display = 'none';
+    document.getElementById('load-bar').style.background = '#EF4444';
+    document.getElementById('load-bar').style.width = '100%';
+}
+
+// ─── TABS ─────────────────────────────────────────────────────────────
+function switchTab(name) {
+    document.querySelectorAll('.tab').forEach((t,i) => {
+        const names = ['special','manual','rollover','log'];
+        t.classList.toggle('active', names[i] === name);
+    });
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById(`tab-${name}`).classList.add('active');
+}
+
+// ─── POPULATE GUIDE SELECTS ───────────────────────────────────────────
+function populateGuideSelects() {
+    const sorted = [...guideList].sort((a,b) => a.displayName.localeCompare(b.displayName));
+    ['sr-guide','adj-guide'].forEach(id => {
+        const sel = document.getElementById(id);
+        sel.innerHTML = '<option value="">Select a guide...</option>';
+        sorted.forEach(g => {
+            sel.innerHTML += `<option value="${g.displayName}">${g.displayName}</option>`;
+        });
+    });
+}
+
+// ─── STATS ───────────────────────────────────────────────────────────
+function renderStats() {
+    document.getElementById('stat-guides').innerText = guideList.length;
+
+    const today = new Date().toDateString();
+    const toursToday = (cachedData.tours || []).filter(t => new Date(t.date).toDateString() === today).length;
+    document.getElementById('stat-tours-today').innerText = toursToday;
+
+    const semTotal = guideList.reduce((s,g) => s + (g.semesterTotal||0), 0);
+    document.getElementById('stat-sem-total').innerText = semTotal;
+
+    const specials = (cachedData.specialRequests || []).length;
+    document.getElementById('stat-special').innerText = specials;
+}
+
+// ─── TRACKER TABLE ────────────────────────────────────────────────────
+function renderTrackerTable() {
+    const sorted = [...guideList].sort((a,b) => b.careerTotal - a.careerTotal);
+    const html = sorted.map((g,i) => `
+        <div class="log-row">
+            <span style="font-size:11px;font-weight:900;color:rgba(255,255,255,0.25);width:24px;">#${i+1}</span>
+            <span style="flex:1;font-weight:700;font-size:13px;">${g.displayName}</span>
+            <span class="pill pill-green mr-2">${g.semesterTotal} sem</span>
+            <span class="pill pill-gold">${g.careerTotal} career</span>
+        </div>`).join('');
+    document.getElementById('tracker-table').innerHTML = html || '<p style="font-size:12px;color:rgba(255,255,255,0.25);">No data.</p>';
+}
+
+// ─── SEMESTER HISTORY ─────────────────────────────────────────────────
+function renderSemesterHistory() {
+    const sems = cachedData.semesterHistory || [];
+    document.getElementById('rollover-current-sem').innerText = cachedData.currentSemesterName || 'Unknown';
+
+    if (!sems.length) {
+        document.getElementById('sem-history').innerHTML = '<p style="font-size:12px;color:rgba(255,255,255,0.25);">No history recorded yet.</p>';
+        return;
+    }
+    document.getElementById('sem-history').innerHTML = sems.map(s => `
+        <div class="semester-row">
+            <span style="font-weight:800;font-size:13px;">${s.name}</span>
+            <div style="display:flex;align-items:center;gap:8px;">
+                <span class="pill pill-gold">${s.totalTours || '--'} tours</span>
+                <span style="font-size:11px;color:rgba(255,255,255,0.25);font-weight:600;">${s.guideCount || '--'} guides</span>
+            </div>
+        </div>`).join('');
+}
+
+// ─── SR LOG ──────────────────────────────────────────────────────────
+function renderSRLog() {
+    const items = cachedData.specialRequests || [];
+    if (!items.length) {
+        document.getElementById('sr-log').innerHTML = '<p style="font-size:12px;color:rgba(255,255,255,0.25);font-style:italic;">No special requests this semester.</p>';
+        return;
+    }
+    document.getElementById('sr-log').innerHTML = [...items].reverse().map(r => `
+        <div class="log-row">
+            <div style="flex:1;">
+                <span style="font-weight:800;font-size:13px;">${r.guide}</span>
+                <span style="color:rgba(255,255,255,0.35);font-size:11px;margin-left:8px;">+${r.count} tour${r.count>1?'s':''}</span>
+            </div>
+            <span class="pill pill-purple mr-2">${r.type}</span>
+            <span style="font-size:11px;color:rgba(255,255,255,0.3);font-weight:600;">${r.date}</span>
+        </div>
+        ${r.notes ? `<div style="padding:0 1rem 0.5rem 2rem;font-size:11px;color:rgba(255,255,255,0.25);">${r.notes}</div>` : ''}`).join('');
+}
+
+// ─── ACTIVITY LOG ────────────────────────────────────────────────────
+function renderActivityLog() {
+    const items = cachedData.adminLog || [];
+    if (!items.length) {
+        document.getElementById('activity-log').innerHTML = '<p style="font-size:12px;color:rgba(255,255,255,0.25);font-style:italic;">No admin actions recorded yet.</p>';
+        return;
+    }
+    document.getElementById('activity-log').innerHTML = [...items].reverse().map(entry => {
+        const pillColor = entry.action === 'ROLLOVER' ? 'pill-red' : entry.action === 'SPECIAL_REQUEST' ? 'pill-purple' : 'pill-blue';
+        return `
+        <div class="log-row">
+            <div style="flex:1;">
+                <span class="pill ${pillColor} mr-2">${entry.action}</span>
+                <span style="font-weight:700;font-size:12px;">${entry.detail}</span>
+            </div>
+            <div style="text-align:right;flex-shrink:0;">
+                <p style="font-size:11px;color:rgba(255,255,255,0.3);font-weight:600;">${entry.by}</p>
+                <p style="font-size:10px;color:rgba(255,255,255,0.2);">${entry.timestamp}</p>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// ─── ADJUSTMENT WATCHER ──────────────────────────────────────────────
+function setupAdjustWatcher() {
+    document.getElementById('adj-guide').addEventListener('change', updateAdjustDisplay);
+    document.getElementById('adj-col').addEventListener('change', updateAdjustDisplay);
+}
+function updateAdjustDisplay() {
+    const name = document.getElementById('adj-guide').value;
+    const col  = document.getElementById('adj-col').value;
+    const g = guideList.find(x => x.displayName === name);
+    if (!g) { document.getElementById('adj-current-display').innerText = '--'; return; }
+    document.getElementById('adj-current-display').innerText = col === 'semester' ? g.semesterTotal : g.careerTotal;
+}
+
+// ─── SUBMIT: SPECIAL REQUEST ─────────────────────────────────────────
+async function submitSpecialRequest() {
+    const guide = document.getElementById('sr-guide').value;
+    const date  = document.getElementById('sr-date').value;
+    const type  = document.getElementById('sr-type').value;
+    const count = parseInt(document.getElementById('sr-count').value) || 1;
+    const notes = document.getElementById('sr-notes').value.trim();
+
+    if (!guide) return showToast('Select a guide', true);
+    if (!date)  return showToast('Select a date', true);
+    if (count < 1 || count > 20) return showToast('Count must be 1–20', true);
+
+    const payload = {
+        action: 'specialRequest',
+        adminUser: userName,
+        guide, date, type, count, notes
+    };
+
+    await postToScript(payload, () => {
+        showToast(`+${count} tour${count>1?'s':''} added for ${guide}`);
+        document.getElementById('sr-guide').value = '';
+        document.getElementById('sr-date').value = '';
+        document.getElementById('sr-notes').value = '';
+        document.getElementById('sr-count').value = '1';
+
+        // Optimistically update local state
+        if (!cachedData.specialRequests) cachedData.specialRequests = [];
+        cachedData.specialRequests.push({ guide, date, type, count, notes });
+        const g = guideList.find(x => x.displayName === guide);
+        if (g) { g.semesterTotal += count; g.careerTotal += count; }
+        renderSRLog();
+        renderTrackerTable();
+        renderStats();
+        updateAdjustDisplay();
+    });
+}
+
+// ─── SUBMIT: MANUAL ADJUST ───────────────────────────────────────────
+async function submitManualAdjust() {
+    const guide  = document.getElementById('adj-guide').value;
+    const col    = document.getElementById('adj-col').value;
+    const delta  = parseInt(document.getElementById('adj-delta').value);
+    const reason = document.getElementById('adj-reason').value.trim();
+
+    if (!guide)  return showToast('Select a guide', true);
+    if (isNaN(delta) || delta === 0) return showToast('Enter a non-zero delta', true);
+    if (!reason) return showToast('A reason is required', true);
+
+    const payload = { action: 'manualAdjust', adminUser: userName, guide, col, delta, reason };
+
+    await postToScript(payload, () => {
+        showToast(`${delta > 0 ? '+' : ''}${delta} applied to ${guide} (${col})`);
+        document.getElementById('adj-delta').value = '';
+        document.getElementById('adj-reason').value = '';
+
+        const g = guideList.find(x => x.displayName === guide);
+        if (g) {
+            if (col === 'semester') g.semesterTotal += delta;
+            if (col === 'career')  g.careerTotal  += delta;
+        }
+        renderTrackerTable();
+        renderStats();
+        updateAdjustDisplay();
+    });
+}
+
+// ─── SUBMIT: ROLLOVER ────────────────────────────────────────────────
+async function submitRollover() {
+    const confirm = document.getElementById('rollover-confirm').value.trim();
+    const newSem  = document.getElementById('rollover-new-sem').value.trim();
+
+    if (confirm !== 'ROLLOVER') return showToast('Type ROLLOVER to confirm', true);
+    if (!newSem) return showToast('Enter the new semester name', true);
+
+    const payload = { action: 'rollover', adminUser: userName, newSemesterName: newSem };
+
+    await postToScript(payload, () => {
+        showToast(`Rolled over to ${newSem}`);
+        document.getElementById('rollover-confirm').value = '';
+        document.getElementById('rollover-new-sem').value = '';
+        document.getElementById('rollover-current-sem').innerText = newSem;
+        document.getElementById('admin-sem').innerText = newSem;
+        cachedData.currentSemesterName = newSem;
+        // Reset all semester totals locally
+        guideList.forEach(g => g.semesterTotal = 0);
+        renderTrackerTable();
+        renderStats();
+    });
+}
+
+// ─── NETWORK HELPER ──────────────────────────────────────────────────
+async function postToScript(payload, onSuccess) {
+    try {
+        await fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify(payload)
+        });
+        onSuccess();
+    } catch(e) {
+        showToast('Network error — check console', true);
+        console.error(e);
+    }
+}
+
+// ─── TOAST ───────────────────────────────────────────────────────────
+let toastTimeout;
+function showToast(msg, isError = false) {
+    const t = document.getElementById('toast');
+    t.innerText = msg;
+    t.className = isError ? 'error show' : 'show';
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
