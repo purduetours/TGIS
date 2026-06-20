@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TGIS | Admin Roster</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: { extend: { fontFamily: { sans: ['Inter','sans-serif'] }, colors: { 'gold': '#CFB991' } } }
+}
+</script>
+<style>
+:root {
+  --bg:#F9FAFB; --surface:#FFFFFF; --border:#E5E7EB; --text:#111827; --subtext:#6B7280;
+  --gold:#CFB991; --gold-dim:rgba(207,185,145,0.15); --row-hover:#F9FAFB; --input-bg:#FFFFFF; --overlay:rgba(0,0,0,0.45);
+}
+.dark {
+  --bg:#0f0c04; --surface:rgba(255,255,255,0.04); --border:rgba(255,255,255,0.09); --text:#F9FAFB; --subtext:rgba(255,255,255,0.4);
+  --gold:#CFB991; --gold-dim:rgba(207,185,145,0.12); --row-hover:rgba(255,255,255,0.03); --input-bg:rgba(255,255,255,0.07); --overlay:rgba(0,0,0,0.7);
+}
+* { box-sizing:border-box; }
+body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); margin:0; transition:background 0.3s,color 0.3s; }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:1.5rem; }
+.inp { background:var(--input-bg); border:1px solid var(--border); border-radius:0.75rem; padding:0.6rem 0.875rem; font-weight:700; font-size:13px; color:var(--text); outline:none; width:100%; transition:border-color 0.2s, box-shadow 0.2s; }
+.inp:focus { border-color:var(--gold); box-shadow:0 0 0 3px rgba(207,185,145,0.18); }
+.inp option { background:#1a1710; color:#fff; }
+.lbl { font-size:10px; font-weight:900; color:var(--subtext); text-transform:uppercase; letter-spacing:0.1em; display:block; margin-bottom:0.35rem; }
+.btn-gold { background:var(--gold); color:#0f0c04; font-weight:900; font-size:11px; text-transform:uppercase; letter-spacing:0.12em; border:none; cursor:pointer; border-radius:0.75rem; padding:0.75rem 1.25rem; transition:background 0.2s; }
+.btn-gold:hover { background:#b39a6d; }
+.btn-ghost { background:transparent; color:var(--subtext); border:1px solid var(--border); border-radius:0.75rem; font-size:11px; font-weight:800; padding:0.65rem 1rem; cursor:pointer; transition:all 0.2s; }
+.btn-ghost:hover { background:var(--gold-dim); color:var(--gold); border-color:var(--gold); }
+.btn-sm { font-size:10px; font-weight:900; text-transform:uppercase; letter-spacing:0.08em; border:none; cursor:pointer; border-radius:0.5rem; padding:0.4rem 0.7rem; transition:all 0.15s; }
+.pill { display:inline-flex; align-items:center; font-size:9px; font-weight:900; text-transform:uppercase; letter-spacing:0.1em; padding:2px 7px; border-radius:99px; }
+.pill-green{background:rgba(16,185,129,0.12);color:#10B981;} .pill-gold{background:rgba(207,185,145,0.15);color:#CFB991;}
+.pill-purple{background:rgba(139,92,246,0.13);color:#8B5CF6;} .pill-blue{background:rgba(59,130,246,0.12);color:#3B82F6;}
+.pill-red{background:rgba(239,68,68,0.12);color:#EF4444;} .pill-gray{background:rgba(107,114,128,0.12);color:#6B7280;}
+
+/* roster table */
+#roster-wrap { overflow-x:auto; }
+#roster-table { border-collapse:separate; border-spacing:0; width:100%; font-size:13px; }
+#roster-table th { background:var(--surface); color:var(--subtext); font-size:10px; font-weight:900; text-transform:uppercase; letter-spacing:0.07em; padding:0.7rem 0.875rem; border-bottom:2px solid var(--border); white-space:nowrap; cursor:pointer; user-select:none; position:sticky; top:0; z-index:2; }
+#roster-table th:hover { color:var(--gold); }
+#roster-table th .sort-arrow { font-size:9px; margin-left:3px; opacity:0.5; }
+#roster-table td { padding:0.625rem 0.875rem; border-bottom:1px solid var(--border); background:var(--surface); transition:background 0.12s; white-space:nowrap; }
+#roster-table tr.roster-row { cursor:pointer; }
+#roster-table tr.roster-row:hover td { background:var(--row-hover); }
+.num-cell { text-align:center; font-weight:900; font-size:14px; }
+.name-cell { font-weight:800; font-size:13px; }
+
+/* save bar */
+#save-bar { position:fixed; bottom:1.5rem; left:50%; transform:translateX(-50%) translateY(80px); opacity:0; pointer-events:none; transition:all 0.4s cubic-bezier(0.22,1,0.36,1); z-index:100; white-space:nowrap; }
+#save-bar.show { transform:translateX(-50%) translateY(0); opacity:1; pointer-events:all; }
+
+/* modal */
+#modal-overlay { position:fixed; inset:0; background:var(--overlay); display:flex; align-items:center; justify-content:center; z-index:200; opacity:0; pointer-events:none; transition:opacity 0.25s; padding:1rem; }
+#modal-overlay.open { opacity:1; pointer-events:all; }
+#modal-box { background:var(--surface); border:1px solid var(--border); border-radius:1.5rem; padding:1.75rem; width:100%; max-width:560px; max-height:85vh; overflow-y:auto; transform:translateY(12px); transition:transform 0.25s; color:var(--text); }
+#modal-overlay.open #modal-box { transform:translateY(0); }
+#profile-overlay { position:fixed; inset:0; background:var(--overlay); display:flex; align-items:flex-start; justify-content:center; z-index:250; opacity:0; pointer-events:none; transition:opacity 0.25s; padding:2rem 1rem; overflow-y:auto; }
+#profile-overlay.open { opacity:1; pointer-events:all; }
+#profile-box { background:var(--surface); border:1px solid var(--border); border-radius:1.75rem; width:100%; max-width:880px; transform:translateY(16px); transition:transform 0.25s; color:var(--text); margin-bottom:2rem; }
+#profile-overlay.open #profile-box { transform:translateY(0); }
+
+/* loading */
+#load-overlay { position:fixed; inset:0; background:#0f0c04; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:999; transition:opacity 0.4s; }
+
+/* toast */
+#toast { position:fixed; bottom:5rem; left:50%; transform:translateX(-50%) translateY(20px); background:var(--gold); color:#0f0c04; font-weight:900; font-size:11px; text-transform:uppercase; letter-spacing:0.1em; padding:0.65rem 1.4rem; border-radius:99px; opacity:0; transition:all 0.35s; pointer-events:none; z-index:500; }
+#toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+#toast.err { background:#EF4444; color:#fff; }
+
+/* dark toggle */
+.dm-toggle { width:38px; height:22px; border-radius:99px; background:var(--border); position:relative; cursor:pointer; transition:background 0.2s; border:none; padding:0; }
+.dm-toggle .knob { position:absolute; top:3px; left:3px; width:16px; height:16px; border-radius:50%; background:var(--subtext); transition:all 0.2s; }
+.dark .dm-toggle { background:var(--gold); } .dark .dm-toggle .knob { left:19px; background:#0f0c04; }
+
+/* profile card sections */
+.profile-hero { background:linear-gradient(135deg,#1a1408,#2a2010); border-radius:1.75rem 1.75rem 0 0; padding:1.75rem; color:#fff; position:relative; overflow:hidden; }
+.profile-avatar { width:64px; height:64px; border-radius:18px; background:var(--gold); display:flex; align-items:center; justify-content:center; font-size:1.5rem; font-weight:900; color:#0f0c04; flex-shrink:0; }
+.stat-chip { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:1rem; padding:0.75rem 1rem; text-align:center; }
+
+/* mini calendar */
+.cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; }
+.cal-dow { font-size:9px; font-weight:900; text-transform:uppercase; color:var(--subtext); text-align:center; padding:2px 0; }
+.cal-day { aspect-ratio:1; display:flex; align-items:center; justify-content:center; border-radius:8px; font-size:11px; font-weight:800; position:relative; }
+.cal-day.empty { visibility:hidden; }
+.cal-day.has-past { background:rgba(107,114,128,0.18); color:var(--subtext); }
+.cal-day.has-upcoming { background:rgba(16,185,129,0.18); color:#10B981; }
+.cal-day.has-both { background:linear-gradient(135deg, rgba(107,114,128,0.18) 50%, rgba(16,185,129,0.18) 50%); }
+.cal-day.today { box-shadow:inset 0 0 0 2px var(--gold); }
+.cal-day-dot { position:absolute; bottom:2px; width:3px; height:3px; border-radius:50%; background:currentColor; }
+
+/* sem history bars */
+.hist-row { display:flex; align-items:center; gap:10px; padding:0.4rem 0; }
+.hist-bar-track { flex:1; height:6px; background:var(--border); border-radius:99px; overflow:hidden; }
+.hist-bar-fill { height:100%; background:var(--gold); border-radius:99px; }
+
+.cell-edit { width:60px; text-align:center; font-weight:900; color:var(--text); background:transparent; border:1.5px solid transparent; border-radius:0.5rem; padding:0.3rem 0.4rem; font-size:14px; outline:none; cursor:pointer; transition:all 0.15s; }
+.cell-edit:hover { border-color:var(--border); background:var(--input-bg); }
+.cell-edit:focus { border-color:var(--gold); background:var(--input-bg); box-shadow:0 0 0 3px rgba(207,185,145,0.18); cursor:text; }
+.cell-edit.dirty { border-color:#F59E0B; background:rgba(245,158,11,0.08); }
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="load-overlay">
+  <p style="font-size:9px;font-weight:900;letter-spacing:0.3em;text-transform:uppercase;color:rgba(207,185,145,0.4);margin-bottom:8px;">Purdue University</p>
+  <h1 style="font-size:2rem;font-weight:900;color:#fff;letter-spacing:-0.02em;">TGIS <span style="color:#CFB991;">Roster</span></h1>
+  <div style="width:220px;height:2px;background:rgba(255,255,255,0.07);border-radius:99px;overflow:hidden;margin-top:1.5rem;">
+    <div id="load-bar" style="height:100%;width:0%;background:#CFB991;border-radius:99px;transition:width 0.5s ease;"></div>
+  </div>
+  <p id="load-status" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:rgba(207,185,145,0.4);margin-top:1rem;">Connecting...</p>
+  <div id="load-err" class="hidden" style="margin-top:1.5rem;text-align:center;max-width:300px;">
+    <p id="load-err-msg" style="color:#EF4444;font-size:12px;font-weight:700;margin-bottom:1rem;"></p>
+    <button class="btn-gold px-6" onclick="location.reload()">Retry</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" class="hidden">
+
+  <div style="border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:50;">
+    <div style="max-width:1400px;margin:0 auto;padding:0.875rem 1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <div>
+          <p style="font-size:9px;font-weight:900;letter-spacing:0.25em;text-transform:uppercase;color:var(--gold);margin:0;">Purdue University</p>
+          <h1 style="font-size:1.25rem;font-weight:900;margin:0;line-height:1.2;">TGIS <span style="color:var(--gold);">Roster</span></h1>
+        </div>
+        <div style="height:32px;width:1px;background:var(--border);"></div>
+        <div>
+          <p id="hdr-name" style="font-size:13px;font-weight:800;margin:0;"></p>
+          <p id="hdr-sem" style="font-size:10px;font-weight:700;color:var(--subtext);text-transform:uppercase;letter-spacing:0.1em;margin:0;"></p>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:0.875rem;">
+        <button class="dm-toggle" id="dm-btn" onclick="toggleDark()" title="Toggle dark mode"><div class="knob"></div></button>
+        <button class="btn-ghost" onclick="openRolloverModal()">Semester Rollover</button>
+        <button class="btn-gold" onclick="openSRModal()">+ Special Request</button>
+      </div>
+    </div>
+  </div>
+
+  <div style="max-width:1400px;margin:0 auto;padding:1.5rem;">
+
+    <!-- stats -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-bottom:1.5rem;">
+      <div class="card" style="padding:1.125rem;text-align:center;">
+        <p id="stat-guides" style="font-size:2rem;font-weight:900;color:var(--gold);margin:0;">--</p>
+        <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtext);margin:4px 0 0;">Guides</p>
+      </div>
+      <div class="card" style="padding:1.125rem;text-align:center;">
+        <p id="stat-sem-total" style="font-size:2rem;font-weight:900;color:#10B981;margin:0;">--</p>
+        <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtext);margin:4px 0 0;">Sem Tours</p>
+      </div>
+      <div class="card" style="padding:1.125rem;text-align:center;">
+        <p id="stat-upcoming" style="font-size:2rem;font-weight:900;color:#3B82F6;margin:0;">--</p>
+        <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtext);margin:4px 0 0;">Upcoming</p>
+      </div>
+      <div class="card" style="padding:1.125rem;text-align:center;">
+        <p id="stat-special" style="font-size:2rem;font-weight:900;color:#8B5CF6;margin:0;">--</p>
+        <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtext);margin:4px 0 0;">Special Req.</p>
+      </div>
+      <div class="card" style="padding:1.125rem;text-align:center;">
+        <p id="stat-dirty" style="font-size:2rem;font-weight:900;color:#F59E0B;margin:0;">0</p>
+        <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtext);margin:4px 0 0;">Unsaved</p>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:0.875rem;flex-wrap:wrap;">
+      <input id="search" type="text" class="inp" style="max-width:260px;" placeholder="Search guide…" oninput="filterRoster()">
+      <p style="font-size:10px;font-weight:700;color:var(--subtext);">Click a row to view profile · click a header to sort · click a semester count to edit inline</p>
+    </div>
+
+    <div class="card" style="overflow:hidden;">
+      <div id="roster-wrap">
+        <table id="roster-table">
+          <thead>
+            <tr>
+              <th onclick="setSort('displayName')">Guide <span class="sort-arrow" id="arrow-displayName"></span></th>
+              <th onclick="setSort('careerTotal')" style="text-align:center;">Career <span class="sort-arrow" id="arrow-careerTotal"></span></th>
+              <th style="text-align:center;" id="sem-header"></th>
+              <th onclick="setSort('upcomingCount')" style="text-align:center;">Upcoming <span class="sort-arrow" id="arrow-upcomingCount"></span></th>
+              <th onclick="setSort('firstSemester')">Hire Sem <span class="sort-arrow" id="arrow-firstSemester"></span></th>
+              <th style="text-align:center;">Impersonate</th>
+              <th style="text-align:center;"></th>
+            </tr>
+          </thead>
+          <tbody id="roster-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- SAVE BAR -->
+<div id="save-bar">
+  <div style="display:flex;align-items:center;gap:0.875rem;background:var(--surface);border:1px solid var(--border);border-radius:1rem;padding:0.75rem 1.25rem;box-shadow:0 8px 32px rgba(0,0,0,0.18);">
+    <span id="save-bar-count" style="font-size:12px;font-weight:800;color:var(--text);"></span>
+    <button class="btn-gold" onclick="saveAllChanges()">Save All Changes</button>
+    <button class="btn-ghost" style="padding:0.5rem 0.875rem;font-size:11px;" onclick="discardChanges()">Discard</button>
+  </div>
+</div>
+
+<!-- GENERIC MODAL (SR / rollover / save-reason) -->
+<div id="modal-overlay" onclick="maybeCloseModal(event)">
+  <div id="modal-box" onclick="event.stopPropagation()"><div id="modal-content"></div></div>
+</div>
+
+<!-- PROFILE CARD MODAL -->
+<div id="profile-overlay" onclick="maybeCloseProfile(event)">
+  <div id="profile-box" onclick="event.stopPropagation()"><div id="profile-content"></div></div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ─── CONFIG ──────────────────────────────────────────────────────────────────
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyqIgk-V7XABUMluhLwjGudlHwkgldwRaBlAN6dFdbI1gNL-_cvN5PNTek2cfqNtc3j/exec';
+const params   = new URLSearchParams(window.location.search);
+const userName = params.get('user');
+
+const TOUR_MAP = {
+  '9DV': { time:'9:30 AM',  name:'Daily Visit', dur:105 },
+  '0DV': { time:'10:30 AM', name:'Daily Visit', dur:105 },
+  '1DV': { time:'1:30 PM',  name:'Daily Visit', dur:105 },
+  '2DV': { time:'2:30 PM',  name:'Daily Visit', dur:105 },
+  '0GV': { time:'10:30 AM', name:'Group Visit', dur:105 },
+  '8PA': { time:'8:15 AM',  name:'Program (Academic)', dur:60 },
+  '1PF': { time:'11:00 AM', name:'Program (Full)', dur:105 },
+  '1PA': { time:'1:30 PM',  name:'Program (Academic)', dur:60 },
+  '2PA': { time:'2:30 PM',  name:'Program (Academic)', dur:60 },
+  'EPF': { time:'11:15 AM', name:'Program (Full)', dur:105 },
+};
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let D = null, roster = [], currentSem = '', dirty = {}, darkMode = localStorage.getItem('tgis_dark') === '1';
+let sortKey = 'displayName', sortDir = 1;
+let calMonthOffset = 0; // for profile calendar navigation
+
+// ─── DARK MODE ────────────────────────────────────────────────────────────────
+function applyDark() { document.documentElement.classList.toggle('dark', darkMode); }
+function toggleDark() { darkMode = !darkMode; localStorage.setItem('tgis_dark', darkMode?'1':'0'); applyDark(); }
+applyDark();
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+let loadBarVal = 0;
+const loadBarTimer = setInterval(() => {
+  loadBarVal = Math.min(loadBarVal + Math.random()*10, 82);
+  document.getElementById('load-bar').style.width = loadBarVal + '%';
+}, 500);
+
+window.onload = async () => {
+  if (!userName) { showLoadErr('NO_USER_PARAM — add ?user=yourUsername to URL'); return; }
+  setLoadStatus('Loading roster…');
+  try {
+    const res = await fetch(`${SCRIPT_URL}?user=${encodeURIComponent(userName)}&admin=true`);
+    if (!res.ok) throw new Error(`HTTP_${res.status}`);
+    D = await res.json();
+    if (D.error) throw new Error(D.error);
+    if (!D.adminData) throw new Error('ACCESS_DENIED — must be Manager or Codirector');
+
+    currentSem = D.adminData.currentSemName;
+
+    const srByGuide = {};
+    (D.adminData.specialRequests||[]).forEach(sr => { srByGuide[sr.guide] = (srByGuide[sr.guide]||0) + sr.count; });
+
+    roster = (D.adminData.trackerGrid||[]).map(g => ({
+      ...g,
+      hasSpecial: !!srByGuide[g.displayName],
+      specialCount: srByGuide[g.displayName] || 0
+    }));
+
+    document.getElementById('hdr-name').innerText = D.profile.displayName;
+    document.getElementById('hdr-sem').innerText  = currentSem;
+    document.getElementById('sem-header').innerHTML = `${currentSem} <span class="sort-arrow" id="arrow-currentSem"></span>`;
+    document.getElementById('sem-header').onclick = () => setSort('currentSem');
+
+    renderStats();
+    renderRoster();
+
+    clearInterval(loadBarTimer);
+    document.getElementById('load-bar').style.width = '100%';
+    setLoadStatus('Ready');
+    setTimeout(() => {
+      const ov = document.getElementById('load-overlay');
+      ov.style.opacity = '0';
+      setTimeout(() => { ov.style.display='none'; document.getElementById('app').classList.remove('hidden'); }, 350);
+    }, 250);
+
+  } catch(e) {
+    clearInterval(loadBarTimer);
+    showLoadErr(e.message.slice(0,80));
+  }
+};
+
+function setLoadStatus(t) { document.getElementById('load-status').innerText = t; }
+function showLoadErr(msg) {
+  document.getElementById('load-bar').style.background = '#EF4444';
+  document.getElementById('load-bar').style.width = '100%';
+  document.getElementById('load-status').style.display = 'none';
+  document.getElementById('load-err-msg').innerText = msg;
+  document.getElementById('load-err').classList.remove('hidden');
+}
+
+// ─── STATS ────────────────────────────────────────────────────────────────────
+function renderStats() {
+  document.getElementById('stat-guides').innerText = roster.length;
+  document.getElementById('stat-sem-total').innerText = roster.reduce((s,g)=>s+(g.currentSem||0),0);
+  document.getElementById('stat-upcoming').innerText  = roster.reduce((s,g)=>s+(g.upcomingCount||0),0);
+  const srC = (D.adminData.specialRequests||[]).reduce((s,r)=>s+(r.count||0),0);
+  document.getElementById('stat-special').innerText = srC;
+}
+
+// ─── SORT ─────────────────────────────────────────────────────────────────────
+function setSort(key) {
+  if (sortKey === key) { sortDir *= -1; } else { sortKey = key; sortDir = (key==='displayName'||key==='firstSemester') ? 1 : -1; }
+  document.querySelectorAll('.sort-arrow').forEach(el => el.innerText = '');
+  const arrow = document.getElementById('arrow-' + key);
+  if (arrow) arrow.innerText = sortDir === 1 ? '▲' : '▼';
+  renderRoster();
+}
+
+function getSortedFiltered() {
+  const q = document.getElementById('search')?.value?.toLowerCase() || '';
+  let rows = q ? roster.filter(g => g.displayName.toLowerCase().includes(q)) : [...roster];
+  rows.sort((a,b) => {
+    let av = a[sortKey], bv = b[sortKey];
+    if (typeof av === 'string') { av = av.toLowerCase(); bv = (bv||'').toLowerCase(); return av.localeCompare(bv) * sortDir; }
+    return ((av||0) - (bv||0)) * sortDir;
+  });
+  return rows;
+}
+function filterRoster() { renderRoster(); }
+
+// ─── ROSTER RENDER ────────────────────────────────────────────────────────────
+function renderRoster() {
+  const rows = getSortedFiltered();
+  const tbody = document.getElementById('roster-body');
+  tbody.innerHTML = rows.map(g => {
+    const dirtyInfo = dirty[g.displayName];
+    const semVal = dirtyInfo ? dirtyInfo.newVal : g.currentSem;
+    const isDirty = !!dirtyInfo;
+    const impUrl = g.username ? `app.html?user=${encodeURIComponent(g.username)}` : '#';
+
+    return `
+      <tr class="roster-row" data-guide="${esc(g.displayName)}">
+        <td class="name-cell" onclick="openProfile('${esc(g.displayName)}')">
+          <div style="display:flex;align-items:center;gap:8px;">
+            ${g.displayName}
+            ${g.hasSpecial ? `<span class="pill pill-purple">+${g.specialCount} SR</span>` : ''}
+            ${g.rank ? `<span class="pill pill-gold">#${g.rank}</span>` : ''}
+          </div>
+        </td>
+        <td class="num-cell" onclick="openProfile('${esc(g.displayName)}')" style="color:var(--gold);">${g.careerTotal}</td>
+        <td class="num-cell" onclick="event.stopPropagation();">
+          <input type="number" min="0" class="cell-edit ${isDirty?'dirty':''}"
+            data-guide="${esc(g.displayName)}" data-orig="${g.currentSem}" value="${semVal}"
+            onchange="cellChanged(this)" onfocus="this.select()" onclick="event.stopPropagation()">
+        </td>
+        <td class="num-cell" onclick="openProfile('${esc(g.displayName)}')">${g.upcomingCount || 0}</td>
+        <td onclick="openProfile('${esc(g.displayName)}')" style="font-size:12px;font-weight:700;color:var(--subtext);">${g.firstSemester}</td>
+        <td style="text-align:center;" onclick="event.stopPropagation();">
+          ${g.username ? `<a href="${impUrl}" target="_blank" class="btn-sm" style="background:var(--gold-dim);color:var(--gold);text-decoration:none;display:inline-block;">Open ↗</a>` : `<span style="color:var(--subtext);font-size:11px;">—</span>`}
+        </td>
+        <td style="text-align:center;" onclick="openProfile('${esc(g.displayName)}')">
+          <span style="font-size:13px;color:var(--subtext);">▶</span>
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+// ─── CELL EDITING ─────────────────────────────────────────────────────────────
+function cellChanged(input) {
+  const guide = input.dataset.guide;
+  const orig  = parseInt(input.dataset.orig) || 0;
+  const newVal = parseInt(input.value) || 0;
+  if (newVal === orig && dirty[guide]) { delete dirty[guide]; input.classList.remove('dirty'); }
+  else if (newVal !== orig) { dirty[guide] = { oldVal: orig, newVal }; input.classList.add('dirty'); }
+  updateDirtyUI();
+}
+function updateDirtyUI() {
+  const count = Object.keys(dirty).length;
+  document.getElementById('stat-dirty').innerText = count;
+  const bar = document.getElementById('save-bar');
+  bar.classList.toggle('show', count > 0);
+  document.getElementById('save-bar-count').innerText = `${count} unsaved change${count!==1?'s':''}`;
+}
+async function saveAllChanges() {
+  const guides = Object.keys(dirty);
+  if (!guides.length) return;
+  openReasonModal(guides, async (reasons) => {
+    for (const guide of guides) {
+      const { newVal } = dirty[guide];
+      const reason = reasons[guide] || 'Manual update via admin roster';
+      await postAction({ action:'manualAdjust', adminUser:userName, guide, newValue:newVal, reason });
+      const g = roster.find(x => x.displayName === guide);
+      if (g) { g.careerTotal += (newVal - g.currentSem); g.currentSem = newVal; }
+      delete dirty[guide];
+    }
+    updateDirtyUI(); renderStats(); renderRoster();
+    showToast(`${guides.length} change${guides.length>1?'s':''} saved`);
+    closeModal();
+  });
+}
+function discardChanges() {
+  dirty = {};
+  updateDirtyUI();
+  renderRoster();
+  showToast('Changes discarded');
+}
+
+// ─── REASON MODAL ─────────────────────────────────────────────────────────────
+function openReasonModal(guides, onConfirm) {
+  const fields = guides.map(g => `
+    <div style="margin-bottom:0.875rem;">
+      <label class="lbl">${g} — reason for change</label>
+      <input type="text" class="inp reason-inp" data-guide="${esc(g)}" placeholder="e.g. Data correction…">
+    </div>`).join('');
+  document.getElementById('modal-content').innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+      <h2 style="font-size:1.1rem;font-weight:900;margin:0;">Save Changes</h2>
+      <button onclick="closeModal()" style="background:none;border:none;font-size:1.25rem;cursor:pointer;color:var(--subtext);">✕</button>
+    </div>
+    <p style="font-size:12px;color:var(--subtext);margin-bottom:1.25rem;">Enter a reason for each edit (required for audit log).</p>
+    ${fields}
+    <div style="display:flex;gap:0.75rem;justify-content:flex-end;margin-top:1.25rem;">
+      <button class="btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn-gold" onclick="confirmSave()">Save All</button>
+    </div>`;
+  window._saveCallback = onConfirm;
+  openModal();
+}
+function confirmSave() {
+  const reasons = {};
+  document.querySelectorAll('.reason-inp').forEach(inp => { reasons[inp.dataset.guide] = inp.value.trim() || 'Manual update via admin roster'; });
+  if (window._saveCallback) window._saveCallback(reasons);
+}
+
+// ─── SPECIAL REQUEST MODAL ────────────────────────────────────────────────────
+function openSRModal(prefillGuide) {
+  const guideOptions = [...roster].sort((a,b)=>a.displayName.localeCompare(b.displayName))
+    .map(g => `<option value="${esc(g.displayName)}" ${g.displayName===prefillGuide?'selected':''}>${g.displayName}</option>`).join('');
+  document.getElementById('modal-content').innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+      <h2 style="font-size:1.1rem;font-weight:900;margin:0;">Add Special Request</h2>
+      <button onclick="closeModal()" style="background:none;border:none;font-size:1.25rem;cursor:pointer;color:var(--subtext);">✕</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.875rem;margin-bottom:0.875rem;">
+      <div><label class="lbl">Guide</label><select id="sr-guide" class="inp">${guideOptions}</select></div>
+      <div><label class="lbl">Date</label><input type="date" id="sr-date" class="inp"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.875rem;margin-bottom:0.875rem;">
+      <div><label class="lbl">Type</label>
+        <select id="sr-type" class="inp">
+          <option>Special Request</option><option>Private Tour</option><option>VIP Visit</option>
+          <option>Recruitment Event</option><option>Make-up Tour</option><option>Other</option>
+        </select></div>
+      <div><label class="lbl">Count</label><input type="number" id="sr-count" class="inp" min="1" max="20" value="1"></div>
+    </div>
+    <div style="margin-bottom:1.25rem;"><label class="lbl">Notes (optional)</label><input type="text" id="sr-notes" class="inp" placeholder="e.g. Dean's office request…"></div>
+    <div style="display:flex;gap:0.75rem;justify-content:flex-end;">
+      <button class="btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn-gold" onclick="submitSR()">Add to Tracker</button>
+    </div>`;
+  openModal();
+}
+async function submitSR() {
+  const guide = document.getElementById('sr-guide').value;
+  const date  = document.getElementById('sr-date').value;
+  const type  = document.getElementById('sr-type').value;
+  const count = parseInt(document.getElementById('sr-count').value) || 1;
+  const notes = document.getElementById('sr-notes').value.trim();
+  if (!guide) return showToast('Select a guide', true);
+  if (!date)  return showToast('Select a date', true);
+
+  await postAction({ action:'specialRequest', adminUser:userName, guide, date, type, count, notes });
+
+  const g = roster.find(x => x.displayName === guide);
+  if (g) {
+    g.currentSem += count; g.careerTotal += count;
+    g.specialCount = (g.specialCount||0) + count; g.hasSpecial = true;
+    if (!D.adminData.specialRequests) D.adminData.specialRequests = [];
+    D.adminData.specialRequests.push({ guide, date, type, count, notes, addedBy:userName, addedAt:new Date().toLocaleString() });
+    if (!D.adminData.toursByGuide) D.adminData.toursByGuide = {};
+    if (!D.adminData.toursByGuide[guide]) D.adminData.toursByGuide[guide] = [];
+    for (let i=0;i<count;i++) D.adminData.toursByGuide[guide].push({ date, type:'SR', time:type });
+  }
+  renderStats(); renderRoster();
+  showToast(`+${count} tour${count>1?'s':''} added for ${guide}`);
+  closeModal();
+}
+
+// ─── ROLLOVER MODAL ───────────────────────────────────────────────────────────
+function openRolloverModal() {
+  document.getElementById('modal-content').innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+      <h2 style="font-size:1.1rem;font-weight:900;margin:0;color:#EF4444;">Semester Rollover</h2>
+      <button onclick="closeModal()" style="background:none;border:none;font-size:1.25rem;cursor:pointer;color:var(--subtext);">✕</button>
+    </div>
+    <div style="background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2);border-radius:0.75rem;padding:0.875rem;margin-bottom:1.25rem;">
+      <p style="font-size:11px;font-weight:700;color:var(--text);margin:0;line-height:1.7;">
+        This archives <strong>"${currentSem}"</strong> and opens a fresh column. Career totals are unaffected. <strong>Cannot be undone.</strong>
+      </p>
+    </div>
+    <div style="margin-bottom:1rem;"><label class="lbl">New Semester Name</label><input type="text" id="ro-newsem" class="inp" placeholder="e.g. Fall 2026"></div>
+    <div style="margin-bottom:1.25rem;"><label class="lbl">Type ROLLOVER to confirm</label><input type="text" id="ro-confirm" class="inp" placeholder="ROLLOVER" style="font-family:monospace;letter-spacing:0.15em;text-transform:uppercase;"></div>
+    <div style="display:flex;gap:0.75rem;justify-content:flex-end;">
+      <button class="btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn-gold" style="background:#EF4444;" onclick="submitRollover()">Execute Rollover</button>
+    </div>`;
+  openModal();
+}
+async function submitRollover() {
+  const confirm = document.getElementById('ro-confirm').value.trim().toUpperCase();
+  const newSem  = document.getElementById('ro-newsem').value.trim();
+  if (confirm !== 'ROLLOVER') return showToast('Type ROLLOVER to confirm', true);
+  if (!newSem) return showToast('Enter new semester name', true);
+
+  await postAction({ action:'rollover', adminUser:userName, newSemesterName:newSem });
+
+  document.getElementById('hdr-sem').innerText = newSem;
+  document.getElementById('sem-header').innerHTML = `${newSem} <span class="sort-arrow" id="arrow-currentSem"></span>`;
+  document.getElementById('sem-header').onclick = () => setSort('currentSem');
+  currentSem = newSem;
+  roster.forEach(g => { g.currentSem = 0; });
+  dirty = {}; updateDirtyUI(); renderRoster(); renderStats();
+  showToast(`Rolled over to ${newSem}`);
+  closeModal();
+}
+
+// ─── PROFILE CARD ─────────────────────────────────────────────────────────────
+function openProfile(guideName) {
+  const g = roster.find(x => x.displayName === guideName);
+  if (!g) return;
+  calMonthOffset = 0;
+  renderProfileContent(g);
+  document.getElementById('profile-overlay').classList.add('open');
+}
+function closeProfile() { document.getElementById('profile-overlay').classList.remove('open'); }
+function maybeCloseProfile(e) { if (e.target === document.getElementById('profile-overlay')) closeProfile(); }
+
+function renderProfileContent(g) {
+  const initials = g.displayName.split(' ').map(s=>s[0]).slice(0,2).join('').toUpperCase();
+  const pastSems = D.adminData.semesterCols || [];
+  const maxHist = Math.max(1, ...pastSems.map(s => g.semesters[s]||0), g.currentSem);
+
+  // Semester history bars (past + current)
+  const histRows = [...pastSems, currentSem].map(sem => {
+    const val = sem === currentSem ? g.currentSem : (g.semesters[sem]||0);
+    const isCurrent = sem === currentSem;
+    const pct = Math.round((val / maxHist) * 100);
+    return `
+      <div class="hist-row">
+        <span style="width:90px;font-size:10px;font-weight:800;color:${isCurrent?'var(--gold)':'var(--subtext)'};text-transform:uppercase;letter-spacing:0.05em;flex-shrink:0;">${sem}${isCurrent?' ●':''}</span>
+        <div class="hist-bar-track"><div class="hist-bar-fill" style="width:${pct}%;${isCurrent?'background:var(--gold);':''}"></div></div>
+        <span style="width:28px;text-align:right;font-size:13px;font-weight:900;">${val}</span>
+      </div>`;
+  }).join('');
+
+  document.getElementById('profile-content').innerHTML = `
+    <div class="profile-hero">
+      <button onclick="closeProfile()" style="position:absolute;top:1.25rem;right:1.25rem;background:rgba(255,255,255,0.1);border:none;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:14px;">✕</button>
+      <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem;">
+        <div class="profile-avatar">${initials}</div>
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <h2 style="font-size:1.4rem;font-weight:900;margin:0;">${g.displayName}</h2>
+            ${g.rank ? `<span class="pill pill-gold">Rank #${g.rank}</span>` : ''}
+          </div>
+          <p style="font-size:11px;color:rgba(255,255,255,0.5);margin:2px 0 0;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;">${g.firstName} ${g.lastName} · Hire: ${g.firstSemester}</p>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.625rem;">
+        <div class="stat-chip"><p style="font-size:1.5rem;font-weight:900;color:var(--gold);margin:0;">${g.careerTotal}</p><p style="font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.45);margin-top:2px;">Career</p></div>
+        <div class="stat-chip"><p style="font-size:1.5rem;font-weight:900;color:#10B981;margin:0;">${g.currentSem}</p><p style="font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.45);margin-top:2px;">This Sem</p></div>
+        <div class="stat-chip"><p style="font-size:1.5rem;font-weight:900;color:#3B82F6;margin:0;">${g.upcomingCount||0}</p><p style="font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.45);margin-top:2px;">Upcoming</p></div>
+        <div class="stat-chip"><p style="font-size:1.5rem;font-weight:900;color:#8B5CF6;margin:0;">${g.specialCount||0}</p><p style="font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.45);margin-top:2px;">Special</p></div>
+      </div>
+    </div>
+
+    <div style="padding:1.5rem;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+
+        <!-- Left: semester history + edit -->
+        <div>
+          <p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtext);margin-bottom:0.75rem;">Semester History</p>
+          <div style="margin-bottom:1.25rem;">${histRows}</div>
+
+          <div class="card" style="padding:1rem;margin-bottom:1rem;">
+            <p class="lbl" style="margin-bottom:0.6rem;">Edit Current Semester (${currentSem})</p>
+            <div style="display:flex;gap:0.6rem;align-items:center;">
+              <input type="number" min="0" id="profile-sem-input" class="inp" style="width:80px;text-align:center;font-weight:900;" value="${g.currentSem}">
+              <button class="btn-gold" style="padding:0.6rem 1rem;" onclick="saveProfileEdit('${esc(g.displayName)}')">Save</button>
+            </div>
+          </div>
+
+          <button class="btn-ghost" style="width:100%;" onclick="openSRModal('${esc(g.displayName)}'); closeProfile();">+ Add Special Request</button>
+        </div>
+
+        <!-- Right: calendar -->
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
+            <p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtext);margin:0;">Tour Calendar</p>
+            <div style="display:flex;gap:4px;">
+              <button class="btn-sm" style="background:var(--gold-dim);color:var(--gold);" onclick="shiftCalMonth(-1,'${esc(g.displayName)}')">←</button>
+              <button class="btn-sm" style="background:var(--gold-dim);color:var(--gold);" onclick="shiftCalMonth(1,'${esc(g.displayName)}')">→</button>
+            </div>
+          </div>
+          <div id="profile-calendar"></div>
+          <div style="display:flex;gap:1rem;margin-top:0.75rem;">
+            <div style="display:flex;align-items:center;gap:5px;"><span style="width:9px;height:9px;border-radius:3px;background:rgba(107,114,128,0.4);"></span><span style="font-size:9px;font-weight:800;color:var(--subtext);text-transform:uppercase;">Past</span></div>
+            <div style="display:flex;align-items:center;gap:5px;"><span style="width:9px;height:9px;border-radius:3px;background:rgba(16,185,129,0.4);"></span><span style="font-size:9px;font-weight:800;color:var(--subtext);text-transform:uppercase;">Upcoming</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>`;
+
+  renderProfileCalendar(g.displayName);
+}
+
+function saveProfileEdit(guideName) {
+  const input = document.getElementById('profile-sem-input');
+  const newVal = parseInt(input.value) || 0;
+  const g = roster.find(x => x.displayName === guideName);
+  if (!g) return;
+  if (newVal === g.currentSem) { showToast('No change to save'); return; }
+  dirty[guideName] = { oldVal: g.currentSem, newVal };
+  updateDirtyUI();
+  closeProfile();
+  // Open the reason modal immediately since this is a deliberate single edit
+  openReasonModal([guideName], async (reasons) => {
+    const { newVal } = dirty[guideName];
+    const reason = reasons[guideName] || 'Manual update via profile card';
+    await postAction({ action:'manualAdjust', adminUser:userName, guide:guideName, newValue:newVal, reason });
+    g.careerTotal += (newVal - g.currentSem); g.currentSem = newVal;
+    delete dirty[guideName];
+    updateDirtyUI(); renderStats(); renderRoster();
+    showToast(`${guideName} updated to ${newVal}`);
+    closeModal();
+  });
+}
+
+function shiftCalMonth(dir, guideName) {
+  calMonthOffset += dir;
+  renderProfileCalendar(guideName);
+}
+
+function renderProfileCalendar(guideName) {
+  const tours = (D.adminData.toursByGuide && D.adminData.toursByGuide[guideName]) || [];
+  const toursByDate = {};
+  tours.forEach(t => {
+    const d = new Date(t.date);
+    if (isNaN(d.getTime())) return;
+    const key = d.toDateString();
+    if (!toursByDate[key]) toursByDate[key] = [];
+    toursByDate[key].push(t);
+  });
+
+  const today = new Date(); today.setHours(0,0,0,0);
+  const viewDate = new Date(today.getFullYear(), today.getMonth() + calMonthOffset, 1);
+  const year = viewDate.getFullYear(), month = viewDate.getMonth();
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const firstDow = new Date(year, month, 1).getDay();
+  const monthLabel = viewDate.toLocaleString('default', { month:'long', year:'numeric' });
+
+  let cells = `<div style="text-align:center;font-size:11px;font-weight:900;margin-bottom:6px;color:var(--text);">${monthLabel}</div>`;
+  cells += `<div class="cal-grid">`;
+  ['S','M','T','W','T','F','S'].forEach(d => cells += `<div class="cal-dow">${d}</div>`);
+  for (let i=0;i<firstDow;i++) cells += `<div class="cal-day empty"></div>`;
+  for (let day=1; day<=daysInMonth; day++) {
+    const cellDate = new Date(year, month, day);
+    const key = cellDate.toDateString();
+    const dayTours = toursByDate[key] || [];
+    const isToday = key === today.toDateString();
+    let cls = 'cal-day';
+    if (dayTours.length) {
+      const hasPast = dayTours.some(() => cellDate < today);
+      const hasUpcoming = dayTours.some(() => cellDate >= today);
+      if (hasPast && cellDate < today) cls += ' has-past';
+      if (cellDate >= today) cls += ' has-upcoming';
+    }
+    if (isToday) cls += ' today';
+    const title = dayTours.length ? dayTours.map(t => (TOUR_MAP[t.type]?.name || t.type)).join(', ') : '';
+    cells += `<div class="${cls}" title="${esc(title)}">${day}</div>`;
+  }
+  cells += `</div>`;
+  document.getElementById('profile-calendar').innerHTML = cells;
+}
+
+// ─── MODAL HELPERS ────────────────────────────────────────────────────────────
+function openModal() { document.getElementById('modal-overlay').classList.add('open'); }
+function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
+function maybeCloseModal(e) { if (e.target === document.getElementById('modal-overlay')) closeModal(); }
+
+// ─── NETWORK ─────────────────────────────────────────────────────────────────
+async function postAction(payload) {
+  try { await fetch(SCRIPT_URL, { method:'POST', mode:'no-cors', body: JSON.stringify(payload) }); }
+  catch(e) { console.error(e); showToast('Network error', true); }
+}
+
+// ─── TOAST ───────────────────────────────────────────────────────────────────
+let toastTm;
+function showToast(msg, isErr=false) {
+  const t = document.getElementById('toast');
+  t.innerText = msg; t.className = isErr ? 'err show' : 'show';
+  clearTimeout(toastTm); toastTm = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ─── UTILS ───────────────────────────────────────────────────────────────────
+function esc(s) { return String(s).replace(/'/g, "\\'"); }
+</script>
+</body>
+</html>
