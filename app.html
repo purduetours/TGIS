@@ -550,50 +550,18 @@
         <div id="family-leaderboard-container"></div>
     </div>
 
-    <div id="view-forms" class="view-section">
+    
+<div id="view-forms" class="view-section">
     <header class="mb-8">
-        <h1 class="text-3xl font-black">Required Forms</h1>
-        <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Please complete all required forms by the posted deadline</p>
+        <h1 class="text-3xl font-black">Forms</h1>
+        <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Complete all required forms by their posted deadline</p>
     </header>
-
-<div class="grid grid-cols-1 gap-6">
-    <div class="bg-white p-6 rounded-3xl shadow-xl border-l-8 border-primary-gold flex flex-col md:flex-row justify-between items-center gap-6">
-    <div class="flex-1">
-        <div class="flex items-center gap-2 mb-2">
-            <span class="bg-red-100 text-red-600 text-[10px] font-black px-2 py-1 rounded-md uppercase tracking-wider">Required</span>
-            <span class="text-gray-400 text-[10px] font-black uppercase tracking-widest">Due 5/8 @ 11:59 PM</span>
-        </div>
-        <h2 class="text-2xl font-black text-gray-800">Summer Census</h2>
-        <p class="text-sm text-gray-500 mt-1 font-medium">Please fill out the summer census ONLY if you are giving summer tours.</p>
+    <div id="forms-list" class="space-y-3">
+        <!-- populated by renderForms() -->
     </div>
-    
-    <button 
-        onclick="window.location.href = 'https://purduetours.github.io/TGIS/census.html?user=' + userName;" 
-        class="w-full md:w-auto bg-primary-gold hover:bg-[#b39a6d] text-white font-black py-4 px-8 rounded-2xl transition-all text-center shadow-lg shadow-primary-gold/30 uppercase text-xs tracking-widest">
-        Open Form
-    </button>
 </div>
 
-    <div class="bg-white p-6 rounded-3xl shadow-md border-l-8 border-gray-200 flex flex-col md:flex-row justify-between items-center gap-6">
-        <div class="flex-1">
-            <div class="flex items-center gap-2 mb-2">
-                <span class="bg-gray-100 text-gray-500 text-[10px] font-black px-2 py-1 rounded-md uppercase tracking-wider">Optional</span>
-                <span class="text-gray-400 text-[10px] font-black uppercase tracking-widest">No Due Date</span>
-            </div>
-            <h2 class="text-xl font-bold text-gray-600">Anonymous Feedback Form</h2>
-            <p class="text-sm text-gray-400 mt-1 font-medium">Do you have comments or concerns within the program? Share them here anonymously. .</p>
-        </div>
-        
-        <a href="https://forms.gle/g4nsQmjgb9XDu7ab7" target="_blank" class="w-full md:w-auto border-2 border-gray-200 hover:bg-gray-50 text-gray-500 font-black py-3 px-8 rounded-2xl transition-all text-center uppercase text-xs tracking-widest">
-            Submit Feedback
-        </a>
-    </div>
-    
-    <div class="bg-gray-100 border-2 border-dashed border-gray-200 p-8 rounded-3xl text-center">
-        <p class="text-gray-400 font-bold text-sm italic uppercase">No other forms pending at this time.</p>
-    </div>
-</div>
-</div>
+
 
 
 <div id="view-schedule" class="view-section">
@@ -839,6 +807,80 @@ function changeDeskDate(days) {
     renderDeskDashboard();
 }
 
+function renderForms() {
+    const container = document.getElementById('forms-list');
+    if (!container) return;
+
+    const forms = cachedData.forms || [];
+    const now = new Date();
+
+    const active = forms.filter(f => f.active);
+
+    if (!active.length) {
+        container.innerHTML = `
+            <div class="bg-gray-100 border-2 border-dashed border-gray-200 p-8 rounded-3xl text-center">
+                <p class="text-gray-400 font-bold text-sm italic uppercase">No forms pending at this time.</p>
+            </div>`;
+        return;
+    }
+
+    container.innerHTML = active.map(f => {
+        const isRequired = (f.type || '').toLowerCase() === 'required';
+        const submitted  = !!f.submitted;
+        const hasDue     = !!f.dueDate;
+        const dueDate    = hasDue ? new Date(f.dueDate) : null;
+        const isOverdue  = dueDate && dueDate < now && !submitted;
+        const formUrl    = `https://purduetours.github.io/TGIS/${f.formId}.html?user=${userName}`;
+
+        // Due date label
+        let dueTxt = 'No due date';
+        if (dueDate) {
+            dueTxt = 'Due ' + dueDate.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })
+                   + ' @ 11:59 PM';
+        }
+
+        // Left accent color
+        const accentColor = submitted ? '#10B981' : isRequired ? '#CFB991' : '#E5E7EB';
+
+        // Type badge
+        const typeBadge = isRequired
+            ? `<span class="bg-red-100 text-red-600 text-[10px] font-black px-2 py-1 rounded-md uppercase tracking-wider">Required</span>`
+            : `<span class="bg-gray-100 text-gray-500 text-[10px] font-black px-2 py-1 rounded-md uppercase tracking-wider">Optional</span>`;
+
+        // Status badge
+        const statusBadge = submitted
+            ? `<span class="bg-green-100 text-green-700 text-[10px] font-black px-2 py-1 rounded-md uppercase tracking-wider flex items-center gap-1">
+                 <span>✓</span> Submitted
+               </span>`
+            : isOverdue
+            ? `<span class="bg-red-100 text-red-600 text-[10px] font-black px-2 py-1 rounded-md uppercase tracking-wider">Overdue</span>`
+            : '';
+
+        // Button
+        const btn = submitted
+            ? `<button disabled class="w-full md:w-auto bg-gray-100 text-gray-400 font-black py-4 px-8 rounded-2xl uppercase text-xs tracking-widest cursor-not-allowed">
+                 Submitted ✓
+               </button>`
+            : `<button onclick="window.location.href='${formUrl}'"
+                 class="w-full md:w-auto bg-primary-gold hover:bg-[#b39a6d] text-white font-black py-4 px-8 rounded-2xl transition-all text-center shadow-lg shadow-primary-gold/30 uppercase text-xs tracking-widest">
+                 Open Form
+               </button>`;
+
+        return `
+            <div class="bg-white p-6 rounded-3xl shadow-xl flex flex-col md:flex-row justify-between items-center gap-6"
+                 style="border-left: 8px solid ${accentColor};">
+                <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-2 flex-wrap">
+                        ${typeBadge}
+                        ${statusBadge}
+                        <span class="text-gray-400 text-[10px] font-black uppercase tracking-widest">${dueTxt}</span>
+                    </div>
+                    <h2 class="text-2xl font-black text-gray-800">${f.formName}</h2>
+                </div>
+                ${btn}
+            </div>`;
+    }).join('');
+}
 function renderDeskDashboard() {
     const dailyContainer = document.getElementById('grid-daily');
     const programContainer = document.getElementById('grid-program');
@@ -1726,6 +1768,7 @@ async function init() {
 
 
             handleMilestones(cachedData.stats.careerTotal);
+            renderForms();
             updateLeaderboard('career');
             renderFamilyUI();
             updateClock();
