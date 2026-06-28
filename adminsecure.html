@@ -436,7 +436,13 @@ function initPinGate() {
     loadApp();
     return;
   }
+  
+  // 1. Reveal the PIN overlay
   document.getElementById('pin-overlay').classList.remove('hidden');
+  
+  // FIX: 2. Stop the loading timer and hide the loading overlay so the user can see the PIN pad
+  clearInterval(loadBarTimer);
+  document.getElementById('load-overlay').style.display = 'none';
 
   // Allow keyboard input too
   document.addEventListener('keydown', (e) => {
