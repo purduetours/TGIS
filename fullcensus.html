@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TGIS | Fall Census</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: { extend: { fontFamily: { sans: ['Inter','sans-serif'] }, colors: { 'primary-gold': '#CFB991' } } }
+}
+</script>
+<style>
+body { font-family:'Inter',sans-serif; background:#F9FAFB; color:#111827; }
+
+/* progress bar */
+.progress-step { display:flex; flex-direction:column; align-items:center; gap:4px; flex:1; }
+.step-circle { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:900; border:2px solid #E5E7EB; background:white; color:#9CA3AF; transition:all 0.3s; }
+.step-circle.active { border-color:#CFB991; background:#CFB991; color:white; }
+.step-circle.done { border-color:#10B981; background:#10B981; color:white; }
+.step-label { font-size:9px; font-weight:900; text-transform:uppercase; letter-spacing:0.08em; color:#9CA3AF; text-align:center; }
+.step-label.active { color:#CFB991; }
+.step-label.done { color:#10B981; }
+.step-connector { flex:1; height:2px; background:#E5E7EB; margin-top:-18px; transition:background 0.3s; }
+.step-connector.done { background:#10B981; }
+
+/* inputs */
+.input-box { width:100%; border:1px solid #E5E7EB; border-radius:1rem; padding:0.75rem 1rem; font-weight:600; font-size:14px; outline:none; transition:all 0.2s; background:white; }
+.input-box:focus { border-color:#CFB991; box-shadow:0 0 0 4px rgba(207,185,145,0.1); }
+.label-style { font-size:10px; font-weight:800; color:#9CA3AF; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.5rem; display:block; margin-left:0.5rem; }
+
+/* yn buttons */
+.yn-btn { flex:1; padding:0.75rem 1rem; border-radius:0.875rem; font-weight:800; font-size:11px; text-transform:uppercase; letter-spacing:0.08em; text-align:center; cursor:pointer; border:1.5px solid #E5E7EB; background:white; color:#9CA3AF; transition:all 0.15s ease; }
+.yn-btn.active-yes { background:#D1FAE5; border-color:#10B981; color:#065F46; }
+.yn-btn.active-no  { background:#FEE2E2; border-color:#EF4444; color:#991B1B; }
+
+/* choice cards */
+.choice-card { display:flex; align-items:center; gap:0.75rem; padding:0.875rem 1rem; border:1.5px solid #E5E7EB; border-radius:1rem; cursor:pointer; transition:all 0.15s ease; background:white; font-weight:700; font-size:13px; user-select:none; }
+.choice-card:hover { border-color:#CFB991; background:rgba(207,185,145,0.04); }
+.choice-card.selected { border-color:#CFB991; background:rgba(207,185,145,0.08); }
+.choice-card input { accent-color:#CFB991; width:1rem; height:1rem; flex-shrink:0; }
+
+/* info row */
+.info-row { display:flex; align-items:flex-start; gap:12px; padding:0.75rem 0; border-bottom:1px solid #F3F4F6; }
+.info-label { font-size:10px; font-weight:900; text-transform:uppercase; letter-spacing:0.07em; color:#9CA3AF; width:120px; flex-shrink:0; padding-top:2px; }
+.info-value { font-size:14px; font-weight:700; color:#111827; flex:1; }
+.info-value.empty { color:#D1D5DB; font-style:italic; }
+
+/* section */
+.section { display:none; animation:fadeUp 0.3s ease; }
+.section.active { display:block; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+/* nav buttons */
+.btn-gold { background:#CFB991; color:#0f0c04; font-weight:900; font-size:11px; text-transform:uppercase; letter-spacing:0.12em; border:none; cursor:pointer; border-radius:0.875rem; padding:0.875rem 1.5rem; transition:background 0.2s; }
+.btn-gold:hover { background:#b39a6d; }
+.btn-gold:disabled { opacity:0.4; cursor:not-allowed; }
+.btn-back { background:white; color:#6B7280; font-weight:800; font-size:11px; text-transform:uppercase; letter-spacing:0.1em; border:1.5px solid #E5E7EB; cursor:pointer; border-radius:0.875rem; padding:0.875rem 1.25rem; transition:all 0.2s; }
+.btn-back:hover { background:#F9FAFB; }
+
+/* multi-select chip grid */
+.chip-grid { display:flex; flex-wrap:wrap; gap:8px; }
+.chip { display:inline-flex; align-items:center; gap:6px; padding:0.5rem 0.875rem; border:1.5px solid #E5E7EB; border-radius:99px; font-size:12px; font-weight:700; cursor:pointer; user-select:none; background:white; color:#374151; transition:all 0.15s; }
+.chip:hover { border-color:#CFB991; }
+.chip.selected { border-color:#CFB991; background:rgba(207,185,145,0.1); color:#92400E; }
+.chip input { display:none; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- LOADING -->
+<div id="status-overlay" class="fixed inset-0 bg-white z-50 flex items-center justify-center flex-col">
+  <div class="w-8 h-8 border-4 border-gray-100 border-t-primary-gold rounded-full animate-spin mb-4"></div>
+  <p id="status-message" class="text-[10px] font-black uppercase tracking-widest text-gray-400">Loading Profile</p>
+</div>
+
+<main class="p-4 sm:p-8 pb-20">
+<div class="mx-auto max-w-2xl">
+
+  <!-- HEADER -->
+  <div class="mb-8">
+    <p class="text-[10px] font-black text-primary-gold uppercase tracking-[0.2em] mb-1">Purdue University</p>
+    <h1 class="text-3xl font-black tracking-tight">Fall 2026 Census</h1>
+    <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Complete all sections — your responses help us plan the semester</p>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="flex items-center mb-10 px-2">
+    <div class="progress-step">
+      <div class="step-circle active" id="step-circle-1">1</div>
+      <div class="step-label active" id="step-label-1">Info</div>
+    </div>
+    <div class="step-connector" id="conn-1"></div>
+    <div class="progress-step">
+      <div class="step-circle" id="step-circle-2">2</div>
+      <div class="step-label" id="step-label-2">Tours</div>
+    </div>
+    <div class="step-connector" id="conn-2"></div>
+    <div class="progress-step">
+      <div class="step-circle" id="step-circle-3">3</div>
+      <div class="step-label" id="step-label-3">Training</div>
+    </div>
+    <div class="step-connector" id="conn-3"></div>
+    <div class="progress-step">
+      <div class="step-circle" id="step-circle-4">4</div>
+      <div class="step-label" id="step-label-4">Desk</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SECTION 1: PERSONAL INFO
+  ══════════════════════════════════════════════ -->
+  <div id="section-1" class="section active space-y-6">
+
+    <div class="bg-white rounded-3xl shadow-xl border border-gray-100 p-6">
+      <h2 class="text-lg font-black mb-1">Personal Information</h2>
+      <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-5">Please review your information on file</p>
+      <div id="profile-display"></div>
+    </div>
+
+    <div class="bg-white rounded-3xl shadow-xl border border-gray-100 p-6">
+      <span class="label-style">Is all of this information correct?</span>
+      <div class="flex gap-3 mt-2">
+        <button type="button" id="info-yes" class="yn-btn" onclick="setInfoCorrect(true)">✓ &nbsp;Yes, looks good</button>
+        <button type="button" id="info-no"  class="yn-btn" onclick="setInfoCorrect(false)">✕ &nbsp;No, I need to update</button>
+      </div>
+    </div>
+
+    <!-- UPDATE FORM (hidden by default) -->
+    <div id="update-form" class="hidden bg-white rounded-3xl shadow-xl border border-gray-100 p-6 space-y-5">
+      <h3 class="font-black text-base mb-1">Update Your Information</h3>
+      <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Only fill in fields you want to change</p>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div><label class="label-style">Preferred Name</label><input type="text" id="upd-preferred" class="input-box" placeholder="Preferred / display name"></div>
+        <div><label class="label-style">Birthday</label><input type="date" id="upd-birthday" class="input-box"></div>
+        <div><label class="label-style">Hometown</label><input type="text" id="upd-hometown" class="input-box" placeholder="City, State"></div>
+        <div><label class="label-style">Expected Graduation</label>
+          <select id="upd-graddate" class="input-box"><option value="">— No change —</option></select>
+        </div>
+        <div><label class="label-style">Classification (Fall 2026)</label>
+          <select id="upd-year" class="input-box">
+            <option value="">— No change —</option>
+            <option>Freshman</option><option>Sophomore</option><option>Junior</option>
+            <option>Senior</option><option>5th Year/Grad Student</option>
+          </select>
+        </div>
+        <div><label class="label-style">Major(s)</label><input type="text" id="upd-major" class="input-box" placeholder="Separate with commas"></div>
+      </div>
+      <div>
+        <label class="label-style">Academic College(s)</label>
+        <select id="upd-college" multiple class="input-box h-36">
+          <option>Agriculture</option><option>Education</option><option>Engineering</option>
+          <option>Health and Human Sciences</option><option>Liberal Arts</option>
+          <option>Daniels School of Business</option><option>John Martinson Honors College</option>
+          <option>Pharmacy</option><option>Polytechnic</option><option>Science</option>
+          <option>Veterinary Medicine</option><option>Exploratory Studies</option>
+        </select>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div><label class="label-style">Minor(s) (Optional)</label><input type="text" id="upd-minor" class="input-box" placeholder="Separate with commas"></div>
+        <div><label class="label-style">Certificate(s) (Optional)</label><input type="text" id="upd-cert" class="input-box" placeholder="Separate with commas"></div>
+      </div>
+    </div>
+
+    <div class="flex justify-end">
+      <button class="btn-gold" id="s1-next" onclick="nextSection(1)" disabled>Next: Tours →</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SECTION 2: TOURS
+  ══════════════════════════════════════════════ -->
+  <div id="section-2" class="section space-y-6">
+
+    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4">
+      <p class="text-xs font-bold text-amber-800 uppercase tracking-wide">Tour preferences are <span class="underline">not guaranteed</span></p>
+    </div>
+
+    <!-- Q1: giving tours -->
+    <div class="bg-white rounded-3xl shadow-xl border border-gray-100 p-6">
+      <span class="label-style">Will you be giving tours this semester?</span>
+      <div class="flex gap-3 mt-2">
+        <button type="button" id="tours-yes" class="yn-btn" onclick="setYN('tours','Yes')">✓ &nbsp;Yes</button>
+        <button type="button" id="tours-no"  class="yn-btn" onclick="setYN('tours','No')">✕ &nbsp;No</button>
+      </div>
+      <input type="hidden" id="givingTours-value">
+    </div>
+
+    <!-- If NO: reason + affirmation -->
+    <div id="no-tours-section" class="hidden space-y-4">
+      <div class="bg-white rounded-3xl shadow-xl border border-gray-100 p-6">
+        <label class="label-style">Reason for not giving tours</label>
+        <textarea id="noTourReason" rows="3" class="input-box mt-1" placeholder="Please explain…"></textarea>
+      </div>
+      <div class="bg-red-50 border border-red-200 rounded-2xl p-5">
+        <label class="flex items-start gap-3 cursor-pointer">
+          <input type="checkbox" id="affirm-notours" class="mt-1 accent-red-500 w-4 h-4 flex-shrink-0">
+          <span class="text-sm font-bold text-red-800">I understand that I must speak with Nancy, Amanda, and Todd about not giving tours this semester before submitting this form.</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- If YES: tours per week -->
+    <div id="yes-tours-section" class="hidden space-y-4">
+      <div class="bg-white rounded-3xl shadow-xl border border-gray-100 p-6">
+        <span class="label-style">How many tours per week do you prefer to give?</span>
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">This is not guaranteed — select your preference</p>
+        <div class="flex gap-3">
+          <button type="button" id="tpw-1" class="yn-btn" onclick="setToursPerWeek(1)">1 Tour / Week</button>
+          <button type="button" id="tpw-2" class="yn-btn" onclick="setToursPerWeek(2)">2 Tours / Week</button>
+        </div>
+        <input type="hidden" id="toursPerWeek-value">
+      </div>
+    </div>
+
+    <div class="flex justify-between">
+      <button class="btn-back" onclick="prevSection(2)">← Back</button>
+      <button class="btn-gold" id="s2-next" onclick="nextSection(2)" disabled>Next: Training →</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SECTION 3: TRAINING
+  ══════════════════════════════════════════════ -->
+  <div id="section-3" class="section space-y-6">
+
+    <!-- Q1: available days -->
+    <div class="bg-white rounded-3xl shadow-xl border border-gray-100 p-6">
+      <span class="label-style">Which days are you available for bi-weekly evening training?</span>
+      <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Select all that apply</p>
+      <div class="chip-grid">
+        <label class="chip" id="chip-avail-mon"><input type="checkbox" name="availDays" value="Monday" onchange="toggleChip(this)"> Monday</label>
+        <label class="chip" id="chip-avail-tue"><input type="checkbox" name="availDays" value="Tuesday" onchange="toggleChip(this)"> Tuesday</label>
+        <label class="chip" id="chip-avail-wed"><input type="checkbox" name="availDays" value="Wednesday" onchange="toggleChip(this)"> Wednesday</label>
+        <label class="chip" id="chip-avail-thu"><input type="checkbox" name="availDays" value="Thursday" onchange="toggleChip(this)"> Thursday</label>
+      </div>
+    </div>
+
+    <!-- Q2: preferred days -->
+    <div class="bg-white rounded-3xl shadow-xl border border-gray-100 p-6">
+      <span class="label-style">Which days do you prefer for bi-weekly evening training?</span>
+      <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Select all that apply</p>
+      <div class="chip-grid">
+        <label class="chip" id="chip-pref-mon"><input type="checkbox" name="prefDays" value="Monday" onchange="toggleChip(this)"> Monday</label>
+        <label class="chip" id="chip-pref-tue"><input type="checkbox" name="prefDays" value="Tuesday" onchange="toggleChip(this)"> Tuesday</label>
+        <label class="chip" id="chip-pref-wed"><input type="checkbox" name="prefDays" value="Wednesday" onchange="toggleChip(this)"> Wednesday</label>
+        <label class="chip" id="chip-pref-thu"><input type="checkbox" name="prefDays" value="Thursday" onchange="toggleChip(this)"> Thursday</label>
+      </div>
+    </div>
+
+    <!-- Q3: available times -->
+    <div class="bg-white rounded-3xl shadow-xl border border-gray-100 p-6">
+      <span class="label-style">What times are you available for training to start?</span>
+      <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Select all that apply</p>
+      <div class="chip-grid">
+        <label class="chip"><input type="checkbox" name="trainTimes" value="5:00 PM" onchange="toggleChip(this)"> 5:00 PM</label>
+        <label class="chip"><input type="checkbox" name="trainTimes" value="5:30 PM" onchange="toggleChip(this)"> 5:30 PM</label>
+        <label class="chip"><input type="checkbox" name="trainTimes" value="6:00 PM" onchange="toggleChip(this)"> 6:00 PM</label>
+        <label class="chip"><input type="checkbox" name="trainTimes" value="6:30 PM" onchange="toggleChip(this)"> 6:30 PM</label>
+        <label class="chip"><input type="checkbox" name="trainTimes" value="7:00 PM" onchange="toggleChip(this)"> 7:00 PM</label>
+        <label class="chip"><input type="checkbox" name="trainTimes" value="7:30 PM" onchange="toggleChip(this)"> 7:30 PM</label>
+      </div>
+    </div>
+
+    <!-- Q4: dietary -->
+    <div class="bg-white rounded-3xl shadow-xl border border-gray-100 p-6">
+      <label class="label-style">Do you have any dietary restrictions?</label>
+      <input type="text" id="dietary" class="input-box mt-1" placeholder="e.g. Vegetarian, Gluten-free, Nut allergy… or leave blank if none">
+    </div>
+
+    <div class="flex justify-between">
+      <button class="btn-back" onclick="prevSection(3)">← Back</button>
+      <button class="btn-gold" id="s3-next" onclick="nextSection(3)">Next: Desk →</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SECTION 4: DESK
+  ══════════════════════════════════════════════ -->
+  <div id="section-4" class="section space-y-6">
+
+    <!-- EXISTING DESK STAFF (role = Welcome Desk / Front Desk / Codirector / Manager / Admissions Rep) -->
+    <div id="desk-existing" class="hidden space-y-4">
+      <div class="bg-green-50 border border-green-200 rounded-2xl p-4">
+        <p class="text-xs font-bold text-green-800 uppercase tracking-wide">✓ You are already scheduled to work desk this semester</p>
+      </div>
+      <div class="bg-white rounded-3xl shadow-xl border border-gray-100 p-6">
+        <span class="label-style">How many desk hours would you like per week? (5–10)</span>
+        <div id="desk-existing-options"></div>
+      </div>
+    </div>
+
+    <!-- NON-DESK STAFF -->
+    <div id="desk-new" class="hidden space-y-4">
+      <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4">
+        <p class="text-xs font-bold text-amber-800 uppercase tracking-wide">Desk interest is <span class="underline">not guaranteed</span> for guides not currently assigned to desk</p>
+      </div>
+      <div class="bg-white rounded-3xl shadow-xl border border-gray-100 p-6">
+        <span class="label-style">Are you interested in working desk this semester?</span>
+        <div class="flex gap-3 mt-2">
+          <button type="button" id="desk-int-yes" class="yn-btn" onclick="setDeskInterest(true)">✓ &nbsp;Yes</button>
+          <button type="button" id="desk-int-no"  class="yn-btn" onclick="setDeskInterest(false)">✕ &nbsp;No</button>
+        </div>
+      </div>
+
+      <div id="desk-details" class="hidden space-y-4">
+        <div class="bg-white rounded-3xl shadow-xl border border-gray-100 p-6">
+          <span class="label-style">Which desk would you prefer?</span>
+          <div class="space-y-2 mt-2">
+            <label class="choice-card" onclick="toggleChoiceCard(this, 'deskWhere')">
+              <input type="radio" name="deskWhere" value="Front Desk" onchange="updateRadio('deskWhere')"> Front Desk
+            </label>
+            <label class="choice-card" onclick="toggleChoiceCard(this, 'deskWhere')">
+              <input type="radio" name="deskWhere" value="Welcome Desk" onchange="updateRadio('deskWhere')"> Welcome Desk
+            </label>
+            <label class="choice-card" onclick="toggleChoiceCard(this, 'deskWhere')">
+              <input type="radio" name="deskWhere" value="Either" onchange="updateRadio('deskWhere')"> No preference — either desk
+            </label>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-xl border border-gray-100 p-6">
+          <span class="label-style">How many desk hours would you like per week? (5–10)</span>
+          <div class="flex items-center gap-4 mt-2">
+            <input type="number" id="desk-hours-new" min="5" max="10" placeholder="5 – 10" class="input-box w-32">
+            <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">hours/week</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AFFIRMATION -->
+    <div class="bg-white rounded-3xl shadow-xl border border-gray-100 p-6">
+      <h3 class="font-black text-base mb-3">Semester Commitment</h3>
+      <label class="flex items-start gap-3 cursor-pointer">
+        <input type="checkbox" id="affirm-commitment" class="mt-1 accent-primary-gold w-4 h-4 flex-shrink-0">
+        <span class="text-sm font-bold text-gray-700 leading-relaxed">
+          I agree to give <strong>1–2 tours per week</strong>, participate in <strong>3–4 Saturday or Program Days per semester</strong>, and <strong>attend bi-weekly training sessions</strong> as scheduled.
+        </span>
+      </label>
+    </div>
+
+    <div class="flex justify-between pb-8">
+      <button class="btn-back" onclick="prevSection(4)">← Back</button>
+      <button class="btn-gold" id="submit-btn" onclick="submitForm()">Submit Census</button>
+    </div>
+
+  </div>
+
+</div>
+</main>
+
+<script>
+// ─── CONFIG ──────────────────────────────────────────────────────────────────
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwBxFm2SSGOz29wsp7um4zLZQGZO7nv2oNlSXcuOLrDcd274H2IriHsKrtoV1DsEjli/exec';
+const params   = new URLSearchParams(window.location.search);
+const username = params.get('user');
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let profileData    = null;
+let infoCorrect    = null;
+let givingTours    = null;
+let toursPerWeek   = null;
+let deskInterested = null;
+let userRole       = '';
+
+const DESK_ROLES = ['Welcome Desk', 'Front Desk', 'Codirector', 'Manager', 'Admissions Rep'];
+const DUAL_DESK_ROLES = ['Codirector', 'Manager', 'Admissions Rep'];
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+window.onload = async () => {
+  if (!username) { setStatus('ERROR: NO USER FOUND'); return; }
+
+  try {
+    const resp = await fetch(`${SCRIPT_URL}?action=getProfile&username=${encodeURIComponent(username)}`);
+    const data = await resp.json();
+
+    if (!data || !data.fullName) { setStatus('USER NOT FOUND'); return; }
+
+    profileData = data;
+    userRole    = (data.role || '').trim();
+
+    renderProfileDisplay(data);
+    buildGradOptions();
+    buildDeskSection();
+
+    document.getElementById('status-overlay').classList.add('hidden');
+
+  } catch(e) {
+    console.error(e);
+    setStatus('CONNECTION ERROR');
+  }
+};
+
+function setStatus(msg) { document.getElementById('status-message').innerText = msg; }
+
+// ─── PROFILE DISPLAY ─────────────────────────────────────────────────────────
+function renderProfileDisplay(d) {
+  const fields = [
+    { label: 'Full Name',     val: d.fullName },
+    { label: 'Preferred Name',val: d.preferredName },
+    { label: 'Role',          val: d.role },
+    { label: 'PUID',          val: d.puid },
+    { label: 'Email',         val: d.email },
+    { label: 'Birthday',      val: d.birthday },
+    { label: 'Hometown',      val: d.hometown },
+    { label: 'Graduation',    val: d.gradDate },
+    { label: 'Year',          val: d.year },
+    { label: 'Major',         val: d.major },
+    { label: 'College',       val: d.college },
+    { label: 'Minor',         val: d.minor },
+    { label: 'Certificate',   val: d.certificate },
+  ];
+
+  document.getElementById('profile-display').innerHTML = fields.map(f => {
+    const display = (f.val && String(f.val).trim()) ? String(f.val).trim() : 'None';
+    const isEmpty = display === 'None';
+    return `
+      <div class="info-row">
+        <span class="info-label">${f.label}</span>
+        <span class="info-value ${isEmpty ? 'empty' : ''}">${display}</span>
+      </div>`;
+  }).join('');
+}
+
+function buildGradOptions() {
+  const sel = document.getElementById('upd-graddate');
+  for (let y = 2024; y <= 2031; y++) {
+    ['Spring','Summer','Winter'].forEach(t => {
+      sel.add(new Option(`${t} ${y}`, `${t} ${y}`));
+    });
+  }
+}
+
+function buildDeskSection() {
+  const isExisting = DESK_ROLES.includes(userRole);
+  const isDual     = DUAL_DESK_ROLES.includes(userRole);
+
+  if (isExisting) {
+    document.getElementById('desk-existing').classList.remove('hidden');
+    const container = document.getElementById('desk-existing-options');
+
+    if (isDual) {
+      // Codirector / Manager / Admissions Rep can choose which desk + hours
+      container.innerHTML = `
+        <div class="space-y-4 mt-3">
+          <div>
+            <label class="label-style">Which desk(s)?</label>
+            <div class="space-y-2 mt-1">
+              <label class="choice-card" onclick="toggleChoiceCard(this,'deskWhereExisting')">
+                <input type="radio" name="deskWhereExisting" value="Front Desk" onchange="updateRadio('deskWhereExisting')"> Front Desk
+              </label>
+              <label class="choice-card" onclick="toggleChoiceCard(this,'deskWhereExisting')">
+                <input type="radio" name="deskWhereExisting" value="Welcome Desk" onchange="updateRadio('deskWhereExisting')"> Welcome Desk
+              </label>
+              <label class="choice-card" onclick="toggleChoiceCard(this,'deskWhereExisting')">
+                <input type="radio" name="deskWhereExisting" value="Both" onchange="updateRadio('deskWhereExisting')"> Both desks
+              </label>
+            </div>
+          </div>
+          <div>
+            <label class="label-style">Hours per week (5–10)</label>
+            <div class="flex items-center gap-4 mt-1">
+              <input type="number" id="desk-hours-existing" min="5" max="10" placeholder="5 – 10" class="input-box w-32">
+              <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">hours/week</span>
+            </div>
+          </div>
+        </div>`;
+    } else {
+      // Welcome Desk / Front Desk — already assigned, just hours
+      container.innerHTML = `
+        <div class="flex items-center gap-4 mt-3">
+          <input type="number" id="desk-hours-existing" min="5" max="10" placeholder="5 – 10" class="input-box w-32">
+          <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">hours/week</span>
+        </div>`;
+    }
+  } else {
+    document.getElementById('desk-new').classList.remove('hidden');
+  }
+}
+
+// ─── SECTION NAVIGATION ───────────────────────────────────────────────────────
+let currentSection = 1;
+const TOTAL = 4;
+
+function goToSection(n) {
+  document.getElementById(`section-${currentSection}`).classList.remove('active');
+  document.getElementById(`section-${n}`).classList.add('active');
+
+  // Update progress indicators
+  for (let i = 1; i <= TOTAL; i++) {
+    const circle = document.getElementById(`step-circle-${i}`);
+    const label  = document.getElementById(`step-label-${i}`);
+    if (i < n)       { circle.className = 'step-circle done'; label.className = 'step-label done'; }
+    else if (i === n){ circle.className = 'step-circle active'; label.className = 'step-label active'; }
+    else             { circle.className = 'step-circle'; label.className = 'step-label'; }
+    if (i < TOTAL) {
+      document.getElementById(`conn-${i}`).className = `step-connector${i < n ? ' done' : ''}`;
+    }
+  }
+  currentSection = n;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function nextSection(from) {
+  if (!validateSection(from)) return;
+  goToSection(from + 1);
+}
+function prevSection(from) { goToSection(from - 1); }
+
+function validateSection(n) {
+  if (n === 1) {
+    if (infoCorrect === null) { alert('Please confirm whether your information is correct.'); return false; }
+    return true;
+  }
+  if (n === 2) {
+    if (givingTours === null) { alert('Please answer whether you will be giving tours.'); return false; }
+    if (givingTours === 'No') {
+      if (!document.getElementById('noTourReason').value.trim()) { alert('Please provide a reason for not giving tours.'); return false; }
+      if (!document.getElementById('affirm-notours').checked)    { alert('Please confirm you will speak with Nancy, Amanda, and Todd.'); return false; }
+    }
+    if (givingTours === 'Yes' && !toursPerWeek) { alert('Please select your tours-per-week preference.'); return false; }
+    return true;
+  }
+  return true;
+}
+
+// ─── INFO CORRECT ─────────────────────────────────────────────────────────────
+function setInfoCorrect(correct) {
+  infoCorrect = correct;
+  document.getElementById('info-yes').className = 'yn-btn' + (correct ? ' active-yes' : '');
+  document.getElementById('info-no').className  = 'yn-btn' + (!correct ? ' active-no' : '');
+  document.getElementById('update-form').classList.toggle('hidden', correct);
+  document.getElementById('s1-next').disabled = false;
+}
+
+// ─── YN HELPER ───────────────────────────────────────────────────────────────
+function setYN(field, value) {
+  document.getElementById(`${field}-yes`).className = 'yn-btn' + (value === 'Yes' ? ' active-yes' : '');
+  document.getElementById(`${field}-no`).className  = 'yn-btn' + (value === 'No'  ? ' active-no'  : '');
+
+  if (field === 'tours') {
+    givingTours = value;
+    const hidVal = document.getElementById('givingTours-value');
+    hidVal.value = value;
+    document.getElementById('no-tours-section').classList.toggle('hidden', value !== 'No');
+    document.getElementById('yes-tours-section').classList.toggle('hidden', value !== 'Yes');
+    document.getElementById('s2-next').disabled = false;
+  }
+}
+
+function setToursPerWeek(n) {
+  toursPerWeek = n;
+  document.getElementById('toursPerWeek-value').value = n;
+  document.getElementById('tpw-1').className = 'yn-btn' + (n === 1 ? ' active-yes' : '');
+  document.getElementById('tpw-2').className = 'yn-btn' + (n === 2 ? ' active-yes' : '');
+}
+
+// ─── DESK INTEREST ────────────────────────────────────────────────────────────
+function setDeskInterest(val) {
+  deskInterested = val;
+  document.getElementById('desk-int-yes').className = 'yn-btn' + (val ? ' active-yes' : '');
+  document.getElementById('desk-int-no').className  = 'yn-btn' + (!val ? ' active-no' : '');
+  document.getElementById('desk-details').classList.toggle('hidden', !val);
+}
+
+// ─── CHIP TOGGLE ─────────────────────────────────────────────────────────────
+function toggleChip(input) {
+  input.closest('label').classList.toggle('selected', input.checked);
+}
+
+// ─── RADIO CARD ───────────────────────────────────────────────────────────────
+function toggleChoiceCard(label, groupName) {
+  document.querySelectorAll(`input[name="${groupName}"]`).forEach(r => {
+    r.closest('.choice-card').classList.toggle('selected', r.checked);
+  });
+}
+function updateRadio(groupName) { toggleChoiceCard(null, groupName); }
+
+// ─── SUBMIT ──────────────────────────────────────────────────────────────────
+async function submitForm() {
+  if (!document.getElementById('affirm-commitment').checked) {
+    alert('Please confirm your semester commitment before submitting.');
+    return;
+  }
+
+  const btn = document.getElementById('submit-btn');
+  btn.innerText = 'SUBMITTING…';
+  btn.disabled  = true;
+
+  // Collect multi-select values
+  const getChecked = name => Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map(i => i.value).join(', ');
+
+  // Desk logic
+  const isExisting = DESK_ROLES.includes(userRole);
+  const isDual     = DUAL_DESK_ROLES.includes(userRole);
+  let deskWhere = '';
+  let deskHours = '';
+
+  if (isExisting) {
+    deskHours = document.getElementById('desk-hours-existing')?.value || '';
+    deskWhere = isDual
+      ? (document.querySelector('input[name="deskWhereExisting"]:checked')?.value || userRole)
+      : userRole; // already assigned, use their role as the desk type
+  } else if (deskInterested) {
+    deskWhere = document.querySelector('input[name="deskWhere"]:checked')?.value || '';
+    deskHours = document.getElementById('desk-hours-new')?.value || '';
+  }
+
+  // Profile updates (only if info was incorrect)
+  const updCollege = infoCorrect ? '' : Array.from(document.getElementById('upd-college').selectedOptions).map(o=>o.value).join(', ');
+
+  const payload = {
+    action:            'fullcensus',
+    username,
+
+    // Section 1 profile updates (blank = no change)
+    preferredName:     infoCorrect ? '' : document.getElementById('upd-preferred').value.trim(),
+    birthday:          infoCorrect ? '' : document.getElementById('upd-birthday').value,
+    hometown:          infoCorrect ? '' : document.getElementById('upd-hometown').value.trim(),
+    gradDate:          infoCorrect ? '' : document.getElementById('upd-graddate').value,
+    year:              infoCorrect ? '' : document.getElementById('upd-year').value,
+    major:             infoCorrect ? '' : document.getElementById('upd-major').value.trim(),
+    college:           updCollege,
+    minor:             infoCorrect ? '' : document.getElementById('upd-minor').value.trim(),
+    certificate:       infoCorrect ? '' : document.getElementById('upd-cert').value.trim(),
+
+    // Section 2
+    givingTours:       givingTours,
+    noTourReason:      givingTours === 'No' ? document.getElementById('noTourReason').value.trim() : '',
+    toursPerWeek:      givingTours === 'Yes' ? toursPerWeek : '',
+
+    // Section 3
+    trainingDaysAvail: getChecked('availDays'),
+    trainingDaysPref:  getChecked('prefDays'),
+    trainingTimes:     getChecked('trainTimes'),
+    dietary:           document.getElementById('dietary').value.trim(),
+
+    // Section 4
+    deskWhere,
+    deskHours,
+  };
+
+  try {
+    await fetch(SCRIPT_URL, { method:'POST', mode:'no-cors', body: JSON.stringify(payload) });
+  } catch(err) {
+    console.warn('Fetch note:', err);
+  }
+
+  btn.innerText = 'REDIRECTING TO TGIS…';
+  setTimeout(() => {
+    window.location.href = `https://purduetours.github.io/TGIS/app.html?user=${username}`;
+  }, 1500);
+}
+</script>
+</body>
+</html>
