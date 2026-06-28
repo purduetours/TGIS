@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TGIS | Admin</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: { sans: ['Inter','sans-serif'] },
+      colors: { 'gold': '#CFB991' }
+    }
+  }
+}
+</script>
+<style>
+/* ── Theme tokens ── */
+:root {
+  --bg:       #F9FAFB;
+  --surface:  #FFFFFF;
+  --border:   #E5E7EB;
+  --text:     #111827;
+  --subtext:  #6B7280;
+  --gold:     #CFB991;
+  --gold-dim: rgba(207,185,145,0.15);
+  --row-hover:#F9FAFB;
+  --input-bg: #FFFFFF;
+  --overlay:  rgba(0,0,0,0.45);
+}
+.dark {
+  --bg:       #0f0c04;
+  --surface:  rgba(255,255,255,0.04);
+  --border:   rgba(255,255,255,0.09);
+  --text:     #F9FAFB;
+  --subtext:  rgba(255,255,255,0.4);
+  --gold:     #CFB991;
+  --gold-dim: rgba(207,185,145,0.12);
+  --row-hover:rgba(255,255,255,0.03);
+  --input-bg: rgba(255,255,255,0.07);
+  --overlay:  rgba(0,0,0,0.7);
+}
+
+* { box-sizing: border-box; }
+body { font-family: 'Inter',sans-serif; background: var(--bg); color: var(--text); transition: background 0.3s, color 0.3s; margin:0; }
+
+/* cards */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 1.5rem; }
+
+/* inputs */
+.inp {
+  background: var(--input-bg); border: 1px solid var(--border);
+  border-radius: 0.75rem; padding: 0.6rem 0.875rem;
+  font-weight: 700; font-size: 13px; color: var(--text);
+  outline: none; transition: border-color 0.2s, box-shadow 0.2s; width: 100%;
+}
+.inp:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(207,185,145,0.18); }
+.inp option { background: #1a1710; color: #fff; }
+
+/* labels */
+.lbl { font-size: 10px; font-weight: 900; color: var(--subtext); text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 0.35rem; }
+
+/* buttons */
+.btn-gold { background: var(--gold); color: #0f0c04; font-weight: 900; font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; border: none; cursor: pointer; border-radius: 0.75rem; padding: 0.75rem 1.25rem; transition: background 0.2s; }
+.btn-gold:hover { background: #b39a6d; }
+.btn-gold:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-sm { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; border: none; cursor: pointer; border-radius: 0.5rem; padding: 0.35rem 0.75rem; transition: all 0.15s; }
+.btn-ghost { background: transparent; color: var(--subtext); border: 1px solid var(--border); border-radius: 0.75rem; font-size: 11px; font-weight: 800; padding: 0.65rem 1rem; cursor: pointer; transition: all 0.2s; }
+.btn-ghost:hover { background: var(--gold-dim); color: var(--gold); border-color: var(--gold); }
+
+/* tabs */
+.tab { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.12em; padding: 0.55rem 1.1rem; border-radius: 0.625rem; cursor: pointer; color: var(--subtext); transition: all 0.18s; background: transparent; border: none; }
+.tab.active { background: var(--gold); color: #0f0c04; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; animation: fadeUp 0.25s ease; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+
+/* pills */
+.pill { display:inline-flex; align-items:center; font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; padding: 2px 7px; border-radius: 99px; }
+.pill-green  { background:rgba(16,185,129,0.12); color:#10B981; }
+.pill-gold   { background:rgba(207,185,145,0.15); color:#CFB991; }
+.pill-purple { background:rgba(139,92,246,0.13); color:#8B5CF6; }
+.pill-blue   { background:rgba(59,130,246,0.12); color:#3B82F6; }
+.pill-red    { background:rgba(239,68,68,0.12); color:#EF4444; }
+.pill-gray   { background:rgba(107,114,128,0.12); color:#6B7280; }
+
+/* ── GRID TABLE ── */
+#tracker-grid-wrap { overflow-x: auto; }
+#tracker-grid {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  font-size: 13px;
+}
+#tracker-grid th {
+  background: var(--surface);
+  color: var(--subtext);
+  font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em;
+  padding: 0.625rem 0.875rem;
+  border-bottom: 2px solid var(--border);
+  white-space: nowrap;
+  position: sticky; top: 0; z-index: 2;
+}
+#tracker-grid th.col-name { position: sticky; left: 0; z-index: 3; }
+#tracker-grid td {
+  padding: 0 0.5rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  transition: background 0.12s;
+  white-space: nowrap;
+}
+#tracker-grid tr:hover td { background: var(--row-hover); }
+#tracker-grid td.col-name {
+  position: sticky; left: 0; z-index: 1;
+  font-weight: 800; font-size: 13px;
+  padding: 0.625rem 0.875rem;
+  background: var(--surface);
+}
+#tracker-grid tr:hover td.col-name { background: var(--row-hover); }
+
+/* editable cell */
+.cell-edit {
+  width: 60px;
+  text-align: center;
+  font-weight: 900;
+  color: var(--text);
+  background: transparent;
+  border: 1.5px solid transparent;
+  border-radius: 0.5rem;
+  padding: 0.3rem 0.4rem;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+  cursor: pointer;
+}
+.cell-edit:hover  { border-color: var(--border); background: var(--input-bg); }
+.cell-edit:focus  { border-color: var(--gold); background: var(--input-bg); box-shadow: 0 0 0 3px rgba(207,185,145,0.18); cursor: text; }
+.cell-edit.dirty  { border-color: #F59E0B; background: rgba(245,158,11,0.08); }
+.cell-edit.saved  { border-color: #10B981; background: rgba(16,185,129,0.08); animation: savedFlash 1.2s ease forwards; }
+@keyframes savedFlash { 0%,60% { border-color:#10B981; } 100% { border-color:transparent; } }
+
+.cell-readonly { text-align: center; font-weight: 700; color: var(--subtext); font-size: 13px; display: block; padding: 0.4rem 0.5rem; }
+.cell-total { font-weight: 900; color: var(--gold); font-size: 14px; text-align: center; display: block; padding: 0.4rem 0.5rem; }
+
+/* expand row */
+.guide-detail-row { display: none; }
+.guide-detail-row.open { display: table-row; }
+.guide-detail-cell {
+  background: var(--gold-dim) !important;
+  padding: 0.875rem 1rem !important;
+  border-bottom: 2px solid rgba(207,185,145,0.3) !important;
+}
+
+/* pending-save bar */
+#save-bar {
+  position: fixed; bottom: 1.5rem; left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  opacity: 0; pointer-events: none;
+  transition: all 0.4s cubic-bezier(0.22,1,0.36,1);
+  z-index: 100; white-space: nowrap;
+}
+#save-bar.show { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: all; }
+
+/* modal */
+#modal-overlay {
+  position: fixed; inset: 0; background: var(--overlay);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 200; opacity: 0; pointer-events: none;
+  transition: opacity 0.25s;
+}
+#modal-overlay.open { opacity: 1; pointer-events: all; }
+#modal-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 1.5rem; padding: 1.75rem; width: 100%; max-width: 520px;
+  max-height: 80vh; overflow-y: auto;
+  transform: translateY(12px); transition: transform 0.25s;
+  color: var(--text);
+}
+#modal-overlay.open #modal-box { transform: translateY(0); }
+
+/* loading overlay */
+#load-overlay {
+  position: fixed; inset: 0; background: #0f0c04;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  z-index: 999; transition: opacity 0.4s;
+}
+
+/* toast */
+#toast {
+  position: fixed; bottom: 5rem; left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--gold); color: #0f0c04;
+  font-weight: 900; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;
+  padding: 0.65rem 1.4rem; border-radius: 99px;
+  opacity: 0; transition: all 0.35s; pointer-events: none; z-index: 500;
+}
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+#toast.err  { background: #EF4444; color: #fff; }
+
+/* sr row highlight */
+.sr-row { background: rgba(139,92,246,0.07) !important; }
+.sr-row td.col-name { background: rgba(139,92,246,0.07) !important; }
+
+/* dark mode toggle */
+.dm-toggle { width:38px; height:22px; border-radius:99px; background:var(--border); position:relative; cursor:pointer; transition:background 0.2s; border:none; padding:0; }
+.dm-toggle .knob { position:absolute; top:3px; left:3px; width:16px; height:16px; border-radius:50%; background:var(--subtext); transition:all 0.2s; }
+.dark .dm-toggle { background: var(--gold); }
+.dark .dm-toggle .knob { left:19px; background:#0f0c04; }
+
+/* PIN gate styles */
+.pin-dot {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  border: 2px solid rgba(255,255,255,0.2);
+  transition: all 0.15s;
+}
+.pin-dot.filled {
+  background: #CFB991;
+  border-color: #CFB991;
+  transform: scale(1.1);
+}
+.pin-dot.error {
+  background: #EF4444;
+  border-color: #EF4444;
+  animation: pinShake 0.4s ease;
+}
+@keyframes pinShake {
+  0%,100% { transform: translateX(0); }
+  20%      { transform: translateX(-6px); }
+  40%      { transform: translateX(6px); }
+  60%      { transform: translateX(-4px); }
+  80%      { transform: translateX(4px); }
+}
+.pin-key {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: white; font-size: 1.25rem; font-weight: 900;
+  cursor: pointer; transition: all 0.12s;
+  display: flex; align-items: center; justify-content: center;
+}
+.pin-key:hover  { background: rgba(255,255,255,0.13); border-color: rgba(255,255,255,0.25); }
+.pin-key:active { transform: scale(0.92); }
+.pin-key:disabled { opacity: 0.3; cursor: not-allowed; }
+.pin-clear  { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.2); color: #EF4444; }
+.pin-submit { background: rgba(207,185,145,0.15); border-color: rgba(207,185,145,0.35); color: #CFB991; }
+.pin-submit:not(:disabled) { background: #CFB991; border-color: #b39a6d; color: #0f0c04; }
+
+</style>
+</head>
+<body>
+
+<!-- ── LOADING ── -->
+<div id="load-overlay">
+  <p style="font-size:9px;font-weight:900;letter-spacing:0.3em;text-transform:uppercase;color:rgba(207,185,145,0.4);margin-bottom:8px;">Purdue University</p>
+  <h1 style="font-size:2rem;font-weight:900;color:#fff;letter-spacing:-0.02em;">TGIS <span style="color:#CFB991;">Admin</span></h1>
+  <div style="width:220px;height:2px;background:rgba(255,255,255,0.07);border-radius:99px;overflow:hidden;margin-top:1.5rem;">
+    <div id="load-bar" style="height:100%;width:0%;background:#CFB991;border-radius:99px;transition:width 0.5s ease;"></div>
+  </div>
+  <p id="load-status" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:rgba(207,185,145,0.4);margin-top:1rem;">Connecting...</p>
+  <div id="load-err" class="hidden" style="margin-top:1.5rem;text-align:center;max-width:300px;">
+    <p id="load-err-msg" style="color:#EF4444;font-size:12px;font-weight:700;margin-bottom:1rem;"></p>
+    <button class="btn-gold px-6" onclick="location.reload()">Retry</button>
+  </div>
+</div>
+
+<!-- ── PIN GATE ── -->
+<div id="pin-overlay" class="hidden" style="position:fixed;inset:0;background:#0f0c04;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:998;padding:1.5rem;">
+  <p style="font-size:9px;font-weight:900;letter-spacing:0.3em;text-transform:uppercase;color:rgba(207,185,145,0.4);margin-bottom:8px;">Purdue University</p>
+  <h1 style="font-size:2rem;font-weight:900;color:#fff;letter-spacing:-0.02em;margin-bottom:4px;">TGIS <span style="color:#CFB991;">Admin</span></h1>
+  <p style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:0.15em;margin-bottom:2.5rem;">Enter access PIN to continue</p>
+
+  <!-- PIN dots display -->
+  <div id="pin-dots" style="display:flex;gap:12px;margin-bottom:2rem;">
+    <div class="pin-dot"></div>
+    <div class="pin-dot"></div>
+    <div class="pin-dot"></div>
+    <div class="pin-dot"></div>
+    <div class="pin-dot"></div>
+    <div class="pin-dot"></div>
+  </div>
+
+  <!-- Error message -->
+  <p id="pin-error" style="font-size:11px;font-weight:900;color:#EF4444;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:1.5rem;min-height:16px;"></p>
+
+  <!-- Numpad -->
+  <div style="display:grid;grid-template-columns:repeat(3,72px);grid-template-rows:repeat(4,72px);gap:10px;">
+    <button class="pin-key" onclick="pinKey('1')">1</button>
+    <button class="pin-key" onclick="pinKey('2')">2</button>
+    <button class="pin-key" onclick="pinKey('3')">3</button>
+    <button class="pin-key" onclick="pinKey('4')">4</button>
+    <button class="pin-key" onclick="pinKey('5')">5</button>
+    <button class="pin-key" onclick="pinKey('6')">6</button>
+    <button class="pin-key" onclick="pinKey('7')">7</button>
+    <button class="pin-key" onclick="pinKey('8')">8</button>
+    <button class="pin-key" onclick="pinKey('9')">9</button>
+    <button class="pin-key pin-clear" onclick="pinClear()">⌫</button>
+    <button class="pin-key" onclick="pinKey('0')">0</button>
+    <button class="pin-key pin-submit" id="pin-submit-btn" onclick="pinSubmit()" disabled>→</button>
+  </div>
+
+  <p id="pin-attempts" style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.2);margin-top:1.5rem;text-transform:uppercase;letter-spacing:0.1em;"></p>
+</div>
+
+
+<!-- ── APP ── -->
+<div id="app" class="hidden">
+
+  <!-- Header -->
+  <div style="border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:50;">
+    <div style="max-width:1400px;margin:0 auto;padding:0.875rem 1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;">
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <div>
+          <p style="font-size:9px;font-weight:900;letter-spacing:0.25em;text-transform:uppercase;color:var(--gold);margin:0;">Purdue University</p>
+          <h1 style="font-size:1.25rem;font-weight:900;margin:0;line-height:1.2;">TGIS <span style="color:var(--gold);">Admin</span></h1>
+        </div>
+        <div style="height:32px;width:1px;background:var(--border);"></div>
+        <div>
+          <p id="hdr-name" style="font-size:13px;font-weight:800;margin:0;"></p>
+          <p id="hdr-sem"  style="font-size:10px;font-weight:700;color:var(--subtext);text-transform:uppercase;letter-spacing:0.1em;margin:0;"></p>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:0.875rem;">
+        <!-- dark mode toggle -->
+        <button class="dm-toggle" id="dm-btn" onclick="toggleDark()" title="Toggle dark mode">
+          <div class="knob"></div>
+        </button>
+        <button class="btn-ghost" onclick="openRolloverModal()">Semester Rollover</button>
+        <button class="btn-gold"  onclick="openSRModal()">+ Special Request</button>
+      </div>
+    </div>
+    <!-- tabs -->
+    <div style="max-width:1400px;margin:0 auto;padding:0 1.5rem 0.875rem;display:flex;gap:0.5rem;">
+      <button class="tab active" onclick="switchTab('tracker')">Tracker</button>
+      <button class="tab"        onclick="switchTab('census')">Census Results</button>
+      <button class="tab"        onclick="switchTab('log')">Activity Log</button>
+    </div>
+  </div>
+
+  <div style="max-width:1400px;margin:0 auto;padding:1.5rem;">
+
+    <!-- ── TRACKER TAB ── -->
+    <div id="tab-tracker" class="tab-panel active">
+
+      <!-- Quick stats -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-bottom:1.5rem;">
+        <div class="card" style="padding:1.125rem;text-align:center;">
+          <p id="stat-guides" style="font-size:2rem;font-weight:900;color:var(--gold);margin:0;">--</p>
+          <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtext);margin:4px 0 0;">Guides</p>
+        </div>
+        <div class="card" style="padding:1.125rem;text-align:center;">
+          <p id="stat-sem-total" style="font-size:2rem;font-weight:900;color:#10B981;margin:0;">--</p>
+          <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtext);margin:4px 0 0;">Sem Tours</p>
+        </div>
+        <div class="card" style="padding:1.125rem;text-align:center;">
+          <p id="stat-auto" style="font-size:2rem;font-weight:900;color:#3B82F6;margin:0;">--</p>
+          <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtext);margin:4px 0 0;">Auto-counted</p>
+        </div>
+        <div class="card" style="padding:1.125rem;text-align:center;">
+          <p id="stat-special" style="font-size:2rem;font-weight:900;color:#8B5CF6;margin:0;">--</p>
+          <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtext);margin:4px 0 0;">Special Req.</p>
+        </div>
+        <div class="card" style="padding:1.125rem;text-align:center;">
+          <p id="stat-dirty" style="font-size:2rem;font-weight:900;color:#F59E0B;margin:0;">0</p>
+          <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtext);margin:4px 0 0;">Unsaved</p>
+        </div>
+      </div>
+
+      <!-- Search + hint -->
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:0.875rem;flex-wrap:wrap;">
+        <input id="search" type="text" class="inp" style="max-width:260px;" placeholder="Search guide…" oninput="filterGrid()">
+        <p style="font-size:10px;font-weight:700;color:var(--subtext);">Click a count to edit · Click a name row to see tour detail · <span style="color:#8B5CF6;">Purple rows</span> = has special requests</p>
+      </div>
+
+      <!-- Grid -->
+      <div class="card" style="overflow:hidden;">
+        <div id="tracker-grid-wrap">
+          <table id="tracker-grid">
+            <thead id="grid-head"></thead>
+            <tbody id="grid-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /tab-tracker -->
+
+    <!-- ── CENSUS TAB ── -->
+    <div id="tab-census" class="tab-panel">
+      <div id="census-content"></div>
+    </div>
+
+    <!-- ── LOG TAB ── -->
+    <div id="tab-log" class="tab-panel">
+      <div class="card" style="padding:1.5rem;">
+        <h2 style="font-size:14px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtext);margin:0 0 1rem;">Activity Log</h2>
+        <div id="activity-log"></div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /app -->
+
+<!-- ── SAVE BAR ── -->
+<div id="save-bar">
+  <div style="display:flex;align-items:center;gap:0.875rem;background:var(--surface);border:1px solid var(--border);border-radius:1rem;padding:0.75rem 1.25rem;box-shadow:0 8px 32px rgba(0,0,0,0.18);">
+    <span id="save-bar-count" style="font-size:12px;font-weight:800;color:var(--text);"></span>
+    <button class="btn-gold" onclick="saveAllChanges()">Save All Changes</button>
+    <button class="btn-ghost" style="padding:0.5rem 0.875rem;font-size:11px;" onclick="discardChanges()">Discard</button>
+  </div>
+</div>
+
+<!-- ── MODAL (shared) ── -->
+<div id="modal-overlay" onclick="maybeCloseModal(event)">
+  <div id="modal-box" onclick="event.stopPropagation()">
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<!-- ── TOAST ── -->
+<div id="toast"></div>
+
+<script>
+
+// ─── PIN GATE ────────────────────────────────────────────────────────────────
+const PIN_SESSION_KEY = 'tgis_admin_pin_ok';
+const PIN_LENGTH = 6;
+let pinEntry = '';
+let pinAttempts = 0;
+const MAX_ATTEMPTS = 3;
+
+function initPinGate() {
+  // Already verified this session — skip straight to load
+  if (sessionStorage.getItem(PIN_SESSION_KEY) === 'true') {
+    loadApp();
+    return;
+  }
+  document.getElementById('pin-overlay').classList.remove('hidden');
+
+  // Allow keyboard input too
+  document.addEventListener('keydown', (e) => {
+    if (!document.getElementById('pin-overlay').classList.contains('hidden')) {
+      if (e.key >= '0' && e.key <= '9') pinKey(e.key);
+      else if (e.key === 'Backspace') pinClear();
+      else if (e.key === 'Enter') pinSubmit();
+    }
+  });
+}
+
+function pinKey(digit) {
+  if (pinEntry.length >= PIN_LENGTH || pinAttempts >= MAX_ATTEMPTS) return;
+  pinEntry += digit;
+  updatePinDots();
+  if (pinEntry.length === PIN_LENGTH) {
+    document.getElementById('pin-submit-btn').disabled = false;
+  }
+}
+
+function pinClear() {
+  if (pinEntry.length === 0) return;
+  pinEntry = pinEntry.slice(0, -1);
+  document.getElementById('pin-submit-btn').disabled = true;
+  updatePinDots();
+}
+
+function updatePinDots() {
+  const dots = document.querySelectorAll('.pin-dot');
+  dots.forEach((dot, i) => {
+    dot.classList.toggle('filled', i < pinEntry.length);
+    dot.classList.remove('error');
+  });
+}
+
+async function pinSubmit() {
+  if (pinEntry.length !== PIN_LENGTH || pinAttempts >= MAX_ATTEMPTS) return;
+
+  const btn = document.getElementById('pin-submit-btn');
+  btn.disabled = true;
+  btn.innerText = '…';
+
+  try {
+    const res  = await fetch(`${SCRIPT_URL}?action=verifyPin&pin=${encodeURIComponent(pinEntry)}`);
+    const data = await res.json();
+
+    if (data.ok) {
+      sessionStorage.setItem(PIN_SESSION_KEY, 'true');
+      document.getElementById('pin-overlay').style.opacity = '0';
+      document.getElementById('pin-overlay').style.transition = 'opacity 0.4s';
+      setTimeout(() => {
+        document.getElementById('pin-overlay').style.display = 'none';
+        loadApp();
+      }, 350);
+    } else {
+      pinAttempts++;
+      pinEntry = '';
+      updatePinDots();
+      const remaining = MAX_ATTEMPTS - pinAttempts;
+
+      // Shake dots red
+      document.querySelectorAll('.pin-dot').forEach(d => {
+        d.classList.remove('filled');
+        d.classList.add('error');
+      });
+
+      if (remaining <= 0) {
+        document.getElementById('pin-error').innerText = 'Too many attempts. Refresh to try again.';
+        document.getElementById('pin-attempts').innerText = '';
+        document.querySelectorAll('.pin-key').forEach(k => k.disabled = true);
+      } else {
+        document.getElementById('pin-error').innerText = 'Incorrect PIN';
+        document.getElementById('pin-attempts').innerText = `${remaining} attempt${remaining !== 1 ? 's' : ''} remaining`;
+        setTimeout(() => {
+          document.querySelectorAll('.pin-dot').forEach(d => d.classList.remove('error'));
+          document.getElementById('pin-error').innerText = '';
+          btn.innerText = '→';
+        }, 800);
+      }
+    }
+  } catch(e) {
+    document.getElementById('pin-error').innerText = 'Network error — try again';
+    btn.disabled = false;
+    btn.innerText = '→';
+  }
+}
+
+// ─── CONFIG ──────────────────────────────────────────────────────────────────
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyqIgk-V7XABUMluhLwjGudlHwkgldwRaBlAN6dFdbI1gNL-_cvN5PNTek2cfqNtc3j/exec';
+const params     = new URLSearchParams(window.location.search);
+const userName   = params.get('user');
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let D           = null;   // full API response
+let gridData    = [];     // [{displayName, semCols:{}, currentSem, careerTotal, hasSpecial, countedTours:[]}]
+let currentSem  = '';
+let dirty       = {};     // displayName → { oldVal, newVal, reason }
+let darkMode    = localStorage.getItem('tgis_dark') === '1';
+
+// ─── DARK MODE ────────────────────────────────────────────────────────────────
+function applyDark() {
+  document.documentElement.classList.toggle('dark', darkMode);
+}
+function toggleDark() {
+  darkMode = !darkMode;
+  localStorage.setItem('tgis_dark', darkMode ? '1' : '0');
+  applyDark();
+}
+applyDark();
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+let loadBarVal = 0;
+const loadBarTimer = setInterval(() => {
+  loadBarVal = Math.min(loadBarVal + Math.random() * 10, 82);
+  document.getElementById('load-bar').style.width = loadBarVal + '%';
+}, 500);
+
+window.onload = () => { initPinGate(); };
+
+async function loadApp() {
+  if (!userName) { showLoadErr('NO_USER_PARAM — add ?user=yourUsername to URL'); return; }
+
+  setLoadStatus('Loading data…');
+  try {
+    const res = await fetch(`${SCRIPT_URL}?user=${encodeURIComponent(userName)}&admin=true`);
+    if (!res.ok) throw new Error(`HTTP_${res.status}`);
+    D = await res.json();
+    if (D.error) throw new Error(D.error);
+    if (!D.adminData) throw new Error('ACCESS_DENIED — must be Manager or Codirector');
+
+    currentSem = D.adminData.currentSemName;
+
+    // Build gridData
+    const srByGuide = {};
+    (D.adminData.specialRequests || []).forEach(sr => {
+      srByGuide[sr.guide] = (srByGuide[sr.guide] || 0) + sr.count;
+    });
+    const ctByGuide = {};
+    (D.adminData.countedLog || []).forEach(ct => {
+      if (!ctByGuide[ct.guide]) ctByGuide[ct.guide] = [];
+      ctByGuide[ct.guide].push(ct);
+    });
+
+    gridData = (D.adminData.trackerGrid || []).map(g => ({
+      ...g,
+      hasSpecial:   !!srByGuide[g.displayName],
+      specialCount: srByGuide[g.displayName] || 0,
+      countedTours: ctByGuide[g.displayName] || []
+    }));
+
+    // Header
+    document.getElementById('hdr-name').innerText = D.profile.displayName;
+    document.getElementById('hdr-sem').innerText  = currentSem;
+
+    renderStats();
+    renderGrid();
+    renderActivityLog();
+
+    clearInterval(loadBarTimer);
+    document.getElementById('load-bar').style.width = '100%';
+    setLoadStatus('Ready');
+    setTimeout(() => {
+      const ov = document.getElementById('load-overlay');
+      ov.style.opacity = '0';
+      setTimeout(() => { ov.style.display = 'none'; document.getElementById('app').classList.remove('hidden'); }, 350);
+    }, 250);
+
+  } catch(e) {
+    clearInterval(loadBarTimer);
+    showLoadErr(e.message.slice(0,80));
+  }
+};
+
+function setLoadStatus(t) { document.getElementById('load-status').innerText = t; }
+function showLoadErr(msg) {
+  document.getElementById('load-bar').style.background = '#EF4444';
+  document.getElementById('load-bar').style.width = '100%';
+  document.getElementById('load-status').style.display = 'none';
+  document.getElementById('load-err-msg').innerText = msg;
+  document.getElementById('load-err').classList.remove('hidden');
+}
+
+// ─── TABS ─────────────────────────────────────────────────────────────────────
+function switchTab(name) {
+  const tabNames = ['tracker','census','log'];
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    t.classList.toggle('active', tabNames[i] === name);
+  });
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  if (name === 'census') renderCensus();
+}
+
+// ─── STATS ────────────────────────────────────────────────────────────────────
+function renderStats() {
+  document.getElementById('stat-guides').innerText    = gridData.length;
+  const semSum = gridData.reduce((s,g) => s + (g.currentSem||0), 0);
+  document.getElementById('stat-sem-total').innerText = semSum;
+  const autoC = (D.adminData.countedLog||[]).filter(c => !c.isSpecial).length;
+  document.getElementById('stat-auto').innerText      = autoC;
+  const srC   = (D.adminData.specialRequests||[]).reduce((s,r)=>s+(r.count||0),0);
+  document.getElementById('stat-special').innerText   = srC;
+}
+
+// ─── GRID ─────────────────────────────────────────────────────────────────────
+function renderGrid() {
+  const pastSems = D.adminData.semesterCols || [];
+
+  // HEAD
+  const thead = document.getElementById('grid-head');
+  thead.innerHTML = `<tr>
+    <th class="col-name" style="text-align:left;min-width:140px;">Guide</th>
+    <th style="min-width:90px;cursor:pointer;" title="Click any count to edit">
+      ${currentSem} <span style="color:var(--gold);">✎</span>
+    </th>
+    <th style="min-width:70px;">Career</th>
+    <th style="min-width:80px;">Special Req.</th>
+    <th style="min-width:60px;"></th>
+  </tr>`;
+
+  buildGridBody(gridData);
+}
+
+function buildGridBody(rows) {
+  const tbody = document.getElementById('grid-body');
+  tbody.innerHTML = '';
+
+  rows.forEach(g => {
+    const isSR    = g.hasSpecial;
+    const srClass = isSR ? 'sr-row' : '';
+
+    // Main row
+    const tr = document.createElement('tr');
+    tr.className = srClass;
+    tr.dataset.guide = g.displayName;
+
+    const savedVal  = g.currentSem;
+    const dirtyInfo = dirty[g.displayName];
+    const inputVal  = dirtyInfo ? dirtyInfo.newVal : savedVal;
+    const isDirty   = !!dirtyInfo;
+
+    tr.innerHTML = `
+      <td class="col-name ${srClass}" style="cursor:pointer;" onclick="toggleDetail('${esc(g.displayName)}')">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:11px;color:var(--subtext);transition:transform 0.2s;" id="arr-${esc(g.displayName)}">▶</span>
+          <div>
+            <p style="margin:0;font-size:13px;font-weight:800;">${g.displayName}</p>
+            ${isSR ? `<span class="pill pill-purple">+${g.specialCount} special</span>` : ''}
+          </div>
+        </div>
+      </td>
+      <td style="padding:0.4rem 0.5rem;">
+        <input
+          type="number" min="0"
+          class="cell-edit ${isDirty ? 'dirty' : ''}"
+          data-guide="${esc(g.displayName)}"
+          data-orig="${savedVal}"
+          value="${inputVal}"
+          onchange="cellChanged(this)"
+          onfocus="this.select()"
+        >
+      </td>
+      <td><span class="cell-total">${g.careerTotal}</span></td>
+      <td><span class="cell-readonly">${g.specialCount || '—'}</span></td>
+      <td style="padding:0.4rem 0.5rem;text-align:center;">
+        <button class="btn-sm" style="background:var(--gold-dim);color:var(--gold);" onclick="openSRModal('${esc(g.displayName)}')">+ SR</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+
+    // Detail row (hidden by default)
+    const dr = document.createElement('tr');
+    dr.className   = 'guide-detail-row';
+    dr.id          = 'detail-' + cssId(g.displayName);
+    dr.innerHTML   = `<td colspan="5" class="guide-detail-cell" id="detail-cell-${cssId(g.displayName)}">
+      <div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtext);margin-bottom:0.75rem;">
+        Tour Detail — ${g.displayName}
+      </div>
+      <div id="detail-inner-${cssId(g.displayName)}">Loading…</div>
+    </td>`;
+    tbody.appendChild(dr);
+  });
+}
+
+let openDetail = null;
+function toggleDetail(guideName) {
+  const id  = cssId(guideName);
+  const row = document.getElementById('detail-' + id);
+  const arr = document.getElementById('arr-' + cssId(guideName));
+  if (!row) return;
+
+  // Close previously open
+  if (openDetail && openDetail !== id) {
+    const prev = document.getElementById('detail-' + openDetail);
+    if (prev) prev.classList.remove('open');
+    const prevArr = document.querySelector(`#arr-${openDetail}`);
+    if (prevArr) prevArr.style.transform = 'rotate(0deg)';
+  }
+
+  const isOpen = row.classList.toggle('open');
+  if (arr) arr.style.transform = isOpen ? 'rotate(90deg)' : 'rotate(0deg)';
+  openDetail = isOpen ? id : null;
+
+  if (isOpen) renderDetailPanel(guideName);
+}
+
+function renderDetailPanel(guideName) {
+  const g      = gridData.find(x => x.displayName === guideName);
+  const innerId = 'detail-inner-' + cssId(guideName);
+  const inner  = document.getElementById(innerId);
+  if (!g || !inner) return;
+
+  const pastSems = D.adminData.semesterCols || [];
+
+  // Past semesters table
+  let pastHtml = '';
+  if (pastSems.length) {
+    const rows = pastSems.map(sem => {
+      const val = (g.semesters || {})[sem] || 0;
+      return `<tr>
+        <td style="padding:0.375rem 0.75rem;font-size:12px;font-weight:700;color:var(--subtext);">${sem}</td>
+        <td style="padding:0.375rem 0.75rem;font-size:13px;font-weight:900;color:var(--text);text-align:right;">${val}</td>
+      </tr>`;
+    }).join('');
+    pastHtml = `
+      <div style="margin-bottom:1rem;">
+        <p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtext);margin-bottom:0.5rem;">Semester History</p>
+        <table style="border-collapse:collapse;width:auto;">
+          <thead><tr>
+            <th style="text-align:left;padding:0.25rem 0.75rem;font-size:9px;font-weight:900;text-transform:uppercase;color:var(--subtext);">Semester</th>
+            <th style="text-align:right;padding:0.25rem 0.75rem;font-size:9px;font-weight:900;text-transform:uppercase;color:var(--subtext);">Tours</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+  }
+
+  // Counted tours for current semester
+  const currCounted = (g.countedTours || []).sort((a,b) => (b.date||'').localeCompare(a.date||''));
+  let countedHtml = '';
+  if (currCounted.length) {
+    const rows = currCounted.map(ct => {
+      const badge = ct.isSpecial
+        ? '<span class="pill pill-purple">Special</span>'
+        : '<span class="pill pill-blue">Auto</span>';
+      return `<tr>
+        <td style="padding:0.3rem 0.75rem;font-size:12px;font-weight:700;">${ct.date}</td>
+        <td style="padding:0.3rem 0.75rem;font-size:12px;font-weight:700;">${ct.type}</td>
+        <td style="padding:0.3rem 0.75rem;">${badge}</td>
+        <td style="padding:0.3rem 0.75rem;font-size:11px;color:var(--subtext);">${ct.countedAt || ''}</td>
+      </tr>`;
+    }).join('');
+    countedHtml = `
+      <div>
+        <p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtext);margin-bottom:0.5rem;">
+          Tours Counted This Semester (${currCounted.length})
+        </p>
+        <div style="overflow-x:auto;">
+          <table style="border-collapse:collapse;width:100%;min-width:400px;">
+            <thead><tr>
+              <th style="text-align:left;padding:0.25rem 0.75rem;font-size:9px;font-weight:900;text-transform:uppercase;color:var(--subtext);">Date</th>
+              <th style="text-align:left;padding:0.25rem 0.75rem;font-size:9px;font-weight:900;text-transform:uppercase;color:var(--subtext);">Type</th>
+              <th style="padding:0.25rem 0.75rem;font-size:9px;font-weight:900;text-transform:uppercase;color:var(--subtext);">Source</th>
+              <th style="text-align:left;padding:0.25rem 0.75rem;font-size:9px;font-weight:900;text-transform:uppercase;color:var(--subtext);">Counted At</th>
+            </tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      </div>`;
+  } else {
+    countedHtml = `<p style="font-size:12px;color:var(--subtext);font-style:italic;">No tours counted yet this semester.</p>`;
+  }
+
+  inner.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 2fr;gap:1.5rem;flex-wrap:wrap;">
+      <div>${pastHtml}</div>
+      <div>${countedHtml}</div>
+    </div>`;
+}
+
+// ─── CELL EDITING ─────────────────────────────────────────────────────────────
+function cellChanged(input) {
+  const guide   = input.dataset.guide;
+  const orig    = parseInt(input.dataset.orig) || 0;
+  const newVal  = parseInt(input.value) || 0;
+
+  if (newVal === orig && dirty[guide]) {
+    delete dirty[guide];
+    input.classList.remove('dirty');
+  } else if (newVal !== orig) {
+    dirty[guide] = { oldVal: orig, newVal, reason: '' };
+    input.classList.add('dirty');
+    input.classList.remove('saved');
+  }
+  updateDirtyUI();
+}
+
+function updateDirtyUI() {
+  const count = Object.keys(dirty).length;
+  document.getElementById('stat-dirty').innerText = count;
+  const bar = document.getElementById('save-bar');
+  bar.classList.toggle('show', count > 0);
+  document.getElementById('save-bar-count').innerText = `${count} unsaved change${count !== 1 ? 's' : ''}`;
+}
+
+async function saveAllChanges() {
+  const guides = Object.keys(dirty);
+  if (!guides.length) return;
+
+  // Collect reasons via a quick modal
+  openReasonModal(guides, async (reasons) => {
+    for (const guide of guides) {
+      const { newVal } = dirty[guide];
+      const reason = reasons[guide] || 'Manual update via admin panel';
+      await postAction({ action: 'manualAdjust', adminUser: userName, guide, newValue: newVal, reason });
+
+      // Update local state
+      const g = gridData.find(x => x.displayName === guide);
+      if (g) { g.careerTotal += (newVal - g.currentSem); g.currentSem = newVal; }
+
+      // Mark cell as saved
+      const input = document.querySelector(`input.cell-edit[data-guide="${esc(guide)}"]`);
+      if (input) {
+        input.dataset.orig = newVal;
+        input.classList.remove('dirty');
+        input.classList.add('saved');
+      }
+      delete dirty[guide];
+    }
+
+    updateDirtyUI();
+    renderStats();
+    showToast(`${guides.length} change${guides.length>1?'s':''} saved`);
+    closeModal();
+  });
+}
+
+function discardChanges() {
+  Object.keys(dirty).forEach(guide => {
+    const input = document.querySelector(`input.cell-edit[data-guide="${esc(guide)}"]`);
+    if (input) {
+      input.value = input.dataset.orig;
+      input.classList.remove('dirty');
+    }
+  });
+  dirty = {};
+  updateDirtyUI();
+  showToast('Changes discarded');
+}
+
+// ─── REASON MODAL (for save) ──────────────────────────────────────────────────
+function openReasonModal(guides, onConfirm) {
+  const fields = guides.map(g => `
+    <div style="margin-bottom:0.875rem;">
+      <label class="lbl">${g} — reason for change</label>
+      <input type="text" class="inp reason-inp" data-guide="${esc(g)}" placeholder="e.g. Data correction, system sync error…">
+    </div>`).join('');
+
+  document.getElementById('modal-content').innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+      <h2 style="font-size:1.1rem;font-weight:900;margin:0;">Save Changes</h2>
+      <button onclick="closeModal()" style="background:none;border:none;font-size:1.25rem;cursor:pointer;color:var(--subtext);">✕</button>
+    </div>
+    <p style="font-size:12px;color:var(--subtext);margin-bottom:1.25rem;">Enter a reason for each edit (required for audit log).</p>
+    ${fields}
+    <div style="display:flex;gap:0.75rem;justify-content:flex-end;margin-top:1.25rem;">
+      <button class="btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn-gold" onclick="confirmSave()">Save All</button>
+    </div>`;
+
+  window._saveCallback = onConfirm;
+  openModal();
+}
+
+function confirmSave() {
+  const reasons = {};
+  document.querySelectorAll('.reason-inp').forEach(inp => {
+    reasons[inp.dataset.guide] = inp.value.trim() || 'Manual update via admin panel';
+  });
+  if (window._saveCallback) window._saveCallback(reasons);
+}
+
+// ─── SPECIAL REQUEST MODAL ────────────────────────────────────────────────────
+function openSRModal(prefillGuide) {
+  const guideOptions = gridData
+    .map(g => `<option value="${esc(g.displayName)}" ${g.displayName === prefillGuide ? 'selected' : ''}>${g.displayName}</option>`)
+    .join('');
+
+  document.getElementById('modal-content').innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+      <h2 style="font-size:1.1rem;font-weight:900;margin:0;">Add Special Request</h2>
+      <button onclick="closeModal()" style="background:none;border:none;font-size:1.25rem;cursor:pointer;color:var(--subtext);">✕</button>
+    </div>
+    <p style="font-size:12px;color:var(--subtext);margin-bottom:1.25rem;">Private tours, VIP visits, make-ups, recruitment events — any non-scheduled tour that counts toward a guide's total.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.875rem;margin-bottom:0.875rem;">
+      <div>
+        <label class="lbl">Guide</label>
+        <select id="sr-guide" class="inp">${guideOptions}</select>
+      </div>
+      <div>
+        <label class="lbl">Date</label>
+        <input type="date" id="sr-date" class="inp">
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.875rem;margin-bottom:0.875rem;">
+      <div>
+        <label class="lbl">Type</label>
+        <select id="sr-type" class="inp">
+          <option>Special Request</option>
+          <option>Private Tour</option>
+          <option>VIP Visit</option>
+          <option>Recruitment Event</option>
+          <option>Make-up Tour</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div>
+        <label class="lbl">Count</label>
+        <input type="number" id="sr-count" class="inp" min="1" max="20" value="1">
+      </div>
+    </div>
+    <div style="margin-bottom:1.25rem;">
+      <label class="lbl">Notes (optional)</label>
+      <input type="text" id="sr-notes" class="inp" placeholder="e.g. Dean's office request, alumni family…">
+    </div>
+    <div style="display:flex;gap:0.75rem;justify-content:flex-end;">
+      <button class="btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn-gold" onclick="submitSR()">Add to Tracker</button>
+    </div>`;
+
+  openModal();
+}
+
+async function submitSR() {
+  const guide = document.getElementById('sr-guide').value;
+  const date  = document.getElementById('sr-date').value;
+  const type  = document.getElementById('sr-type').value;
+  const count = parseInt(document.getElementById('sr-count').value) || 1;
+  const notes = document.getElementById('sr-notes').value.trim();
+
+  if (!guide) return showToast('Select a guide', true);
+  if (!date)  return showToast('Select a date', true);
+
+  await postAction({ action: 'specialRequest', adminUser: userName, guide, date, type, count, notes });
+
+  // Update local state
+  const g = gridData.find(x => x.displayName === guide);
+  if (g) {
+    g.currentSem   += count;
+    g.careerTotal  += count;
+    g.specialCount  = (g.specialCount||0) + count;
+    g.hasSpecial    = true;
+    for (let i=0;i<count;i++) {
+      g.countedTours.push({ uid: 'SR_local_'+Date.now(), guide, type, date, countedAt: new Date().toLocaleString(), isSpecial: true });
+    }
+    if (!D.adminData.specialRequests) D.adminData.specialRequests = [];
+    D.adminData.specialRequests.push({ guide, date, type, count, notes, addedBy: userName, addedAt: new Date().toLocaleString() });
+  }
+
+  renderStats();
+  buildGridBody(getCurrentRows());
+  showToast(`+${count} tour${count>1?'s':''} added for ${guide}`);
+  closeModal();
+}
+
+// ─── ROLLOVER MODAL ───────────────────────────────────────────────────────────
+function openRolloverModal() {
+  document.getElementById('modal-content').innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+      <h2 style="font-size:1.1rem;font-weight:900;margin:0;color:#EF4444;">Semester Rollover</h2>
+      <button onclick="closeModal()" style="background:none;border:none;font-size:1.25rem;cursor:pointer;color:var(--subtext);">✕</button>
+    </div>
+    <div style="background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2);border-radius:0.75rem;padding:0.875rem;margin-bottom:1.25rem;">
+      <p style="font-size:11px;font-weight:700;color:var(--text);margin:0;line-height:1.7;">
+        This will <strong>archive the current semester</strong> ("${currentSem}") and open a fresh column for the new semester.
+        Career totals are unaffected. <strong>This cannot be undone.</strong>
+      </p>
+    </div>
+    <div style="margin-bottom:1rem;">
+      <label class="lbl">New Semester Name</label>
+      <input type="text" id="ro-newsem" class="inp" placeholder="e.g. Fall 2026">
+    </div>
+    <div style="margin-bottom:1.25rem;">
+      <label class="lbl">Type ROLLOVER to confirm</label>
+      <input type="text" id="ro-confirm" class="inp" placeholder="ROLLOVER" style="font-family:monospace;letter-spacing:0.15em;text-transform:uppercase;">
+    </div>
+    <div style="display:flex;gap:0.75rem;justify-content:flex-end;">
+      <button class="btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn-gold" style="background:#EF4444;" onclick="submitRollover()">Execute Rollover</button>
+    </div>`;
+  openModal();
+}
+
+async function submitRollover() {
+  const confirm = document.getElementById('ro-confirm').value.trim().toUpperCase();
+  const newSem  = document.getElementById('ro-newsem').value.trim();
+  if (confirm !== 'ROLLOVER') return showToast('Type ROLLOVER to confirm', true);
+  if (!newSem)                return showToast('Enter new semester name', true);
+
+  await postAction({ action: 'rollover', adminUser: userName, newSemesterName: newSem });
+
+  // Update local UI
+  document.getElementById('hdr-sem').innerText = newSem;
+  currentSem = newSem;
+  gridData.forEach(g => { g.currentSem = 0; });
+  dirty = {};
+  updateDirtyUI();
+  renderGrid();
+  renderStats();
+  showToast(`Rolled over to ${newSem}`);
+  closeModal();
+}
+
+// ─── SEARCH / FILTER ──────────────────────────────────────────────────────────
+function getCurrentRows() {
+  const q = document.getElementById('search')?.value?.toLowerCase() || '';
+  return q ? gridData.filter(g => g.displayName.toLowerCase().includes(q)) : gridData;
+}
+function filterGrid() { buildGridBody(getCurrentRows()); }
+
+// ─── CENSUS RESULTS ──────────────────────────────────────────────────────────
+function renderCensus() {
+  const el = document.getElementById('census-content');
+  if (!el) return;
+
+  const census = D.adminData.censusData || {};
+  const guides = D.adminData.trackerGrid || [];
+
+  // Build arrays of responses — skip empty (not yet submitted)
+  const submitted   = guides.filter(g => census[g.displayName]?.givingTours !== '');
+  const notSubmitted = guides.filter(g => !census[g.displayName] || census[g.displayName].givingTours === '');
+  const total = guides.length;
+  const subCount = submitted.length;
+  const notSubCount = notSubmitted.length;
+
+  // Aggregate tours
+  const givingYes = submitted.filter(g => (census[g.displayName]?.givingTours||'').toLowerCase() === 'yes').length;
+  const givingNo  = submitted.filter(g => (census[g.displayName]?.givingTours||'').toLowerCase() === 'no').length;
+  const pref1     = submitted.filter(g => String(census[g.displayName]?.toursPerWeek) === '1').length;
+  const pref2     = submitted.filter(g => String(census[g.displayName]?.toursPerWeek) === '2').length;
+
+  // Aggregate desk
+  const deskEntries = submitted.filter(g => census[g.displayName]?.deskWhere !== '');
+  const deskMap = {};
+  deskEntries.forEach(g => {
+    const val = census[g.displayName]?.deskWhere || 'Unknown';
+    deskMap[val] = (deskMap[val] || 0) + 1;
+  });
+  const deskHoursList = deskEntries.map(g => parseInt(census[g.displayName]?.deskHours)||0).filter(h => h > 0);
+  const avgDeskHours = deskHoursList.length ? (deskHoursList.reduce((a,b)=>a+b,0)/deskHoursList.length).toFixed(1) : '—';
+
+  // Aggregate training
+  const DAYS  = ['Monday','Tuesday','Wednesday','Thursday'];
+  const TIMES = ['5:00 PM','5:30 PM','6:00 PM','6:30 PM','7:00 PM','7:30 PM'];
+
+  const availMap = {}, prefMap = {}, timeMap = {};
+  DAYS.forEach(d => { availMap[d]=0; prefMap[d]=0; });
+  TIMES.forEach(t => { timeMap[t]=0; });
+
+  submitted.forEach(g => {
+    const c = census[g.displayName];
+    if (!c) return;
+    (c.trainingDaysAvail || '').split(',').forEach(d => { const k=d.trim(); if(availMap[k]!==undefined) availMap[k]++; });
+    (c.trainingDaysPref  || '').split(',').forEach(d => { const k=d.trim(); if(prefMap[k]!==undefined)  prefMap[k]++; });
+    (c.trainingTimes     || '').split(',').forEach(t => { const k=t.trim(); if(timeMap[k]!==undefined)  timeMap[k]++; });
+  });
+
+  // Dietary
+  const dietaryList = submitted.filter(g => (census[g.displayName]?.dietary||'').trim() !== '').map(g => census[g.displayName].dietary.trim());
+
+  function bar(count, max, color) {
+    const pct = max > 0 ? Math.round((count/max)*100) : 0;
+    return `<div style="flex:1;height:10px;background:var(--border);border-radius:99px;overflow:hidden;">
+      <div style="height:100%;width:${pct}%;background:${color};border-radius:99px;transition:width 0.8s ease;"></div>
+    </div>`;
+  }
+
+  function barRow(label, count, max, color) {
+    return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+      <span style="width:100px;font-size:12px;font-weight:700;color:var(--subtext);flex-shrink:0;">${label}</span>
+      ${bar(count, max, color)}
+      <span style="width:40px;text-align:right;font-size:13px;font-weight:900;color:var(--text);">${count}</span>
+    </div>`;
+  }
+
+  function donutChart(yes, no, size=80) {
+    const total = yes + no;
+    if (total === 0) return `<div style="width:${size}px;height:${size}px;border-radius:50%;background:var(--border);"></div>`;
+    const pct = yes/total;
+    const deg = Math.round(pct*360);
+    const color1 = '#10B981', color2 = 'var(--border)';
+    return `<div style="width:${size}px;height:${size}px;border-radius:50%;
+      background:conic-gradient(${color1} 0deg ${deg}deg, ${color2} ${deg}deg 360deg);
+      display:flex;align-items:center;justify-content:center;position:relative;">
+      <div style="width:${size*0.6}px;height:${size*0.6}px;border-radius:50%;background:var(--surface);"></div>
+      <span style="position:absolute;font-size:${size*0.18}px;font-weight:900;color:var(--text);">${Math.round(pct*100)}%</span>
+    </div>`;
+  }
+
+  el.innerHTML = `
+    <!-- TOP STATS -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin-bottom:1.5rem;">
+      <div class="card" style="padding:1.125rem;text-align:center;">
+        <p style="font-size:2rem;font-weight:900;color:var(--gold);margin:0;">${subCount}</p>
+        <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtext);margin:4px 0 0;">Submitted</p>
+      </div>
+      <div class="card" style="padding:1.125rem;text-align:center;">
+        <p style="font-size:2rem;font-weight:900;color:#EF4444;margin:0;">${notSubCount}</p>
+        <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtext);margin:4px 0 0;">Not Submitted</p>
+      </div>
+      <div class="card" style="padding:1.125rem;text-align:center;">
+        <p style="font-size:2rem;font-weight:900;color:#10B981;margin:0;">${givingYes}</p>
+        <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtext);margin:4px 0 0;">Giving Tours</p>
+      </div>
+      <div class="card" style="padding:1.125rem;text-align:center;">
+        <p style="font-size:2rem;font-weight:900;color:#EF4444;margin:0;">${givingNo}</p>
+        <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtext);margin:4px 0 0;">Not Giving</p>
+      </div>
+      <div class="card" style="padding:1.125rem;text-align:center;">
+        <p style="font-size:2rem;font-weight:900;color:#3B82F6;margin:0;">${avgDeskHours}</p>
+        <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtext);margin:4px 0 0;">Avg Desk Hrs</p>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem;">
+
+      <!-- TOURS PER WEEK -->
+      <div class="card" style="padding:1.5rem;">
+        <p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtext);margin:0 0 1rem;">Tour Preference (of ${givingYes} giving)</p>
+        <div style="display:flex;align-items:center;gap:1.5rem;">
+          ${donutChart(pref1, pref2, 90)}
+          <div style="flex:1;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+              <div style="width:10px;height:10px;border-radius:50%;background:#10B981;flex-shrink:0;"></div>
+              <span style="font-size:13px;font-weight:800;">1 tour/week</span>
+              <span style="margin-left:auto;font-size:14px;font-weight:900;color:var(--gold);">${pref1}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="width:10px;height:10px;border-radius:50%;background:var(--border);flex-shrink:0;"></div>
+              <span style="font-size:13px;font-weight:800;">2 tours/week</span>
+              <span style="margin-left:auto;font-size:14px;font-weight:900;color:var(--gold);">${pref2}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DESK INTEREST -->
+      <div class="card" style="padding:1.5rem;">
+        <p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtext);margin:0 0 1rem;">Desk Placement (${deskEntries.length} responses)</p>
+        ${Object.entries(deskMap).sort((a,b)=>b[1]-a[1]).map(([label,count]) =>
+          barRow(label, count, deskEntries.length, '#8B5CF6')
+        ).join('')}
+        ${Object.keys(deskMap).length === 0 ? '<p style="font-size:12px;color:var(--subtext);font-style:italic;">No desk responses yet</p>' : ''}
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem;">
+
+      <!-- TRAINING AVAILABILITY -->
+      <div class="card" style="padding:1.5rem;">
+        <p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtext);margin:0 0 1rem;">Training Day Availability (${subCount} respondents)</p>
+        ${DAYS.map(d => barRow(d, availMap[d], subCount, '#CFB991')).join('')}
+        <div style="height:1px;background:var(--border);margin:1rem 0;"></div>
+        <p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtext);margin:0 0 0.75rem;">Day Preference</p>
+        ${DAYS.map(d => barRow(d, prefMap[d], subCount, '#10B981')).join('')}
+      </div>
+
+      <!-- TRAINING TIMES -->
+      <div class="card" style="padding:1.5rem;">
+        <p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtext);margin:0 0 1rem;">Preferred Start Times (${subCount} respondents)</p>
+        ${TIMES.map(t => barRow(t, timeMap[t], subCount, '#3B82F6')).join('')}
+      </div>
+    </div>
+
+    <!-- DIETARY -->
+    <div class="card" style="padding:1.5rem;margin-bottom:1.5rem;">
+      <p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtext);margin:0 0 1rem;">Dietary Restrictions (${dietaryList.length} noted)</p>
+      ${dietaryList.length
+        ? `<div style="display:flex;flex-wrap:wrap;gap:8px;">${dietaryList.map(d =>
+            `<span style="background:var(--gold-dim);color:var(--gold);border:1px solid rgba(207,185,145,0.3);border-radius:99px;padding:4px 12px;font-size:12px;font-weight:700;">${d}</span>`
+          ).join('')}</div>`
+        : '<p style="font-size:12px;color:var(--subtext);font-style:italic;">None reported</p>'
+      }
+    </div>
+
+    <!-- NOT SUBMITTED LIST -->
+    ${notSubCount > 0 ? `
+    <div class="card" style="padding:1.5rem;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+        <p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:#EF4444;margin:0;">Have Not Submitted (${notSubCount})</p>
+        <span class="pill pill-red">${Math.round((notSubCount/total)*100)}% of roster</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">
+        ${notSubmitted.map(g => `<span style="background:rgba(239,68,68,0.08);color:#EF4444;border:1px solid rgba(239,68,68,0.2);border-radius:99px;padding:4px 12px;font-size:12px;font-weight:700;">${g.displayName}</span>`).join('')}
+      </div>
+    </div>` : `
+    <div class="card" style="padding:1.5rem;text-align:center;">
+      <p style="font-size:14px;font-weight:900;color:#10B981;margin:0;">✓ All guides have submitted their census</p>
+    </div>`}
+  `;
+}
+
+// ─── ACTIVITY LOG ─────────────────────────────────────────────────────────────
+function renderActivityLog() {
+  const items = [...(D.adminData.adminLog || [])].reverse();
+  const el    = document.getElementById('activity-log');
+  if (!items.length) {
+    el.innerHTML = `<p style="font-size:12px;color:var(--subtext);font-style:italic;">No admin actions recorded yet.</p>`;
+    return;
+  }
+  const pillMap = { ROLLOVER:'pill-red', SPECIAL_REQUEST:'pill-purple', MANUAL_ADJUST:'pill-blue' };
+  el.innerHTML = items.map(e => `
+    <div style="display:flex;align-items:flex-start;gap:12px;padding:0.75rem 0;border-bottom:1px solid var(--border);">
+      <span class="pill ${pillMap[e.action]||'pill-gray'}" style="flex-shrink:0;margin-top:2px;">${e.action}</span>
+      <p style="flex:1;margin:0;font-size:13px;font-weight:700;">${e.detail}</p>
+      <div style="text-align:right;flex-shrink:0;">
+        <p style="font-size:11px;font-weight:700;color:var(--subtext);margin:0;">${e.by}</p>
+        <p style="font-size:10px;color:var(--subtext);margin:0;opacity:0.6;">${e.timestamp}</p>
+      </div>
+    </div>`).join('');
+}
+
+// ─── MODAL HELPERS ────────────────────────────────────────────────────────────
+function openModal()  { document.getElementById('modal-overlay').classList.add('open'); }
+function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
+function maybeCloseModal(e) { if (e.target === document.getElementById('modal-overlay')) closeModal(); }
+
+// ─── NETWORK ─────────────────────────────────────────────────────────────────
+async function postAction(payload) {
+  try {
+    await fetch(SCRIPT_URL, { method:'POST', mode:'no-cors', body: JSON.stringify(payload) });
+  } catch(e) { console.error(e); showToast('Network error', true); }
+}
+
+// ─── TOAST ───────────────────────────────────────────────────────────────────
+let toastTm;
+function showToast(msg, isErr = false) {
+  const t = document.getElementById('toast');
+  t.innerText = msg;
+  t.className = isErr ? 'err show' : 'show';
+  clearTimeout(toastTm);
+  toastTm = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ─── UTILS ───────────────────────────────────────────────────────────────────
+function esc(s)   { return String(s).replace(/'/g, "\\'"); }
+function cssId(s) { return String(s).replace(/[^a-zA-Z0-9]/g,'_'); }
+</script>
+</body>
+</html>
