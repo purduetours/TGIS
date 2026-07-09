@@ -1153,15 +1153,19 @@ function renderHomeNextTour(myTours) {
     const diffDays = Math.round((new Date(tour.date) - new Date()) / (1000 * 60 * 60 * 24));
     const diffLabel = diffDays <= 0 ? 'Today' : diffDays === 1 ? 'Tomorrow' : `${diffDays} days away`;
 
+    const isPendingDrop = tour.guide.includes('*');
     container.innerHTML = `
-        <div style="background:#1a1408; border:1px solid rgba(207,185,145,0.3);" class="rounded-[2rem] p-5 flex items-center gap-5">
+        <div style="background:#1a1408; border:1px solid ${isPendingDrop ? 'rgba(239,68,68,0.4)' : 'rgba(207,185,145,0.3)'};" class="rounded-[2rem] p-5 flex items-center gap-5">
             <div style="background:rgba(207,185,145,0.12); border:1px solid rgba(207,185,145,0.35);" class="rounded-2xl w-16 h-16 flex flex-col items-center justify-center shrink-0">
                 <span class="text-[9px] font-black tracking-widest text-primary-gold mb-0.5">${month}</span>
                 <span class="text-2xl font-black leading-none text-white">${dayNum}</span>
                 <span class="text-[9px] font-black tracking-widest mt-0.5" style="color:rgba(207,185,145,0.6)">${dayName}</span>
             </div>
             <div class="flex flex-col justify-center min-w-0">
-                <span style="background:rgba(207,185,145,0.12); color:#CFB991;" class="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md w-fit mb-2">${info.name}</span>
+                <div class="flex items-center gap-2 mb-2 flex-wrap">
+                    <span style="background:rgba(207,185,145,0.12); color:#CFB991;" class="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md">${info.name}</span>
+                    ${isPendingDrop ? `<span style="background:rgba(239,68,68,0.2);color:#EF4444;border:1px solid rgba(239,68,68,0.4);" class="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md">Pending Drop</span>` : ''}
+                </div>
                 <span class="text-3xl font-black text-white leading-none tracking-tight">${displayTime}</span>
                 <span class="text-[11px] font-bold mt-1" style="color:rgba(255,255,255,0.4)">${diffLabel}</span>
             </div>
@@ -1201,10 +1205,12 @@ function renderHomeTodaySchedule(myTours) {
         const displayTime = tour.time || info.time;
         const dot = dotColors[tour.type] || '#9CA3AF';
         const isLast = i === todayTours.length - 1;
+        const isPendingDrop = tour.guide.includes('*');
         return `
             <div class="flex items-center gap-3 px-4 py-3 ${isLast ? '' : 'border-b border-gray-50'}">
                 <div class="w-2 h-2 rounded-full shrink-0" style="background:${dot}"></div>
                 <span class="font-bold text-sm flex-1">${info.name}</span>
+                ${isPendingDrop ? `<span style="background:#FEE2E2;color:#B91C1C;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;padding:2px 7px;border-radius:99px;">Drop?</span>` : ''}
                 <span class="text-sm font-black text-gray-600">${displayTime}</span>
             </div>`;
     }).join('');
@@ -1576,20 +1582,23 @@ function updateScheduleView(myTours, displayName) {
             const isToday = d.toDateString() === today.toDateString();
 
             // Multi-tour on same day? Stack them inside one card
-            const tourRows = tours.map(tour => {
+const tourRows = tours.map(tour => {
                 const info = TOUR_MAP[tour.type] || { name: tour.type, time: '--' };
                 const displayTime = tour.time || info.time;
                 const scheme = TYPE_COLORS[info.name] || { accent: '#9CA3AF', light: '#F9FAFB', text: '#374151', label: info.name, border: '#E5E7EB' };
+                const isPendingDrop = tour.guide.includes('*');
                 return `
                     <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;
-                                border-radius:10px;background:${isPast ? '#F9FAFB' : scheme.light};
-                                border:1px solid ${isPast ? '#F3F4F6' : scheme.border};">
-                        <div style="width:4px;min-width:4px;height:36px;border-radius:99px;background:${isPast ? '#D1D5DB' : scheme.accent};"></div>
+                                border-radius:10px;background:${isPast ? '#F9FAFB' : isPendingDrop ? '#FEF2F2' : scheme.light};
+                                border:1px solid ${isPast ? '#F3F4F6' : isPendingDrop ? '#FECACA' : scheme.border};">
+                        <div style="width:4px;min-width:4px;height:36px;border-radius:99px;background:${isPast ? '#D1D5DB' : isPendingDrop ? '#EF4444' : scheme.accent};"></div>
                         <div style="flex:1;min-width:0;">
                             <p style="font-size:14px;font-weight:900;color:${isPast ? '#6B7280' : '#111827'};line-height:1.1;">${displayTime}</p>
                             <p style="font-size:11px;font-weight:700;color:${isPast ? '#9CA3AF' : scheme.text};margin-top:2px;">${scheme.label}</p>
                         </div>
-                        ${isPast ? `<span style="font-size:9px;font-weight:900;text-transform:uppercase;color:#D1D5DB;background:#F3F4F6;padding:3px 8px;border-radius:99px;">Done</span>` : ''}
+                        ${isPast ? `<span style="font-size:9px;font-weight:900;text-transform:uppercase;color:#D1D5DB;background:#F3F4F6;padding:3px 8px;border-radius:99px;">Done</span>`
+                                 : isPendingDrop ? `<span style="font-size:9px;font-weight:900;text-transform:uppercase;color:#B91C1C;background:#FEE2E2;padding:3px 8px;border-radius:99px;">Pending Drop</span>`
+                                 : ''}
                     </div>`;
             }).join('');
 
