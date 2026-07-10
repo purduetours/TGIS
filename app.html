@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TGIS Web 2.3</title>
+    <title>TGIS Web 3.2</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <script>
@@ -882,8 +882,6 @@ function renderForms() {
             </div>`;
     }).join('');
 }
-
-    
 function renderDeskDashboard() {
     const dailyContainer = document.getElementById('grid-daily');
     const programContainer = document.getElementById('grid-program');
@@ -920,9 +918,8 @@ function renderDeskDashboard() {
             statusSummary += `<div class="${sColor} px-2 py-0.5 rounded text-[9px] font-black uppercase whitespace-nowrap">${slot.code}: ${sText}</div>`;
 
             const cardHtml = `
-const cardHtml = `
-                <div class="bg-white border p-5 rounded-3xl shadow-sm flex flex-col ${!hasTour ? 'opacity-30' : 'cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition-all'}"
-                     ${hasTour ? `onclick="openTourModal(${JSON.stringify(slot)}, ${JSON.stringify(guides)})"` : ''}>                    <p class="text-[9px] font-black text-primary-gold uppercase tracking-widest">${slot.code}</p>
+                <div class="bg-white border p-5 rounded-3xl shadow-sm flex flex-col ${!hasTour ? 'opacity-30' : ''}">
+                    <p class="text-[9px] font-black text-primary-gold uppercase tracking-widest">${slot.code}</p>
                     <h2 class="text-xl font-black mb-3">${slot.name}</h2>
                     <div class="space-y-1.5 flex-grow">
                         ${guides.length > 0 ? guides.map(g => {
@@ -2091,39 +2088,6 @@ drawConfetti();
     </div>
 </div>
     -->
-<!-- TOUR DETAIL MODAL -->
-<div id="tour-detail-overlay" class="hidden fixed inset-0 z-[300] flex items-center justify-center p-4" style="background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);" onclick="closeTourModal(event)">
-  <div id="tour-detail-box" class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
 
-    <!-- Header -->
-    <div style="background:linear-gradient(135deg,#1a1408,#2a2010);" class="rounded-t-3xl p-6 flex items-start justify-between">
-      <div>
-        <p id="tdm-code" class="text-[10px] font-black text-primary-gold uppercase tracking-[0.2em] mb-1"></p>
-        <h2 id="tdm-name" class="text-2xl font-black text-white leading-tight"></h2>
-        <p id="tdm-time" class="text-sm font-bold mt-1" style="color:rgba(255,255,255,0.5);"></p>
-      </div>
-      <div class="flex items-center gap-4">
-        <!-- Countdown -->
-        <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);" class="rounded-2xl px-5 py-3 text-center">
-          <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:rgba(255,255,255,0.4);margin-bottom:4px;">Countdown</p>
-          <p id="tdm-countdown" class="font-black text-white" style="font-size:1.5rem;font-family:monospace;letter-spacing:0.05em;">--:--:--</p>
-        </div>
-        <button onclick="document.getElementById('tour-detail-overlay').classList.add('hidden');clearInterval(window._countdownTimer);" style="background:rgba(255,255,255,0.08);border:none;color:rgba(255,255,255,0.5);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;">✕</button>
-      </div>
-    </div>
-
-    <!-- Guide rows -->
-    <div class="p-6">
-      <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3">Assigned Guides</p>
-      <div id="tdm-guides" class="space-y-3 mb-6"></div>
-
-      <!-- Family assignment summary -->
-      <div class="bg-gray-50 rounded-2xl p-4 border border-gray-100">
-        <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] mb-3">Family Assignment Overview</p>
-        <div id="tdm-family-summary" class="space-y-2"></div>
-      </div>
-    </div>
-  </div>
-</div>
 </body>
 </html>
