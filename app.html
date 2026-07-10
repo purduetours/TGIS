@@ -882,6 +882,133 @@ function renderForms() {
             </div>`;
     }).join('');
 }
+
+// ── TOUR DETAIL MODAL ──────────────────────────────────────────────────────
+function openTourModal(slot, guides) {
+  const info = TOUR_MAP[slot.code] || { name: slot.name, time: slot.h + ':' + String(slot.m).padStart(2,'0') };
+  const startTime = new Date(deskDate);
+  startTime.setHours(slot.h, slot.m, 0, 0);
+  const endTime = new Date(startTime.getTime() + 105 * 60000);
+
+  document.getElementById('tdm-code').innerText = slot.code;
+  document.getElementById('tdm-name').innerText = slot.name;
+  document.getElementById('tdm-time').innerText = `${info.time || (slot.h + ':' + String(slot.m).padStart(2,'0') + (slot.h >= 12 ? ' PM' : ' AM'))} · ${deskDate.toLocaleDateString('en-US', { weekday:'long', month:'short', day:'numeric' })}`;
+
+  // Countdown
+  clearInterval(window._countdownTimer);
+  function updateCountdown() {
+    const now = new Date();
+    const diff = startTime - now;
+    const el = document.getElementById('tdm-countdown');
+    if (!el) return;
+    if (diff <= -105*60000) { el.innerText = 'CONCLUDED'; el.style.color = '#9CA3AF'; return; }
+    if (diff < 0) {
+      // Tour is live — count up to end
+      const elapsed = Math.abs(diff);
+      const h = Math.floor(elapsed/3600000);
+      const m = Math.floor((elapsed%3600000)/60000);
+      const s = Math.floor((elapsed%60000)/1000);
+      el.innerText = `+${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+      el.style.color = '#10B981';
+    } else {
+      const h = Math.floor(diff/3600000);
+      const m = Math.floor((diff%3600000)/60000);
+      const s = Math.floor((diff%60000)/1000);
+      el.innerText = `-${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+      el.style.color = '#CFB991';
+    }
+  }
+  updateCountdown();
+  window._countdownTimer = setInterval(updateCountdown, 1000);
+
+  // Guide rows
+  const guideContainer = document.getElementById('tdm-guides');
+  if (!guides || guides.length === 0) {
+    guideContainer.innerHTML = `<p class="text-sm text-gray-400 italic">No guides assigned</p>`;
+  } else {
+    const parsed = guides.map(g => parseGuide(g.guide, g.status));
+    guideContainer.innerHTML = parsed.map((p, i) => `
+      <div class="border border-gray-100 rounded-2xl overflow-hidden">
+        <!-- Guide header row -->
+        <div class="flex items-center gap-3 px-4 py-3 bg-gray-50 border-b border-gray-100">
+          <div class="w-8 h-8 rounded-full bg-primary-gold flex items-center justify-center text-white font-black text-sm flex-shrink-0">
+            ${p.name.charAt(0)}
+          </div>
+          <span class="font-black text-sm flex-1">${p.name}</span>
+          <span class="text-[9px] px-2 py-1 rounded-md font-black uppercase ${p.badgeClass}">${p.statusLabel}</span>
+        </div>
+        <!-- Detail fields -->
+        <div class="grid grid-cols-2 gap-0 divide-x divide-gray-100">
+          <!-- TGIT Assignment -->
+          <div class="p-3">
+            <p class="text-[9px] font-black uppercase tracking-widest text-gray-400 mb-1">TGIT</p>
+            <div class="flex items-center gap-2">
+              <div class="w-5 h-5 rounded-full bg-gray-100 border border-gray-200 flex-shrink-0"></div>
+              <span class="text-xs font-bold text-gray-300 italic">Unassigned</span>
+              <button class="ml-auto text-[9px] font-black uppercase tracking-widest text-primary-gold bg-primary-gold/10 border border-primary-gold/25 rounded-full px-2 py-0.5 cursor-not-allowed opacity-60">Assign</button>
+            </div>
+          </div>
+          <!-- Direction -->
+          <div class="p-3">
+            <p class="text-[9px] font-black uppercase tracking-widest text-gray-400 mb-1">Direction</p>
+            <div class="flex gap-1">
+              <button class="text-[9px] font-black uppercase px-2 py-1 rounded-lg border border-gray-200 text-gray-300 cursor-not-allowed opacity-60">CW</button>
+              <button class="text-[9px] font-black uppercase px-2 py-1 rounded-lg border border-gray-200 text-gray-300 cursor-not-allowed opacity-60">CCW</button>
+            </div>
+          </div>
+        </div>
+        <!-- Sticker + Families -->
+        <div class="grid grid-cols-2 gap-0 divide-x divide-y divide-gray-100 border-t border-gray-100">
+          <!-- Sticker -->
+          <div class="p-3">
+            <p class="text-[9px] font-black uppercase tracking-widest text-gray-400 mb-1">Sticker</p>
+            <div class="flex items-center gap-2">
+              <div class="w-6 h-6 rounded border-2 border-dashed border-gray-200 flex-shrink-0"></div>
+              <span class="text-xs font-bold text-gray-300 italic">Not set</span>
+              <button class="ml-auto text-[9px] font-black uppercase tracking-widest text-primary-gold bg-primary-gold/10 border border-primary-gold/25 rounded-full px-2 py-0.5 cursor-not-allowed opacity-60">Set</button>
+            </div>
+          </div>
+          <!-- Families -->
+          <div class="p-3">
+            <p class="text-[9px] font-black uppercase tracking-widest text-gray-400 mb-1">Families <span class="text-gray-300">(0/10)</span></p>
+            <div class="flex flex-wrap gap-1">
+              ${Array.from({length:10}).map((_,fi) => `
+                <div class="w-6 h-6 rounded-lg border-2 border-dashed border-gray-200 flex items-center justify-center cursor-not-allowed opacity-50">
+                  <span class="text-[8px] font-black text-gray-300">${fi+1}</span>
+                </div>`).join('')}
+            </div>
+          </div>
+        </div>
+      </div>`).join('');
+  }
+
+  // Family summary
+  const famSummary = document.getElementById('tdm-family-summary');
+  if (!guides || guides.length === 0) {
+    famSummary.innerHTML = `<p class="text-xs text-gray-400 italic">No guides assigned</p>`;
+  } else {
+    famSummary.innerHTML = guides.map(g => {
+      const p = parseGuide(g.guide, g.status);
+      return `<div class="flex items-center gap-3">
+        <span class="text-sm font-bold w-32 flex-shrink-0">${p.name}</span>
+        <div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+          <div class="h-full bg-primary-gold rounded-full" style="width:0%"></div>
+        </div>
+        <span class="text-xs font-black text-gray-300">0 / 10</span>
+      </div>`;
+    }).join('');
+  }
+
+  document.getElementById('tour-detail-overlay').classList.remove('hidden');
+}
+
+function closeTourModal(e) {
+  if (e.target === document.getElementById('tour-detail-overlay')) {
+    document.getElementById('tour-detail-overlay').classList.add('hidden');
+    clearInterval(window._countdownTimer);
+  }
+}
+    
 function renderDeskDashboard() {
     const dailyContainer = document.getElementById('grid-daily');
     const programContainer = document.getElementById('grid-program');
@@ -918,8 +1045,9 @@ function renderDeskDashboard() {
             statusSummary += `<div class="${sColor} px-2 py-0.5 rounded text-[9px] font-black uppercase whitespace-nowrap">${slot.code}: ${sText}</div>`;
 
             const cardHtml = `
-                <div class="bg-white border p-5 rounded-3xl shadow-sm flex flex-col ${!hasTour ? 'opacity-30' : ''}">
-                    <p class="text-[9px] font-black text-primary-gold uppercase tracking-widest">${slot.code}</p>
+const cardHtml = `
+                <div class="bg-white border p-5 rounded-3xl shadow-sm flex flex-col ${!hasTour ? 'opacity-30' : 'cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition-all'}"
+                     ${hasTour ? `onclick="openTourModal(${JSON.stringify(slot)}, ${JSON.stringify(guides)})"` : ''}>                    <p class="text-[9px] font-black text-primary-gold uppercase tracking-widest">${slot.code}</p>
                     <h2 class="text-xl font-black mb-3">${slot.name}</h2>
                     <div class="space-y-1.5 flex-grow">
                         ${guides.length > 0 ? guides.map(g => {
@@ -2088,6 +2216,39 @@ drawConfetti();
     </div>
 </div>
     -->
+<!-- TOUR DETAIL MODAL -->
+<div id="tour-detail-overlay" class="hidden fixed inset-0 z-[300] flex items-center justify-center p-4" style="background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);" onclick="closeTourModal(event)">
+  <div id="tour-detail-box" class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
 
+    <!-- Header -->
+    <div style="background:linear-gradient(135deg,#1a1408,#2a2010);" class="rounded-t-3xl p-6 flex items-start justify-between">
+      <div>
+        <p id="tdm-code" class="text-[10px] font-black text-primary-gold uppercase tracking-[0.2em] mb-1"></p>
+        <h2 id="tdm-name" class="text-2xl font-black text-white leading-tight"></h2>
+        <p id="tdm-time" class="text-sm font-bold mt-1" style="color:rgba(255,255,255,0.5);"></p>
+      </div>
+      <div class="flex items-center gap-4">
+        <!-- Countdown -->
+        <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);" class="rounded-2xl px-5 py-3 text-center">
+          <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:rgba(255,255,255,0.4);margin-bottom:4px;">Countdown</p>
+          <p id="tdm-countdown" class="font-black text-white" style="font-size:1.5rem;font-family:monospace;letter-spacing:0.05em;">--:--:--</p>
+        </div>
+        <button onclick="document.getElementById('tour-detail-overlay').classList.add('hidden');clearInterval(window._countdownTimer);" style="background:rgba(255,255,255,0.08);border:none;color:rgba(255,255,255,0.5);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;">✕</button>
+      </div>
+    </div>
+
+    <!-- Guide rows -->
+    <div class="p-6">
+      <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3">Assigned Guides</p>
+      <div id="tdm-guides" class="space-y-3 mb-6"></div>
+
+      <!-- Family assignment summary -->
+      <div class="bg-gray-50 rounded-2xl p-4 border border-gray-100">
+        <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] mb-3">Family Assignment Overview</p>
+        <div id="tdm-family-summary" class="space-y-2"></div>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
