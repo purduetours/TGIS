@@ -299,29 +299,23 @@
 <link rel="apple-touch-icon" sizes="180x180" href="tgisicon.png">
 </head>
 <body class="bg-gray-50 font-sans antialiased text-text-dark">
-
 <div id="loading-overlay" class="fixed inset-0 z-[100] flex flex-col items-center justify-center transition-opacity duration-500" style="background:#0f0c04;">
 
-    <!-- Loading state -->
     <div id="loader-content" class="flex flex-col items-center w-full max-w-xs px-8">
 
-        <!-- Wordmark -->
-        <div style="margin-bottom:2.5rem;text-align:center;">
-            <p style="font-size:9px;font-weight:900;letter-spacing:0.3em;text-transform:uppercase;color:rgba(207,185,145,0.5);margin-bottom:6px;">Purdue University</p>
-            <h1 style="font-size:2rem;font-weight:900;color:#ffffff;letter-spacing:-0.02em;line-height:1;">TGIS</h1>
-            <p style="font-size:10px;font-weight:700;color:rgba(207,185,145,0.6);letter-spacing:0.15em;text-transform:uppercase;margin-top:4px;">Tour Guide Information System</p>
+        <div style="margin-bottom:2.5rem; text-align:center;">
+            <img src="boss.png" 
+                 alt="Loading logo" 
+                 style="max-width: 140px; height: auto; margin: 0 auto; display: block;" />
         </div>
 
-        <!-- Progress bar -->
         <div style="width:100%;height:2px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;margin-bottom:1.5rem;">
             <div id="loading-bar" style="height:100%;width:0%;background:#CFB991;border-radius:99px;transition:width 0.4s ease;"></div>
         </div>
 
-        <!-- Status text -->
         <p id="loading-status" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:rgba(207,185,145,0.5);">Connecting...</p>
     </div>
 
-    <!-- Error state -->
     <div id="error-content" class="hidden flex-col items-center text-center w-full max-w-xs px-8">
         <div style="width:48px;height:48px;border-radius:12px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);display:flex;align-items:center;justify-content:center;margin-bottom:1.5rem;">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2.5" stroke-linecap="round"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
