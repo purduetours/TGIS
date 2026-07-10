@@ -218,6 +218,7 @@ body { font-family:'Inter',sans-serif; background:#F9FAFB; color:#111827; }
     <div class="flex justify-between">
       <button class="btn-back" onclick="prevSection(2)">← Back</button>
       <button class="btn-gold" id="s2-next" onclick="nextSection(2)" disabled>Next: Training →</button>
+      <button class="btn-gold hidden" id="s2-submit" onclick="submitNoTours()" style="background:#EF4444;">Submit →</button>
     </div>
   </div>
 
@@ -396,6 +397,49 @@ window.onload = async () => {
 
 function setStatus(msg) { document.getElementById('status-message').innerText = msg; }
 
+async function submitNoTours() {
+  if (!document.getElementById('noTourReason').value.trim()) {
+    alert('Please provide a reason for not giving tours.'); return;
+  }
+  if (!document.getElementById('affirm-notours').checked) {
+    alert('Please confirm you will speak with Nancy, Amanda, and Todd.'); return;
+  }
+
+  const btn = document.getElementById('s2-submit');
+  btn.innerText = 'SUBMITTING…';
+  btn.disabled = true;
+
+  const updCollege = infoCorrect ? '' : Array.from(document.getElementById('upd-college').selectedOptions).map(o=>o.value).join(', ');
+
+  const payload = {
+    action:        'fullcensus',
+    username,
+    preferredName: infoCorrect ? '' : document.getElementById('upd-preferred').value.trim(),
+    birthday:      infoCorrect ? '' : document.getElementById('upd-birthday').value,
+    hometown:      infoCorrect ? '' : document.getElementById('upd-hometown').value.trim(),
+    gradDate:      infoCorrect ? '' : document.getElementById('upd-graddate').value,
+    year:          infoCorrect ? '' : document.getElementById('upd-year').value,
+    major:         infoCorrect ? '' : document.getElementById('upd-major').value.trim(),
+    college:       updCollege,
+    minor:         infoCorrect ? '' : document.getElementById('upd-minor').value.trim(),
+    certificate:   infoCorrect ? '' : document.getElementById('upd-cert').value.trim(),
+    givingTours:   'No',
+    noTourReason:  document.getElementById('noTourReason').value.trim(),
+    toursPerWeek:  '',
+    trainingDaysAvail: '', trainingDaysPref: '', trainingTimes: '', dietary: '',
+    deskWhere: '', deskHours: '',
+  };
+
+  try {
+    await fetch(SCRIPT_URL, { method:'POST', mode:'no-cors', body: JSON.stringify(payload) });
+  } catch(err) { console.warn(err); }
+
+  btn.innerText = 'REDIRECTING TO TGIS…';
+  setTimeout(() => {
+    window.location.href = `https://purduetours.github.io/TGIS/app.html?user=${username}`;
+  }, 1500);
+}
+
 // ─── PROFILE DISPLAY ─────────────────────────────────────────────────────────
 function renderProfileDisplay(d) {
   const fields = [
@@ -547,7 +591,9 @@ function setYN(field, value) {
     hidVal.value = value;
     document.getElementById('no-tours-section').classList.toggle('hidden', value !== 'No');
     document.getElementById('yes-tours-section').classList.toggle('hidden', value !== 'Yes');
-    document.getElementById('s2-next').disabled = false;
+    document.getElementById('s2-next').disabled = value !== 'Yes';
+    document.getElementById('s2-next').classList.toggle('hidden', value === 'No');
+    document.getElementById('s2-submit').classList.toggle('hidden', value !== 'No');
   }
 }
 
