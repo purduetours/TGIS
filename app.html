@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TGIS 3.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        'primary-gold': '#CFB991',
+                        'text-dark': '#374151',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { 
+            display: flex; 
+            flex-direction: column; 
+            height: 100vh; 
+            overflow: hidden; 
+        }
+        @keyframes pulse-soft { 
+            0%, 100% { opacity: 1; } 
+            50% { opacity: 0.4; } 
+        }
+        .loading-text {
+            animation: pulse-soft 2.5s ease-in-out infinite;
+        }
+    </style>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="TGIS Mobile">
+</head>
+<body class="font-sans antialiased" style="background:#0f0c04;">
+
+    <div class="fixed inset-0 z-[100] flex flex-col items-center justify-center p-4">
+        
+        <div class="flex flex-col items-center w-full max-w-sm px-6">
+            
+            <div class="mb-10 text-center">
+                <img src="TGISv3.png" 
+                     alt="TGIS logo" 
+                     class="mx-auto block" 
+                     style="max-width: 140px; height: auto;" 
+                     onerror="this.style.display='none'; document.getElementById('fallback-logo').classList.remove('hidden');" />
+                <div id="fallback-logo" class="hidden">
+                    <p class="text-[10px] font-black text-primary-gold uppercase tracking-[0.2em] mb-1">Purdue University</p>
+                    <h1 class="text-2xl font-black text-white leading-tight">TGIS</h1>
+                </div>
+            </div>
+
+            <div class="w-full h-[2px] bg-white/10 rounded-full overflow-hidden mb-8">
+                <div class="h-full bg-primary-gold rounded-full loading-text" style="width: 100%;"></div>
+            </div>
+
+            <div class="text-center mb-10">
+                <h2 class="text-xl font-black text-white tracking-tight mb-3">Down for Maintenance</h2>
+                <p class="text-sm text-white/60 leading-relaxed max-w-xs mx-auto">
+                    TGIS is temporarily offline while we perform system maintenance. We will be back online within the next business day.
+                </p>
+            </div>
+
+            <div class="w-full bg-white/[0.03] border border-white/[0.08] rounded-2xl p-5 text-left">
+                <p class="text-[9px] font-black text-primary-gold uppercase tracking-[0.15em] mb-4 pb-2 border-b border-white/[0.05]">System Status </p>
+                
+                <div class="space-y-3.5">
+                    <div>
+                        <p class="text-[8px] font-black text-white/30 uppercase tracking-widest">Date</p>
+                        <p id="current-date" class="font-bold text-white text-xs mt-0.5">--</p>
+                    </div>
+                    
+                    <div>
+                        <p class="text-[8px] font-black text-white/30 uppercase tracking-widest">Time</p>
+                        <p id="current-time" class="font-bold text-white text-xs mt-0.5">--</p>
+                    </div>
+                    
+                    <div>
+                        <p class="text-[8px] font-black text-white/30 uppercase tracking-widest">Status Code</p>
+                        <p class="font-mono text-xs font-bold text-red-400 mt-0.5">TGIS_SECURITY_503</p>
+                    </div>
+                    
+                    <div>
+                        <p class="text-[8px] font-black text-white/30 uppercase tracking-widest">Admin POC</p>
+                        <p class="text-xs font-bold text-white mt-0.5">JL</p>
+                    </div>
+                </div>
+            </div>
+
+            <p class="text-[9px] text-white/20 uppercase font-black tracking-widest mt-12 text-center">
+                Tour Guide Information System
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function updateDateTime() {
+            const now = new Date();
+            
+            // Format Date (e.g. July 13, 2026)
+            const dateOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('current-date').innerText = now.toLocaleDateString('en-US', dateOptions);
+            
+            // Format Time (e.g. 6:29 PM)
+            const timeOptions = { hour: 'numeric', minute: '2-digit', hour12: true };
+            document.getElementById('current-time').innerText = now.toLocaleTimeString('en-US', timeOptions);
+        }
+
+        // Run once immediately
+        updateDateTime();
+    </script>
+</body>
+</html>
