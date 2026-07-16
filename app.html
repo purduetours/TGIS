@@ -537,12 +537,26 @@
         </div>
     </div>
 
-    <div id="view-families" class="view-section p-4 sm:p-6">
-        <header class="mb-6">
-            <h1 class="text-3xl font-black tracking-tight">Family Cup</h1>
-            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Semester standings — updated weekly</p>
-        </header>
-        <div id="family-leaderboard-container"></div>
+<div id="view-families" class="view-section">
+
+        <!-- HERO -->
+        <div style="background:linear-gradient(135deg,#1a1408 0%,#2a2010 50%,#1a1408 100%);padding:2rem 1.5rem 2.5rem;">
+            <p style="font-size:9px;font-weight:900;letter-spacing:0.3em;text-transform:uppercase;color:rgba(207,185,145,0.5);margin:0 0 4px;">Purdue Tour Guides</p>
+            <h1 style="font-size:2.25rem;font-weight:900;color:#fff;margin:0 0 2px;letter-spacing:-0.02em;">Family Cup</h1>
+            <p id="family-semester-label" style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:0.12em;margin:0;"></p>
+        </div>
+
+        <!-- YOUR FAMILY -->
+        <div style="padding:0 1rem;transform:translateY(-20px);">
+            <div id="my-family-card"></div>
+        </div>
+
+        <!-- STANDINGS -->
+        <div style="padding:0 1rem 6rem;margin-top:-4px;">
+            <p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#9CA3AF;margin-bottom:10px;">Full Standings</p>
+            <div id="family-leaderboard-container"></div>
+        </div>
+
     </div>
 
     
@@ -785,13 +799,7 @@
     let selectedCalendarDate = null;   // Tracks clicked day
 
     // Static Family Data
-const familyData = [
-        { name: "Gabe", points: 0 },
-        { name: "Hailey", points: 0 },
-        { name: "Logann", points: 0 },
-        { name: "Nancy", points: 0 },
-        { name: "Norah", points: 0 }
-    ];
+    let familyData = [];
 
 
 let deskDate = new Date();
@@ -1225,97 +1233,152 @@ function renderHomeTodaySchedule(myTours) {
     }
     setInterval(updateClock, 1000);
 
-    function renderFamilyUI() {
-        const container = document.getElementById('family-leaderboard-container');
+   function renderFamilyUI() {
+        const container  = document.getElementById('family-leaderboard-container');
+        const myCard     = document.getElementById('my-family-card');
+        const semLabel   = document.getElementById('family-semester-label');
         if (!container) return;
 
-        const sorted = [...familyData].sort((a, b) => b.points - a.points);
-        const leader = sorted[0].points;
-        const maxPoints = 300; // semester points target — adjust as needed
+        // Use real data if available, otherwise fall back to static placeholder
+        const data = (cachedData && cachedData.familyStandings && cachedData.familyStandings.length)
+            ? cachedData.familyStandings
+            : familyData;
 
-        const FAMILY_COLORS = [
-            { bg: '#CFB991', text: '#5a4a1f', light: 'rgba(207,185,145,0.12)', border: 'rgba(207,185,145,0.4)' },
-            { bg: '#6B7280', text: '#374151', light: '#F9FAFB',                border: '#E5E7EB' },
-            { bg: '#92400E', text: '#78350F', light: '#FFFBEB',                border: '#FDE68A' },
-            { bg: '#1D4ED8', text: '#1E3A8A', light: '#EFF6FF',                border: '#BFDBFE' },
-            { bg: '#065F46', text: '#064E3B', light: '#ECFDF5',                border: '#A7F3D0' },
+        if (!data || !data.length) {
+            container.innerHTML = `<p style="color:#9CA3AF;font-size:13px;font-style:italic;text-align:center;padding:2rem;">No family data available yet.</p>`;
+            return;
+        }
+
+        if (semLabel) semLabel.innerText = (cachedData && cachedData.currentSemesterName) || 'Current Semester';
+
+        const sorted = [...data].sort((a, b) => b.points - a.points);
+        const leader = sorted[0].points || 0;
+
+        // Figure out which family the current user belongs to
+        const myFamily = (cachedData && cachedData.profile && cachedData.profile.family) || null;
+
+        // ── PALETTE: up to 6 families ──────────────────────────────────────
+        const PALETTE = [
+            { name:'Gold',   bg:'#CFB991', glow:'rgba(207,185,145,0.35)', light:'rgba(207,185,145,0.12)', text:'#92400E' },
+            { name:'Blue',   bg:'#3B82F6', glow:'rgba(59,130,246,0.35)',  light:'rgba(59,130,246,0.1)',   text:'#1E40AF' },
+            { name:'Green',  bg:'#10B981', glow:'rgba(16,185,129,0.35)',  light:'rgba(16,185,129,0.1)',   text:'#065F46' },
+            { name:'Purple', bg:'#8B5CF6', glow:'rgba(139,92,246,0.35)', light:'rgba(139,92,246,0.1)',   text:'#5B21B6' },
+            { name:'Red',    bg:'#EF4444', glow:'rgba(239,68,68,0.35)',   light:'rgba(239,68,68,0.1)',    text:'#991B1B' },
+            { name:'Teal',   bg:'#06B6D4', glow:'rgba(6,182,212,0.35)',  light:'rgba(6,182,212,0.1)',    text:'#155E75' },
         ];
 
-        const RANK_LABELS = ['1ST', '2ND', '3RD', '4TH', '5TH'];
+        const MEDALS = ['🥇','🥈','🥉'];
+        const RANK_SUFFIX = ['ST','ND','RD','TH','TH','TH'];
 
-        // Leader banner
-        const leaderHtml = `
-            <div style="background:#1a1408;border-radius:1rem;padding:1.25rem 1.25rem 1.25rem 1.5rem;
-                        border:1px solid rgba(207,185,145,0.3);display:flex;align-items:center;
-                        justify-content:space-between;margin-bottom:1rem;">
-                <div>
-                    <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;
-                               color:rgba(207,185,145,0.55);margin-bottom:4px;">Current Leader</p>
-                    <p style="font-size:1.5rem;font-weight:900;color:#CFB991;line-height:1;">
-                        ${sorted[0].name} Family
-                    </p>
-                </div>
-                <div style="text-align:right;">
-                    <p style="font-size:2rem;font-weight:900;color:#fff;line-height:1;">${sorted[0].points}</p>
-                    <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;
-                               color:rgba(255,255,255,0.3);">points</p>
-                </div>
-            </div>`;
+        // ── YOUR FAMILY CARD ──────────────────────────────────────────────
+        if (myCard) {
+            const myData  = myFamily ? sorted.find(f => f.name === myFamily) : null;
+            const myRank  = myData   ? sorted.indexOf(myData) + 1 : null;
+            const myColor = myData   ? PALETTE[sorted.indexOf(myData) % PALETTE.length] : PALETTE[0];
+            const myPts   = myData   ? myData.points : 0;
+            const myPersonalPts = (cachedData && cachedData.myFamilyPoints) || 0;
 
-        // Standings rows
-        const rowsHtml = sorted.map((family, i) => {
-            const scheme = FAMILY_COLORS[i];
-            const pct = Math.round((family.points / maxPoints) * 100);
-            const gap = i === 0 ? null : leader - family.points;
-            const isLeader = i === 0;
-
-            return `
-                <div style="background:white;border:1px solid #F3F4F6;border-radius:1rem;
-                            padding:1rem 1.25rem;margin-bottom:0.625rem;">
-                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
-
-                        <!-- Rank badge -->
-                        <div style="width:36px;height:36px;border-radius:8px;background:${scheme.light};
-                                    border:1px solid ${scheme.border};display:flex;align-items:center;
-                                    justify-content:center;flex-shrink:0;">
-                            <span style="font-size:10px;font-weight:900;color:${scheme.bg};letter-spacing:0.05em;">
-                                ${RANK_LABELS[i]}
-                            </span>
+            if (myData) {
+                const gapToFirst = myRank === 1 ? 0 : leader - myPts;
+                myCard.innerHTML = `
+                    <div style="background:linear-gradient(135deg,#1a1408,#0f0c04);border:1px solid ${myColor.glow};border-radius:1.5rem;padding:1.25rem 1.5rem;box-shadow:0 8px 32px ${myColor.glow};">
+                        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+                            <div>
+                                <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:rgba(255,255,255,0.35);margin:0 0 4px;">Your Family</p>
+                                <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+                                    <div style="width:10px;height:10px;border-radius:50%;background:${myColor.bg};flex-shrink:0;box-shadow:0 0 8px ${myColor.bg};"></div>
+                                    <h2 style="font-size:1.5rem;font-weight:900;color:#fff;margin:0;">${myData.name} Family</h2>
+                                    <span style="font-size:11px;font-weight:900;color:${myColor.bg};background:${myColor.light};border:1px solid ${myColor.glow};border-radius:99px;padding:2px 10px;">${myRank}${RANK_SUFFIX[(myRank-1)%RANK_SUFFIX.length]} PLACE</span>
+                                </div>
+                                <p style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.35);margin:0;">
+                                    ${myRank === 1 ? '🏆 Leading the cup' : `${gapToFirst} pts behind 1st`}
+                                </p>
+                            </div>
+                            <div style="text-align:right;">
+                                <p style="font-size:2.5rem;font-weight:900;color:${myColor.bg};margin:0;line-height:1;">${myPts}</p>
+                                <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.25);margin:2px 0 0;">family points</p>
+                            </div>
                         </div>
 
-                        <!-- Name + gap -->
+                        <!-- Progress bar to first -->
+                        ${myRank > 1 ? `
+                        <div style="margin-top:1rem;">
+                            <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                                <span style="font-size:9px;font-weight:800;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:0.1em;">Progress to 1st</span>
+                                <span style="font-size:9px;font-weight:800;color:rgba(255,255,255,0.3);">${leader} pts to match</span>
+                            </div>
+                            <div style="height:4px;background:rgba(255,255,255,0.07);border-radius:99px;overflow:hidden;">
+                                <div style="height:100%;width:${leader > 0 ? Math.round((myPts/leader)*100) : 0}%;background:${myColor.bg};border-radius:99px;transition:width 1s ease;"></div>
+                            </div>
+                        </div>` : `
+                        <div style="margin-top:1rem;padding:0.5rem 0.875rem;background:rgba(255,255,255,0.04);border-radius:0.75rem;display:inline-flex;align-items:center;gap:6px;">
+                            <span style="font-size:11px;">🏆</span>
+                            <span style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.5);">Your family is leading — keep it up!</span>
+                        </div>`}
+
+                        <!-- Personal contribution -->
+                        ${myPersonalPts > 0 ? `
+                        <div style="margin-top:0.75rem;padding:0.625rem 0.875rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:0.875rem;display:flex;align-items:center;justify-content:space-between;">
+                            <span style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.35);">Your contribution</span>
+                            <span style="font-size:14px;font-weight:900;color:${myColor.bg};">+${myPersonalPts} pts</span>
+                        </div>` : ''}
+                    </div>`;
+            } else {
+                myCard.innerHTML = `
+                    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:1.5rem;padding:1.25rem 1.5rem;text-align:center;">
+                        <p style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.3);margin:0;">You haven't been assigned to a family yet</p>
+                    </div>`;
+            }
+        }
+
+        // ── FULL STANDINGS ────────────────────────────────────────────────
+        container.innerHTML = sorted.map((family, i) => {
+            const color   = PALETTE[i % PALETTE.length];
+            const isMe    = family.name === myFamily;
+            const pct     = leader > 0 ? Math.round((family.points / leader) * 100) : 0;
+            const gap     = i === 0 ? 0 : leader - family.points;
+            const medal   = MEDALS[i] || '';
+
+            return `
+                <div style="background:white;border:1px solid ${isMe ? color.glow : '#F3F4F6'};border-radius:1.25rem;
+                            padding:1rem 1.25rem;margin-bottom:0.625rem;
+                            ${isMe ? `box-shadow:0 0 0 2px ${color.glow};` : ''}
+                            transition:transform 0.15s;">
+
+                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+
+                        <!-- Rank -->
+                        <div style="width:40px;height:40px;border-radius:10px;background:${color.light};border:1px solid ${color.glow};
+                                    display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:${i < 3 ? '18px' : '13px'};">
+                            ${i < 3 ? medal : `<span style="font-weight:900;color:${color.bg};">${i+1}</span>`}
+                        </div>
+
+                        <!-- Name + status -->
                         <div style="flex:1;min-width:0;">
-                            <p style="font-size:14px;font-weight:900;color:#111827;margin-bottom:1px;">
-                                ${family.name} Family
-                            </p>
-                            <p style="font-size:10px;font-weight:700;color:#9CA3AF;">
-                                ${isLeader
-                                    ? '<span style="color:#CFB991;">&#9733; Leading</span>'
+                            <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px;flex-wrap:wrap;">
+                                <p style="font-size:15px;font-weight:900;color:#111827;margin:0;">${family.name} Family</p>
+                                ${isMe ? `<span style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:${color.bg};background:${color.light};border:1px solid ${color.glow};border-radius:99px;padding:1px 8px;">You</span>` : ''}
+                            </div>
+                            <p style="font-size:11px;font-weight:700;color:#9CA3AF;margin:0;">
+                                ${i === 0
+                                    ? `<span style="color:${color.bg};">★ Leading</span>`
                                     : `${gap} pts behind`}
                             </p>
                         </div>
 
                         <!-- Points -->
                         <div style="text-align:right;flex-shrink:0;">
-                            <p style="font-size:1.25rem;font-weight:900;color:#111827;line-height:1;">${family.points}</p>
-                            <p style="font-size:9px;font-weight:900;text-transform:uppercase;
-                                       letter-spacing:0.1em;color:#9CA3AF;">pts</p>
+                            <p style="font-size:1.5rem;font-weight:900;color:#111827;margin:0;line-height:1;">${family.points}</p>
+                            <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:#9CA3AF;margin:2px 0 0;">pts</p>
                         </div>
                     </div>
 
-                    <!-- Progress bar -->
-                    <div style="height:6px;background:#F3F4F6;border-radius:99px;overflow:hidden;">
-                        <div style="height:100%;width:${pct}%;background:${scheme.bg};
-                                    border-radius:99px;transition:width 0.8s ease;"></div>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;margin-top:4px;">
-                        <span style="font-size:9px;font-weight:700;color:#D1D5DB;">${pct}% of season goal</span>
-                        <span style="font-size:9px;font-weight:700;color:#D1D5DB;">${maxPoints} pts max</span>
+                    <!-- Bar -->
+                    <div style="height:5px;background:#F3F4F6;border-radius:99px;overflow:hidden;">
+                        <div style="height:100%;width:${pct}%;background:${color.bg};border-radius:99px;transition:width 1s ease;"></div>
                     </div>
                 </div>`;
         }).join('');
-
-        container.innerHTML = leaderHtml + rowsHtml;
     }
 
     // Sidebar Controls
