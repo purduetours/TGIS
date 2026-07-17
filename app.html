@@ -538,25 +538,15 @@
     </div>
 
 <div id="view-families" class="view-section">
-
-        <!-- HERO -->
-        <div style="background:linear-gradient(135deg,#1a1408 0%,#2a2010 50%,#1a1408 100%);padding:2rem 1.5rem 2.5rem;">
-            <p style="font-size:9px;font-weight:900;letter-spacing:0.3em;text-transform:uppercase;color:rgba(207,185,145,0.5);margin:0 0 4px;">Purdue Tour Guides</p>
-            <h1 style="font-size:2.25rem;font-weight:900;color:#fff;margin:0 0 2px;letter-spacing:-0.02em;">Family Cup</h1>
-            <p id="family-semester-label" style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:0.12em;margin:0;"></p>
-        </div>
-
-        <!-- YOUR FAMILY -->
-        <div style="padding:0 1rem;transform:translateY(-20px);">
+        <header class="px-4 pt-6 pb-2">
+            <h1 class="text-3xl font-black tracking-tight">Family Cup</h1>
+            <p id="family-semester-label" class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1"></p>
+        </header>
+        <div class="px-4 pt-2 pb-24">
             <div id="my-family-card"></div>
-        </div>
-
-        <!-- STANDINGS -->
-        <div style="padding:0 1rem 6rem;margin-top:-4px;">
             <p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#9CA3AF;margin-bottom:10px;">Full Standings</p>
             <div id="family-leaderboard-container"></div>
         </div>
-
     </div>
 
     
@@ -1233,151 +1223,139 @@ function renderHomeTodaySchedule(myTours) {
     }
     setInterval(updateClock, 1000);
 
-   function renderFamilyUI() {
-        const container  = document.getElementById('family-leaderboard-container');
-        const myCard     = document.getElementById('my-family-card');
-        const semLabel   = document.getElementById('family-semester-label');
+  function renderFamilyUI() {
+        const container = document.getElementById('family-leaderboard-container');
+        const myCard    = document.getElementById('my-family-card');
+        const semLabel  = document.getElementById('family-semester-label');
         if (!container) return;
 
-        // Use real data if available, otherwise fall back to static placeholder
         const data = (cachedData && cachedData.familyStandings && cachedData.familyStandings.length)
-            ? cachedData.familyStandings
-            : familyData;
+            ? cachedData.familyStandings : [];
 
-        if (!data || !data.length) {
+        if (!data.length) {
             container.innerHTML = `<p style="color:#9CA3AF;font-size:13px;font-style:italic;text-align:center;padding:2rem;">No family data available yet.</p>`;
             return;
         }
 
-        if (semLabel) semLabel.innerText = (cachedData && cachedData.currentSemesterName) || 'Current Semester';
+        if (semLabel) semLabel.innerText = (cachedData && cachedData.currentSemesterName) || '';
 
-        const sorted = [...data].sort((a, b) => b.points - a.points);
-        const leader = sorted[0].points || 0;
+        const sorted    = [...data].sort((a, b) => b.points - a.points);
+        const leader    = sorted[0].points || 1;
+        const myFamily  = cachedData?.profile?.family || null;
+        const myPts     = cachedData?.myFamilyPoints  || 0;
 
-        // Figure out which family the current user belongs to
-        const myFamily = (cachedData && cachedData.profile && cachedData.profile.family) || null;
-
-        // ── PALETTE: up to 6 families ──────────────────────────────────────
         const PALETTE = [
-            { name:'Gold',   bg:'#CFB991', glow:'rgba(207,185,145,0.35)', light:'rgba(207,185,145,0.12)', text:'#92400E' },
-            { name:'Blue',   bg:'#3B82F6', glow:'rgba(59,130,246,0.35)',  light:'rgba(59,130,246,0.1)',   text:'#1E40AF' },
-            { name:'Green',  bg:'#10B981', glow:'rgba(16,185,129,0.35)',  light:'rgba(16,185,129,0.1)',   text:'#065F46' },
-            { name:'Purple', bg:'#8B5CF6', glow:'rgba(139,92,246,0.35)', light:'rgba(139,92,246,0.1)',   text:'#5B21B6' },
-            { name:'Red',    bg:'#EF4444', glow:'rgba(239,68,68,0.35)',   light:'rgba(239,68,68,0.1)',    text:'#991B1B' },
-            { name:'Teal',   bg:'#06B6D4', glow:'rgba(6,182,212,0.35)',  light:'rgba(6,182,212,0.1)',    text:'#155E75' },
+            { bg:'#CFB991', glow:'rgba(207,185,145,0.4)', light:'rgba(207,185,145,0.12)' },
+            { bg:'#3B82F6', glow:'rgba(59,130,246,0.4)',  light:'rgba(59,130,246,0.1)'   },
+            { bg:'#10B981', glow:'rgba(16,185,129,0.4)',  light:'rgba(16,185,129,0.1)'   },
+            { bg:'#8B5CF6', glow:'rgba(139,92,246,0.4)',  light:'rgba(139,92,246,0.1)'   },
+            { bg:'#EF4444', glow:'rgba(239,68,68,0.4)',   light:'rgba(239,68,68,0.1)'    },
+            { bg:'#06B6D4', glow:'rgba(6,182,212,0.4)',   light:'rgba(6,182,212,0.1)'    },
         ];
-
         const MEDALS = ['🥇','🥈','🥉'];
-        const RANK_SUFFIX = ['ST','ND','RD','TH','TH','TH'];
 
         // ── YOUR FAMILY CARD ──────────────────────────────────────────────
         if (myCard) {
-            const myData  = myFamily ? sorted.find(f => f.name === myFamily) : null;
-            const myRank  = myData   ? sorted.indexOf(myData) + 1 : null;
-            const myColor = myData   ? PALETTE[sorted.indexOf(myData) % PALETTE.length] : PALETTE[0];
-            const myPts   = myData   ? myData.points : 0;
-            const myPersonalPts = (cachedData && cachedData.myFamilyPoints) || 0;
+            const myIdx   = sorted.findIndex(f => f.name === myFamily);
+            const myData  = myIdx >= 0 ? sorted[myIdx] : null;
+            const myRank  = myIdx + 1;
+            const myColor = myIdx >= 0 ? PALETTE[myIdx % PALETTE.length] : PALETTE[0];
+            const myFamPts = myData ? myData.points : 0;
+            const gap      = myRank === 1 ? 0 : leader - myFamPts;
+            const suffixes = ['ST','ND','RD','TH','TH','TH'];
 
             if (myData) {
-                const gapToFirst = myRank === 1 ? 0 : leader - myPts;
                 myCard.innerHTML = `
-                    <div style="background:linear-gradient(135deg,#1a1408,#0f0c04);border:1px solid ${myColor.glow};border-radius:1.5rem;padding:1.25rem 1.5rem;box-shadow:0 8px 32px ${myColor.glow};">
-                        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
-                            <div>
-                                <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:rgba(255,255,255,0.35);margin:0 0 4px;">Your Family</p>
-                                <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
-                                    <div style="width:10px;height:10px;border-radius:50%;background:${myColor.bg};flex-shrink:0;box-shadow:0 0 8px ${myColor.bg};"></div>
-                                    <h2 style="font-size:1.5rem;font-weight:900;color:#fff;margin:0;">${myData.name} Family</h2>
-                                    <span style="font-size:11px;font-weight:900;color:${myColor.bg};background:${myColor.light};border:1px solid ${myColor.glow};border-radius:99px;padding:2px 10px;">${myRank}${RANK_SUFFIX[(myRank-1)%RANK_SUFFIX.length]} PLACE</span>
-                                </div>
-                                <p style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.35);margin:0;">
-                                    ${myRank === 1 ? '🏆 Leading the cup' : `${gapToFirst} pts behind 1st`}
-                                </p>
+                <div style="background:linear-gradient(135deg,#1a1408,#0f0c04);border:1px solid ${myColor.glow};
+                            border-radius:1.5rem;padding:1.25rem 1.5rem;box-shadow:0 4px 24px ${myColor.glow};
+                            margin-bottom:1.25rem;">
+                    <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;
+                               color:rgba(255,255,255,0.3);margin:0 0 8px;">Your Family</p>
+                    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;">
+                        <div style="flex:1;">
+                            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap;">
+                                <div style="width:10px;height:10px;border-radius:50%;background:${myColor.bg};
+                                            box-shadow:0 0 8px ${myColor.bg};flex-shrink:0;"></div>
+                                <h2 style="font-size:1.4rem;font-weight:900;color:#fff;margin:0;">${myData.name} Family</h2>
+                                <span style="font-size:10px;font-weight:900;color:${myColor.bg};
+                                             background:${myColor.light};border:1px solid ${myColor.glow};
+                                             border-radius:99px;padding:2px 10px;letter-spacing:0.06em;">
+                                    ${myRank}${suffixes[(myRank-1)%6]} PLACE
+                                </span>
                             </div>
-                            <div style="text-align:right;">
-                                <p style="font-size:2.5rem;font-weight:900;color:${myColor.bg};margin:0;line-height:1;">${myPts}</p>
-                                <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.25);margin:2px 0 0;">family points</p>
+                            <p style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.35);margin:0 0 12px;">
+                                ${myRank === 1 ? '🏆 Leading the cup' : `${gap} pts behind 1st`}
+                            </p>
+                            ${myRank > 1 ? `
+                            <div style="height:4px;background:rgba(255,255,255,0.07);border-radius:99px;overflow:hidden;margin-bottom:8px;">
+                                <div style="height:100%;width:${Math.round((myFamPts/leader)*100)}%;
+                                            background:${myColor.bg};border-radius:99px;transition:width 1s ease;"></div>
+                            </div>` : ''}
+                            <div style="display:inline-flex;align-items:center;gap:8px;
+                                        background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);
+                                        border-radius:0.75rem;padding:0.5rem 0.875rem;">
+                                <span style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.4);">Your points this semester</span>
+                                <span style="font-size:1rem;font-weight:900;color:${myColor.bg};">+${myPts} pts</span>
                             </div>
                         </div>
-
-                        <!-- Progress bar to first -->
-                        ${myRank > 1 ? `
-                        <div style="margin-top:1rem;">
-                            <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-                                <span style="font-size:9px;font-weight:800;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:0.1em;">Progress to 1st</span>
-                                <span style="font-size:9px;font-weight:800;color:rgba(255,255,255,0.3);">${leader} pts to match</span>
-                            </div>
-                            <div style="height:4px;background:rgba(255,255,255,0.07);border-radius:99px;overflow:hidden;">
-                                <div style="height:100%;width:${leader > 0 ? Math.round((myPts/leader)*100) : 0}%;background:${myColor.bg};border-radius:99px;transition:width 1s ease;"></div>
-                            </div>
-                        </div>` : `
-                        <div style="margin-top:1rem;padding:0.5rem 0.875rem;background:rgba(255,255,255,0.04);border-radius:0.75rem;display:inline-flex;align-items:center;gap:6px;">
-                            <span style="font-size:11px;">🏆</span>
-                            <span style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.5);">Your family is leading — keep it up!</span>
-                        </div>`}
-
-                        <!-- Personal contribution -->
-                        ${myPersonalPts > 0 ? `
-                        <div style="margin-top:0.75rem;padding:0.625rem 0.875rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:0.875rem;display:flex;align-items:center;justify-content:space-between;">
-                            <span style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.35);">Your contribution</span>
-                            <span style="font-size:14px;font-weight:900;color:${myColor.bg};">+${myPersonalPts} pts</span>
-                        </div>` : ''}
-                    </div>`;
+                        <div style="text-align:right;flex-shrink:0;">
+                            <p style="font-size:2.75rem;font-weight:900;color:${myColor.bg};margin:0;line-height:1;">${myFamPts}</p>
+                            <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;
+                                       color:rgba(255,255,255,0.25);margin:2px 0 0;">family pts</p>
+                        </div>
+                    </div>
+                </div>`;
             } else {
                 myCard.innerHTML = `
-                    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:1.5rem;padding:1.25rem 1.5rem;text-align:center;">
-                        <p style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.3);margin:0;">You haven't been assigned to a family yet</p>
-                    </div>`;
+                <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);
+                            border-radius:1.5rem;padding:1.25rem;text-align:center;margin-bottom:1.25rem;">
+                    <p style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.3);margin:0;">
+                        You haven't been assigned to a family yet
+                    </p>
+                </div>`;
             }
         }
 
         // ── FULL STANDINGS ────────────────────────────────────────────────
         container.innerHTML = sorted.map((family, i) => {
-            const color   = PALETTE[i % PALETTE.length];
-            const isMe    = family.name === myFamily;
-            const pct     = leader > 0 ? Math.round((family.points / leader) * 100) : 0;
-            const gap     = i === 0 ? 0 : leader - family.points;
-            const medal   = MEDALS[i] || '';
+            const color  = PALETTE[i % PALETTE.length];
+            const isMe   = family.name === myFamily;
+            const pct    = Math.round((family.points / leader) * 100);
+            const gap    = i === 0 ? 0 : leader - family.points;
+            const medal  = i < 3 ? MEDALS[i] : null;
 
             return `
-                <div style="background:white;border:1px solid ${isMe ? color.glow : '#F3F4F6'};border-radius:1.25rem;
-                            padding:1rem 1.25rem;margin-bottom:0.625rem;
-                            ${isMe ? `box-shadow:0 0 0 2px ${color.glow};` : ''}
-                            transition:transform 0.15s;">
-
-                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
-
-                        <!-- Rank -->
-                        <div style="width:40px;height:40px;border-radius:10px;background:${color.light};border:1px solid ${color.glow};
-                                    display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:${i < 3 ? '18px' : '13px'};">
-                            ${i < 3 ? medal : `<span style="font-weight:900;color:${color.bg};">${i+1}</span>`}
-                        </div>
-
-                        <!-- Name + status -->
-                        <div style="flex:1;min-width:0;">
-                            <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px;flex-wrap:wrap;">
-                                <p style="font-size:15px;font-weight:900;color:#111827;margin:0;">${family.name} Family</p>
-                                ${isMe ? `<span style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:${color.bg};background:${color.light};border:1px solid ${color.glow};border-radius:99px;padding:1px 8px;">You</span>` : ''}
-                            </div>
-                            <p style="font-size:11px;font-weight:700;color:#9CA3AF;margin:0;">
-                                ${i === 0
-                                    ? `<span style="color:${color.bg};">★ Leading</span>`
-                                    : `${gap} pts behind`}
-                            </p>
-                        </div>
-
-                        <!-- Points -->
-                        <div style="text-align:right;flex-shrink:0;">
-                            <p style="font-size:1.5rem;font-weight:900;color:#111827;margin:0;line-height:1;">${family.points}</p>
-                            <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:#9CA3AF;margin:2px 0 0;">pts</p>
-                        </div>
+            <div style="background:white;border:1.5px solid ${isMe ? color.glow : '#F3F4F6'};
+                        border-radius:1.25rem;padding:1rem 1.25rem;margin-bottom:0.625rem;
+                        ${isMe ? `box-shadow:0 0 0 1px ${color.glow};` : ''}">
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+                    <div style="width:38px;height:38px;border-radius:10px;background:${color.light};
+                                border:1px solid ${color.glow};display:flex;align-items:center;
+                                justify-content:center;flex-shrink:0;font-size:${medal ? '18px' : '12px'};">
+                        ${medal || `<span style="font-weight:900;color:${color.bg};">${i+1}</span>`}
                     </div>
-
-                    <!-- Bar -->
-                    <div style="height:5px;background:#F3F4F6;border-radius:99px;overflow:hidden;">
-                        <div style="height:100%;width:${pct}%;background:${color.bg};border-radius:99px;transition:width 1s ease;"></div>
+                    <div style="flex:1;min-width:0;">
+                        <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;flex-wrap:wrap;">
+                            <p style="font-size:15px;font-weight:900;color:#111827;margin:0;">${family.name} Family</p>
+                            ${isMe ? `<span style="font-size:9px;font-weight:900;color:${color.bg};
+                                                  background:${color.light};border:1px solid ${color.glow};
+                                                  border-radius:99px;padding:1px 8px;letter-spacing:0.06em;">YOU</span>` : ''}
+                        </div>
+                        <p style="font-size:11px;font-weight:700;color:#9CA3AF;margin:0;">
+                            ${i === 0 ? `<span style="color:${color.bg};">★ Leading</span>` : `${gap} pts behind`}
+                        </p>
                     </div>
-                </div>`;
+                    <div style="text-align:right;flex-shrink:0;">
+                        <p style="font-size:1.5rem;font-weight:900;color:#111827;margin:0;line-height:1;">${family.points}</p>
+                        <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;
+                                   color:#9CA3AF;margin:2px 0 0;">pts</p>
+                    </div>
+                </div>
+                <div style="height:5px;background:#F3F4F6;border-radius:99px;overflow:hidden;">
+                    <div style="height:100%;width:${pct}%;background:${color.bg};
+                                border-radius:99px;transition:width 1s ease;"></div>
+                </div>
+            </div>`;
         }).join('');
     }
 
