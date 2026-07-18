@@ -16,6 +16,17 @@
                         'text-dark': '#374151',
                         'status-green': '#10B981',
                         'tgis-blue': '#1D4ED8',
+                        'desk-shift-blue': '#1D4ED8',
+                        'guide-bg-1': '#FEE2E2', 'guide-text-1': '#991B1B',
+                        'guide-bg-2': '#FEF3C7', 'guide-text-2': '#92400E',
+                        'guide-bg-3': '#D1FAE5', 'guide-text-3': '#065F46',
+                        'guide-bg-4': '#DBEAFE', 'guide-text-4': '#1E40AF',
+                        'guide-bg-5': '#F3E8FF', 'guide-text-5': '#5B21B6',
+                        'guide-bg-6': '#FFFBEB', 'guide-text-6': '#713F12',
+                        'guide-bg-7': '#F0F9FF', 'guide-text-7': '#075985',
+                        'guide-bg-8': '#F0FDF4', 'guide-text-8': '#166534',
+                        'guide-bg-9': '#FDF2F8', 'guide-text-9': '#9D174D',
+                        'guide-bg-10': '#F9FAFB', 'guide-text-10': '#374151',
                     }
                 }
             }
@@ -669,12 +680,12 @@
 
     
 
-    <div id="view-desk" class="view-section">
-        <header class="mb-10 text-nowrap">
+   <div id="view-desk" class="view-section">
+        <header class="mb-6">
             <h1 class="text-3xl font-black">Desk Schedule</h1>
+            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Weekly recurring schedule</p>
         </header>
-        <div class="content-area p-4 sm:p-8">
-    <h2 class="text-2xl font-black text-text-dark mb-6">Spring Semester Desk Schedule</h2>
+    <h2 class="text-2xl font-black text-text-dark mb-6">Master Desk Schedule</h2>
     
     <div class="w-full bg-white shadow-2xl rounded-3xl overflow-hidden p-6 sm:p-10 border border-gray-100">
         
@@ -751,7 +762,6 @@
         </div>
     </div> 
 </div>
-    </div>
 </div>
 
 <script>
@@ -889,6 +899,148 @@ function renderForms() {
             </div>`;
     }).join('');
 }
+
+// ── DESK SCHEDULE (from desk6) ─────────────────────────────────────────────
+const DESK_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxfKcVOjsxVbW0yVqiaZ9bVA5WuHXduJrRloAXb1TE69xrJM2Yo6Y4ELOjMw7RH-z1qdg/exec';
+const guideColors = {};
+const colorClasses = [
+    { bg: 'guide-bg-1', text: 'guide-text-1' }, { bg: 'guide-bg-2', text: 'guide-text-2' },
+    { bg: 'guide-bg-3', text: 'guide-text-3' }, { bg: 'guide-bg-4', text: 'guide-text-4' },
+    { bg: 'guide-bg-5', text: 'guide-text-5' }, { bg: 'guide-bg-6', text: 'guide-text-6' },
+    { bg: 'guide-bg-7', text: 'guide-text-7' }, { bg: 'guide-bg-8', text: 'guide-text-8' },
+    { bg: 'guide-bg-9', text: 'guide-text-9' }, { bg: 'guide-bg-10', text: 'guide-text-10' },
+];
+let deskColorIndex = 0;
+let deskDataLoaded = false;
+
+function formatGuide(displayName, guideUsername) {
+    if (!displayName) return '';
+    const isUser = guideUsername === userName;
+    let colorClass, textClass;
+    if (isUser) {
+        colorClass = 'bg-desk-shift-blue/90';
+        textClass  = 'text-white';
+    } else {
+        if (!guideColors[guideUsername]) {
+            guideColors[guideUsername] = colorClasses[deskColorIndex % colorClasses.length];
+            deskColorIndex++;
+        }
+        colorClass = `bg-${guideColors[guideUsername].bg}`;
+        textClass  = `text-${guideColors[guideUsername].text}`;
+    }
+    return `<div class="p-1 rounded-lg text-xs leading-snug font-semibold ${colorClass} ${textClass}">${displayName}</div>`;
+}
+
+function checkCurrentShift(userShifts) {
+    const now  = new Date();
+    const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const currentDay = days[now.getDay()];
+    const currentShift = (userShifts || []).find(shift => {
+        if (shift.day_of_week !== currentDay) return false;
+        const base  = '2000/01/01 ';
+        const start = new Date(base + shift.start_time);
+        const end   = new Date(base + shift.end_time);
+        const nowC  = new Date(base + `${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`);
+        return nowC >= start && nowC < end;
+    });
+    const card        = document.getElementById('current-shift-card');
+    const statusLabel = document.getElementById('current-shift-status-label');
+    const details     = document.getElementById('current-shift-details');
+    if (!card) return;
+    if (currentShift) {
+        card.className = 'md:col-span-2 rounded-2xl p-6 text-center shadow-lg transition-all duration-300 bg-status-green/10 border-2 border-status-green/50';
+        statusLabel.className = 'text-xs font-bold uppercase tracking-widest mb-1 text-status-green';
+        statusLabel.innerText = 'STATUS: CURRENTLY ON DESK';
+        details.innerHTML = `${currentShift.desk} ${currentShift.start_time} – ${currentShift.end_time}`;
+        details.className = 'text-3xl sm:text-4xl font-black leading-tight text-status-green';
+    } else {
+        card.className = 'md:col-span-2 rounded-2xl p-6 text-center shadow-lg transition-all duration-300 bg-gray-100';
+        statusLabel.className = 'text-xs font-bold uppercase tracking-widest mb-1 text-gray-500';
+        statusLabel.innerText = 'STATUS: NOT WORKING';
+        details.innerText = 'No Current Shift';
+        details.className = 'text-3xl sm:text-4xl font-black leading-tight text-gray-500';
+    }
+}
+
+function buildDeskTableBody(deskName, bodyId, data) {
+    const body = document.getElementById(bodyId);
+    if (!body) return;
+    const days = ['Monday','Tuesday','Wednesday','Thursday','Friday'];
+    const sortedSlots  = data.masterTimeSlotKeys || [];
+    const masterSched  = data.masterDeskSchedule;
+    if (!sortedSlots.length) {
+        body.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-sm text-gray-400">No ${deskName} shifts found.</td></tr>`;
+        return;
+    }
+    let html = '';
+    sortedSlots.forEach(timeKey => {
+        html += `<tr class="hover:bg-gray-50"><td class="px-3 py-2 whitespace-nowrap text-xs font-bold text-desk-shift-blue sticky left-0 bg-white">${timeKey}</td>`;
+        days.forEach(day => {
+            const shiftData = (masterSched[day] || {})[timeKey];
+            let cell = '';
+            if (shiftData) {
+                const guides = shiftData.desk[deskName] || [];
+                if (guides.length) {
+                    cell = `<div class="flex flex-row space-x-1 justify-center items-start w-full">`;
+                    guides.sort((a,b) => a.username === userName ? -1 : b.username === userName ? 1 : 0)
+                          .forEach(g => { cell += formatGuide(g.displayName, g.username); });
+                    cell += `</div>`;
+                } else {
+                    cell = `<div class="text-xs text-gray-400 italic text-center w-full">Open</div>`;
+                }
+            } else {
+                cell = `<div class="text-xs text-gray-400 italic text-center w-full">--</div>`;
+            }
+            html += `<td class="p-2 align-top text-center">${cell}</td>`;
+        });
+        html += `</tr>`;
+    });
+    body.innerHTML = html;
+}
+
+async function loadDeskSchedule() {
+    if (deskDataLoaded) return; // only fetch once
+    try {
+        const res  = await fetch(`${DESK_SCRIPT_URL}?page=desk_schedule&user=${encodeURIComponent(userName)}&_t=${Date.now()}`);
+        const data = await res.json();
+        window.deskScheduleData = data;
+        deskDataLoaded = true;
+
+        const userShifts = data.userDeskShifts || [];
+        let totalHours   = 0;
+
+        const shiftsHtml = userShifts.map(shift => {
+            totalHours += shift.duration_minutes / 60;
+            const cardColor = shift.desk === 'Welcome Desk'
+                ? 'bg-primary-gold/20 border-primary-gold/40'
+                : 'bg-desk-shift-blue/20 border-desk-shift-blue/40';
+            const textColor = shift.desk === 'Welcome Desk' ? 'text-text-dark' : 'text-desk-shift-blue';
+            return `<div class="p-3 rounded-xl border ${cardColor} hover:shadow-md transition-all">
+                <p class="text-xl sm:text-2xl font-black ${textColor} leading-tight">${shift.start_time} – ${shift.end_time}</p>
+                <p class="text-sm font-bold text-text-dark uppercase mt-1">${shift.day_of_week}</p>
+                <p class="text-xs font-semibold text-gray-500 mt-1">${shift.desk}</p>
+            </div>`;
+        }).join('');
+
+        document.getElementById('total-weekly-shifts').innerText = userShifts.length;
+        document.getElementById('total-weekly-hours').innerText  = totalHours.toFixed(1);
+        document.getElementById('user-shifts-summary').innerHTML = shiftsHtml
+            || '<span class="text-sm text-gray-500 italic sm:col-span-2 lg:col-span-3">No shifts assigned.</span>';
+
+        checkCurrentShift(userShifts);
+        buildDeskTableBody('Welcome Desk', 'welcome-desk-body', data);
+        buildDeskTableBody('Front Desk',   'front-desk-body',   data);
+
+        // Keep current-shift status fresh
+        setInterval(() => checkCurrentShift(userShifts), 60000);
+
+    } catch(e) {
+        console.error('Desk schedule load failed:', e);
+        document.getElementById('user-shifts-summary').innerHTML =
+            '<span class="text-sm text-red-500 italic sm:col-span-2 lg:col-span-3">Error loading desk schedule.</span>';
+    }
+}
+
 function renderDeskDashboard() {
     const dailyContainer = document.getElementById('grid-daily');
     const programContainer = document.getElementById('grid-program');
@@ -1058,6 +1210,9 @@ function switchView(viewId) {
     // 1. Hide all sections, show the active one
     document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
     document.getElementById(`view-${viewId}`).classList.add('active');
+
+    // Lazy-load desk schedule on first visit to that tab
+    if (viewId === 'desk') loadDeskSchedule();
 
     // 2. Update desktop sidebar active state
     document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
