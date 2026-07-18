@@ -1,0 +1,1737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TGIS | Admin</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: { sans: ['Inter','sans-serif'] },
+      colors: { 'gold': '#CFB991' }
+    }
+  }
+}
+</script>
+<style>
+/* ── Theme tokens ── */
+:root {
+  --bg:       #F9FAFB;
+  --surface:  #FFFFFF;
+  --border:   #E5E7EB;
+  --text:     #111827;
+  --subtext:  #6B7280;
+  --gold:     #CFB991;
+  --gold-dim: rgba(207,185,145,0.15);
+  --row-hover:#F9FAFB;
+  --input-bg: #FFFFFF;
+  --overlay:  rgba(0,0,0,0.45);
+}
+.dark {
+  --bg:       #0f0c04;
+  --surface:  rgba(255,255,255,0.04);
+  --border:   rgba(255,255,255,0.09);
+  --text:     #F9FAFB;
+  --subtext:  rgba(255,255,255,0.4);
+  --gold:     #CFB991;
+  --gold-dim: rgba(207,185,145,0.12);
+  --row-hover:rgba(255,255,255,0.03);
+  --input-bg: rgba(255,255,255,0.07);
+  --overlay:  rgba(0,0,0,0.7);
+}
+
+* { box-sizing: border-box; }
+body { font-family: 'Inter',sans-serif; background: var(--bg); color: var(--text); transition: background 0.3s, color 0.3s; margin:0; }
+
+/* cards */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 1.5rem; }
+
+/* inputs */
+.inp {
+  background: var(--input-bg); border: 1px solid var(--border);
+  border-radius: 0.75rem; padding: 0.6rem 0.875rem;
+  font-weight: 700; font-size: 13px; color: var(--text);
+  outline: none; transition: border-color 0.2s, box-shadow 0.2s; width: 100%;
+}
+.inp:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(207,185,145,0.18); }
+.inp option { background: #1a1710; color: #fff; }
+
+/* labels */
+.lbl { font-size: 10px; font-weight: 900; color: var(--subtext); text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 0.35rem; }
+
+/* buttons */
+.btn-gold { background: var(--gold); color: #0f0c04; font-weight: 900; font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; border: none; cursor: pointer; border-radius: 0.75rem; padding: 0.75rem 1.25rem; transition: background 0.2s; }
+.btn-gold:hover { background: #b39a6d; }
+.btn-gold:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-sm { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; border: none; cursor: pointer; border-radius: 0.5rem; padding: 0.35rem 0.75rem; transition: all 0.15s; }
+.btn-ghost { background: transparent; color: var(--subtext); border: 1px solid var(--border); border-radius: 0.75rem; font-size: 11px; font-weight: 800; padding: 0.65rem 1rem; cursor: pointer; transition: all 0.2s; }
+.btn-ghost:hover { background: var(--gold-dim); color: var(--gold); border-color: var(--gold); }
+
+/* tabs */
+.tab { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.12em; padding: 0.55rem 1.1rem; border-radius: 0.625rem; cursor: pointer; color: var(--subtext); transition: all 0.18s; background: transparent; border: none; }
+.tab.active { background: var(--gold); color: #0f0c04; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; animation: fadeUp 0.25s ease; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+
+/* pills */
+.pill { display:inline-flex; align-items:center; font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; padding: 2px 7px; border-radius: 99px; }
+.pill-green  { background:rgba(16,185,129,0.12); color:#10B981; }
+.pill-gold   { background:rgba(207,185,145,0.15); color:#CFB991; }
+.pill-purple { background:rgba(139,92,246,0.13); color:#8B5CF6; }
+.pill-blue   { background:rgba(59,130,246,0.12); color:#3B82F6; }
+.pill-red    { background:rgba(239,68,68,0.12); color:#EF4444; }
+.pill-gray   { background:rgba(107,114,128,0.12); color:#6B7280; }
+
+/* ── GRID TABLE ── */
+#tracker-grid-wrap { overflow-x: auto; }
+#tracker-grid {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  font-size: 13px;
+}
+#tracker-grid th {
+  background: var(--surface);
+  color: var(--subtext);
+  font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em;
+  padding: 0.625rem 0.875rem;
+  border-bottom: 2px solid var(--border);
+  white-space: nowrap;
+  position: sticky; top: 0; z-index: 2;
+}
+#tracker-grid th.col-name { position: sticky; left: 0; z-index: 3; }
+#tracker-grid td {
+  padding: 0 0.5rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  transition: background 0.12s;
+  white-space: nowrap;
+}
+#tracker-grid tr:hover td { background: var(--row-hover); }
+#tracker-grid td.col-name {
+  position: sticky; left: 0; z-index: 1;
+  font-weight: 800; font-size: 13px;
+  padding: 0.625rem 0.875rem;
+  background: var(--surface);
+}
+#tracker-grid tr:hover td.col-name { background: var(--row-hover); }
+
+/* editable cell */
+.cell-edit {
+  width: 60px;
+  text-align: center;
+  font-weight: 900;
+  color: var(--text);
+  background: transparent;
+  border: 1.5px solid transparent;
+  border-radius: 0.5rem;
+  padding: 0.3rem 0.4rem;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+  cursor: pointer;
+}
+.cell-edit:hover  { border-color: var(--border); background: var(--input-bg); }
+.cell-edit:focus  { border-color: var(--gold); background: var(--input-bg); box-shadow: 0 0 0 3px rgba(207,185,145,0.18); cursor: text; }
+.cell-edit.dirty  { border-color: #F59E0B; background: rgba(245,158,11,0.08); }
+.cell-edit.saved  { border-color: #10B981; background: rgba(16,185,129,0.08); animation: savedFlash 1.2s ease forwards; }
+@keyframes savedFlash { 0%,60% { border-color:#10B981; } 100% { border-color:transparent; } }
+
+.cell-readonly { text-align: center; font-weight: 700; color: var(--subtext); font-size: 13px; display: block; padding: 0.4rem 0.5rem; }
+.cell-total { font-weight: 900; color: var(--gold); font-size: 14px; text-align: center; display: block; padding: 0.4rem 0.5rem; }
+
+/* expand row */
+.guide-detail-row { display: none; }
+.guide-detail-row.open { display: table-row; }
+.guide-detail-cell {
+  background: var(--gold-dim) !important;
+  padding: 0.875rem 1rem !important;
+  border-bottom: 2px solid rgba(207,185,145,0.3) !important;
+}
+
+/* pending-save bar */
+#save-bar {
+  position: fixed; bottom: 1.5rem; left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  opacity: 0; pointer-events: none;
+  transition: all 0.4s cubic-bezier(0.22,1,0.36,1);
+  z-index: 100; white-space: nowrap;
+}
+#save-bar.show { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: all; }
+
+/* modal */
+#modal-overlay {
+  position: fixed; inset: 0; background: var(--overlay);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 200; opacity: 0; pointer-events: none;
+  transition: opacity 0.25s;
+}
+#modal-overlay.open { opacity: 1; pointer-events: all; }
+#modal-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 1.5rem; padding: 1.75rem; width: 100%; max-width: 520px;
+  max-height: 80vh; overflow-y: auto;
+  transform: translateY(12px); transition: transform 0.25s;
+  color: var(--text);
+}
+#modal-overlay.open #modal-box { transform: translateY(0); }
+
+/* loading overlay */
+#load-overlay {
+  position: fixed; inset: 0; background: #0f0c04;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  z-index: 999; transition: opacity 0.4s;
+}
+
+/* toast */
+#toast {
+  position: fixed; bottom: 5rem; left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--gold); color: #0f0c04;
+  font-weight: 900; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;
+  padding: 0.65rem 1.4rem; border-radius: 99px;
+  opacity: 0; transition: all 0.35s; pointer-events: none; z-index: 500;
+}
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+#toast.err  { background: #EF4444; color: #fff; }
+
+/* sr row highlight */
+.sr-row { background: rgba(139,92,246,0.07) !important; }
+.sr-row td.col-name { background: rgba(139,92,246,0.07) !important; }
+
+/* dark mode toggle */
+.dm-toggle { width:38px; height:22px; border-radius:99px; background:var(--border); position:relative; cursor:pointer; transition:background 0.2s; border:none; padding:0; }
+.dm-toggle .knob { position:absolute; top:3px; left:3px; width:16px; height:16px; border-radius:50%; background:var(--subtext); transition:all 0.2s; }
+.dark .dm-toggle { background: var(--gold); }
+.dark .dm-toggle .knob { left:19px; background:#0f0c04; }
+
+/* PIN gate styles */
+.pin-dot {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  border: 2px solid rgba(255,255,255,0.2);
+  transition: all 0.15s;
+}
+.pin-dot.filled {
+  background: #CFB991;
+  border-color: #CFB991;
+  transform: scale(1.1);
+}
+.pin-dot.error {
+  background: #EF4444;
+  border-color: #EF4444;
+  animation: pinShake 0.4s ease;
+}
+@keyframes pinShake {
+  0%,100% { transform: translateX(0); }
+  20%      { transform: translateX(-6px); }
+  40%      { transform: translateX(6px); }
+  60%      { transform: translateX(-4px); }
+  80%      { transform: translateX(4px); }
+}
+.pin-key {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: white; font-size: 1.25rem; font-weight: 900;
+  cursor: pointer; transition: all 0.12s;
+  display: flex; align-items: center; justify-content: center;
+}
+.pin-key:hover  { background: rgba(255,255,255,0.13); border-color: rgba(255,255,255,0.25); }
+.pin-key:active { transform: scale(0.92); }
+.pin-key:disabled { opacity: 0.3; cursor: not-allowed; }
+.pin-clear  { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.2); color: #EF4444; }
+.pin-submit { background: rgba(207,185,145,0.15); border-color: rgba(207,185,145,0.35); color: #CFB991; }
+.pin-submit:not(:disabled) { background: #CFB991; border-color: #b39a6d; color: #0f0c04; }
+
+
+/* ── Sidebar layout ── */
+#admin-sidebar {
+  position: fixed; top: 0; left: 0; height: 100vh; width: 260px;
+  background: var(--surface); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; padding: 1.5rem 1.25rem;
+  z-index: 50; overflow-y: auto;
+  transition: transform 0.3s ease;
+}
+#admin-sidebar.hidden-mobile { transform: translateX(-100%); }
+@media (max-width: 1024px) {
+  #admin-sidebar { transform: translateX(-100%); }
+  #admin-sidebar.open { transform: translateX(0); }
+  #admin-main { margin-left: 0 !important; }
+  #mobile-sidebar-toggle { display: flex !important; }
+}
+#admin-main { margin-left: 260px; min-height: 100vh; }
+
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 0.7rem 0.875rem; border-radius: 0.75rem;
+  font-size: 13px; font-weight: 700; color: var(--subtext);
+  cursor: pointer; border: none; background: transparent;
+  width: 100%; text-align: left; transition: all 0.15s;
+  margin-bottom: 2px;
+}
+.nav-item:hover { background: var(--gold-dim); color: var(--text); }
+.nav-item.active { background: var(--gold); color: #0f0c04; }
+.nav-item .nav-icon { font-size: 15px; flex-shrink: 0; }
+.nav-section-label {
+  font-size: 9px; font-weight: 900; text-transform: uppercase;
+  letter-spacing: 0.15em; color: var(--subtext); opacity: 0.6;
+  padding: 0 0.5rem; margin: 1rem 0 0.4rem;
+}
+
+/* ── Schedule view (from manager2) ── */
+.schedule-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; }
+@media (max-width: 900px) { .schedule-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 600px) { .schedule-grid { grid-template-columns: 1fr; } }
+.day-column { display: flex; flex-direction: column; gap: 0.5rem; }
+.tour-slot {
+  border-radius: 1rem; padding: 0.75rem; font-size: 12px;
+  min-height: 80px; display: flex; flex-direction: column;
+  border: 1px solid rgba(0,0,0,0.06);
+}
+.tour-time-label { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; opacity: 0.7; }
+.guide-name-pill-schedule {
+  background: rgba(0,0,0,0.06); border-radius: 6px;
+  padding: 3px 7px; font-size: 11px; font-weight: 700;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.bg-slot-9DV  { background: #D1FAE5; color: #065F46; }
+.bg-slot-0DV  { background: #DBEAFE; color: #1E40AF; }
+.bg-slot-1DV  { background: #EDE9FE; color: #5B21B6; }
+.bg-slot-2DV  { background: #FEF3C7; color: #92400E; }
+.bg-slot-0GV  { background: #CFFAFE; color: #155E75; }
+@media print {
+  #admin-sidebar, .no-print { display: none !important; }
+  #admin-main { margin-left: 0 !important; }
+  #print-header { display: block !important; }
+  .tab-panel { display: block !important; }
+  #tab-schedule { display: block !important; }
+  body { background: white !important; }
+}
+
+/* ── Desk dashboard (reuse from admin) ── */
+.status-pill-red  { background-color:#FEE2E2; border-color:#EF4444; color:#B91C1C; border-width:1px; }
+.status-pill-gray { background-color:#F3F4F6; border-color:#D1D5DB; color:#4B5563; opacity:0.7; border-width:1px; }
+
+</style>
+</head>
+<body>
+
+<!-- ── LOADING ── -->
+<div id="load-overlay">
+  <p style="font-size:9px;font-weight:900;letter-spacing:0.3em;text-transform:uppercase;color:rgba(207,185,145,0.4);margin-bottom:8px;">Purdue University</p>
+  <h1 style="font-size:2rem;font-weight:900;color:#fff;letter-spacing:-0.02em;">TGIS <span style="color:#CFB991;">Admin</span></h1>
+  <div style="width:220px;height:2px;background:rgba(255,255,255,0.07);border-radius:99px;overflow:hidden;margin-top:1.5rem;">
+    <div id="load-bar" style="height:100%;width:0%;background:#CFB991;border-radius:99px;transition:width 0.5s ease;"></div>
+  </div>
+  <p id="load-status" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:rgba(207,185,145,0.4);margin-top:1rem;">Connecting...</p>
+  <div id="load-err" class="hidden" style="margin-top:1.5rem;text-align:center;max-width:300px;">
+    <p id="load-err-msg" style="color:#EF4444;font-size:12px;font-weight:700;margin-bottom:1rem;"></p>
+    <button class="btn-gold px-6" onclick="location.reload()">Retry</button>
+  </div>
+</div>
+
+<!-- ── PIN GATE ── -->
+<div id="pin-overlay" class="hidden" style="position:fixed;inset:0;background:#0f0c04;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:998;padding:1.5rem;">
+  <p style="font-size:9px;font-weight:900;letter-spacing:0.3em;text-transform:uppercase;color:rgba(207,185,145,0.4);margin-bottom:8px;">Purdue University</p>
+  <h1 style="font-size:2rem;font-weight:900;color:#fff;letter-spacing:-0.02em;margin-bottom:4px;">TGIS <span style="color:#CFB991;">Admin</span></h1>
+  <p style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:0.15em;margin-bottom:2.5rem;">Enter access PIN to continue</p>
+
+  <!-- PIN dots display -->
+  <div id="pin-dots" style="display:flex;gap:12px;margin-bottom:2rem;">
+    <div class="pin-dot"></div>
+    <div class="pin-dot"></div>
+    <div class="pin-dot"></div>
+    <div class="pin-dot"></div>
+    <div class="pin-dot"></div>
+    <div class="pin-dot"></div>
+  </div>
+
+  <!-- Error message -->
+  <p id="pin-error" style="font-size:11px;font-weight:900;color:#EF4444;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:1.5rem;min-height:16px;"></p>
+
+  <!-- Numpad -->
+  <div style="display:grid;grid-template-columns:repeat(3,72px);grid-template-rows:repeat(4,72px);gap:10px;">
+    <button class="pin-key" onclick="pinKey('1')">1</button>
+    <button class="pin-key" onclick="pinKey('2')">2</button>
+    <button class="pin-key" onclick="pinKey('3')">3</button>
+    <button class="pin-key" onclick="pinKey('4')">4</button>
+    <button class="pin-key" onclick="pinKey('5')">5</button>
+    <button class="pin-key" onclick="pinKey('6')">6</button>
+    <button class="pin-key" onclick="pinKey('7')">7</button>
+    <button class="pin-key" onclick="pinKey('8')">8</button>
+    <button class="pin-key" onclick="pinKey('9')">9</button>
+    <button class="pin-key pin-clear" onclick="pinClear()">⌫</button>
+    <button class="pin-key" onclick="pinKey('0')">0</button>
+    <button class="pin-key pin-submit" id="pin-submit-btn" onclick="pinSubmit()" disabled>→</button>
+  </div>
+
+  <p id="pin-attempts" style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.2);margin-top:1.5rem;text-transform:uppercase;letter-spacing:0.1em;"></p>
+</div>
+
+
+<!-- ── APP ── -->
+<div id="app" class="hidden">
+
+<!-- ── MOBILE HEADER ── -->
+<div id="mobile-sidebar-toggle" style="display:none;position:sticky;top:0;z-index:60;background:var(--surface);border-bottom:1px solid var(--border);padding:0.75rem 1rem;align-items:center;justify-content:space-between;">
+  <div style="display:flex;align-items:center;gap:10px;">
+    <button onclick="document.getElementById('admin-sidebar').classList.toggle('open')" style="background:none;border:none;cursor:pointer;color:var(--text);font-size:20px;">☰</button>
+    <span style="font-size:14px;font-weight:900;color:var(--text);">TGIS <span style="color:var(--gold);">Admin</span></span>
+  </div>
+  <button class="dm-toggle" onclick="toggleDark()"><div class="knob"></div></button>
+</div>
+
+<!-- ── SIDEBAR ── -->
+<div id="admin-sidebar">
+
+  <!-- Wordmark -->
+  <div style="margin-bottom:1.5rem;">
+    <p style="font-size:9px;font-weight:900;letter-spacing:0.25em;text-transform:uppercase;color:var(--gold);margin:0 0 2px;">Purdue University</p>
+    <h1 style="font-size:1.2rem;font-weight:900;margin:0;line-height:1.2;">TGIS <span style="color:var(--gold);">Admin</span></h1>
+  </div>
+
+  <!-- Profile -->
+  <div style="background:var(--gold-dim);border:1px solid rgba(207,185,145,0.25);border-radius:1rem;padding:0.875rem;margin-bottom:1rem;">
+    <p id="hdr-name" style="font-size:13px;font-weight:800;margin:0;color:var(--text);"></p>
+    <p id="hdr-sem"  style="font-size:10px;font-weight:700;color:var(--subtext);text-transform:uppercase;letter-spacing:0.1em;margin:2px 0 0;"></p>
+  </div>
+
+  <!-- Nav -->
+  <p class="nav-section-label">Roster</p>
+  <button class="nav-item active" id="nav-tracker" onclick="adminSwitchTab('tracker')">
+    <span class="nav-icon">👥</span> Guide Tracker
+  </button>
+  <button class="nav-item" id="nav-census" onclick="adminSwitchTab('census')">
+    <span class="nav-icon">📋</span> Census Results
+  </button>
+
+  <p class="nav-section-label">Operations</p>
+  <button class="nav-item" id="nav-schedule" onclick="adminSwitchTab('schedule')">
+    <span class="nav-icon">📅</span> Tour Schedule
+  </button>
+  <button class="nav-item" id="nav-desk" onclick="adminSwitchTab('desk')">
+    <span class="nav-icon">🖥️</span> Desk Dashboard
+  </button>
+
+  <p class="nav-section-label">Records</p>
+  <button class="nav-item" id="nav-log" onclick="adminSwitchTab('log')">
+    <span class="nav-icon">📝</span> Activity Log
+  </button>
+
+  <!-- Spacer -->
+  <div style="flex:1;"></div>
+
+  <!-- Actions -->
+  <div style="border-top:1px solid var(--border);padding-top:1rem;margin-top:1rem;display:flex;flex-direction:column;gap:0.5rem;">
+    <button class="btn-gold" onclick="openSRModal()" style="width:100%;text-align:center;">+ Special Request</button>
+    <button class="btn-ghost" onclick="openRolloverModal()" style="width:100%;text-align:center;">Semester Rollover</button>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:0.25rem 0;">
+      <span style="font-size:11px;font-weight:700;color:var(--subtext);">Dark mode</span>
+      <button class="dm-toggle" onclick="toggleDark()"><div class="knob"></div></button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MAIN CONTENT ── -->
+<div id="admin-main" style="margin-left:260px;padding:1.5rem;min-height:100vh;">
+
+  <!-- Unsaved changes bar (inline, not floating since sidebar takes space) -->
+  <div id="inline-dirty-bar" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:1rem;padding:0.75rem 1.25rem;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
+    <span id="save-bar-count" style="font-size:12px;font-weight:800;color:var(--text);"></span>
+    <div style="display:flex;gap:0.5rem;">
+      <button class="btn-gold" onclick="saveAllChanges()">Save All Changes</button>
+      <button class="btn-ghost" style="padding:0.5rem 0.875rem;font-size:11px;" onclick="discardChanges()">Discard</button>
+    </div>
+  </div>
+
+    <!-- ── TRACKER TAB ── -->
+    <div id="tab-tracker" class="tab-panel active">
+
+      <!-- Quick stats -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-bottom:1.5rem;">
+        <div class="card" style="padding:1.125rem;text-align:center;">
+          <p id="stat-guides" style="font-size:2rem;font-weight:900;color:var(--gold);margin:0;">--</p>
+          <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtext);margin:4px 0 0;">Guides</p>
+        </div>
+        <div class="card" style="padding:1.125rem;text-align:center;">
+          <p id="stat-sem-total" style="font-size:2rem;font-weight:900;color:#10B981;margin:0;">--</p>
+          <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtext);margin:4px 0 0;">Sem Tours</p>
+        </div>
+        <div class="card" style="padding:1.125rem;text-align:center;">
+          <p id="stat-auto" style="font-size:2rem;font-weight:900;color:#3B82F6;margin:0;">--</p>
+          <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtext);margin:4px 0 0;">Auto-counted</p>
+        </div>
+        <div class="card" style="padding:1.125rem;text-align:center;">
+          <p id="stat-special" style="font-size:2rem;font-weight:900;color:#8B5CF6;margin:0;">--</p>
+          <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtext);margin:4px 0 0;">Special Req.</p>
+        </div>
+        <div class="card" style="padding:1.125rem;text-align:center;">
+          <p id="stat-dirty" style="font-size:2rem;font-weight:900;color:#F59E0B;margin:0;">0</p>
+          <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtext);margin:4px 0 0;">Unsaved</p>
+        </div>
+      </div>
+
+      <!-- Search + hint -->
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:0.875rem;flex-wrap:wrap;">
+        <input id="search" type="text" class="inp" style="max-width:260px;" placeholder="Search guide…" oninput="filterGrid()">
+        <p style="font-size:10px;font-weight:700;color:var(--subtext);">Click a count to edit · Click a name row to see tour detail · <span style="color:#8B5CF6;">Purple rows</span> = has special requests</p>
+      </div>
+
+      <!-- Grid -->
+      <div class="card" style="overflow:hidden;">
+        <div id="tracker-grid-wrap">
+          <table id="tracker-grid">
+            <thead id="grid-head"></thead>
+            <tbody id="grid-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /tab-tracker -->
+
+    <!-- ── CENSUS TAB ── -->
+    <div id="tab-census" class="tab-panel">
+      <div id="census-content"></div>
+    </div>
+
+    <!-- ── LOG TAB ── -->
+    <div id="tab-log" class="tab-panel">
+      <div class="card" style="padding:1.5rem;">
+        <h2 style="font-size:14px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtext);margin:0 0 1rem;">Activity Log</h2>
+        <div id="activity-log"></div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /app -->
+
+  <!-- ── TOUR SCHEDULE TAB ── -->
+  <div id="tab-schedule" class="tab-panel">
+    <div id="print-header" class="hidden text-center" style="margin-bottom:1rem;">
+      <h1 style="font-size:1.5rem;font-weight:900;text-transform:uppercase;">Postcard Signoff</h1>
+      <p id="print-date-range" style="font-size:11px;font-weight:700;color:var(--subtext);text-transform:uppercase;letter-spacing:0.1em;"></p>
+    </div>
+    <div class="no-print" style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:1rem;margin-bottom:1.5rem;">
+      <div>
+        <h1 style="font-size:1.75rem;font-weight:900;margin:0;">Tour Schedule</h1>
+        <p style="font-size:11px;font-weight:700;color:var(--subtext);text-transform:uppercase;letter-spacing:0.1em;margin:2px 0 0;">Weekly view · Mon–Fri</p>
+      </div>
+      <div style="display:flex;align-items:center;gap:0.625rem;">
+        <button onclick="jumpToToday()" style="background:#10B981;color:white;height:36px;padding:0 14px;border-radius:10px;font-weight:900;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;border:none;cursor:pointer;">Today</button>
+        <div style="display:flex;align-items:center;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:2px 4px;height:36px;">
+          <button onclick="changeWeek(-7)" style="background:none;border:none;cursor:pointer;padding:0 6px;color:var(--subtext);font-size:16px;">◀</button>
+          <input type="date" id="schedule-date-picker" style="font-weight:700;font-size:13px;outline:none;border:none;background:transparent;cursor:pointer;color:var(--text);">
+          <button onclick="changeWeek(7)" style="background:none;border:none;cursor:pointer;padding:0 6px;color:var(--subtext);font-size:16px;">▶</button>
+        </div>
+        <button onclick="prepareAndPrint()" style="background:var(--text);color:var(--bg);height:36px;padding:0 16px;border-radius:10px;font-weight:900;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;border:none;cursor:pointer;">Print Postcards</button>
+      </div>
+    </div>
+    <div id="schedule-container" class="schedule-grid"></div>
+  </div>
+
+  <!-- ── DESK DASHBOARD TAB ── -->
+  <div id="tab-desk" class="tab-panel">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;">
+      <div>
+        <h1 style="font-size:1.75rem;font-weight:900;margin:0;">Desk Dashboard</h1>
+        <p style="font-size:11px;font-weight:700;color:var(--subtext);text-transform:uppercase;letter-spacing:0.1em;margin:2px 0 0;">Live tour operations</p>
+      </div>
+      <div style="display:flex;align-items:center;gap:0.5rem;background:var(--surface);border:1px solid var(--border);border-radius:1rem;padding:4px;">
+        <button onclick="changeDeskDate(-1)" style="background:none;border:none;cursor:pointer;padding:6px 10px;color:var(--subtext);border-radius:8px;font-size:16px;">◀</button>
+        <p id="desk-display-date" style="font-weight:900;font-size:13px;color:var(--gold);text-transform:uppercase;letter-spacing:0.08em;padding:0 8px;margin:0;"></p>
+        <button onclick="changeDeskDate(1)" style="background:none;border:none;cursor:pointer;padding:6px 10px;color:var(--subtext);border-radius:8px;font-size:16px;">▶</button>
+      </div>
+    </div>
+    <div id="status-bar" style="display:flex;gap:8px;overflow-x:auto;padding-bottom:1rem;margin-bottom:1.5rem;border-bottom:1px solid var(--border);"></div>
+    <div style="margin-bottom:2rem;">
+      <p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:var(--subtext);margin-bottom:0.75rem;">Daily Visits</p>
+      <div id="grid-daily" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;"></div>
+    </div>
+    <div>
+      <p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:var(--subtext);margin-bottom:0.75rem;">Program Days</p>
+      <div id="grid-program" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;"></div>
+    </div>
+  </div>
+
+</div><!-- /admin-main -->
+</div><!-- /app -->
+<!-- ── SAVE BAR ── -->
+<div id="save-bar">
+  <div style="display:flex;align-items:center;gap:0.875rem;background:var(--surface);border:1px solid var(--border);border-radius:1rem;padding:0.75rem 1.25rem;box-shadow:0 8px 32px rgba(0,0,0,0.18);">
+    <span id="save-bar-count" style="font-size:12px;font-weight:800;color:var(--text);"></span>
+    <button class="btn-gold" onclick="saveAllChanges()">Save All Changes</button>
+    <button class="btn-ghost" style="padding:0.5rem 0.875rem;font-size:11px;" onclick="discardChanges()">Discard</button>
+  </div>
+</div>
+
+<!-- ── MODAL (shared) ── -->
+<div id="modal-overlay" onclick="maybeCloseModal(event)">
+  <div id="modal-box" onclick="event.stopPropagation()">
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<!-- ── TOAST ── -->
+<div id="toast"></div>
+
+<script>
+
+// ─── PIN GATE ────────────────────────────────────────────────────────────────
+const PIN_SESSION_KEY = 'tgis_admin_pin_ok';
+const PIN_LENGTH = 6;
+let pinEntry = '';
+let pinAttempts = 0;
+const MAX_ATTEMPTS = 3;
+
+function initPinGate() {
+  // Already verified this session — skip straight to load
+  if (sessionStorage.getItem(PIN_SESSION_KEY) === 'true') {
+    loadApp();
+    return;
+  }
+  
+  // 1. Reveal the PIN overlay
+  document.getElementById('pin-overlay').classList.remove('hidden');
+  
+  // FIX: 2. Stop the loading timer and hide the loading overlay so the user can see the PIN pad
+  clearInterval(loadBarTimer);
+  document.getElementById('load-overlay').style.display = 'none';
+
+  // Allow keyboard input too
+  document.addEventListener('keydown', (e) => {
+    if (!document.getElementById('pin-overlay').classList.contains('hidden')) {
+      if (e.key >= '0' && e.key <= '9') pinKey(e.key);
+      else if (e.key === 'Backspace') pinClear();
+      else if (e.key === 'Enter') pinSubmit();
+    }
+  });
+}
+
+function pinKey(digit) {
+  if (pinEntry.length >= PIN_LENGTH || pinAttempts >= MAX_ATTEMPTS) return;
+  pinEntry += digit;
+  updatePinDots();
+  if (pinEntry.length === PIN_LENGTH) {
+    document.getElementById('pin-submit-btn').disabled = false;
+  }
+}
+
+function pinClear() {
+  if (pinEntry.length === 0) return;
+  pinEntry = pinEntry.slice(0, -1);
+  document.getElementById('pin-submit-btn').disabled = true;
+  updatePinDots();
+}
+
+function updatePinDots() {
+  const dots = document.querySelectorAll('.pin-dot');
+  dots.forEach((dot, i) => {
+    dot.classList.toggle('filled', i < pinEntry.length);
+    dot.classList.remove('error');
+  });
+}
+
+async function pinSubmit() {
+  if (pinEntry.length !== PIN_LENGTH || pinAttempts >= MAX_ATTEMPTS) return;
+
+  const btn = document.getElementById('pin-submit-btn');
+  btn.disabled = true;
+  btn.innerText = '…';
+
+  try {
+    const res  = await fetch(`${SCRIPT_URL}?action=verifyPin&pin=${encodeURIComponent(pinEntry)}`);
+    const data = await res.json();
+
+    if (data.ok) {
+      sessionStorage.setItem(PIN_SESSION_KEY, 'true');
+      document.getElementById('pin-overlay').style.opacity = '0';
+      document.getElementById('pin-overlay').style.transition = 'opacity 0.4s';
+      setTimeout(() => {
+        document.getElementById('pin-overlay').style.display = 'none';
+        loadApp();
+      }, 350);
+    } else {
+      pinAttempts++;
+      pinEntry = '';
+      updatePinDots();
+      const remaining = MAX_ATTEMPTS - pinAttempts;
+
+      // Shake dots red
+      document.querySelectorAll('.pin-dot').forEach(d => {
+        d.classList.remove('filled');
+        d.classList.add('error');
+      });
+
+      if (remaining <= 0) {
+        document.getElementById('pin-error').innerText = 'Too many attempts. Refresh to try again.';
+        document.getElementById('pin-attempts').innerText = '';
+        document.querySelectorAll('.pin-key').forEach(k => k.disabled = true);
+      } else {
+        document.getElementById('pin-error').innerText = 'Incorrect PIN';
+        document.getElementById('pin-attempts').innerText = `${remaining} attempt${remaining !== 1 ? 's' : ''} remaining`;
+        setTimeout(() => {
+          document.querySelectorAll('.pin-dot').forEach(d => d.classList.remove('error'));
+          document.getElementById('pin-error').innerText = '';
+          btn.innerText = '→';
+        }, 800);
+      }
+    }
+  } catch(e) {
+    document.getElementById('pin-error').innerText = 'Network error — try again';
+    btn.disabled = false;
+    btn.innerText = '→';
+  }
+}
+
+// ─── CONFIG ──────────────────────────────────────────────────────────────────
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyqIgk-V7XABUMluhLwjGudlHwkgldwRaBlAN6dFdbI1gNL-_cvN5PNTek2cfqNtc3j/exec';
+const params     = new URLSearchParams(window.location.search);
+const userName   = params.get('user');
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let D           = null;   // full API response
+let gridData    = [];     // [{displayName, semCols:{}, currentSem, careerTotal, hasSpecial, countedTours:[]}]
+let currentSem  = '';
+let dirty       = {};     // displayName → { oldVal, newVal, reason }
+let darkMode    = localStorage.getItem('tgis_dark') === '1';
+
+// ─── DARK MODE ────────────────────────────────────────────────────────────────
+function applyDark() {
+  document.documentElement.classList.toggle('dark', darkMode);
+}
+function toggleDark() {
+  darkMode = !darkMode;
+  localStorage.setItem('tgis_dark', darkMode ? '1' : '0');
+  applyDark();
+}
+applyDark();
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+let loadBarVal = 0;
+const loadBarTimer = setInterval(() => {
+  loadBarVal = Math.min(loadBarVal + Math.random() * 10, 82);
+  document.getElementById('load-bar').style.width = loadBarVal + '%';
+}, 500);
+
+window.onload = () => { initPinGate(); };
+
+async function loadApp() {
+  if (!userName) { showLoadErr('NO_USER_PARAM — add ?user=yourUsername to URL'); return; }
+
+  setLoadStatus('Loading data…');
+  try {
+    const res = await fetch(`${SCRIPT_URL}?user=${encodeURIComponent(userName)}&admin=true`);
+    if (!res.ok) throw new Error(`HTTP_${res.status}`);
+    D = await res.json();
+    if (D.error) throw new Error(D.error);
+    if (!D.adminData) throw new Error('ACCESS_DENIED — must be Manager or Codirector');
+
+    currentSem = D.adminData.currentSemName;
+
+    // Build gridData
+    const srByGuide = {};
+    (D.adminData.specialRequests || []).forEach(sr => {
+      srByGuide[sr.guide] = (srByGuide[sr.guide] || 0) + sr.count;
+    });
+    const ctByGuide = {};
+    (D.adminData.countedLog || []).forEach(ct => {
+      if (!ctByGuide[ct.guide]) ctByGuide[ct.guide] = [];
+      ctByGuide[ct.guide].push(ct);
+    });
+
+    gridData = (D.adminData.trackerGrid || []).map(g => ({
+      ...g,
+      hasSpecial:   !!srByGuide[g.displayName],
+      specialCount: srByGuide[g.displayName] || 0,
+      countedTours: ctByGuide[g.displayName] || []
+    }));
+
+    // Header
+    document.getElementById('hdr-name').innerText = D.profile.displayName;
+    document.getElementById('hdr-sem').innerText  = currentSem;
+
+    renderStats();
+    renderGrid();
+    renderActivityLog();
+
+    clearInterval(loadBarTimer);
+    document.getElementById('load-bar').style.width = '100%';
+    setLoadStatus('Ready');
+    setTimeout(() => {
+      const ov = document.getElementById('load-overlay');
+      ov.style.opacity = '0';
+      setTimeout(() => { ov.style.display = 'none'; document.getElementById('app').classList.remove('hidden'); }, 350);
+    }, 250);
+
+  } catch(e) {
+    clearInterval(loadBarTimer);
+    showLoadErr(e.message.slice(0,80));
+  }
+};
+
+function setLoadStatus(t) { document.getElementById('load-status').innerText = t; }
+function showLoadErr(msg) {
+  document.getElementById('load-bar').style.background = '#EF4444';
+  document.getElementById('load-bar').style.width = '100%';
+  document.getElementById('load-status').style.display = 'none';
+  document.getElementById('load-err-msg').innerText = msg;
+  document.getElementById('load-err').classList.remove('hidden');
+}
+
+// ─── TABS ─────────────────────────────────────────────────────────────────────
+function adminSwitchTab(name) {
+  // Update sidebar nav items
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  const navBtn = document.getElementById('nav-' + name);
+  if (navBtn) navBtn.classList.add('active');
+
+  // Show correct panel
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  const panel = document.getElementById('tab-' + name);
+  if (panel) panel.classList.add('active');
+
+  // Lazy triggers
+  if (name === 'census')   renderCensus();
+  if (name === 'schedule') { loadMgrTours().then(() => renderSchedule()); }
+  if (name === 'desk')     { loadMgrTours().then(() => renderDeskDashboard()); }
+
+  // Close mobile sidebar
+  document.getElementById('admin-sidebar').classList.remove('open');
+}
+
+// Keep old name working for any inline calls
+function switchTab(name) { adminSwitchTab(name); }
+
+// ─── STATS ────────────────────────────────────────────────────────────────────
+function renderStats() {
+  document.getElementById('stat-guides').innerText    = gridData.length;
+  const semSum = gridData.reduce((s,g) => s + (g.currentSem||0), 0);
+  document.getElementById('stat-sem-total').innerText = semSum;
+  const autoC = (D.adminData.countedLog||[]).filter(c => !c.isSpecial).length;
+  document.getElementById('stat-auto').innerText      = autoC;
+  const srC   = (D.adminData.specialRequests||[]).reduce((s,r)=>s+(r.count||0),0);
+  document.getElementById('stat-special').innerText   = srC;
+}
+
+// ─── GRID ─────────────────────────────────────────────────────────────────────
+function renderGrid() {
+  const pastSems = D.adminData.semesterCols || [];
+
+  // HEAD
+  const thead = document.getElementById('grid-head');
+  thead.innerHTML = `<tr>
+    <th class="col-name" style="text-align:left;min-width:140px;">Guide</th>
+    <th style="min-width:90px;cursor:pointer;" title="Click any count to edit">
+      ${currentSem} <span style="color:var(--gold);">✎</span>
+    </th>
+    <th style="min-width:70px;">Career</th>
+    <th style="min-width:80px;">Special Req.</th>
+    <th style="min-width:60px;"></th>
+  </tr>`;
+
+  buildGridBody(gridData);
+}
+
+function buildGridBody(rows) {
+  const tbody = document.getElementById('grid-body');
+  tbody.innerHTML = '';
+
+  rows.forEach(g => {
+    const isSR    = g.hasSpecial;
+    const srClass = isSR ? 'sr-row' : '';
+
+    // Main row
+    const tr = document.createElement('tr');
+    tr.className = srClass;
+    tr.dataset.guide = g.displayName;
+
+    const savedVal  = g.currentSem;
+    const dirtyInfo = dirty[g.displayName];
+    const inputVal  = dirtyInfo ? dirtyInfo.newVal : savedVal;
+    const isDirty   = !!dirtyInfo;
+
+    tr.innerHTML = `
+      <td class="col-name ${srClass}" style="cursor:pointer;" onclick="toggleDetail('${esc(g.displayName)}')">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:11px;color:var(--subtext);transition:transform 0.2s;" id="arr-${esc(g.displayName)}">▶</span>
+          <div>
+            <p style="margin:0;font-size:13px;font-weight:800;">${g.displayName}</p>
+            ${isSR ? `<span class="pill pill-purple">+${g.specialCount} special</span>` : ''}
+          </div>
+        </div>
+      </td>
+      <td style="padding:0.4rem 0.5rem;">
+        <input
+          type="number" min="0"
+          class="cell-edit ${isDirty ? 'dirty' : ''}"
+          data-guide="${esc(g.displayName)}"
+          data-orig="${savedVal}"
+          value="${inputVal}"
+          onchange="cellChanged(this)"
+          onfocus="this.select()"
+        >
+      </td>
+      <td><span class="cell-total">${g.careerTotal}</span></td>
+      <td><span class="cell-readonly">${g.specialCount || '—'}</span></td>
+      <td style="padding:0.4rem 0.5rem;text-align:center;">
+        <button class="btn-sm" style="background:var(--gold-dim);color:var(--gold);" onclick="openSRModal('${esc(g.displayName)}')">+ SR</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+
+    // Detail row (hidden by default)
+    const dr = document.createElement('tr');
+    dr.className   = 'guide-detail-row';
+    dr.id          = 'detail-' + cssId(g.displayName);
+    dr.innerHTML   = `<td colspan="5" class="guide-detail-cell" id="detail-cell-${cssId(g.displayName)}">
+      <div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtext);margin-bottom:0.75rem;">
+        Tour Detail — ${g.displayName}
+      </div>
+      <div id="detail-inner-${cssId(g.displayName)}">Loading…</div>
+    </td>`;
+    tbody.appendChild(dr);
+  });
+}
+
+let openDetail = null;
+function toggleDetail(guideName) {
+  const id  = cssId(guideName);
+  const row = document.getElementById('detail-' + id);
+  const arr = document.getElementById('arr-' + cssId(guideName));
+  if (!row) return;
+
+  // Close previously open
+  if (openDetail && openDetail !== id) {
+    const prev = document.getElementById('detail-' + openDetail);
+    if (prev) prev.classList.remove('open');
+    const prevArr = document.querySelector(`#arr-${openDetail}`);
+    if (prevArr) prevArr.style.transform = 'rotate(0deg)';
+  }
+
+  const isOpen = row.classList.toggle('open');
+  if (arr) arr.style.transform = isOpen ? 'rotate(90deg)' : 'rotate(0deg)';
+  openDetail = isOpen ? id : null;
+
+  if (isOpen) renderDetailPanel(guideName);
+}
+
+function renderDetailPanel(guideName) {
+  const g      = gridData.find(x => x.displayName === guideName);
+  const innerId = 'detail-inner-' + cssId(guideName);
+  const inner  = document.getElementById(innerId);
+  if (!g || !inner) return;
+
+  const pastSems = D.adminData.semesterCols || [];
+
+  // Past semesters table
+  let pastHtml = '';
+  if (pastSems.length) {
+    const rows = pastSems.map(sem => {
+      const val = (g.semesters || {})[sem] || 0;
+      return `<tr>
+        <td style="padding:0.375rem 0.75rem;font-size:12px;font-weight:700;color:var(--subtext);">${sem}</td>
+        <td style="padding:0.375rem 0.75rem;font-size:13px;font-weight:900;color:var(--text);text-align:right;">${val}</td>
+      </tr>`;
+    }).join('');
+    pastHtml = `
+      <div style="margin-bottom:1rem;">
+        <p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtext);margin-bottom:0.5rem;">Semester History</p>
+        <table style="border-collapse:collapse;width:auto;">
+          <thead><tr>
+            <th style="text-align:left;padding:0.25rem 0.75rem;font-size:9px;font-weight:900;text-transform:uppercase;color:var(--subtext);">Semester</th>
+            <th style="text-align:right;padding:0.25rem 0.75rem;font-size:9px;font-weight:900;text-transform:uppercase;color:var(--subtext);">Tours</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+  }
+
+  // Counted tours for current semester
+  const currCounted = (g.countedTours || []).sort((a,b) => (b.date||'').localeCompare(a.date||''));
+  let countedHtml = '';
+  if (currCounted.length) {
+    const rows = currCounted.map(ct => {
+      const badge = ct.isSpecial
+        ? '<span class="pill pill-purple">Special</span>'
+        : '<span class="pill pill-blue">Auto</span>';
+      return `<tr>
+        <td style="padding:0.3rem 0.75rem;font-size:12px;font-weight:700;">${ct.date}</td>
+        <td style="padding:0.3rem 0.75rem;font-size:12px;font-weight:700;">${ct.type}</td>
+        <td style="padding:0.3rem 0.75rem;">${badge}</td>
+        <td style="padding:0.3rem 0.75rem;font-size:11px;color:var(--subtext);">${ct.countedAt || ''}</td>
+      </tr>`;
+    }).join('');
+    countedHtml = `
+      <div>
+        <p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtext);margin-bottom:0.5rem;">
+          Tours Counted This Semester (${currCounted.length})
+        </p>
+        <div style="overflow-x:auto;">
+          <table style="border-collapse:collapse;width:100%;min-width:400px;">
+            <thead><tr>
+              <th style="text-align:left;padding:0.25rem 0.75rem;font-size:9px;font-weight:900;text-transform:uppercase;color:var(--subtext);">Date</th>
+              <th style="text-align:left;padding:0.25rem 0.75rem;font-size:9px;font-weight:900;text-transform:uppercase;color:var(--subtext);">Type</th>
+              <th style="padding:0.25rem 0.75rem;font-size:9px;font-weight:900;text-transform:uppercase;color:var(--subtext);">Source</th>
+              <th style="text-align:left;padding:0.25rem 0.75rem;font-size:9px;font-weight:900;text-transform:uppercase;color:var(--subtext);">Counted At</th>
+            </tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      </div>`;
+  } else {
+    countedHtml = `<p style="font-size:12px;color:var(--subtext);font-style:italic;">No tours counted yet this semester.</p>`;
+  }
+
+  inner.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 2fr;gap:1.5rem;flex-wrap:wrap;">
+      <div>${pastHtml}</div>
+      <div>${countedHtml}</div>
+    </div>`;
+}
+
+// ─── CELL EDITING ─────────────────────────────────────────────────────────────
+function cellChanged(input) {
+  const guide   = input.dataset.guide;
+  const orig    = parseInt(input.dataset.orig) || 0;
+  const newVal  = parseInt(input.value) || 0;
+
+  if (newVal === orig && dirty[guide]) {
+    delete dirty[guide];
+    input.classList.remove('dirty');
+  } else if (newVal !== orig) {
+    dirty[guide] = { oldVal: orig, newVal, reason: '' };
+    input.classList.add('dirty');
+    input.classList.remove('saved');
+  }
+  updateDirtyUI();
+}
+
+function updateDirtyUI() {
+  const count = Object.keys(dirty).length;
+  document.getElementById('stat-dirty').innerText = count;
+  const bar = document.getElementById('save-bar');
+  bar.classList.toggle('show', count > 0);
+  document.getElementById('save-bar-count').innerText = `${count} unsaved change${count !== 1 ? 's' : ''}`;
+}
+
+async function saveAllChanges() {
+  const guides = Object.keys(dirty);
+  if (!guides.length) return;
+
+  // Collect reasons via a quick modal
+  openReasonModal(guides, async (reasons) => {
+    for (const guide of guides) {
+      const { newVal } = dirty[guide];
+      const reason = reasons[guide] || 'Manual update via admin panel';
+      await postAction({ action: 'manualAdjust', adminUser: userName, guide, newValue: newVal, reason });
+
+      // Update local state
+      const g = gridData.find(x => x.displayName === guide);
+      if (g) { g.careerTotal += (newVal - g.currentSem); g.currentSem = newVal; }
+
+      // Mark cell as saved
+      const input = document.querySelector(`input.cell-edit[data-guide="${esc(guide)}"]`);
+      if (input) {
+        input.dataset.orig = newVal;
+        input.classList.remove('dirty');
+        input.classList.add('saved');
+      }
+      delete dirty[guide];
+    }
+
+    updateDirtyUI();
+    renderStats();
+    showToast(`${guides.length} change${guides.length>1?'s':''} saved`);
+    closeModal();
+  });
+}
+
+function discardChanges() {
+  Object.keys(dirty).forEach(guide => {
+    const input = document.querySelector(`input.cell-edit[data-guide="${esc(guide)}"]`);
+    if (input) {
+      input.value = input.dataset.orig;
+      input.classList.remove('dirty');
+    }
+  });
+  dirty = {};
+  updateDirtyUI();
+  showToast('Changes discarded');
+}
+
+// ─── REASON MODAL (for save) ──────────────────────────────────────────────────
+function openReasonModal(guides, onConfirm) {
+  const fields = guides.map(g => `
+    <div style="margin-bottom:0.875rem;">
+      <label class="lbl">${g} — reason for change</label>
+      <input type="text" class="inp reason-inp" data-guide="${esc(g)}" placeholder="e.g. Data correction, system sync error…">
+    </div>`).join('');
+
+  document.getElementById('modal-content').innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+      <h2 style="font-size:1.1rem;font-weight:900;margin:0;">Save Changes</h2>
+      <button onclick="closeModal()" style="background:none;border:none;font-size:1.25rem;cursor:pointer;color:var(--subtext);">✕</button>
+    </div>
+    <p style="font-size:12px;color:var(--subtext);margin-bottom:1.25rem;">Enter a reason for each edit (required for audit log).</p>
+    ${fields}
+    <div style="display:flex;gap:0.75rem;justify-content:flex-end;margin-top:1.25rem;">
+      <button class="btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn-gold" onclick="confirmSave()">Save All</button>
+    </div>`;
+
+  window._saveCallback = onConfirm;
+  openModal();
+}
+
+function confirmSave() {
+  const reasons = {};
+  document.querySelectorAll('.reason-inp').forEach(inp => {
+    reasons[inp.dataset.guide] = inp.value.trim() || 'Manual update via admin panel';
+  });
+  if (window._saveCallback) window._saveCallback(reasons);
+}
+
+// ─── SPECIAL REQUEST MODAL ────────────────────────────────────────────────────
+function openSRModal(prefillGuide) {
+  const guideOptions = gridData
+    .map(g => `<option value="${esc(g.displayName)}" ${g.displayName === prefillGuide ? 'selected' : ''}>${g.displayName}</option>`)
+    .join('');
+
+  document.getElementById('modal-content').innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+      <h2 style="font-size:1.1rem;font-weight:900;margin:0;">Add Special Request</h2>
+      <button onclick="closeModal()" style="background:none;border:none;font-size:1.25rem;cursor:pointer;color:var(--subtext);">✕</button>
+    </div>
+    <p style="font-size:12px;color:var(--subtext);margin-bottom:1.25rem;">Private tours, VIP visits, make-ups, recruitment events — any non-scheduled tour that counts toward a guide's total.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.875rem;margin-bottom:0.875rem;">
+      <div>
+        <label class="lbl">Guide</label>
+        <select id="sr-guide" class="inp">${guideOptions}</select>
+      </div>
+      <div>
+        <label class="lbl">Date</label>
+        <input type="date" id="sr-date" class="inp">
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.875rem;margin-bottom:0.875rem;">
+      <div>
+        <label class="lbl">Type</label>
+        <select id="sr-type" class="inp">
+          <option>Special Request</option>
+          <option>Private Tour</option>
+          <option>VIP Visit</option>
+          <option>Recruitment Event</option>
+          <option>Make-up Tour</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div>
+        <label class="lbl">Count</label>
+        <input type="number" id="sr-count" class="inp" min="1" max="20" value="1">
+      </div>
+    </div>
+    <div style="margin-bottom:1.25rem;">
+      <label class="lbl">Notes (optional)</label>
+      <input type="text" id="sr-notes" class="inp" placeholder="e.g. Dean's office request, alumni family…">
+    </div>
+    <div style="display:flex;gap:0.75rem;justify-content:flex-end;">
+      <button class="btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn-gold" onclick="submitSR()">Add to Tracker</button>
+    </div>`;
+
+  openModal();
+}
+
+async function submitSR() {
+  const guide = document.getElementById('sr-guide').value;
+  const date  = document.getElementById('sr-date').value;
+  const type  = document.getElementById('sr-type').value;
+  const count = parseInt(document.getElementById('sr-count').value) || 1;
+  const notes = document.getElementById('sr-notes').value.trim();
+
+  if (!guide) return showToast('Select a guide', true);
+  if (!date)  return showToast('Select a date', true);
+
+  await postAction({ action: 'specialRequest', adminUser: userName, guide, date, type, count, notes });
+
+  // Update local state
+  const g = gridData.find(x => x.displayName === guide);
+  if (g) {
+    g.currentSem   += count;
+    g.careerTotal  += count;
+    g.specialCount  = (g.specialCount||0) + count;
+    g.hasSpecial    = true;
+    for (let i=0;i<count;i++) {
+      g.countedTours.push({ uid: 'SR_local_'+Date.now(), guide, type, date, countedAt: new Date().toLocaleString(), isSpecial: true });
+    }
+    if (!D.adminData.specialRequests) D.adminData.specialRequests = [];
+    D.adminData.specialRequests.push({ guide, date, type, count, notes, addedBy: userName, addedAt: new Date().toLocaleString() });
+  }
+
+  renderStats();
+  buildGridBody(getCurrentRows());
+  showToast(`+${count} tour${count>1?'s':''} added for ${guide}`);
+  closeModal();
+}
+
+// ─── ROLLOVER MODAL ───────────────────────────────────────────────────────────
+function openRolloverModal() {
+  document.getElementById('modal-content').innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+      <h2 style="font-size:1.1rem;font-weight:900;margin:0;color:#EF4444;">Semester Rollover</h2>
+      <button onclick="closeModal()" style="background:none;border:none;font-size:1.25rem;cursor:pointer;color:var(--subtext);">✕</button>
+    </div>
+    <div style="background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2);border-radius:0.75rem;padding:0.875rem;margin-bottom:1.25rem;">
+      <p style="font-size:11px;font-weight:700;color:var(--text);margin:0;line-height:1.7;">
+        This will <strong>archive the current semester</strong> ("${currentSem}") and open a fresh column for the new semester.
+        Career totals are unaffected. <strong>This cannot be undone.</strong>
+      </p>
+    </div>
+    <div style="margin-bottom:1rem;">
+      <label class="lbl">New Semester Name</label>
+      <input type="text" id="ro-newsem" class="inp" placeholder="e.g. Fall 2026">
+    </div>
+    <div style="margin-bottom:1.25rem;">
+      <label class="lbl">Type ROLLOVER to confirm</label>
+      <input type="text" id="ro-confirm" class="inp" placeholder="ROLLOVER" style="font-family:monospace;letter-spacing:0.15em;text-transform:uppercase;">
+    </div>
+    <div style="display:flex;gap:0.75rem;justify-content:flex-end;">
+      <button class="btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn-gold" style="background:#EF4444;" onclick="submitRollover()">Execute Rollover</button>
+    </div>`;
+  openModal();
+}
+
+async function submitRollover() {
+  const confirm = document.getElementById('ro-confirm').value.trim().toUpperCase();
+  const newSem  = document.getElementById('ro-newsem').value.trim();
+  if (confirm !== 'ROLLOVER') return showToast('Type ROLLOVER to confirm', true);
+  if (!newSem)                return showToast('Enter new semester name', true);
+
+  await postAction({ action: 'rollover', adminUser: userName, newSemesterName: newSem });
+
+  // Update local UI
+  document.getElementById('hdr-sem').innerText = newSem;
+  currentSem = newSem;
+  gridData.forEach(g => { g.currentSem = 0; });
+  dirty = {};
+  updateDirtyUI();
+  renderGrid();
+  renderStats();
+  showToast(`Rolled over to ${newSem}`);
+  closeModal();
+}
+
+// ─── SEARCH / FILTER ──────────────────────────────────────────────────────────
+function getCurrentRows() {
+  const q = document.getElementById('search')?.value?.toLowerCase() || '';
+  return q ? gridData.filter(g => g.displayName.toLowerCase().includes(q)) : gridData;
+}
+function filterGrid() { buildGridBody(getCurrentRows()); }
+
+// ─── CENSUS RESULTS ──────────────────────────────────────────────────────────
+function renderCensus() {
+  const el = document.getElementById('census-content');
+  if (!el) return;
+
+  const census = D.adminData.censusData || {};
+  const guides = D.adminData.trackerGrid || [];
+
+  const DESK_ROLES = ['Welcome Desk', 'Front Desk', 'Codirector', 'Manager', 'Admissions Rep'];
+
+  // ── Submission status ────────────────────────────────────────────────────
+  const submitted    = guides.filter(g => census[g.displayName] && census[g.displayName].givingTours !== '');
+  const notSubmitted = guides.filter(g => !census[g.displayName] || census[g.displayName].givingTours === '');
+  const subCount    = submitted.length;
+  const notSubCount = notSubmitted.length;
+  const total       = guides.length;
+
+  // ── Tours ────────────────────────────────────────────────────────────────
+  const givingYes = submitted.filter(g => (census[g.displayName]?.givingTours||'').toLowerCase() === 'yes');
+  const givingNo  = submitted.filter(g => (census[g.displayName]?.givingTours||'').toLowerCase() === 'no');
+  const pref1 = givingYes.filter(g => String(census[g.displayName]?.toursPerWeek) === '1').length;
+  const pref2 = givingYes.filter(g => String(census[g.displayName]?.toursPerWeek) === '2').length;
+
+  // ── Desk ─────────────────────────────────────────────────────────────────
+  // Current desk workers = guides whose role is a desk role
+  const currentDesk = guides.filter(g => DESK_ROLES.includes((census[g.displayName]?.role || '').trim()));
+  // Interested = submitted, NOT a current desk worker, and deskWhere is set
+  const interestedDesk = submitted.filter(g => {
+    const c = census[g.displayName];
+    if (!c) return false;
+    if (DESK_ROLES.includes((c.role||'').trim())) return false;
+    return c.deskWhere && c.deskWhere !== '' && c.deskWhere.toLowerCase() !== 'no';
+  });
+
+  // ── Training ─────────────────────────────────────────────────────────────
+  const DAYS  = ['Monday','Tuesday','Wednesday','Thursday'];
+  const TIMES = ['5:00 PM','5:30 PM','6:00 PM','6:30 PM','7:00 PM','7:30 PM'];
+  const availMap = {}, prefMap = {}, timeMap = {};
+  DAYS.forEach(d => { availMap[d]=0; prefMap[d]=0; });
+  TIMES.forEach(t => { timeMap[t]=0; });
+  submitted.forEach(g => {
+    const c = census[g.displayName]; if (!c) return;
+    (c.trainingDaysAvail||'').split(',').forEach(d => { const k=d.trim(); if(availMap[k]!==undefined) availMap[k]++; });
+    (c.trainingDaysPref ||'').split(',').forEach(d => { const k=d.trim(); if(prefMap[k]!==undefined)  prefMap[k]++; });
+    (c.trainingTimes    ||'').split(',').forEach(t => { const k=t.trim(); if(timeMap[k]!==undefined)  timeMap[k]++; });
+  });
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  function sectionLabel(text) {
+    return `<p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;color:var(--subtext);margin:0 0 0.75rem;">${text}</p>`;
+  }
+
+  function barRow(label, count, max, color) {
+    const pct = max > 0 ? Math.round((count/max)*100) : 0;
+    return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+      <span style="width:90px;font-size:12px;font-weight:700;color:var(--text);flex-shrink:0;">${label}</span>
+      <div style="flex:1;height:8px;background:var(--border);border-radius:99px;overflow:hidden;">
+        <div style="height:100%;width:${pct}%;background:${color};border-radius:99px;transition:width 0.8s ease;"></div>
+      </div>
+      <span style="width:48px;text-align:right;font-size:12px;font-weight:900;color:var(--text);">${count} <span style="font-weight:600;color:var(--subtext);font-size:10px;">(${pct}%)</span></span>
+    </div>`;
+  }
+
+  function clickableStat(value, label, color, listHtml, title) {
+    const id = 'clist_' + Math.random().toString(36).slice(2);
+    // Store the list html globally so we can show it in the modal
+    window._censusLists = window._censusLists || {};
+    window._censusLists[id] = { title, html: listHtml };
+    return `<div class="card" style="padding:1.25rem;text-align:center;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;"
+      onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,0.08)'"
+      onmouseout="this.style.transform='';this.style.boxShadow=''"
+      onclick="censusShowList('${id}')">
+      <p style="font-size:2.25rem;font-weight:900;color:${color};margin:0;line-height:1;">${value}</p>
+      <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtext);margin:5px 0 0;">${label}</p>
+      <p style="font-size:9px;font-weight:700;color:var(--subtext);margin:3px 0 0;opacity:0.6;">tap to view list</p>
+    </div>`;
+  }
+
+  function nameTag(name, color='rgba(107,114,128,0.1)', textColor='var(--subtext)') {
+    return `<span style="background:${color};color:${textColor};border-radius:99px;padding:4px 12px;font-size:12px;font-weight:700;display:inline-block;">${name}</span>`;
+  }
+
+  // ── Build list HTML for modals ────────────────────────────────────────────
+  const notSubListHtml = notSubmitted.length
+    ? `<div style="display:flex;flex-wrap:wrap;gap:8px;">${notSubmitted.map(g => nameTag(g.displayName,'rgba(239,68,68,0.1)','#EF4444')).join('')}</div>`
+    : '<p style="color:var(--subtext);font-style:italic;">Everyone has submitted!</p>';
+
+  const notGivingListHtml = givingNo.length
+    ? `<div style="display:flex;flex-direction:column;gap:10px;">${givingNo.map(g => {
+        const reason = census[g.displayName]?.noTourReason || 'No reason provided';
+        return `<div style="background:var(--row-hover);border:1px solid var(--border);border-radius:0.75rem;padding:0.75rem 1rem;">
+          <p style="font-size:13px;font-weight:800;color:var(--text);margin:0 0 4px;">${g.displayName}</p>
+          <p style="font-size:12px;font-weight:600;color:var(--subtext);margin:0;">${reason}</p>
+        </div>`;
+      }).join('')}</div>`
+    : '<p style="color:var(--subtext);font-style:italic;">Everyone is giving tours!</p>';
+
+  const submittedListHtml = submitted.length
+    ? `<div style="display:flex;flex-wrap:wrap;gap:8px;">${submitted.map(g => nameTag(g.displayName,'rgba(16,185,129,0.1)','#10B981')).join('')}</div>`
+    : '<p style="color:var(--subtext);font-style:italic;">No submissions yet.</p>';
+
+  // ── Render ────────────────────────────────────────────────────────────────
+  el.innerHTML = `
+
+    <!-- ── SECTION 1: SUBMISSION STATUS ── -->
+    <div style="margin-bottom:2rem;">
+      ${sectionLabel('Submission Status')}
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;">
+        ${clickableStat(subCount, 'Submitted', '#10B981', submittedListHtml, 'Guides Who Submitted')}
+        ${clickableStat(notSubCount, 'Not Submitted', '#EF4444', notSubListHtml, 'Guides Who Have Not Submitted')}
+        <div class="card" style="padding:1.25rem;text-align:center;">
+          <p style="font-size:2.25rem;font-weight:900;color:var(--gold);margin:0;line-height:1;">${total}</p>
+          <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtext);margin:5px 0 0;">Total Guides</p>
+          <p style="font-size:9px;font-weight:700;color:var(--subtext);margin:3px 0 0;opacity:0.6;">${Math.round((subCount/total)*100)}% response rate</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 2: TOURS ── -->
+    <div style="margin-bottom:2rem;">
+      ${sectionLabel('Tours This Semester')}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+        ${clickableStat(givingYes.length, 'Giving Tours', '#10B981', `<div style="display:flex;flex-wrap:wrap;gap:8px;">${givingYes.map(g=>nameTag(g.displayName,'rgba(16,185,129,0.1)','#10B981')).join('')}</div>`, 'Giving Tours This Semester')}
+        ${clickableStat(givingNo.length, 'Not Giving', '#EF4444', notGivingListHtml, 'Not Giving Tours — Names & Reasons')}
+      </div>
+      ${givingYes.length > 0 ? `
+      <div class="card" style="padding:1.25rem;">
+        ${sectionLabel(`Tour Preference — ${givingYes.length} giving tours`)}
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          ${barRow('1 / week', pref1, givingYes.length, '#10B981')}
+          ${barRow('2 / week', pref2, givingYes.length, '#CFB991')}
+        </div>
+      </div>` : ''}
+    </div>
+
+    <!-- ── SECTION 3: TRAINING ── -->
+    <div style="margin-bottom:2rem;">
+      ${sectionLabel(`Training Scheduling — ${subCount} respondents`)}
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;">
+
+        <div class="card" style="padding:1.25rem;">
+          ${sectionLabel('Day Availability')}
+          ${DAYS.map(d => barRow(d, availMap[d], subCount, '#CFB991')).join('')}
+        </div>
+
+        <div class="card" style="padding:1.25rem;">
+          ${sectionLabel('Day Preference')}
+          ${DAYS.map(d => barRow(d, prefMap[d], subCount, '#10B981')).join('')}
+        </div>
+
+        <div class="card" style="padding:1.25rem;">
+          ${sectionLabel('Preferred Start Times')}
+          ${TIMES.map(t => barRow(t, timeMap[t], subCount, '#3B82F6')).join('')}
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── SECTION 4: DESK ── -->
+    <div style="margin-bottom:2rem;">
+      ${sectionLabel('Desk Staffing')}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+
+        <!-- Current desk workers -->
+        <div class="card" style="padding:1.25rem;">
+          ${sectionLabel(`Current Desk Staff (${currentDesk.length})`)}
+          ${currentDesk.length ? `
+          <table style="width:100%;border-collapse:collapse;">
+            <thead>
+              <tr>
+                <th style="text-align:left;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:var(--subtext);padding:0 0 8px;">Name</th>
+                <th style="text-align:left;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:var(--subtext);padding:0 0 8px;">Role</th>
+                <th style="text-align:right;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:var(--subtext);padding:0 0 8px;">Hrs/Wk</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${currentDesk.map(g => {
+                const c = census[g.displayName];
+                const hrs = c?.deskHours || '—';
+                const role = c?.role || '—';
+                return `<tr style="border-top:1px solid var(--border);">
+                  <td style="padding:8px 0;font-size:13px;font-weight:700;">${g.displayName}</td>
+                  <td style="padding:8px 0;font-size:12px;font-weight:600;color:var(--subtext);">${role}</td>
+                  <td style="padding:8px 0;font-size:13px;font-weight:900;text-align:right;color:var(--gold);">${hrs}</td>
+                </tr>`;
+              }).join('')}
+            </tbody>
+          </table>` : '<p style="font-size:12px;color:var(--subtext);font-style:italic;">No current desk staff found</p>'}
+        </div>
+
+        <!-- Interested guides -->
+        <div class="card" style="padding:1.25rem;">
+          ${sectionLabel(`Interested Guides (${interestedDesk.length})`)}
+          ${interestedDesk.length ? `
+          <table style="width:100%;border-collapse:collapse;">
+            <thead>
+              <tr>
+                <th style="text-align:left;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:var(--subtext);padding:0 0 8px;">Name</th>
+                <th style="text-align:left;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:var(--subtext);padding:0 0 8px;">Grad</th>
+                <th style="text-align:left;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:var(--subtext);padding:0 0 8px;">Desk</th>
+                <th style="text-align:right;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:var(--subtext);padding:0 0 8px;">Hrs</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${interestedDesk.map(g => {
+                const c = census[g.displayName];
+                return `<tr style="border-top:1px solid var(--border);">
+                  <td style="padding:8px 0;font-size:13px;font-weight:700;">${g.displayName}</td>
+                  <td style="padding:8px 4px;font-size:12px;font-weight:600;color:var(--subtext);">${c?.gradDate || '—'}</td>
+                  <td style="padding:8px 4px;font-size:12px;font-weight:600;color:var(--subtext);">${c?.deskWhere || '—'}</td>
+                  <td style="padding:8px 0;font-size:13px;font-weight:900;text-align:right;color:var(--gold);">${c?.deskHours || '—'}</td>
+                </tr>`;
+              }).join('')}
+            </tbody>
+          </table>` : '<p style="font-size:12px;color:var(--subtext);font-style:italic;">No guides expressed desk interest</p>'}
+        </div>
+
+      </div>
+    </div>
+
+  `;
+}
+
+function censusShowList(id) {
+  const item = (window._censusLists || {})[id];
+  if (!item) return;
+  document.getElementById('modal-content').innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+      <h2 style="font-size:1rem;font-weight:900;margin:0;">${item.title}</h2>
+      <button onclick="closeModal()" style="background:none;border:none;font-size:1.25rem;cursor:pointer;color:var(--subtext);">✕</button>
+    </div>
+    ${item.html}`;
+  openModal();
+}
+
+
+// ─── ACTIVITY LOG ─────────────────────────────────────────────────────────────
+function renderActivityLog() {
+  const items = [...(D.adminData.adminLog || [])].reverse();
+  const el    = document.getElementById('activity-log');
+  if (!items.length) {
+    el.innerHTML = `<p style="font-size:12px;color:var(--subtext);font-style:italic;">No admin actions recorded yet.</p>`;
+    return;
+  }
+  const pillMap = { ROLLOVER:'pill-red', SPECIAL_REQUEST:'pill-purple', MANUAL_ADJUST:'pill-blue' };
+  el.innerHTML = items.map(e => `
+    <div style="display:flex;align-items:flex-start;gap:12px;padding:0.75rem 0;border-bottom:1px solid var(--border);">
+      <span class="pill ${pillMap[e.action]||'pill-gray'}" style="flex-shrink:0;margin-top:2px;">${e.action}</span>
+      <p style="flex:1;margin:0;font-size:13px;font-weight:700;">${e.detail}</p>
+      <div style="text-align:right;flex-shrink:0;">
+        <p style="font-size:11px;font-weight:700;color:var(--subtext);margin:0;">${e.by}</p>
+        <p style="font-size:10px;color:var(--subtext);margin:0;opacity:0.6;">${e.timestamp}</p>
+      </div>
+    </div>`).join('');
+}
+
+// ─── MODAL HELPERS ────────────────────────────────────────────────────────────
+function openModal()  { document.getElementById('modal-overlay').classList.add('open'); }
+function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
+function maybeCloseModal(e) { if (e.target === document.getElementById('modal-overlay')) closeModal(); }
+
+// ─── NETWORK ─────────────────────────────────────────────────────────────────
+async function postAction(payload) {
+  try {
+    await fetch(SCRIPT_URL, { method:'POST', mode:'no-cors', body: JSON.stringify(payload) });
+  } catch(e) { console.error(e); showToast('Network error', true); }
+}
+
+// ─── TOAST ───────────────────────────────────────────────────────────────────
+let toastTm;
+function showToast(msg, isErr = false) {
+  const t = document.getElementById('toast');
+  t.innerText = msg;
+  t.className = isErr ? 'err show' : 'show';
+  clearTimeout(toastTm);
+  toastTm = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── TOUR SCHEDULE + DESK DASHBOARD (from manager2) ──────────────────────────
+const MGR_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz-RvNHk8SpTjtKt_r00cTmkH6DWtQeApayShxo9iDHsn7TyrhgQXWL2H-1ChBFfnaV/exec';
+let tourData = [];
+let currentMonday = getMgrMonday(new Date());
+let mgrDeskDate = new Date(); mgrDeskDate.setHours(0,0,0,0);
+
+// Override the admin's deskDate / changeDeskDate for the desk panel
+function changeDeskDate(days) {
+  mgrDeskDate.setDate(mgrDeskDate.getDate() + days);
+  renderDeskDashboard();
+}
+function jumpToToday() {
+  currentMonday = getMgrMonday(new Date());
+  mgrDeskDate = new Date(); mgrDeskDate.setHours(0,0,0,0);
+  renderSchedule();
+  renderDeskDashboard();
+}
+
+function getMgrMonday(d) {
+  d = new Date(d);
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  const mon = new Date(d.setDate(diff));
+  mon.setHours(0,0,0,0);
+  return mon;
+}
+
+function changeWeek(days) {
+  currentMonday.setDate(currentMonday.getDate() + days);
+  renderSchedule();
+}
+
+function prepareAndPrint() {
+  const friday = new Date(currentMonday); friday.setDate(currentMonday.getDate() + 4);
+  const dueDate = new Date(friday); dueDate.setDate(friday.getDate() + 7);
+  const ws = currentMonday.toLocaleDateString('en-US', { month:'short', day:'numeric' });
+  const we = friday.toLocaleDateString('en-US', { month:'short', day:'numeric' });
+  const ds = dueDate.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
+  document.getElementById('print-date-range').innerHTML =
+    `Week: ${ws} – ${we} | <span style="color:#ef4444">Postcards Due: ${ds.toUpperCase()}</span>`;
+  window.print();
+}
+
+function renderSchedule() {
+  const container = document.getElementById('schedule-container');
+  if (!container) return;
+
+  // Initialise date picker
+  const picker = document.getElementById('schedule-date-picker');
+  if (picker) {
+    picker.value = currentMonday.toISOString().split('T')[0];
+    picker.onchange = (e) => { currentMonday = getMgrMonday(new Date(e.target.value)); renderSchedule(); };
+  }
+
+  const slots = [
+    { c:'9DV',  t:'9:30 AM',  cls:'bg-slot-9DV' },
+    { c:'0DV',  t:'10:30 AM', cls:'bg-slot-0DV' },
+    { c:'0GV',  t:'10:30 AM', cls:'bg-slot-0GV' },
+    { c:'1DV',  t:'1:30 PM',  cls:'bg-slot-1DV' },
+    { c:'2DV',  t:'2:30 PM',  cls:'bg-slot-2DV' },
+  ];
+
+  let html = '';
+  for (let i = 0; i < 5; i++) {
+    const d = new Date(currentMonday); d.setDate(d.getDate() + i);
+    const isToday = d.toDateString() === new Date().toDateString();
+    html += `<div class="day-column">
+      <div style="text-align:center;margin-bottom:0.5rem;padding:0.5rem;border-radius:0.75rem;
+                  background:${isToday ? 'var(--gold)' : 'var(--surface)'};border:1px solid var(--border);">
+        <h3 style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;
+                   color:${isToday ? '#0f0c04' : 'var(--subtext)'};margin:0;">
+          ${d.toLocaleDateString('en-US',{weekday:'long'})}
+        </h3>
+        <p style="font-size:12px;font-weight:900;color:${isToday ? '#0f0c04' : 'var(--text)'};margin:2px 0 0;">
+          ${d.toLocaleDateString('en-US',{month:'short',day:'numeric'})}
+        </p>
+      </div>`;
+    slots.forEach(s => {
+      const entries = tourData.filter(t => t.type === s.c && t.dateObj && t.dateObj.getTime() === d.getTime());
+      const cancelled = entries.some(e => ['N/A','#N/A'].includes(String(e.guide).trim().toUpperCase()));
+      if (cancelled) {
+        html += `<div class="tour-slot ${s.cls}" style="opacity:0.4;align-items:center;justify-content:center;">
+          <p class="tour-time-label">${s.t}</p>
+          <p style="font-size:10px;font-style:italic;text-align:center;">No Tour</p>
+        </div>`;
+      } else {
+        html += `<div class="tour-slot ${s.cls}">
+          <p class="tour-time-label">${s.t}</p>
+          <div style="display:flex;flex-direction:column;gap:4px;">`;
+        if (entries.length > 0) {
+          entries.forEach(e => {
+            const clean = String(e.guide).replace(/[*\`+]/g,'').trim();
+            const hasSig = String(e.guide).includes('\`');
+            html += `<div class="guide-name-pill-schedule">
+              <span>${clean}</span>
+              <span class="hidden print:inline" style="font-family:monospace;font-weight:900;">
+                ${hasSig ? 'ACP' : '____'}
+              </span>
+            </div>`;
+          });
+        } else {
+          html += `<p style="font-size:10px;color:rgba(0,0,0,0.3);font-style:italic;">Empty</p>`;
+        }
+        html += `</div></div>`;
+      }
+    });
+    html += `</div>`;
+  }
+  container.innerHTML = html;
+}
+
+function renderDeskDashboard() {
+  const dailyContainer   = document.getElementById('grid-daily');
+  const programContainer = document.getElementById('grid-program');
+  const statusBar        = document.getElementById('status-bar');
+  const dateLabel        = document.getElementById('desk-display-date');
+  if (!dailyContainer || !programContainer || !statusBar) return;
+
+  dateLabel.innerText = mgrDeskDate.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });
+  const now = new Date();
+
+  const DAILY_VISITS = [
+    { code:'9DV',  name:'9:30 Daily',    h:9,  m:30 },
+    { code:'0DV',  name:'10:30 Daily',   h:10, m:30 },
+    { code:'0GV',  name:'10:30 Group',   h:10, m:30 },
+    { code:'1DV',  name:'1:30 Daily',    h:13, m:30 },
+    { code:'2DV',  name:'2:30 Daily',    h:14, m:30 },
+  ];
+  const PROGRAM_DAYS = [
+    { code:'8PA',  name:'8:15 Program',  h:8,  m:15 },
+    { code:'EPF.', name:'11:15 Program', h:11, m:15 },
+    { code:'1PA',  name:'1:15 Program',  h:13, m:15 },
+    { code:'1PF',  name:'1:30 Program',  h:13, m:30 },
+    { code:'2PA',  name:'2:15 Program',  h:14, m:15 },
+  ];
+
+  let dailyHtml = '', programHtml = '', statusHtml = '';
+
+  [...DAILY_VISITS, ...PROGRAM_DAYS].forEach(slot => {
+    const guides = tourData.filter(t =>
+      t.type === slot.code && t.dateObj &&
+      t.dateObj.getTime() === mgrDeskDate.getTime() &&
+      !['N/A','#N/A'].includes(String(t.guide).trim().toUpperCase())
+    );
+    const hasTour = guides.length > 0;
+    let sColor = 'background:var(--border);color:var(--subtext)';
+    let sText  = 'Empty';
+    if (hasTour) {
+      const start = new Date(mgrDeskDate); start.setHours(slot.h, slot.m, 0);
+      const end   = new Date(start); end.setMinutes(start.getMinutes() + 105);
+      if (mgrDeskDate.toDateString() === now.toDateString()) {
+        if (now >= start && now <= end) { sColor = 'background:#7C3AED;color:white'; sText = 'Live'; }
+        else if (now < start)           { sColor = 'background:#10B981;color:white'; sText = 'Ready'; }
+        else                            { sColor = 'background:#9CA3AF;color:white'; sText = 'Done'; }
+      } else { sColor = 'background:#10B981;color:white'; sText = 'Scheduled'; }
+    }
+
+    statusHtml += `<div style="${sColor};padding:6px 12px;border-radius:10px;font-size:10px;font-weight:900;
+                               text-transform:uppercase;white-space:nowrap;display:flex;flex-direction:column;
+                               align-items:center;min-width:100px;">
+      <span style="opacity:0.7;font-size:8px;letter-spacing:0.1em;margin-bottom:2px;">${slot.name}</span>
+      <span>${sText}</span>
+    </div>`;
+
+    const cardHtml = `
+      <div class="card" style="padding:1rem;${!hasTour ? 'opacity:0.3;' : ''}">
+        <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:var(--gold);margin:0 0 4px;">${slot.code}</p>
+        <h3 style="font-size:14px;font-weight:900;margin:0 0 10px;">${slot.name}</h3>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          ${guides.length > 0 ? guides.map(g => {
+            const p = mgrParseGuide(g.guide, g.status);
+            return `<div style="padding:6px 8px;border-radius:8px;border:1px solid var(--border);
+                               font-size:11px;font-weight:700;display:flex;justify-content:space-between;
+                               align-items:center;" class="${p.cardClass}">
+              <span>${p.name}</span>
+              <span style="font-size:8px;font-weight:900;text-transform:uppercase;padding:2px 6px;
+                           border-radius:99px;" class="${p.badgeClass}">${p.statusLabel}</span>
+            </div>`;
+          }).join('') : '<p style="font-size:11px;color:var(--subtext);font-style:italic;">No guides</p>'}
+        </div>
+      </div>`;
+
+    if (DAILY_VISITS.find(d => d.code === slot.code)) dailyHtml += cardHtml;
+    else programHtml += cardHtml;
+  });
+
+  dailyContainer.innerHTML   = dailyHtml;
+  programContainer.innerHTML = programHtml;
+  statusBar.innerHTML        = statusHtml;
+}
+
+function mgrParseGuide(guideStr, status) {
+  let name = String(guideStr);
+  let statusLabel = 'SCHEDULED', cardClass = '', badgeClass = 'pill pill-green';
+  if (name.includes('*'))  { name = name.replace('*','').trim();  statusLabel='PENDING DROP'; cardClass='status-pill-red';  badgeClass='pill pill-red'; }
+  else if (name.includes('`')) { name = name.replace('`','').trim(); statusLabel='NOT GIVEN';    badgeClass='pill pill-blue'; }
+  else if (name.includes('+')) { name = name.replace('+','').trim(); statusLabel='PICKED UP';    badgeClass='pill pill-purple'; }
+  if (status === 'SENT HOME') { statusLabel='SENT HOME'; cardClass='status-pill-gray'; badgeClass='pill pill-gray'; }
+  return { name, statusLabel, cardClass, badgeClass };
+}
+
+// Load tour data from manager2 backend on first use
+async function loadMgrTours() {
+  if (window._mgrToursLoaded) return;
+  window._mgrToursLoaded = true;
+  try {
+    const resp = await fetch(MGR_SCRIPT_URL);
+    const data = await resp.json();
+    tourData = data.tours || [];
+    tourData.forEach(t => {
+      if (t.date) { t.dateObj = new Date(t.date); t.dateObj.setHours(0,0,0,0); }
+    });
+    renderSchedule();
+    renderDeskDashboard();
+  } catch(e) { console.error('Manager tour data failed:', e); }
+}
+
+// ─── UTILS ───────────────────────────────────────────────────────────────────
+function esc(s)   { return String(s).replace(/'/g, "\\'"); }
+function cssId(s) { return String(s).replace(/[^a-zA-Z0-9]/g,'_'); }
+</script>
+</body>
+</html>
