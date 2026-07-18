@@ -540,15 +540,13 @@
     </div>
 
 <div id="view-families" class="view-section">
-        <header class="px-4 pt-6 pb-2">
-            <h1 class="text-3xl font-black tracking-tight">Family Cup</h1>
+        <header class="mb-6">
+            <h1 class="text-3xl font-black">Family Cup</h1>
             <p id="family-semester-label" class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1"></p>
         </header>
-        <div class="px-4 pt-2 pb-24">
-            <div id="my-family-card"></div>
-            <p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#9CA3AF;margin-bottom:10px;">Full Standings</p>
-            <div id="family-leaderboard-container"></div>
-        </div>
+        <div id="my-family-card"></div>
+        <p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#9CA3AF;margin-bottom:10px;">Full Standings</p>
+        <div id="family-leaderboard-container"></div>
     </div>
 
     
@@ -568,10 +566,10 @@
 <div id="view-schedule" class="view-section">
 
     <!-- HEADER -->
-    <div class="px-4 sm:px-8 pt-6 pb-4">
-        <h1 class="text-3xl font-black tracking-tight">Your Schedule</h1>
+    <header class="mb-6">
+        <h1 class="text-3xl font-black">Your Schedule</h1>
         <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Tap a date to filter · scroll for full list</p>
-    </div>
+    </header>
 
     <!-- CALENDAR PANEL (sticky on mobile) -->
     <div id="schedule-calendar-panel" class="bg-white border-b border-gray-100 shadow-sm px-4 sm:px-8 pb-4 transition-all duration-400 ease-in-out overflow-hidden" style="max-height:400px;">
@@ -1840,12 +1838,12 @@ async function init() {
             renderFamilyUI();
             updateClock();
 
-            const switcher = document.getElementById('view-switcher-container');
-            const userStatus = cachedData.profile.status;
+           // const switcher = document.getElementById('view-switcher-container');
+           // const userStatus = cachedData.profile.status;
 
-            if (userStatus === "Codirector" || userStatus === "Manager") {
-                switcher.classList.remove('hidden');
-            }
+           // if (userStatus === "Codirector" || userStatus === "Manager") {
+            //    switcher.classList.remove('hidden');
+            //}
 
             const histContainer = document.getElementById('history-container');
             histContainer.innerHTML = [...cachedData.stats.history].reverse().map(h => `
@@ -1860,7 +1858,7 @@ async function init() {
             if (cachedData.tours) {
     // 1. Create your personal list (used for Home and Lock logic)
     const myTours = cachedData.tours.filter(tour => {
-        const cleanName = tour.guide.replace(/[*~`]/g, '').trim();
+        const cleanName = tour.guide.replace(/[*~`+]/g, '').trim();
         return cleanName.toLowerCase() === cachedData.profile.displayName.toLowerCase();
         renderDeskDashboard();
     });
