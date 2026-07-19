@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TGIS | TGIT Portal</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: { extend: { fontFamily: { sans: ['Inter','sans-serif'] }, colors: { 'primary-gold': '#CFB991' } } }
+}
+</script>
+<style>
+body { font-family:'Inter',sans-serif; background:#F9FAFB; color:#111827; }
+.card { background:white; border:1px solid #E5E7EB; border-radius:1.5rem; }
+.btn-gold { background:#CFB991; color:#0f0c04; font-weight:900; font-size:11px; text-transform:uppercase; letter-spacing:0.12em; border:none; cursor:pointer; border-radius:0.875rem; padding:0.875rem 1.5rem; transition:background 0.2s; width:100%; }
+.btn-gold:hover { background:#b39a6d; }
+.btn-gold:disabled { opacity:0.4; cursor:not-allowed; }
+.pill { display:inline-flex; align-items:center; font-size:9px; font-weight:900; text-transform:uppercase; letter-spacing:0.1em; padding:2px 8px; border-radius:99px; }
+.slot-card { background:white; border:1.5px solid #E5E7EB; border-radius:1.25rem; padding:1rem 1.25rem; cursor:pointer; transition:all 0.15s; user-select:none; }
+.slot-card:hover { border-color:#CFB991; background:rgba(207,185,145,0.04); transform:translateY(-1px); box-shadow:0 4px 12px rgba(0,0,0,0.06); }
+.slot-card.selected { border-color:#CFB991; background:rgba(207,185,145,0.1); box-shadow:0 0 0 2px rgba(207,185,145,0.3); }
+.week-pip { width:10px; height:10px; border-radius:50%; background:#E5E7EB; }
+.week-pip.done { background:#10B981; }
+.week-pip.current { background:#CFB991; box-shadow:0 0 0 3px rgba(207,185,145,0.3); }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- LOADING -->
+<div id="load-overlay" class="fixed inset-0 z-50 flex flex-col items-center justify-center" style="background:#0f0c04;">
+  <p style="font-size:9px;font-weight:900;letter-spacing:0.3em;text-transform:uppercase;color:rgba(207,185,145,0.4);margin-bottom:8px;">Purdue University</p>
+  <h1 style="font-size:2rem;font-weight:900;color:#fff;">TGIS <span style="color:#CFB991;">TGIT</span></h1>
+  <div style="width:200px;height:2px;background:rgba(255,255,255,0.07);border-radius:99px;overflow:hidden;margin-top:1.5rem;">
+    <div id="load-bar" style="height:100%;width:0%;background:#CFB991;border-radius:99px;transition:width 0.5s;"></div>
+  </div>
+  <p id="load-status" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:rgba(207,185,145,0.4);margin-top:1rem;">Connecting...</p>
+  <div id="load-err" class="hidden mt-6 text-center max-w-xs px-4">
+    <p id="load-err-msg" style="color:#EF4444;font-size:12px;font-weight:700;margin-bottom:1rem;"></p>
+    <button onclick="location.reload()" class="btn-gold" style="font-size:11px;">Retry</button>
+  </div>
+</div>
+
+<div id="app" class="hidden max-w-2xl mx-auto px-4 py-8 pb-20">
+
+  <!-- Header -->
+  <div class="mb-8">
+    <p style="font-size:9px;font-weight:900;letter-spacing:0.25em;text-transform:uppercase;color:#CFB991;margin:0 0 2px;">Purdue University</p>
+    <h1 style="font-size:1.75rem;font-weight:900;margin:0;">TGIT <span style="color:#CFB991;">Portal</span></h1>
+    <p id="welcome-name" style="font-size:13px;font-weight:700;color:#6B7280;margin:4px 0 0;"></p>
+  </div>
+
+  <!-- Week progress strip -->
+  <div class="card p-5 mb-6">
+    <p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;color:#9CA3AF;margin:0 0 0.875rem;">Program Progress</p>
+    <div style="display:flex;align-items:center;gap:8px;" id="week-progress"></div>
+    <p id="week-status-label" style="font-size:11px;font-weight:700;color:#6B7280;margin:10px 0 0;"></p>
+  </div>
+
+  <!-- CURRENT WEEK ASSIGNMENT -->
+  <div id="assignment-section" class="mb-6"></div>
+
+  <!-- SIGNUP SECTION (shown when open + not yet signed up) -->
+  <div id="signup-section" class="hidden mb-6">
+    <div class="mb-4">
+      <h2 style="font-size:1.1rem;font-weight:900;margin:0 0 2px;">Week <span id="signup-week-num"></span> Sign-Up</h2>
+      <p style="font-size:11px;font-weight:700;color:#6B7280;margin:0;">Select a tour time to shadow. Guide assignments are made after sign-ups close.</p>
+    </div>
+    <div id="slot-list" class="space-y-3 mb-5"></div>
+    <button class="btn-gold" id="signup-btn" onclick="submitSignup()" disabled>Select a time above to continue</button>
+  </div>
+
+  <!-- PAST WEEKS -->
+  <div id="history-section" class="hidden">
+    <p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;color:#9CA3AF;margin:0 0 0.75rem;">Previous Weeks</p>
+    <div id="history-list" class="space-y-3"></div>
+  </div>
+
+</div>
+
+<!-- TOAST -->
+<div id="toast" style="position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(20px);background:#CFB991;color:#0f0c04;font-weight:900;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;padding:0.65rem 1.4rem;border-radius:99px;opacity:0;transition:all 0.35s;pointer-events:none;z-index:500;"></div>
+
+<script>
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyqIgk-V7XABUMluhLwjGudlHwkgldwRaBlAN6dFdbI1gNL-_cvN5PNTek2cfqNtc3j/exec';
+const STORAGE_KEY = 'tgis_username';
+const TOUR_NAMES = {
+  '9DV':'9:30 AM Daily Visit','0DV':'10:30 AM Daily Visit','0GV':'10:30 AM Group Visit',
+  '1DV':'1:30 PM Daily Visit','2DV':'2:30 PM Daily Visit','8PA':'8:15 AM Program (Academic)',
+  '1PA':'1:30 PM Program (Academic)','2PA':'2:30 PM Program (Academic)',
+  '1PF':'1:30 PM Program (Full)','EPF':'11:15 AM Program (Full)'
+};
+
+let userName = new URLSearchParams(window.location.search).get('user');
+if (userName) { localStorage.setItem(STORAGE_KEY, userName); history.replaceState(null,'',location.pathname); }
+else userName = localStorage.getItem(STORAGE_KEY);
+
+let D = null;
+let selectedSlot = null;
+
+// Load bar animation
+let barVal = 0;
+const barTimer = setInterval(() => {
+  barVal = Math.min(barVal + Math.random()*12, 82);
+  document.getElementById('load-bar').style.width = barVal + '%';
+}, 500);
+
+window.onload = async () => {
+  if (!userName) { showLoadErr('NO_USER_PARAM'); return; }
+  try {
+    const res = await fetch(`${SCRIPT_URL}?user=${encodeURIComponent(userName)}`);
+    if (!res.ok) throw new Error(`HTTP_${res.status}`);
+    D = await res.json();
+    if (D.error) throw new Error(D.error);
+    if (D.profile.status !== 'TGIT') throw new Error('ACCESS_DENIED — TGIT accounts only');
+
+    document.getElementById('welcome-name').innerText = D.profile.fullName;
+
+    const td = D.tgitData || {};
+    renderWeekProgress(td);
+    renderAssignment(td);
+    renderSignupSection(td);
+    renderHistory(td);
+
+    clearInterval(barTimer);
+    document.getElementById('load-bar').style.width = '100%';
+    setTimeout(() => {
+      document.getElementById('load-overlay').style.opacity = '0';
+      document.getElementById('load-overlay').style.transition = 'opacity 0.4s';
+      setTimeout(() => {
+        document.getElementById('load-overlay').style.display = 'none';
+        document.getElementById('app').classList.remove('hidden');
+      }, 400);
+    }, 200);
+
+  } catch(e) {
+    clearInterval(barTimer);
+    showLoadErr(e.message.slice(0,80));
+  }
+};
+
+function showLoadErr(msg) {
+  document.getElementById('load-bar').style.background = '#EF4444';
+  document.getElementById('load-bar').style.width = '100%';
+  document.getElementById('load-status').style.display = 'none';
+  document.getElementById('load-err-msg').innerText = msg;
+  document.getElementById('load-err').classList.remove('hidden');
+}
+
+// ── WEEK PROGRESS ────────────────────────────────────────────────────────────
+function renderWeekProgress(td) {
+  const current = td.currentWeek || 0;
+  const configs = td.allWeekConfigs || [];
+  const maxWeek = Math.max(8, configs.length);
+
+  let pips = '';
+  for (let w = 1; w <= maxWeek; w++) {
+    const cls = w < current ? 'week-pip done' : w === current ? 'week-pip current' : 'week-pip';
+    pips += `<div class="${cls}" title="Week ${w}"></div>`;
+    if (w < maxWeek) pips += `<div style="flex:1;height:2px;background:${w < current ? '#10B981' : '#E5E7EB'};border-radius:99px;"></div>`;
+  }
+  document.getElementById('week-progress').innerHTML = pips;
+
+  const label = current
+    ? `Week ${current} of ${maxWeek}${td.signupsOpen ? ' — Sign-ups are open' : ''}`
+    : 'Program has not started yet';
+  document.getElementById('week-status-label').innerText = label;
+}
+
+// ── CURRENT ASSIGNMENT ────────────────────────────────────────────────────────
+function renderAssignment(td) {
+  const el = document.getElementById('assignment-section');
+  const signup = td.mySignup;
+
+  if (!signup) {
+    if (td.currentWeek && !td.signupsOpen) {
+      el.innerHTML = `<div class="card p-6 text-center">
+        <p style="font-size:2rem;margin-bottom:8px;">⏳</p>
+        <p style="font-size:14px;font-weight:800;margin:0 0 4px;">Sign-ups not yet open</p>
+        <p style="font-size:12px;font-weight:600;color:#6B7280;">Check back when your director opens Week ${td.currentWeek} sign-ups.</p>
+      </div>`;
+    } else if (!td.currentWeek) {
+      el.innerHTML = `<div class="card p-6 text-center">
+        <p style="font-size:2rem;margin-bottom:8px;">📅</p>
+        <p style="font-size:14px;font-weight:800;margin:0;">Program not yet started</p>
+      </div>`;
+    }
+    return;
+  }
+
+  const tourDate = signup.date ? new Date(signup.date) : null;
+  const dateStr  = tourDate ? tourDate.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'}) : '—';
+  const tourName = TOUR_NAMES[signup.type] || signup.type;
+
+  el.innerHTML = `
+    <div class="card p-6">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:1rem;">
+        <span class="pill" style="background:rgba(207,185,145,0.15);color:#CFB991;">Week ${signup.week}</span>
+        <span class="pill ${signup.assigned ? 'pill-green' : 'pill-gray'}" style="background:${signup.assigned ? 'rgba(16,185,129,0.12)' : 'rgba(107,114,128,0.1)'};color:${signup.assigned ? '#10B981' : '#6B7280'};">
+          ${signup.assigned ? 'Assigned' : 'Pending Assignment'}
+        </span>
+      </div>
+
+      <h2 style="font-size:1.3rem;font-weight:900;margin:0 0 4px;">${tourName}</h2>
+      <p style="font-size:13px;font-weight:700;color:#6B7280;margin:0 0 1.25rem;">${dateStr}</p>
+
+      ${signup.assigned ? `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1rem;">
+          <div style="background:#F9FAFB;border:1px solid #E5E7EB;border-radius:1rem;padding:0.875rem;">
+            <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:#9CA3AF;margin:0 0 4px;">Your Guide</p>
+            <p style="font-size:15px;font-weight:900;margin:0;">${signup.assignedGuide}</p>
+          </div>
+          <div style="background:#F9FAFB;border:1px solid #E5E7EB;border-radius:1rem;padding:0.875rem;">
+            <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:#9CA3AF;margin:0 0 4px;">Direction</p>
+            <p style="font-size:15px;font-weight:900;margin:0;">${signup.direction || '—'}</p>
+          </div>
+        </div>
+        ${signup.feedbackURL ? `
+          <a href="${signup.feedbackURL}" target="_blank"
+             style="display:block;text-align:center;background:#CFB991;color:#0f0c04;font-weight:900;font-size:11px;text-transform:uppercase;letter-spacing:0.12em;padding:0.875rem;border-radius:0.875rem;text-decoration:none;">
+            Submit Feedback Form →
+          </a>` : ''}
+      ` : `
+        <div style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:1rem;padding:0.875rem;">
+          <p style="font-size:12px;font-weight:700;color:#92400E;margin:0;">
+            Your director will assign you to a guide shortly. Check back here for your assignment.
+          </p>
+        </div>
+      `}
+    </div>`;
+}
+
+// ── SIGNUP SECTION ────────────────────────────────────────────────────────────
+function renderSignupSection(td) {
+  if (!td.signupsOpen || td.mySignup) return;
+  const slots = td.availableSlots || [];
+  const section = document.getElementById('signup-section');
+  section.classList.remove('hidden');
+  document.getElementById('signup-week-num').innerText = td.currentWeek || '';
+
+  if (!slots.length) {
+    document.getElementById('slot-list').innerHTML = `
+      <div class="card p-6 text-center">
+        <p style="font-size:13px;font-weight:700;color:#6B7280;">No available slots right now. Check back soon.</p>
+      </div>`;
+    return;
+  }
+
+  document.getElementById('slot-list').innerHTML = slots.map((slot, i) => {
+    const d = new Date(slot.date);
+    const dayStr = d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+    const tourName = TOUR_NAMES[slot.type] || slot.type;
+    return `
+      <div class="slot-card" id="slot-${i}" onclick="selectSlot(${i})">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;">
+          <div>
+            <p style="font-size:13px;font-weight:900;margin:0 0 2px;">${tourName}</p>
+            <p style="font-size:11px;font-weight:700;color:#6B7280;margin:0;">${dayStr}</p>
+          </div>
+          <div style="text-align:right;flex-shrink:0;">
+            <span style="font-size:12px;font-weight:900;color:#10B981;">${slot.available}</span>
+            <span style="font-size:10px;font-weight:700;color:#9CA3AF;"> / ${slot.total} spots</span>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  window._availableSlots = slots;
+}
+
+function selectSlot(i) {
+  selectedSlot = window._availableSlots[i];
+  document.querySelectorAll('.slot-card').forEach((c,j) => c.classList.toggle('selected', i===j));
+  const btn = document.getElementById('signup-btn');
+  const d = new Date(selectedSlot.date);
+  const dateStr = d.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});
+  btn.innerText = `Sign Up — ${TOUR_NAMES[selectedSlot.type] || selectedSlot.type} on ${dateStr}`;
+  btn.disabled = false;
+}
+
+async function submitSignup() {
+  if (!selectedSlot) return;
+  const btn = document.getElementById('signup-btn');
+  btn.disabled = true;
+  btn.innerText = 'Submitting…';
+
+  try {
+    const resp = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action:       'tgitSignup',
+        tgitUsername: userName,
+        week:         D.tgitData.currentWeek,
+        date:         selectedSlot.date,
+        type:         selectedSlot.type
+      })
+    });
+    const result = await resp.json();
+    if (!result.ok) throw new Error(result.error || 'Signup failed');
+
+    showToast('Signed up! Check back for your assignment.');
+    setTimeout(() => location.reload(), 2000);
+
+  } catch(e) {
+    showToast(e.message, true);
+    btn.disabled = false;
+    btn.innerText = 'Try Again';
+  }
+}
+
+// ── HISTORY ──────────────────────────────────────────────────────────────────
+function renderHistory(td) {
+  // History would be populated from past weeks in TGITSignups
+  // For now just show the section if there are past weeks
+  const current = td.currentWeek || 1;
+  if (current <= 1) return;
+  document.getElementById('history-section').classList.remove('hidden');
+  // Full history implementation: backend would return all past signups
+  document.getElementById('history-list').innerHTML = `
+    <p style="font-size:12px;color:#9CA3AF;font-style:italic;">History from previous weeks will appear here.</p>`;
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────────────
+let toastTm;
+function showToast(msg, isErr=false) {
+  const t = document.getElementById('toast');
+  t.innerText = msg;
+  t.style.background = isErr ? '#EF4444' : '#CFB991';
+  t.style.color = isErr ? '#fff' : '#0f0c04';
+  t.style.opacity = '1'; t.style.transform = 'translateX(-50%) translateY(0)';
+  clearTimeout(toastTm);
+  toastTm = setTimeout(() => { t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(20px)'; }, 3500);
+}
+</script>
+</body>
+</html>
