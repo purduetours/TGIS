@@ -232,7 +232,7 @@ function renderAssignment(td) {
 }
 
 // ── SIGNUP SECTION ────────────────────────────────────────────────────────────
-let selectedCalDate = null; // "YYYY-MM-DD" string of the currently selected calendar day
+let selectedCalDate = null;
 
 function renderSignupSection(td) {
   if (!td.signupsOpen || td.mySignup) return;
@@ -254,33 +254,36 @@ function renderSignupSection(td) {
   // Build a set of dates that have available slots
   const availableDates = new Set(slots.map(s => s.date.split('T')[0]));
 
-  // Figure out the date range to show (Mon–Fri weeks covering all slot dates)
-  const allDates = [...availableDates].sort();
-  const firstDate = new Date(allDates[0]); firstDate.setHours(12);
-  const lastDate  = new Date(allDates[allDates.length - 1]); lastDate.setHours(12);
-
-  // Get Monday of the first week
-  const getMonday = d => {
-    const day = d.getDay();
-    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-    return new Date(new Date(d).setDate(diff));
+  // Get Sunday of the week containing a given date
+  const getSunday = d => {
+    const day = new Date(d); day.setHours(0,0,0,0);
+    day.setDate(day.getDate() - day.getDay()); // subtract day-of-week (0=Sun)
+    return day;
   };
 
-  const startMonday = getMonday(firstDate);
-  const endDate = lastDate;
+  const allDates = [...availableDates].sort();
+  const firstDate = new Date(allDates[0] + 'T12:00:00');
+  const lastDate  = new Date(allDates[allDates.length - 1] + 'T12:00:00');
 
-  // Build all weeks
+  // Build all weeks (Sun–Sat) covering the slot date range
   const weeks = [];
-  let cursor = new Date(startMonday); cursor.setHours(0,0,0,0);
-  while (cursor <= endDate) {
+  let cursor = getSunday(firstDate);
+  const endSunday = getSunday(lastDate);
+  endSunday.setDate(endSunday.getDate() + 6); // go to Saturday of last week
+
+  while (cursor <= endSunday) {
     const weekDays = [];
-    for (let d = 0; d < 5; d++) {
+    for (let d = 0; d < 7; d++) {
       const day = new Date(cursor); day.setDate(cursor.getDate() + d);
       weekDays.push(new Date(day));
     }
     weeks.push(weekDays);
     cursor.setDate(cursor.getDate() + 7);
   }
+
+  // Store weeks for reuse in selectCalDate
+  window._calWeeks = weeks;
+  window._availableDates = availableDates;
 
   // Auto-select first available date
   if (!selectedCalDate) selectedCalDate = allDates[0];
@@ -290,40 +293,34 @@ function renderSignupSection(td) {
 }
 
 function renderCalendar(weeks, availableDates) {
-  const DOW = ['M','T','W','T','F'];
+  const DOW = ['Su','M','Tu','W','Th','F','Sa'];
   let html = `
     <div class="card" style="padding:1.125rem;margin-bottom:1rem;">
       <p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;color:#9CA3AF;margin:0 0 0.75rem;">Select a Date</p>
-
-      <!-- Day of week headers -->
-      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:4px;">
-        ${DOW.map(d => `<div style="text-align:center;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:#9CA3AF;">${d}</div>`).join('')}
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px;">
+        ${DOW.map(d => `<div style="text-align:center;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.05em;color:#9CA3AF;">${d}</div>`).join('')}
       </div>`;
 
   weeks.forEach(week => {
-    html += `<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:4px;">`;
+    html += `<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px;">`;
     week.forEach(day => {
       const key = day.toISOString().split('T')[0];
       const hasSlots = availableDates.has(key);
       const isSelected = key === selectedCalDate;
-      const dayNum = day.getDate();
       const isPast = day < new Date(new Date().setHours(0,0,0,0));
+      const dayNum = day.getDate();
 
-      let bg, color, border, cursor;
-      if (isSelected) {
-        bg = '#CFB991'; color = '#0f0c04'; border = 'none'; cursor = 'pointer';
-      } else if (hasSlots && !isPast) {
-        bg = '#ECFDF5'; color = '#065F46'; border = '1px solid #BBF7D0'; cursor = 'pointer';
-      } else {
-        bg = 'transparent'; color = '#D1D5DB'; border = '1px solid transparent'; cursor = 'default';
-      }
+      let bg, color, border, cur;
+      if (isSelected)            { bg='#CFB991';  color='#0f0c04'; border='none';                    cur='pointer'; }
+      else if (hasSlots&&!isPast){ bg='#ECFDF5';  color='#065F46'; border='1px solid #BBF7D0';       cur='pointer'; }
+      else                       { bg='transparent'; color='#D1D5DB'; border='1px solid transparent'; cur='default'; }
 
       html += `<div onclick="${hasSlots && !isPast ? `selectCalDate('${key}')` : ''}"
         style="aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-               border-radius:10px;background:${bg};color:${color};border:${border};cursor:${cursor};
-               font-size:13px;font-weight:${hasSlots ? '900' : '600'};transition:all 0.12s;position:relative;">
+               border-radius:8px;background:${bg};color:${color};border:${border};cursor:${cur};
+               font-size:12px;font-weight:${hasSlots?'900':'500'};transition:all 0.12s;position:relative;">
         ${dayNum}
-        ${hasSlots && !isSelected ? `<div style="position:absolute;bottom:3px;width:4px;height:4px;border-radius:50%;background:#10B981;"></div>` : ''}
+        ${hasSlots&&!isSelected?`<div style="position:absolute;bottom:2px;width:4px;height:4px;border-radius:50%;background:#10B981;"></div>`:''}
       </div>`;
     });
     html += `</div>`;
@@ -339,23 +336,8 @@ function selectCalDate(dateKey) {
   document.getElementById('signup-btn').disabled = true;
   document.getElementById('signup-btn').innerText = 'Select a time above to continue';
 
-  // Re-render calendar to update selection highlight
-  const slots = window._availableSlots || [];
-  const availableDates = new Set(slots.map(s => s.date.split('T')[0]));
-  const allDates = [...availableDates].sort();
-  const firstDate = new Date(allDates[0]); firstDate.setHours(12);
-  const lastDate  = new Date(allDates[allDates.length-1]); lastDate.setHours(12);
-  const getMonday = d => { const day=d.getDay(); const diff=d.getDate()-day+(day===0?-6:1); return new Date(new Date(d).setDate(diff)); };
-  const startMonday = getMonday(firstDate);
-  const weeks = [];
-  let cursor = new Date(startMonday); cursor.setHours(0,0,0,0);
-  while (cursor <= lastDate) {
-    const weekDays = [];
-    for (let d=0;d<5;d++) { const day=new Date(cursor); day.setDate(cursor.getDate()+d); weekDays.push(new Date(day)); }
-    weeks.push(weekDays);
-    cursor.setDate(cursor.getDate()+7);
-  }
-  renderCalendar(weeks, availableDates);
+  // Reuse stored weeks and dates — no recalculation needed
+  renderCalendar(window._calWeeks, window._availableDates);
   renderDaySlots(dateKey);
 }
 
@@ -375,7 +357,7 @@ function renderDaySlots(dateKey) {
   el.innerHTML = `
     <p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;color:#9CA3AF;margin:0 0 0.625rem;">${dayLabel}</p>
     <div style="display:flex;flex-direction:column;gap:8px;">
-      ${slots.map((slot, i) => {
+      ${slots.map(slot => {
         const globalIdx = (window._availableSlots || []).indexOf(slot);
         return `
           <div class="slot-card" id="slot-${globalIdx}" onclick="selectSlot(${globalIdx})">
@@ -409,6 +391,7 @@ async function submitSignup() {
   try {
     const resp = await fetch(SCRIPT_URL, {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         action:       'tgitSignup',
         tgitUsername: userName,
