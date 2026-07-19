@@ -288,7 +288,6 @@ async function submitSignup() {
   try {
     const resp = await fetch(SCRIPT_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         action:       'tgitSignup',
         tgitUsername: userName,
