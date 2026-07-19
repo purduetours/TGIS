@@ -418,6 +418,11 @@ body { font-family: 'Inter',sans-serif; background: var(--bg); color: var(--text
     <span class="nav-icon">🖥️</span> Desk Dashboard
   </button>
 
+<p class="nav-section-label">Training</p>
+  <button class="nav-item" id="nav-tgit" onclick="adminSwitchTab('tgit')">
+    <span class="nav-icon">🎓</span> TGIT Management
+  </button>
+
   <p class="nav-section-label">Records</p>
   <button class="nav-item" id="nav-log" onclick="adminSwitchTab('log')">
     <span class="nav-icon">📝</span> Activity Log
@@ -497,6 +502,34 @@ body { font-family: 'Inter',sans-serif; background: var(--bg); color: var(--text
     <!-- ── CENSUS TAB ── -->
     <div id="tab-census" class="tab-panel">
       <div id="census-content"></div>
+    </div>
+
+  <!-- ── TGIT TAB ── -->
+    <div id="tab-tgit" class="tab-panel">
+
+      <div style="display:grid;grid-template-columns:1fr auto;gap:1rem;align-items:start;margin-bottom:1.5rem;">
+        <div class="card" style="padding:1.5rem;">
+          <p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;color:var(--subtext);margin:0 0 1rem;">Week Controls</p>
+          <div id="tgit-week-controls"><p style="font-size:12px;color:var(--subtext);font-style:italic;">Loading...</p></div>
+        </div>
+        <div class="card" style="padding:1.5rem;min-width:200px;">
+          <p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;color:var(--subtext);margin:0 0 1rem;">This Week</p>
+          <div id="tgit-stats"></div>
+        </div>
+      </div>
+
+      <div class="card" style="overflow:hidden;">
+        <div style="padding:1rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;">
+          <p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;color:var(--subtext);margin:0;">
+            Sign-Ups &amp; Assignments — Week <span id="tgit-active-week">—</span>
+          </p>
+          <select id="tgit-week-selector" class="inp" style="width:auto;" onchange="renderTGITSignups()">
+            <option value="">Select week…</option>
+          </select>
+        </div>
+        <div id="tgit-signups-grid" style="padding:1rem;"></div>
+      </div>
+
     </div>
 
     <!-- ── LOG TAB ── -->
@@ -798,6 +831,7 @@ function adminSwitchTab(name) {
   // Lazy triggers
   if (name === 'census')   renderCensus();
   if (name === 'schedule') { loadMgrTours().then(() => renderSchedule()); }
+  if (name === 'tgit')     { loadTGITTab(); }
   if (name === 'desk')     { loadMgrTours().then(() => renderDeskDashboard()); }
 
   // Close mobile sidebar
@@ -1467,6 +1501,175 @@ function censusShowList(id) {
     </div>
     ${item.html}`;
   openModal();
+}
+
+// ─── TGIT MANAGEMENT ──────────────────────────────────────────────────────────
+let tgitAdminData = null;
+
+async function loadTGITTab() {
+  if (tgitAdminData) { renderTGITTab(); return; }
+  document.getElementById('tgit-week-controls').innerHTML =
+    '<p style="font-size:12px;color:var(--subtext);font-style:italic;">Loading...</p>';
+  try {
+    const res  = await fetch(`${SCRIPT_URL}?user=${encodeURIComponent(userName)}&admin=true&tgit=true`);
+    const data = await res.json();
+    tgitAdminData = data.adminData?.tgitAdmin || null;
+    if (!tgitAdminData) throw new Error('No TGIT data — make sure TGITConfig sheet exists');
+    renderTGITTab();
+  } catch(e) {
+    document.getElementById('tgit-week-controls').innerHTML =
+      `<p style="font-size:12px;color:#EF4444;">${e.message}</p>`;
+  }
+}
+
+function renderTGITTab() {
+  const configs   = tgitAdminData.weekConfigs || [];
+  const signups   = tgitAdminData.signups     || [];
+  const currentWk = tgitAdminData.currentWeek || null;
+
+  // Week selector
+  const sel = document.getElementById('tgit-week-selector');
+  sel.innerHTML = '<option value="">Select week…</option>' +
+    configs.map(c =>
+      `<option value="${c.week}" ${c.week===currentWk?'selected':''}>${c.week===currentWk?'★ ':''}Week ${c.week}</option>`
+    ).join('');
+  document.getElementById('tgit-active-week').innerText = currentWk || '—';
+
+  // Week controls
+  document.getElementById('tgit-week-controls').innerHTML = configs.length
+    ? configs.map(c => `
+      <div style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem;background:var(--row-hover);border-radius:0.75rem;border:1px solid var(--border);margin-bottom:6px;">
+        <span style="font-size:12px;font-weight:900;width:64px;flex-shrink:0;">Week ${c.week}</span>
+        <button onclick="toggleTGITWeek(${c.week},${!c.open})"
+                style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;
+                       padding:4px 12px;border-radius:99px;border:none;cursor:pointer;white-space:nowrap;
+                       background:${c.open?'rgba(16,185,129,0.15)':'rgba(107,114,128,0.1)'};
+                       color:${c.open?'#10B981':'#9CA3AF'};">
+          ${c.open ? 'Open ✓' : 'Closed'}
+        </button>
+        <input type="text" placeholder="Feedback form URL…" value="${c.feedbackURL||''}"
+               id="fb-${c.week}" class="inp" style="flex:1;font-size:11px;padding:4px 10px;"
+               onblur="saveFeedbackURL(${c.week})">
+      </div>`).join('')
+    : '<p style="font-size:12px;color:var(--subtext);font-style:italic;">No weeks configured. Add rows to TGITConfig sheet first.</p>';
+
+  // Stats
+  const thisWeek = signups.filter(s => s.week === currentWk);
+  const assigned = thisWeek.filter(s => s.assignedGuide).length;
+  document.getElementById('tgit-stats').innerHTML = `
+    <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+      <span style="font-size:12px;font-weight:700;color:var(--subtext);">Signed up</span>
+      <span style="font-size:1.25rem;font-weight:900;color:var(--gold);">${thisWeek.length}</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+      <span style="font-size:12px;font-weight:700;color:var(--subtext);">Assigned</span>
+      <span style="font-size:1.25rem;font-weight:900;color:#10B981;">${assigned}</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;">
+      <span style="font-size:12px;font-weight:700;color:var(--subtext);">Pending</span>
+      <span style="font-size:1.25rem;font-weight:900;color:#F59E0B;">${thisWeek.length - assigned}</span>
+    </div>`;
+
+  renderTGITSignups();
+}
+
+function renderTGITSignups() {
+  if (!tgitAdminData) return;
+  const sel     = document.getElementById('tgit-week-selector');
+  const week    = parseInt(sel.value) || tgitAdminData.currentWeek;
+  const signups = (tgitAdminData.signups || []).filter(s => s.week === week);
+  const slots   = tgitAdminData.tourSlots || {};
+  const el      = document.getElementById('tgit-signups-grid');
+  document.getElementById('tgit-active-week').innerText = week || '—';
+
+  if (!signups.length) {
+    el.innerHTML = '<p style="font-size:12px;color:var(--subtext);font-style:italic;padding:0.5rem;">No sign-ups for this week yet.</p>';
+    return;
+  }
+
+  window._tgitSignups = signups;
+
+  el.innerHTML = `
+    <div style="overflow-x:auto;">
+    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <thead><tr>
+        ${['TGIT','Date','Tour','Assign Guide','Direction',''].map(h =>
+          `<th style="text-align:left;font-size:9px;font-weight:900;text-transform:uppercase;
+                      letter-spacing:0.08em;color:var(--subtext);
+                      padding:0 0.75rem 0.75rem;border-bottom:2px solid var(--border);">${h}</th>`
+        ).join('')}
+      </tr></thead>
+      <tbody>
+        ${signups.map((s,i) => {
+          const dateStr = s.date
+            ? new Date(s.date).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})
+            : '—';
+          const slotKey = s.date
+            ? new Date(s.date).toISOString().split('T')[0] + '|' + s.type
+            : '';
+          const guides = slots[slotKey] || [];
+          return `<tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:0.75rem;font-weight:800;">${s.tgitDisplayName||s.tgitUsername}</td>
+            <td style="padding:0.75rem;font-weight:700;color:var(--subtext);white-space:nowrap;">${dateStr}</td>
+            <td style="padding:0.75rem;font-weight:700;color:var(--subtext);">${s.type}</td>
+            <td style="padding:0.5rem;">
+              <select id="g-${i}" class="inp" style="font-size:12px;padding:4px 8px;min-width:140px;">
+                <option value="">— Select guide —</option>
+                ${guides.map(g=>`<option value="${g}" ${g===s.assignedGuide?'selected':''}>${g}</option>`).join('')}
+              </select>
+            </td>
+            <td style="padding:0.5rem;">
+              <select id="d-${i}" class="inp" style="font-size:12px;padding:4px 8px;width:80px;">
+                <option value="">—</option>
+                <option value="CW"  ${s.direction==='CW' ?'selected':''}>CW</option>
+                <option value="CCW" ${s.direction==='CCW'?'selected':''}>CCW</option>
+              </select>
+            </td>
+            <td style="padding:0.5rem;">
+              <button onclick="assignTGIT('${s.tgitUsername}',${week},${i})"
+                      class="btn-sm" style="background:var(--gold-dim);color:var(--gold);white-space:nowrap;">
+                ${s.assignedGuide ? 'Update' : 'Assign'}
+              </button>
+            </td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+    </div>`;
+}
+
+async function assignTGIT(tgitUsername, week, rowIdx) {
+  const guide = document.getElementById(`g-${rowIdx}`)?.value;
+  const dir   = document.getElementById(`d-${rowIdx}`)?.value;
+  if (!guide || !dir) { showToast('Select a guide and direction', true); return; }
+
+  await postAction({ action:'tgitAssign', tgitUsername, week, assignedGuide:guide, direction:dir, adminUser:userName });
+
+  const s = (window._tgitSignups||[])[rowIdx];
+  if (s) { s.assignedGuide = guide; s.direction = dir; }
+  const sig = (tgitAdminData?.signups||[]).find(x => x.tgitUsername===tgitUsername && x.week===week);
+  if (sig) { sig.assignedGuide = guide; sig.direction = dir; }
+
+  showToast(`${tgitUsername} assigned to ${guide} (${dir})`);
+  renderTGITSignups();
+  renderTGITTab();
+}
+
+async function toggleTGITWeek(week, open) {
+  await postAction({ action:'tgitConfigUpdate', week, signupsOpen:open, adminUser:userName });
+  const cfg = (tgitAdminData?.weekConfigs||[]).find(c => c.week===week);
+  if (cfg) cfg.open = open;
+  renderTGITTab();
+  showToast(`Week ${week} sign-ups ${open?'opened':'closed'}`);
+}
+
+async function saveFeedbackURL(week) {
+  const url = document.getElementById(`fb-${week}`)?.value?.trim();
+  if (url === undefined) return;
+  await postAction({ action:'tgitConfigUpdate', week, feedbackURL:url, adminUser:userName });
+  const cfg = (tgitAdminData?.weekConfigs||[]).find(c => c.week===week);
+  if (cfg) cfg.feedbackURL = url;
+  showToast(`Week ${week} feedback URL saved`);
 }
 
 
