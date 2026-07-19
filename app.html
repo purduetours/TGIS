@@ -1797,19 +1797,42 @@ const tourRows = tours.map(tour => {
                 const info = TOUR_MAP[tour.type] || { name: tour.type, time: '--' };
                 const displayTime = tour.time || info.time;
                 const scheme = TYPE_COLORS[info.name] || { accent: '#9CA3AF', light: '#F9FAFB', text: '#374151', label: info.name, border: '#E5E7EB' };
-                const isPendingDrop = tour.guide.includes('*');
+const isPendingDrop = tour.guide.includes('*');
+                const isPickedUp    = tour.guide.includes('+');
+                const tDate = new Date(tour.date); tDate.setHours(0,0,0,0);
+                const tgitKey = tDate.toISOString().split('T')[0] + '|' + tour.type;
+                const tgit = (window.myTGITMap || {})[tgitKey];
                 return `
-                    <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;
-                                border-radius:10px;background:${isPast ? '#F9FAFB' : isPendingDrop ? '#FEF2F2' : scheme.light};
-                                border:1px solid ${isPast ? '#F3F4F6' : isPendingDrop ? '#FECACA' : scheme.border};">
-                        <div style="width:4px;min-width:4px;height:36px;border-radius:99px;background:${isPast ? '#D1D5DB' : isPendingDrop ? '#EF4444' : scheme.accent};"></div>
-                        <div style="flex:1;min-width:0;">
-                            <p style="font-size:14px;font-weight:900;color:${isPast ? '#6B7280' : '#111827'};line-height:1.1;">${displayTime}</p>
-                            <p style="font-size:11px;font-weight:700;color:${isPast ? '#9CA3AF' : scheme.text};margin-top:2px;">${scheme.label}</p>
+                    <div style="display:flex;flex-direction:column;gap:0;border-radius:10px;overflow:hidden;
+                                border:1px solid ${isPast ? '#F3F4F6' : isPendingDrop ? '#FECACA' : tgit ? '#DDD6FE' : scheme.border};">
+                        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;
+                                    background:${isPast ? '#F9FAFB' : isPendingDrop ? '#FEF2F2' : tgit ? '#F5F3FF' : scheme.light};">
+                            <div style="width:4px;min-width:4px;height:36px;border-radius:99px;background:${isPast ? '#D1D5DB' : isPendingDrop ? '#EF4444' : tgit ? '#8B5CF6' : scheme.accent};"></div>
+                            <div style="flex:1;min-width:0;">
+                                <p style="font-size:14px;font-weight:900;color:${isPast ? '#6B7280' : '#111827'};line-height:1.1;">${displayTime}</p>
+                                <p style="font-size:11px;font-weight:700;color:${isPast ? '#9CA3AF' : scheme.text};margin-top:2px;">${scheme.label}</p>
+                            </div>
+                            ${isPast ? `<span style="font-size:9px;font-weight:900;text-transform:uppercase;color:#D1D5DB;background:#F3F4F6;padding:3px 8px;border-radius:99px;">Done</span>`
+                                     : isPendingDrop ? `<span style="font-size:9px;font-weight:900;text-transform:uppercase;color:#B91C1C;background:#FEE2E2;padding:3px 8px;border-radius:99px;">Pending Drop</span>`
+                                     : isPickedUp ? `<span style="font-size:9px;font-weight:900;text-transform:uppercase;color:#7C3AED;background:#EDE9FE;padding:3px 8px;border-radius:99px;">Picked Up</span>`
+                                     : ''}
                         </div>
-                        ${isPast ? `<span style="font-size:9px;font-weight:900;text-transform:uppercase;color:#D1D5DB;background:#F3F4F6;padding:3px 8px;border-radius:99px;">Done</span>`
-                                 : isPendingDrop ? `<span style="font-size:9px;font-weight:900;text-transform:uppercase;color:#B91C1C;background:#FEE2E2;padding:3px 8px;border-radius:99px;">Pending Drop</span>`
-                                 : ''}
+                        ${tgit ? `
+                        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;
+                                    padding:7px 12px 7px 26px;background:rgba(139,92,246,0.06);
+                                    border-top:1px solid #DDD6FE;">
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <span style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;
+                                             color:#8B5CF6;background:#EDE9FE;padding:2px 6px;border-radius:99px;">TGIT</span>
+                                <span style="font-size:12px;font-weight:800;color:#5B21B6;">${tgit.tgitDisplayName}</span>
+                                <span style="font-size:11px;font-weight:700;color:#8B5CF6;">${tgit.direction || ''}</span>
+                            </div>
+                            ${tgit.feedbackURL ? `<a href="${tgit.feedbackURL}" target="_blank"
+                                style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;
+                                       color:#8B5CF6;text-decoration:none;white-space:nowrap;">
+                                Feedback →
+                            </a>` : ''}
+                        </div>` : ''}
                     </div>`;
             }).join('');
 
@@ -2010,12 +2033,17 @@ async function init() {
                     <div class="w-8 text-right font-black text-xs">${h.count}</div>
                 </div>
             `).join('');
-            if (cachedData.tours) {
+if (cachedData.tours) {
+    // Build TGIT lookup map for guides: "YYYY-MM-DD|type" → tgit assignment
+    window.myTGITMap = {};
+    if (cachedData.tgitData && cachedData.tgitData.role === 'guide' && cachedData.tgitData.myTGITMap) {
+        window.myTGITMap = cachedData.tgitData.myTGITMap;
+    }
+
     // 1. Create your personal list (used for Home and Lock logic)
     const myTours = cachedData.tours.filter(tour => {
-        const cleanName = tour.guide.replace(/[*~`+]/g, '').trim();
+        const cleanName = tour.guide.replace(/[*~+`]/g, '').trim();
         return cleanName.toLowerCase() === cachedData.profile.displayName.toLowerCase();
-        renderDeskDashboard();
     });
 
     // 2. Keep your existing schedule view call
