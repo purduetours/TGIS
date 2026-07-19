@@ -232,6 +232,8 @@ function renderAssignment(td) {
 }
 
 // ── SIGNUP SECTION ────────────────────────────────────────────────────────────
+let selectedCalDate = null; // "YYYY-MM-DD" string of the currently selected calendar day
+
 function renderSignupSection(td) {
   if (!td.signupsOpen || td.mySignup) return;
   const slots = td.availableSlots || [];
@@ -247,35 +249,154 @@ function renderSignupSection(td) {
     return;
   }
 
-  document.getElementById('slot-list').innerHTML = slots.map((slot, i) => {
-    const d = new Date(slot.date);
-    const dayStr = d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
-    const tourName = TOUR_NAMES[slot.type] || slot.type;
-    return `
-      <div class="slot-card" id="slot-${i}" onclick="selectSlot(${i})">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;">
-          <div>
-            <p style="font-size:13px;font-weight:900;margin:0 0 2px;">${tourName}</p>
-            <p style="font-size:11px;font-weight:700;color:#6B7280;margin:0;">${dayStr}</p>
-          </div>
-          <div style="text-align:right;flex-shrink:0;">
-            <span style="font-size:12px;font-weight:900;color:#10B981;">${slot.available}</span>
-            <span style="font-size:10px;font-weight:700;color:#9CA3AF;"> / ${slot.total} spots</span>
-          </div>
-        </div>
-      </div>`;
-  }).join('');
-
   window._availableSlots = slots;
+
+  // Build a set of dates that have available slots
+  const availableDates = new Set(slots.map(s => s.date.split('T')[0]));
+
+  // Figure out the date range to show (Mon–Fri weeks covering all slot dates)
+  const allDates = [...availableDates].sort();
+  const firstDate = new Date(allDates[0]); firstDate.setHours(12);
+  const lastDate  = new Date(allDates[allDates.length - 1]); lastDate.setHours(12);
+
+  // Get Monday of the first week
+  const getMonday = d => {
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+    return new Date(new Date(d).setDate(diff));
+  };
+
+  const startMonday = getMonday(firstDate);
+  const endDate = lastDate;
+
+  // Build all weeks
+  const weeks = [];
+  let cursor = new Date(startMonday); cursor.setHours(0,0,0,0);
+  while (cursor <= endDate) {
+    const weekDays = [];
+    for (let d = 0; d < 5; d++) {
+      const day = new Date(cursor); day.setDate(cursor.getDate() + d);
+      weekDays.push(new Date(day));
+    }
+    weeks.push(weekDays);
+    cursor.setDate(cursor.getDate() + 7);
+  }
+
+  // Auto-select first available date
+  if (!selectedCalDate) selectedCalDate = allDates[0];
+
+  renderCalendar(weeks, availableDates);
+  renderDaySlots(selectedCalDate);
+}
+
+function renderCalendar(weeks, availableDates) {
+  const DOW = ['M','T','W','T','F'];
+  let html = `
+    <div class="card" style="padding:1.125rem;margin-bottom:1rem;">
+      <p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;color:#9CA3AF;margin:0 0 0.75rem;">Select a Date</p>
+
+      <!-- Day of week headers -->
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:4px;">
+        ${DOW.map(d => `<div style="text-align:center;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:#9CA3AF;">${d}</div>`).join('')}
+      </div>`;
+
+  weeks.forEach(week => {
+    html += `<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:4px;">`;
+    week.forEach(day => {
+      const key = day.toISOString().split('T')[0];
+      const hasSlots = availableDates.has(key);
+      const isSelected = key === selectedCalDate;
+      const dayNum = day.getDate();
+      const isPast = day < new Date(new Date().setHours(0,0,0,0));
+
+      let bg, color, border, cursor;
+      if (isSelected) {
+        bg = '#CFB991'; color = '#0f0c04'; border = 'none'; cursor = 'pointer';
+      } else if (hasSlots && !isPast) {
+        bg = '#ECFDF5'; color = '#065F46'; border = '1px solid #BBF7D0'; cursor = 'pointer';
+      } else {
+        bg = 'transparent'; color = '#D1D5DB'; border = '1px solid transparent'; cursor = 'default';
+      }
+
+      html += `<div onclick="${hasSlots && !isPast ? `selectCalDate('${key}')` : ''}"
+        style="aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+               border-radius:10px;background:${bg};color:${color};border:${border};cursor:${cursor};
+               font-size:13px;font-weight:${hasSlots ? '900' : '600'};transition:all 0.12s;position:relative;">
+        ${dayNum}
+        ${hasSlots && !isSelected ? `<div style="position:absolute;bottom:3px;width:4px;height:4px;border-radius:50%;background:#10B981;"></div>` : ''}
+      </div>`;
+    });
+    html += `</div>`;
+  });
+
+  html += `</div>`;
+  document.getElementById('slot-list').innerHTML = html + `<div id="day-slots"></div>`;
+}
+
+function selectCalDate(dateKey) {
+  selectedCalDate = dateKey;
+  selectedSlot = null;
+  document.getElementById('signup-btn').disabled = true;
+  document.getElementById('signup-btn').innerText = 'Select a time above to continue';
+
+  // Re-render calendar to update selection highlight
+  const slots = window._availableSlots || [];
+  const availableDates = new Set(slots.map(s => s.date.split('T')[0]));
+  const allDates = [...availableDates].sort();
+  const firstDate = new Date(allDates[0]); firstDate.setHours(12);
+  const lastDate  = new Date(allDates[allDates.length-1]); lastDate.setHours(12);
+  const getMonday = d => { const day=d.getDay(); const diff=d.getDate()-day+(day===0?-6:1); return new Date(new Date(d).setDate(diff)); };
+  const startMonday = getMonday(firstDate);
+  const weeks = [];
+  let cursor = new Date(startMonday); cursor.setHours(0,0,0,0);
+  while (cursor <= lastDate) {
+    const weekDays = [];
+    for (let d=0;d<5;d++) { const day=new Date(cursor); day.setDate(cursor.getDate()+d); weekDays.push(new Date(day)); }
+    weeks.push(weekDays);
+    cursor.setDate(cursor.getDate()+7);
+  }
+  renderCalendar(weeks, availableDates);
+  renderDaySlots(dateKey);
+}
+
+function renderDaySlots(dateKey) {
+  const slots = (window._availableSlots || []).filter(s => s.date.split('T')[0] === dateKey);
+  const el = document.getElementById('day-slots');
+  if (!el) return;
+
+  if (!slots.length) {
+    el.innerHTML = `<p style="font-size:12px;font-weight:700;color:#9CA3AF;text-align:center;padding:1rem 0;">No available times on this date.</p>`;
+    return;
+  }
+
+  const d = new Date(dateKey + 'T12:00:00');
+  const dayLabel = d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+
+  el.innerHTML = `
+    <p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;color:#9CA3AF;margin:0 0 0.625rem;">${dayLabel}</p>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      ${slots.map((slot, i) => {
+        const globalIdx = (window._availableSlots || []).indexOf(slot);
+        return `
+          <div class="slot-card" id="slot-${globalIdx}" onclick="selectSlot(${globalIdx})">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;">
+              <p style="font-size:14px;font-weight:900;margin:0;">${TOUR_NAMES[slot.type] || slot.type}</p>
+              <span style="font-size:11px;font-weight:900;color:#10B981;background:#ECFDF5;border:1px solid #BBF7D0;border-radius:99px;padding:3px 10px;flex-shrink:0;">
+                ${slot.available} spot${slot.available !== 1 ? 's' : ''} left
+              </span>
+            </div>
+          </div>`;
+      }).join('')}
+    </div>`;
 }
 
 function selectSlot(i) {
   selectedSlot = window._availableSlots[i];
   document.querySelectorAll('.slot-card').forEach((c,j) => c.classList.toggle('selected', i===j));
   const btn = document.getElementById('signup-btn');
-  const d = new Date(selectedSlot.date);
+  const d = new Date(selectedSlot.date + 'T12:00:00');
   const dateStr = d.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});
-  btn.innerText = `Sign Up — ${TOUR_NAMES[selectedSlot.type] || selectedSlot.type} on ${dateStr}`;
+  btn.innerText = `Sign Up — ${TOUR_NAMES[selectedSlot.type] || selectedSlot.type} · ${dateStr}`;
   btn.disabled = false;
 }
 
@@ -288,6 +409,7 @@ async function submitSignup() {
   try {
     const resp = await fetch(SCRIPT_URL, {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         action:       'tgitSignup',
         tgitUsername: userName,
