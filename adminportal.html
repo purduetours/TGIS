@@ -1141,7 +1141,7 @@ function openSRModal(prefillGuide) {
       <h2 style="font-size:1.1rem;font-weight:900;margin:0;">Add Special Request</h2>
       <button onclick="closeModal()" style="background:none;border:none;font-size:1.25rem;cursor:pointer;color:var(--subtext);">✕</button>
     </div>
-    <p style="font-size:12px;color:var(--subtext);margin-bottom:1.25rem;">Private tours, VIP visits, make-ups, recruitment events — any non-scheduled tour that counts toward a guide's total.</p>
+    <p style="font-size:12px;color:var(--subtext);margin-bottom:1.25rem;">All special requests must be manually entered here. They will be reflected in a tour guide's tour list when logged.</p>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.875rem;margin-bottom:0.875rem;">
       <div>
         <label class="lbl">Guide</label>
@@ -1157,11 +1157,10 @@ function openSRModal(prefillGuide) {
         <label class="lbl">Type</label>
         <select id="sr-type" class="inp">
           <option>Special Request</option>
-          <option>Private Tour</option>
-          <option>VIP Visit</option>
-          <option>Recruitment Event</option>
-          <option>Make-up Tour</option>
-          <option>Other</option>
+          <option>null</option>
+          <option>TGIT Program</option>
+          <option>Bonus/Tour Credit</option>
+          <option></option>
         </select>
       </div>
       <div>
