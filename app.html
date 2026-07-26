@@ -406,6 +406,88 @@
 
 <div id="view-home" class="view-section active">
 
+  <!-- ── MOBILE HOME (hidden on desktop) ── -->
+  <div class="lg:hidden" style="margin:-1rem -1rem 0;padding-bottom:1.5rem;">
+
+    <!-- HERO PHOTO CARD -->
+    <div style="position:relative;height:220px;overflow:hidden;border-radius:0 0 2rem 2rem;margin-bottom:1rem;">
+      <img src="arch.jpeg" alt="Purdue Campus"
+           style="width:100%;height:100%;object-fit:cover;object-position:center;">
+      <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.15) 0%,rgba(0,0,0,0.55) 100%);border-radius:0 0 2rem 2rem;"></div>
+      <div style="position:absolute;bottom:1.25rem;left:1.25rem;right:1.25rem;">
+        <p style="font-size:9px;font-weight:900;letter-spacing:0.25em;text-transform:uppercase;color:rgba(255,255,255,0.7);margin:0 0 2px;">Purdue University</p>
+        <h1 style="font-size:1.75rem;font-weight:900;color:white;margin:0;line-height:1.1;">Welcome back, <span id="welcome-name-mobile" style="color:#CFB991;"></span></h1>
+        <p id="live-clock-mobile" style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:0.1em;margin:4px 0 0;"></p>
+      </div>
+    </div>
+
+    <div style="padding:0 1rem;display:flex;flex-direction:column;gap:0.875rem;">
+
+      <!-- PROFILE CARD -->
+      <div onclick="switchView('tracker')"
+           style="background:linear-gradient(135deg,#1a1408,#2a2010);border-radius:1.5rem;padding:1.25rem;cursor:pointer;border:1px solid rgba(207,185,145,0.25);">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.875rem;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div id="mobile-profile-initial"
+                 style="width:40px;height:40px;border-radius:12px;background:#CFB991;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:900;color:#0f0c04;flex-shrink:0;"></div>
+            <div>
+              <p id="mobile-profile-name" style="font-size:14px;font-weight:900;color:white;margin:0;"></p>
+              <p id="mobile-profile-role" style="font-size:10px;font-weight:700;color:rgba(207,185,145,0.7);text-transform:uppercase;letter-spacing:0.08em;margin:1px 0 0;"></p>
+            </div>
+          </div>
+          <span style="font-size:12px;color:rgba(255,255,255,0.3);">›</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.625rem;">
+          <div style="background:rgba(255,255,255,0.06);border-radius:1rem;padding:0.75rem;text-align:center;">
+            <p id="mobile-sem-total" style="font-size:1.75rem;font-weight:900;color:#10B981;margin:0;line-height:1;">--</p>
+            <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.35);margin:3px 0 0;">This Semester</p>
+          </div>
+          <div style="background:rgba(255,255,255,0.06);border-radius:1rem;padding:0.75rem;text-align:center;">
+            <p id="mobile-upcoming" style="font-size:1.75rem;font-weight:900;color:#CFB991;margin:0;line-height:1;">--</p>
+            <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.35);margin:3px 0 0;">Upcoming</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- NEXT TOUR CARD -->
+      <div onclick="switchView('schedule')" id="mobile-next-tour-card"
+           style="background:white;border-radius:1.5rem;padding:1.25rem;cursor:pointer;border:1px solid #F3F4F6;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
+        <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;color:#9CA3AF;margin:0 0 0.625rem;">Next Tour</p>
+        <div id="mobile-next-tour-inner">
+          <p style="font-size:13px;font-weight:700;color:#D1D5DB;font-style:italic;">No upcoming tours</p>
+        </div>
+      </div>
+
+      <!-- TODAY'S SCHEDULE CARD -->
+      <div onclick="switchView('schedule')"
+           style="background:white;border-radius:1.5rem;overflow:hidden;cursor:pointer;border:1px solid #F3F4F6;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
+        <div style="padding:1rem 1.25rem 0.75rem;border-bottom:1px solid #F9FAFB;">
+          <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;color:#9CA3AF;margin:0;">Today's Schedule</p>
+        </div>
+        <div id="home-today-container" style="padding:0;">
+          <div style="padding:1rem 1.25rem;text-align:center;">
+            <p style="color:#D1D5DB;font-size:11px;font-weight:700;">No tours today</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ALERTS CARD -->
+      <div style="background:#FEF3C7;border-radius:1.5rem;padding:1.25rem;border:1px solid #FDE68A;">
+        <div style="display:flex;align-items:flex-start;gap:10px;">
+          <span style="font-size:1.25rem;flex-shrink:0;">🛑</span>
+          <div>
+            <p style="font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:0.05em;color:#92400E;margin:0 0 3px;">Use Caution Inside Ford</p>
+            <p style="font-size:11px;font-weight:600;color:#92400E;margin:0;line-height:1.5;">Only give your stop inside if there are no groups and the room is clear.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── DESKTOP HOME (hidden on mobile) ── -->
+  <div class="hidden lg:block">
+
     <header class="mb-6">
         <h1 class="text-4xl font-black">Welcome, <span id="welcome-name" class="text-primary-gold text-nowrap">Guide</span></h1>
         <p id="live-clock" class="text-sm font-bold text-gray-400 uppercase tracking-wider mt-1">Loading...</p>
@@ -435,7 +517,7 @@
 
     <!-- TODAY'S SCHEDULE -->
     <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] ml-1 mb-2">Today's Schedule</p>
-    <div id="home-today-container" class="mb-5">
+    <div id="home-today-container-desktop" class="mb-5">
         <div class="bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl p-4 text-center">
             <p class="text-gray-400 text-[10px] font-black uppercase tracking-widest">No tours today</p>
         </div>
@@ -473,6 +555,8 @@
             </div>
         </div>
     </div>
+
+  </div>
 
 </div>
 
@@ -1291,6 +1375,8 @@ function renderHomeNextTour(myTours) {
 
     // Fill upcoming count stat card
     if (upcomingEl) upcomingEl.innerText = upcoming.length;
+    const mup = document.getElementById('mobile-upcoming');
+    if (mup) mup.innerText = upcoming.length;
 
     // Render today's schedule
     renderHomeTodaySchedule(myTours || []);
@@ -1317,6 +1403,23 @@ function renderHomeNextTour(myTours) {
     const diffLabel = diffDays <= 0 ? 'Today' : diffDays === 1 ? 'Tomorrow' : `${diffDays} days away`;
 
     const isPendingDrop = tour.guide.includes('*');
+    // Also populate mobile next tour card
+    const mntCard = document.getElementById('mobile-next-tour-inner');
+    if (mntCard && upcoming.length > 0) {
+      const t = upcoming[0];
+      const info = TOUR_MAP[t.type] || { name: t.type, time: '--' };
+      const d = new Date(t.date);
+      const dateStr = d.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
+      const displayTime = t.time || info.time;
+      mntCard.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <p style="font-size:1.1rem;font-weight:900;color:#111827;margin:0;">${displayTime} · ${info.name}</p>
+            <p style="font-size:12px;font-weight:700;color:#6B7280;margin:4px 0 0;">${dateStr}</p>
+          </div>
+          <span style="font-size:1.25rem;color:#CFB991;">›</span>
+        </div>`;
+    }
     container.innerHTML = `
         <div style="background:#1a1408; border:1px solid ${isPendingDrop ? 'rgba(239,68,68,0.4)' : 'rgba(207,185,145,0.3)'};" class="rounded-[2rem] p-5 flex items-center gap-5">
             <div style="background:rgba(207,185,145,0.12); border:1px solid rgba(207,185,145,0.35);" class="rounded-2xl w-16 h-16 flex flex-col items-center justify-center shrink-0">
@@ -1378,7 +1481,7 @@ function renderHomeTodaySchedule(myTours) {
             </div>`;
     }).join('');
 
-    container.innerHTML = `
+const todayHTML = `
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
             <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
                 <span class="text-xs font-black text-gray-500 uppercase tracking-widest">Today</span>
@@ -1386,10 +1489,16 @@ function renderHomeTodaySchedule(myTours) {
             </div>
             ${rows}
         </div>`;
+    container.innerHTML = todayHTML;
+    const mobileTodayEl = document.getElementById('home-today-container');
+    if (mobileTodayEl) mobileTodayEl.innerHTML = todayHTML;
 }
     function updateClock() {
         const now = new Date();
-        document.getElementById('live-clock').innerText = now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        const str = now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        document.getElementById('live-clock').innerText = str;
+        const mc = document.getElementById('live-clock-mobile');
+        if (mc) mc.innerText = str;
     }
     setInterval(updateClock, 1000);
 
@@ -1995,6 +2104,17 @@ async function init() {
             // Update UI Elements
             document.getElementById('sidebar-name').innerText = cachedData.profile.fullName;
             document.getElementById('sidebar-status').innerText = cachedData.profile.status;
+            // Mobile home population
+            const mn = cachedData.profile.displayName || '';
+            const mf = cachedData.profile.fullName || '';
+            const el = document.getElementById('welcome-name-mobile');
+            if (el) el.innerText = mn;
+            const pi = document.getElementById('mobile-profile-initial');
+            if (pi) pi.innerText = mf.charAt(0);
+            const pn = document.getElementById('mobile-profile-name');
+            if (pn) pn.innerText = mf;
+            const pr = document.getElementById('mobile-profile-role');
+            if (pr) pr.innerText = cachedData.profile.status || '';
             const deskDashBtn = document.getElementById('nav-desk-dashboard');
                 if (cachedData.profile.status !== "Tour Guide") {
                     deskDashBtn.classList.remove('hidden');
@@ -2006,6 +2126,8 @@ async function init() {
             document.getElementById('career-total').innerText = cachedData.stats.careerTotal;
             document.getElementById('sem-total').innerText = cachedData.stats.semesterTotal;
             document.getElementById('home-sem-total').innerText = cachedData.stats.semesterTotal;
+            const mst = document.getElementById('mobile-sem-total');
+            if (mst) mst.innerText = cachedData.stats.semesterTotal;
             document.getElementById('sem-label').innerText = cachedData.currentSemesterName;
             document.getElementById('user-rank').innerText = `#${cachedData.rank}`;
 
