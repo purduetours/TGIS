@@ -205,10 +205,10 @@
     flex: 1; 
     overflow-y: auto; 
     -webkit-overflow-scrolling: touch; 
-    padding-bottom: calc(env(safe-area-inset-bottom) + 100px);    
+    padding-bottom: calc(env(safe-area-inset-bottom) + 100px);
     margin-left: 18rem; 
     transition: margin 0.3s ease; 
-    padding-top: env(safe-area-inset-top);
+    padding-top: 1.5rem;
 }
 
         @keyframes pulse-subtle {
@@ -1304,8 +1304,10 @@ function switchView(viewId) {
     // 1. Hide all sections, show the active one
     document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
     document.getElementById(`view-${viewId}`).classList.add('active');
-    const ca = document.querySelector('.content-area');
-    if (ca) ca.style.paddingTop = viewId === 'home' ? '0' : 'env(safe-area-inset-top)';
+    if (window.innerWidth < 1024) {
+        const ca = document.querySelector('.content-area');
+        if (ca) ca.style.paddingTop = viewId === 'home' ? '0' : 'env(safe-area-inset-top)';
+    }
     // Lazy-load desk schedule on first visit to that tab
     if (viewId === 'desk') loadDeskSchedule();
 
