@@ -211,6 +211,10 @@
     padding-top: 1.5rem;
 }
 
+        @keyframes pulseBorder {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(139,92,246,0); border-color: #8B5CF6; }
+    50%       { box-shadow: 0 0 0 6px rgba(139,92,246,0.15); border-color: #a78bfa; }
+}
         @keyframes pulse-subtle {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.01); }
@@ -758,8 +762,10 @@
                 <button onclick="changeDeskDate(1)" class="p-2 hover:bg-gray-100 rounded-xl transition-all">▶</button>
             </div>
         </div>
-        <div id="status-bar" class="flex gap-2 overflow-x-auto pb-4 border-b border-gray-100"></div>
-    </header>
+        <div id="desk-countdown-panel"
+         style="background:linear-gradient(135deg,#1a1408,#0f0c04);border:1px solid rgba(207,185,145,0.25);
+                border-radius:1.5rem;padding:1.25rem 1.5rem;margin-bottom:1.5rem;">
+    </div>    </header>
 
     <div class="mb-10">
         <h2 class="text-xs font-black text-gray-400 uppercase tracking-[0.3em] mb-4">Daily Visits</h2>
@@ -1135,20 +1141,102 @@ async function loadDeskSchedule() {
     }
 }
 
+// Countdown timer reference
+let deskCountdownTimer = null;
+
 function renderDeskDashboard() {
-    const dailyContainer = document.getElementById('grid-daily');
+    const dailyContainer   = document.getElementById('grid-daily');
     const programContainer = document.getElementById('grid-program');
-    const statusBar = document.getElementById('status-bar');
-    const dateLabel = document.getElementById('desk-display-date');
-    if (!dailyContainer || !programContainer || !statusBar || !cachedData) return;
+    const dateLabel        = document.getElementById('desk-display-date');
+    if (!dailyContainer || !programContainer || !cachedData) return;
 
     dateLabel.innerText = deskDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     const now = new Date();
+    const isToday = deskDate.toDateString() === now.toDateString();
 
-    let dailyHtml = '';
-    let programHtml = '';
-    let statusSummary = '';
+    let dailyHtml = '', programHtml = '';
 
+    // All slots combined for countdown logic
+    const ALL_SLOTS = [...DAILY_VISITS, ...PROGRAM_DAYS];
+
+    // ── COUNTDOWN PANEL ──────────────────────────────────────────────────────
+    // Find next upcoming or currently live tour
+    let countdownSlot = null;
+    let countdownStart = null;
+    if (isToday) {
+        const slotsWithTours = ALL_SLOTS.filter(slot => {
+            const guides = cachedData.tours.filter(t => {
+                const tDate = t.dateObj || (t.date ? (() => { const d = new Date(t.date); d.setHours(0,0,0,0); return d; })() : null);
+                return t.type === slot.code && tDate && tDate.getTime() === deskDate.getTime() && !['N/A','#N/A'].includes(String(t.guide).trim().toUpperCase());
+            });
+            return guides.length > 0;
+        });
+        // Sort by start time, find the next one that hasn't ended
+        const sorted = slotsWithTours.map(slot => {
+            const start = new Date(deskDate); start.setHours(slot.h, slot.m, 0, 0);
+            const end   = new Date(start); end.setMinutes(end.getMinutes() + 105);
+            return { slot, start, end };
+        }).sort((a, b) => a.start - b.start);
+
+        const next = sorted.find(s => s.end > now);
+        if (next) { countdownSlot = next.slot; countdownStart = next.start; }
+    }
+
+    const countdownEl = document.getElementById('desk-countdown-panel');
+    if (countdownEl) {
+        if (countdownSlot && countdownStart) {
+            const isLive = now >= countdownStart;
+            countdownEl.innerHTML = `
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+                    <div>
+                        <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.18em;color:rgba(255,255,255,0.45);margin:0 0 4px;">
+                            ${isLive ? '● Live Now' : 'Next Tour'}
+                        </p>
+                        <p style="font-size:1.1rem;font-weight:900;color:white;margin:0;">
+                            ${countdownSlot.name}
+                        </p>
+                        <p style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.4);margin:2px 0 0;">
+                            ${countdownStart.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}
+                        </p>
+                    </div>
+                    <div style="text-align:right;">
+                        <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:rgba(255,255,255,0.35);margin:0 0 4px;">
+                            T${isLive ? '+' : '-'}
+                        </p>
+                        <p id="desk-countdown-clock" style="font-size:2.25rem;font-weight:900;color:${isLive ? '#10B981' : '#CFB991'};font-family:monospace;letter-spacing:0.05em;margin:0;line-height:1;">
+                            --:--:--
+                        </p>
+                    </div>
+                </div>`;
+
+            // Start the countdown ticker
+            if (deskCountdownTimer) clearInterval(deskCountdownTimer);
+            deskCountdownTimer = setInterval(() => {
+                const el = document.getElementById('desk-countdown-clock');
+                if (!el) { clearInterval(deskCountdownTimer); return; }
+                const nowT = new Date();
+                const diff = Math.abs(nowT - countdownStart);
+                const h = Math.floor(diff / 3600000);
+                const m = Math.floor((diff % 3600000) / 60000);
+                const s = Math.floor((diff % 60000) / 1000);
+                el.innerText = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+
+                // Once tour ends, re-render to pick up the next one
+                const endT = new Date(countdownStart); endT.setMinutes(endT.getMinutes() + 105);
+                if (nowT > endT) { clearInterval(deskCountdownTimer); renderDeskDashboard(); }
+            }, 1000);
+        } else {
+            countdownEl.innerHTML = `
+                <div style="text-align:center;padding:0.5rem;">
+                    <p style="font-size:13px;font-weight:700;color:rgba(255,255,255,0.3);margin:0;">
+                        ${isToday ? 'No more tours today' : 'No tours on this date'}
+                    </p>
+                </div>`;
+            if (deskCountdownTimer) clearInterval(deskCountdownTimer);
+        }
+    }
+
+    // ── TOUR CARDS ───────────────────────────────────────────────────────────
     [DAILY_VISITS, PROGRAM_DAYS].forEach((list, idx) => {
         list.forEach(slot => {
             const guides = cachedData.tours.filter(t => {
@@ -1157,33 +1245,52 @@ function renderDeskDashboard() {
             });
             const hasTour = guides.length > 0;
 
-            let sColor = "bg-gray-100 text-gray-400";
-            let sText = "Empty";
+            let status = 'empty', borderColor = '#E5E7EB', borderStyle = 'border';
             if (hasTour) {
                 const start = new Date(deskDate); start.setHours(slot.h, slot.m, 0);
-                const end = new Date(start); end.setMinutes(start.getMinutes() + 105);
-                if (deskDate.toDateString() === now.toDateString()) {
-                    if (now >= start && now <= end) { sColor = "bg-purple-600 text-white animate-pulse"; sText = "Live"; }
-                    else if (now < start) { sColor = "bg-green-500 text-white"; sText = "Ready"; }
-                    else { sColor = "bg-gray-400 text-white"; sText = "Done"; }
-                } else { sColor = "bg-green-600 text-white"; sText = "Scheduled"; }
+                const end   = new Date(start); end.setMinutes(start.getMinutes() + 105);
+                if (isToday) {
+                    if (now >= start && now <= end) { status = 'live';  borderColor = '#8B5CF6'; borderStyle = 'border-2'; }
+                    else if (now < start)            { status = 'ready'; borderColor = '#10B981'; borderStyle = 'border'; }
+                    else                             { status = 'done';  borderColor = '#D1D5DB'; borderStyle = 'border'; }
+                } else { status = 'scheduled'; borderColor = '#10B981'; borderStyle = 'border'; }
             }
-            statusSummary += `<div class="${sColor} px-2 py-0.5 rounded text-[9px] font-black uppercase whitespace-nowrap">${slot.code}: ${sText}</div>`;
+
+            const statusLabel = { live: 'Live', ready: 'Ready', done: 'Done', scheduled: 'Scheduled', empty: 'Empty' }[status];
+            const statusColor = { live: '#8B5CF6', ready: '#10B981', done: '#9CA3AF', scheduled: '#10B981', empty: '#D1D5DB' }[status];
+            const isLive = status === 'live';
 
             const cardHtml = `
-                <div class="bg-white border p-5 rounded-3xl shadow-sm flex flex-col ${!hasTour ? 'opacity-30' : ''}">
-                    <p class="text-[9px] font-black text-primary-gold uppercase tracking-widest">${slot.code}</p>
-                    <h2 class="text-xl font-black mb-3">${slot.name}</h2>
-                    <div class="space-y-1.5 flex-grow">
+                <div style="background:white;border:2px solid ${borderColor};border-radius:1.5rem;padding:1.25rem;
+                            display:flex;flex-direction:column;${!hasTour ? 'opacity:0.3;' : ''}
+                            ${isLive ? 'animation:pulseBorder 2s ease-in-out infinite;' : ''}">
+                    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:0.75rem;">
+                        <div>
+                            <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#CFB991;margin:0 0 2px;">${slot.code}</p>
+                            <h2 style="font-size:15px;font-weight:900;margin:0;color:#111827;">${slot.name}</h2>
+                        </div>
+                        <span style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;
+                                     color:${statusColor};background:${statusColor}18;
+                                     padding:3px 8px;border-radius:99px;flex-shrink:0;white-space:nowrap;">
+                            ${statusLabel}
+                        </span>
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:6px;">
                         ${guides.length > 0 ? guides.map(g => {
                             const parsed = parseGuide(g.guide, g.status);
+                            const pillColor = parsed.statusLabel === 'PENDING DROP' ? '#EF4444'
+                                           : parsed.statusLabel === 'PICKED UP'    ? '#8B5CF6'
+                                           : parsed.statusLabel === 'NOT GIVEN'    ? '#3B82F6'
+                                           : '#10B981';
                             return `
-                                <div class="p-2 rounded-lg border text-[11px] font-bold flex justify-between items-center ${parsed.cardClass}">
-                                    <span>${parsed.name}</span>
-                                    <span class="text-[7px] px-1.5 py-0.5 rounded-md font-black uppercase ${parsed.badgeClass}">${parsed.statusLabel}</span>
-                                </div>
-                            `;
-                        }).join('') : '<p class="text-[10px] italic text-gray-400">No Guides</p>'}
+                                <div style="padding:6px 10px;border-radius:10px;border:1px solid #F3F4F6;background:#F9FAFB;
+                                            display:flex;justify-content:space-between;align-items:center;">
+                                    <span style="font-size:12px;font-weight:700;color:#111827;">${parsed.name}</span>
+                                    <span style="font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;
+                                                 color:${pillColor};background:${pillColor}15;
+                                                 padding:2px 7px;border-radius:99px;">${parsed.statusLabel}</span>
+                                </div>`;
+                        }).join('') : '<p style="font-size:11px;color:#D1D5DB;font-style:italic;">No guides</p>'}
                     </div>
                 </div>`;
 
@@ -1191,9 +1298,8 @@ function renderDeskDashboard() {
         });
     });
 
-    dailyContainer.innerHTML = dailyHtml;
+    dailyContainer.innerHTML   = dailyHtml;
     programContainer.innerHTML = programHtml;
-    statusBar.innerHTML = statusSummary;
 }
 
 
