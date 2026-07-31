@@ -1626,6 +1626,17 @@ const todayHTML = `
         window.location.replace('https://purduetours.github.io/TGIS');
     }
 
+    function selectRole(role) {
+        if (role === 'admin') {
+            window.location.href = `https://purduetours.github.io/TGIS/adminportal.html?user=${encodeURIComponent(userName)}`;
+        } else {
+            // Continue loading the student view — hide selector and resume
+            document.getElementById('role-selector').classList.add('hidden');
+            document.getElementById('loading-overlay').style.display = 'flex';
+            continueInit();
+        }
+    }
+
   function renderFamilyUI() {
         const container = document.getElementById('family-leaderboard-container');
         const myCard    = document.getElementById('my-family-card');
@@ -2181,6 +2192,13 @@ function renderTourRow(tour, isHistory = false) {
     </div>`;
 }
 
+let _cachedInitData = null;
+
+async function continueInit() {
+        cachedData = _cachedInitData;
+        if (!cachedData || !cachedData.profile) { showError("PROFILE_NOT_FOUND"); return; }
+        cachedData.fullList = cachedData.fullList || cachedData.leaderboard;
+
 async function init() {
         if(!userName) {
             showError("MISSING_USER_PARAM");
@@ -2203,6 +2221,7 @@ async function init() {
             }
 
             cachedData = await res.json();
+            _cachedInitData = cachedData; // save for continueInit
             clearTimeout(timeoutId); // Stop the timeout timer since we succeeded
 
             // Check if profile actually exists in the response
@@ -2213,6 +2232,15 @@ async function init() {
 
             cachedData.fullList = cachedData.fullList || cachedData.leaderboard;
 
+            // Check for dual-portal accounts
+            const ADMIN_ROLES = ['Codirector', 'Manager', 'Admin', 'Boss'];
+            if (ADMIN_ROLES.includes(cachedData.profile.status)) {
+                document.getElementById('role-selector-name').innerText = cachedData.profile.displayName;
+                document.getElementById('loading-overlay').style.display = 'none';
+                document.getElementById('role-selector').classList.remove('hidden');
+                return; // stop init here — selectRole() will handle the rest
+            }
+            
             //Check for retirement
             if (cachedData.profile.status === "Retired") {
                 document.getElementById('loading-overlay').style.display = 'none';
@@ -2470,6 +2498,55 @@ drawConfetti();
     </button>
 </div>
 
+<!-- ROLE SELECTOR OVERLAY -->
+<div id="role-selector" class="hidden fixed inset-0 z-[9998] flex flex-col items-center justify-center p-8"
+     style="background:linear-gradient(135deg,#0a0a0a 0%,#1a1408 50%,#0a0a0a 100%);">
+  <p style="font-size:9px;font-weight:900;letter-spacing:0.3em;text-transform:uppercase;color:rgba(207,185,145,0.5);margin-bottom:8px;">Purdue University</p>
+  <h1 style="font-size:1.75rem;font-weight:900;color:white;margin:0 0 6px;letter-spacing:-0.02em;">Welcome back, <span id="role-selector-name" style="color:#CFB991;"></span></h1>
+  <p style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.12em;margin:0 0 2.5rem;">This account has multiple portals — choose one to continue</p>
+
+  <div style="display:flex;flex-direction:column;gap:1rem;width:100%;max-width:360px;">
+
+    <!-- Student View -->
+    <button onclick="selectRole('student')"
+            style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:1.5rem;
+                   padding:1.25rem 1.5rem;cursor:pointer;text-align:left;transition:all 0.2s;width:100%;"
+            onmouseover="this.style.borderColor='rgba(207,185,145,0.5)';this.style.background='rgba(207,185,145,0.06)'"
+            onmouseout="this.style.borderColor='rgba(255,255,255,0.12)';this.style.background='rgba(255,255,255,0.04)'">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="width:42px;height:42px;border-radius:12px;background:rgba(207,185,145,0.15);border:1px solid rgba(207,185,145,0.3);
+                    display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0;">🎓</div>
+        <div>
+          <p style="font-size:14px;font-weight:900;color:white;margin:0 0 2px;">TGIS Student View</p>
+          <p style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.35);margin:0;">Tour guide portal — schedule, tracker, forms</p>
+        </div>
+        <span style="margin-left:auto;color:rgba(255,255,255,0.25);font-size:1.1rem;">›</span>
+      </div>
+    </button>
+
+    <!-- Admin Portal -->
+    <button onclick="selectRole('admin')"
+            style="background:rgba(207,185,145,0.08);border:1px solid rgba(207,185,145,0.3);border-radius:1.5rem;
+                   padding:1.25rem 1.5rem;cursor:pointer;text-align:left;transition:all 0.2s;width:100%;"
+            onmouseover="this.style.borderColor='#CFB991';this.style.background='rgba(207,185,145,0.15)'"
+            onmouseout="this.style.borderColor='rgba(207,185,145,0.3)';this.style.background='rgba(207,185,145,0.08)'">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="width:42px;height:42px;border-radius:12px;background:rgba(207,185,145,0.2);border:1px solid rgba(207,185,145,0.4);
+                    display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0;">⚙️</div>
+        <div>
+          <p style="font-size:14px;font-weight:900;color:#CFB991;margin:0 0 2px;">Admin Portal</p>
+          <p style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.35);margin:0;">Manager view — roster, census, operations</p>
+        </div>
+        <span style="margin-left:auto;color:rgba(207,185,145,0.5);font-size:1.1rem;">›</span>
+      </div>
+    </button>
+
+  </div>
+
+  <p style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.2);margin-top:2rem;text-transform:uppercase;letter-spacing:0.1em;">
+    You can always switch by signing out
+  </p>
+</div>
     
 <div id="tour-lock-screen" class="hidden fixed inset-0 z-[9999] bg-[#000000] flex flex-col items-center justify-center p-8 text-center">
     <div class="absolute inset-0 opacity-5 font-black text-[15rem] overflow-hidden pointer-events-none text-white flex items-center justify-center">
