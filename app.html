@@ -2199,38 +2199,114 @@ async function continueInit() {
         if (!cachedData || !cachedData.profile) { showError("PROFILE_NOT_FOUND"); return; }
         cachedData.fullList = cachedData.fullList || cachedData.leaderboard;
 
-async function init() {
-        if(!userName) {
+        // Check for retirement
+        if (cachedData.profile.status === "Retired") {
+            document.getElementById('loading-overlay').style.display = 'none';
+            showRetirementScreen(cachedData.profile, cachedData.stats);
+            return;
+        }
+
+        // Update UI Elements
+        document.getElementById('sidebar-name').innerText = cachedData.profile.fullName;
+        document.getElementById('sidebar-status').innerText = cachedData.profile.status;
+        const mn = cachedData.profile.displayName || '';
+        const mf = cachedData.profile.fullName || '';
+        const el = document.getElementById('welcome-name-mobile');
+        if (el) el.innerText = mn;
+        const pi = document.getElementById('mobile-profile-initial');
+        if (pi) pi.innerText = mf.charAt(0);
+        const pn = document.getElementById('mobile-profile-name');
+        if (pn) pn.innerText = mf;
+        const pr = document.getElementById('mobile-profile-role');
+        if (pr) pr.innerText = cachedData.profile.status || '';
+        const deskDashBtn = document.getElementById('nav-desk-dashboard');
+        if (cachedData.profile.status !== "Tour Guide") {
+            deskDashBtn.classList.remove('hidden');
+            renderDeskDashboard();
+        }
+        document.getElementById('profile-initial').innerText = cachedData.profile.fullName.charAt(0);
+        document.getElementById('welcome-name').innerText = cachedData.profile.displayName;
+        document.getElementById('career-total').innerText = cachedData.stats.careerTotal;
+        document.getElementById('sem-total').innerText = cachedData.stats.semesterTotal;
+        document.getElementById('home-sem-total').innerText = cachedData.stats.semesterTotal;
+        const mst = document.getElementById('mobile-sem-total');
+        if (mst) mst.innerText = cachedData.stats.semesterTotal;
+        document.getElementById('sem-label').innerText = cachedData.currentSemesterName;
+        document.getElementById('user-rank').innerText = `#${cachedData.rank}`;
+
+        handleMilestones(cachedData.stats.careerTotal);
+        renderForms();
+        updateLeaderboard('career');
+        renderFamilyUI();
+        updateClock();
+
+        const histContainer = document.getElementById('history-container');
+        histContainer.innerHTML = [...cachedData.stats.history].reverse().map(h => `
+            <div class="flex items-center">
+                <div class="w-24 text-[10px] font-black text-gray-400 uppercase tracking-tighter">${h.semester}</div>
+                <div class="flex-1 h-2.5 bg-gray-100 rounded-full overflow-hidden mx-3">
+                    <div class="h-full bg-primary-gold" style="width: ${Math.min((h.count / 40) * 100, 100)}%"></div>
+                </div>
+                <div class="w-8 text-right font-black text-xs">${h.count}</div>
+            </div>
+        `).join('');
+
+        if (cachedData.tours) {
+            window.myTGITMap = {};
+            if (cachedData.tgitData && cachedData.tgitData.role === 'guide' && cachedData.tgitData.myTGITMap) {
+                window.myTGITMap = cachedData.tgitData.myTGITMap;
+            }
+            const myTours = cachedData.tours.filter(tour => {
+                const cleanName = tour.guide.replace(/[*~+`]/g, '').trim();
+                return cleanName.toLowerCase() === cachedData.profile.displayName.toLowerCase();
+            });
+            updateScheduleView(myTours, cachedData.profile.displayName);
+            renderHomeNextTour(myTours);
+            checkTourLock(myTours);
+            setInterval(() => checkTourLock(myTours), 60000);
+            renderWelcomeCenter(cachedData.tours);
+        }
+
+        const bar = document.getElementById('loading-bar');
+        const status = document.getElementById('loading-status');
+        if (bar) bar.style.width = '100%';
+        if (status) status.innerText = 'Ready';
+        setTimeout(() => {
+            document.getElementById('loading-overlay').classList.add('opacity-0');
+            setTimeout(() => document.getElementById('loading-overlay').style.display = 'none', 500);
+        }, 350);
+
+        document.getElementById('bn-home')?.classList.add('active');
+    }
+
+    async function init() {
+        if (!userName) {
             showError("MISSING_USER_PARAM");
             return;
         }
 
-        // Setup the 10-second timeout controller
         const controller = new AbortController();
         const timeoutId = setTimeout(() => {
             controller.abort();
             showError("TIMEOUT_10S");
-        }, 10000); // 10000ms = 10 seconds
+        }, 10000);
 
         try {
             const res = await fetch(`${scriptURL}?user=${userName}`, { signal: controller.signal });
-            
+
             if (!res.ok) {
                 showError(`HTTP_${res.status}`);
                 return;
             }
 
             cachedData = await res.json();
-            _cachedInitData = cachedData; // save for continueInit
-            clearTimeout(timeoutId); // Stop the timeout timer since we succeeded
+            _cachedInitData = cachedData;
+            clearTimeout(timeoutId);
 
-            // Check if profile actually exists in the response
             if (!cachedData || !cachedData.profile) {
                 showError("PROFILE_NOT_FOUND");
                 return;
             }
-
-            cachedData.fullList = cachedData.fullList || cachedData.leaderboard;
 
             // Check for dual-portal accounts
             const ADMIN_ROLES = ['Codirector', 'Manager', 'Admin', 'Boss'];
@@ -2238,122 +2314,18 @@ async function init() {
                 document.getElementById('role-selector-name').innerText = cachedData.profile.displayName;
                 document.getElementById('loading-overlay').style.display = 'none';
                 document.getElementById('role-selector').classList.remove('hidden');
-                return; // stop init here — selectRole() will handle the rest
-            }
-            
-            //Check for retirement
-            if (cachedData.profile.status === "Retired") {
-                document.getElementById('loading-overlay').style.display = 'none';
-                showRetirementScreen(cachedData.profile, cachedData.stats);
                 return;
             }
 
-            // Update UI Elements
-            document.getElementById('sidebar-name').innerText = cachedData.profile.fullName;
-            document.getElementById('sidebar-status').innerText = cachedData.profile.status;
-            // Mobile home population
-            const mn = cachedData.profile.displayName || '';
-            const mf = cachedData.profile.fullName || '';
-            const el = document.getElementById('welcome-name-mobile');
-            if (el) el.innerText = mn;
-            const pi = document.getElementById('mobile-profile-initial');
-            if (pi) pi.innerText = mf.charAt(0);
-            const pn = document.getElementById('mobile-profile-name');
-            if (pn) pn.innerText = mf;
-            const pr = document.getElementById('mobile-profile-role');
-            if (pr) pr.innerText = cachedData.profile.status || '';
-            const deskDashBtn = document.getElementById('nav-desk-dashboard');
-                if (cachedData.profile.status !== "Tour Guide") {
-                    deskDashBtn.classList.remove('hidden');
-                    renderDeskDashboard();
-                }
-            document.getElementById('profile-initial').innerText = cachedData.profile.fullName.charAt(0);
-            document.getElementById('welcome-name').innerText = cachedData.profile.displayName;
-
-            document.getElementById('career-total').innerText = cachedData.stats.careerTotal;
-            document.getElementById('sem-total').innerText = cachedData.stats.semesterTotal;
-            document.getElementById('home-sem-total').innerText = cachedData.stats.semesterTotal;
-            const mst = document.getElementById('mobile-sem-total');
-            if (mst) mst.innerText = cachedData.stats.semesterTotal;
-            document.getElementById('sem-label').innerText = cachedData.currentSemesterName;
-            document.getElementById('user-rank').innerText = `#${cachedData.rank}`;
-
-
-            handleMilestones(cachedData.stats.careerTotal);
-            renderForms();
-            updateLeaderboard('career');
-            renderFamilyUI();
-            updateClock();
-
-           // const switcher = document.getElementById('view-switcher-container');
-           // const userStatus = cachedData.profile.status;
-
-           // if (userStatus === "Codirector" || userStatus === "Manager") {
-            //    switcher.classList.remove('hidden');
-            //}
-
-            const histContainer = document.getElementById('history-container');
-            histContainer.innerHTML = [...cachedData.stats.history].reverse().map(h => `
-                <div class="flex items-center">
-                    <div class="w-24 text-[10px] font-black text-gray-400 uppercase tracking-tighter">${h.semester}</div>
-                    <div class="flex-1 h-2.5 bg-gray-100 rounded-full overflow-hidden mx-3">
-                        <div class="h-full bg-primary-gold" style="width: ${Math.min((h.count / 40) * 100, 100)}%"></div>
-                    </div>
-                    <div class="w-8 text-right font-black text-xs">${h.count}</div>
-                </div>
-            `).join('');
-if (cachedData.tours) {
-    // Build TGIT lookup map for guides: "YYYY-MM-DD|type" → tgit assignment
-    window.myTGITMap = {};
-    if (cachedData.tgitData && cachedData.tgitData.role === 'guide' && cachedData.tgitData.myTGITMap) {
-        window.myTGITMap = cachedData.tgitData.myTGITMap;
-    }
-
-    // 1. Create your personal list (used for Home and Lock logic)
-    const myTours = cachedData.tours.filter(tour => {
-        const cleanName = tour.guide.replace(/[*~+`]/g, '').trim();
-        return cleanName.toLowerCase() === cachedData.profile.displayName.toLowerCase();
-    });
-
-    // 2. Keep your existing schedule view call
-    updateScheduleView(myTours, cachedData.profile.displayName);
-    
-    // 3. Add the Home Screen "Next Tour" box
-    renderHomeNextTour(myTours);
-
-    // 4. Add the two new Lock Logic lines
-    checkTourLock(myTours); 
-    setInterval(() => checkTourLock(myTours), 60000); 
-    renderWelcomeCenter(cachedData.tours);
-}
-
-            // Hide overlay
-            const bar = document.getElementById('loading-bar');
-            const status = document.getElementById('loading-status');
-            if (bar) bar.style.width = '100%';
-            if (status) status.innerText = 'Ready';
-            setTimeout(() => {
-                document.getElementById('loading-overlay').classList.add('opacity-0');
-                setTimeout(() => document.getElementById('loading-overlay').style.display = 'none', 500);
-            }, 350);
-
-            const myToursForHome = cachedData.tours.filter(tour => {
-            const cleanName = tour.guide.replace(/[*~`]/g, '').trim();
-            return cleanName.toLowerCase() === cachedData.profile.displayName.toLowerCase();
-            });
-
-            renderHomeNextTour(myToursForHome);
+            // Regular accounts — continue loading directly
+            await continueInit();
 
         } catch (e) {
             console.error(e);
-            if (e.name === 'AbortError') {
-                // Handled by the timeoutId already
-            } else {
+            if (e.name !== 'AbortError') {
                 showError(e.message.toUpperCase().replace(/\s+/g, '_'));
             }
         }
-    document.getElementById('bn-home')?.classList.add('active');
-
     }
 
     function showView(viewId) {
