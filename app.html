@@ -2288,7 +2288,7 @@ async function continueInit() {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => {
             controller.abort();
-            showError("TIMEOUT_10S");
+            showError("504 TIMEOUT");
         }, 10000);
 
         try {
