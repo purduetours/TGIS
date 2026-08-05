@@ -383,6 +383,24 @@ window.onload = async () => {
     profileData = data;
     userRole    = (data.role || '').trim();
 
+    // Check if already submitted
+    if (data.alreadySubmitted) {
+      document.getElementById('status-overlay').innerHTML = `
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:2rem;text-align:center;">
+          <div style="font-size:3rem;margin-bottom:1rem;">✅</div>
+          <p style="font-size:9px;font-weight:900;letter-spacing:0.3em;text-transform:uppercase;color:#CFB991;margin-bottom:8px;">Purdue University</p>
+          <h1 style="font-size:1.75rem;font-weight:900;margin:0 0 8px;">Already Submitted</h1>
+          <p style="font-size:13px;font-weight:700;color:#6B7280;max-width:320px;line-height:1.6;">
+            Hey ${data.fullName.split(' ')[0]}! You've already completed the Fall 2026 Census. No further action is needed.
+          </p>
+          <a href="https://purduetours.github.io/TGIS/app.html?user=${encodeURIComponent(username)}"
+             style="margin-top:1.5rem;background:#CFB991;color:#0f0c04;font-weight:900;font-size:11px;text-transform:uppercase;letter-spacing:0.12em;padding:0.875rem 1.5rem;border-radius:0.875rem;text-decoration:none;">
+            Back to TGIS
+          </a>
+        </div>`;
+      return;
+    }
+
     renderProfileDisplay(data);
     buildGradOptions();
     buildDeskSection();
