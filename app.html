@@ -2289,7 +2289,7 @@ async function continueInit() {
         const timeoutId = setTimeout(() => {
             controller.abort();
             showError("504 TIMEOUT");
-        }, 10000);
+        }, 20000);
 
         try {
             const res = await fetch(`${scriptURL}?user=${userName}`, { signal: controller.signal });
