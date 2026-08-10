@@ -448,14 +448,14 @@ body { font-family: 'Inter',sans-serif; background: var(--bg); color: var(--text
 <!-- ── MAIN CONTENT ── -->
 <div id="admin-main" style="margin-left:260px;padding:1.5rem;min-height:100vh;">
 
-  <!-- Unsaved changes bar (inline, not floating since sidebar takes space) -->
+  <!-- 
   <div id="inline-dirty-bar" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:1rem;padding:0.75rem 1.25rem;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
     <span id="save-bar-count" style="font-size:12px;font-weight:800;color:var(--text);"></span>
     <div style="display:flex;gap:0.5rem;">
       <button class="btn-gold" onclick="saveAllChanges()">Save All Changes</button>
       <button class="btn-ghost" style="padding:0.5rem 0.875rem;font-size:11px;" onclick="discardChanges()">Discard</button>
     </div>
-  </div>
+  </div> -->
 
     <!-- ── TRACKER TAB ── -->
     <div id="tab-tracker" class="tab-panel active">
@@ -1086,9 +1086,6 @@ function cellChanged(input) {
 function updateDirtyUI() {
   const count = Object.keys(dirty).length;
   document.getElementById('stat-dirty').innerText = count;
-  const bar = document.getElementById('save-bar');
-  bar.classList.toggle('show', count > 0);
-  document.getElementById('save-bar-count').innerText = `${count} unsaved change${count !== 1 ? 's' : ''}`;
 }
 
 async function saveAllChanges() {
