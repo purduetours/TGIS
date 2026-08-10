@@ -828,6 +828,7 @@ async function loadApp() {
     renderStats();
     renderGrid();
     renderActivityLog();
+    loadFamilyData();
 
     clearInterval(loadBarTimer);
     document.getElementById('load-bar').style.width = '100%';
@@ -868,7 +869,7 @@ function adminSwitchTab(name) {
   // Lazy triggers
   if (name === 'census')   renderCensus();
   if (name === 'schedule') { loadMgrTours().then(() => renderSchedule()); }
-  if (name === 'families') renderFamilyGroups();
+  if (name === 'families') { if (!window._familyData) loadFamilyData(); else renderFamilyGroupsUI(window._familyData); }
   if (name === 'tgit')     { loadTGITTab(); }
   if (name === 'desk')     { loadMgrTours().then(() => renderDeskDashboard()); }
 
