@@ -675,9 +675,17 @@
 <div id="view-schedule" class="view-section">
 
     <!-- HEADER -->
-    <header class="mb-6">
-        <h1 class="text-3xl font-black">Your Schedule</h1>
-        <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Tap a date to filter · scroll for full list</p>
+<header class="mb-6">
+        <div class="flex items-center justify-between gap-3">
+            <div>
+                <h1 class="text-3xl font-black">Your Schedule</h1>
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Tap a date to filter · scroll for full list</p>
+            </div>
+            <button onclick="downloadICalendar()"
+                    class="flex-shrink-0 flex items-center gap-1.5 border border-gray-200 text-gray-500 hover:border-primary-gold hover:text-primary-gold font-black text-[10px] uppercase tracking-widest px-3 py-2 rounded-xl transition-all">
+                <span>⬇</span> iCal
+            </button>
+        </div>
     </header>
 
     <!-- CALENDAR PANEL (sticky on mobile) -->
@@ -923,6 +931,63 @@ deskDate.setHours(0,0,0,0);
 function changeDeskDate(days) {
     deskDate.setDate(deskDate.getDate() + days);
     renderDeskDashboard();
+}
+
+function downloadICalendar() {
+    const myTours = window.currentMyTours || [];
+    if (!myTours.length) { alert('No tours to export.'); return; }
+
+    const TOUR_START = {
+        '9DV':[9,30],'0DV':[10,30],'0GV':[10,30],
+        '1DV':[13,30],'2DV':[14,30],'8PA':[8,15],
+        '1PA':[13,30],'2PA':[14,30],'1PF':[13,30],'EPF':[11,15]
+    };
+    const TOUR_DUR = {
+        '9DV':105,'0DV':105,'0GV':105,'1DV':105,'2DV':105,
+        '8PA':60,'1PA':60,'2PA':60,'1PF':105,'EPF':105
+    };
+
+    function pad(n) { return String(n).padStart(2,'0'); }
+
+    function toICalDate(date, h, m) {
+        const d = new Date(date); d.setHours(h, m, 0, 0);
+        return `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}T${pad(h)}${pad(m)}00`;
+    }
+
+    const lines = [
+        'BEGIN:VCALENDAR','VERSION:2.0',
+        'PRODID:-//TGIS//Tour Guide Schedule//EN',
+        'CALSCALE:GREGORIAN','METHOD:PUBLISH',
+        'X-WR-CALNAME:TGIS Tour Schedule',
+        'X-WR-TIMEZONE:America/Indiana/Indianapolis'
+    ];
+
+    myTours.forEach((tour, i) => {
+        const info    = TOUR_MAP[tour.type] || { name: tour.type };
+        const start   = TOUR_START[tour.type] || [8,0];
+        const dur     = TOUR_DUR[tour.type]   || 60;
+        const endH    = Math.floor((start[1] + dur) / 60) + start[0];
+        const endM    = (start[1] + dur) % 60;
+        const dtStart = toICalDate(tour.date, start[0], start[1]);
+        const dtEnd   = toICalDate(tour.date, endH, endM);
+
+        lines.push('BEGIN:VEVENT');
+        lines.push(`UID:tgis-${i}-${dtStart}@purduetours`);
+        lines.push(`DTSTART:${dtStart}`);
+        lines.push(`DTEND:${dtEnd}`);
+        lines.push(`SUMMARY:${info.name || tour.type}`);
+        lines.push('LOCATION:Purdue University - Visitor Center');
+        lines.push('DESCRIPTION:Scheduled tour via TGIS');
+        lines.push('END:VEVENT');
+    });
+
+    lines.push('END:VCALENDAR');
+
+    const blob = new Blob([lines.join('\r\n')], { type: 'text/calendar' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url; a.download = 'TGIS_Tour_Schedule.ics'; a.click();
+    URL.revokeObjectURL(url);
 }
 
 function renderForms() {
