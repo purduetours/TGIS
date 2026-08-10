@@ -417,6 +417,9 @@ body { font-family: 'Inter',sans-serif; background: var(--bg); color: var(--text
   <button class="nav-item" id="nav-desk" onclick="adminSwitchTab('desk')">
     <span class="nav-icon"></span> Desk Dashboard
   </button>
+    <button class="nav-item" id="nav-families" onclick="adminSwitchTab('families')">
+    <span class="nav-icon"></span> Family Groups
+  </button>
 
 <p class="nav-section-label">Training</p>
   <button class="nav-item" id="nav-tgit" onclick="adminSwitchTab('tgit')">
@@ -532,6 +535,43 @@ body { font-family: 'Inter',sans-serif; background: var(--bg); color: var(--text
 
     </div>
 
+    <!-- ── FAMILY GROUPS TAB ── -->
+<div id="tab-families" class="tab-panel">
+
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;">
+    <div>
+      <h1 style="font-size:1.75rem;font-weight:900;margin:0;">Family Groups</h1>
+      <p style="font-size:11px;font-weight:700;color:var(--subtext);text-transform:uppercase;letter-spacing:0.1em;margin:2px 0 0;">Semester competition standings &amp; assignments</p>
+    </div>
+    <button onclick="saveFamilyAssignments()" class="btn-gold" id="family-save-btn" style="display:none;">Save Assignments</button>
+  </div>
+
+  <!-- Standings row -->
+  <div id="family-standings-row" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1.5rem;"></div>
+
+  <!-- Assignment + roster grid -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+
+    <!-- Unassigned guides -->
+    <div class="card" style="padding:1.5rem;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+        <p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;color:var(--subtext);margin:0;">Unassigned Guides <span id="unassigned-count" style="color:#EF4444;"></span></p>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <select id="batch-family-select" class="inp" style="font-size:11px;padding:4px 8px;width:140px;">
+            <option value="">Assign selected to…</option>
+          </select>
+          <button onclick="batchAssign()" class="btn-sm" style="background:var(--gold-dim);color:var(--gold);">Assign</button>
+        </div>
+      </div>
+      <div id="unassigned-list" style="display:flex;flex-direction:column;gap:6px;max-height:500px;overflow-y:auto;"></div>
+    </div>
+
+    <!-- Family rosters -->
+    <div id="family-rosters" style="display:flex;flex-direction:column;gap:1rem;"></div>
+
+  </div>
+</div>
+  
     <!-- ── LOG TAB ── -->
     <div id="tab-log" class="tab-panel">
       <div class="card" style="padding:1.5rem;">
@@ -828,6 +868,7 @@ function adminSwitchTab(name) {
   // Lazy triggers
   if (name === 'census')   renderCensus();
   if (name === 'schedule') { loadMgrTours().then(() => renderSchedule()); }
+  if (name === 'families') renderFamilyGroups();
   if (name === 'tgit')     { loadTGITTab(); }
   if (name === 'desk')     { loadMgrTours().then(() => renderDeskDashboard()); }
 
@@ -1666,6 +1707,211 @@ async function saveFeedbackURL(week) {
   const cfg = (tgitAdminData?.weekConfigs||[]).find(c => c.week===week);
   if (cfg) cfg.feedbackURL = url;
   showToast(`Week ${week} feedback URL saved`);
+}
+
+// ─── FAMILY GROUPS ────────────────────────────────────────────────────────────
+let familyAssignmentChanges = {}; // displayName → newFamily
+
+const FAMILY_PALETTE = [
+  { bg:'#CFB991', glow:'rgba(207,185,145,0.3)', light:'rgba(207,185,145,0.1)' },
+  { bg:'#3B82F6', glow:'rgba(59,130,246,0.3)',  light:'rgba(59,130,246,0.08)' },
+  { bg:'#10B981', glow:'rgba(16,185,129,0.3)',  light:'rgba(16,185,129,0.08)' },
+  { bg:'#8B5CF6', glow:'rgba(139,92,246,0.3)',  light:'rgba(139,92,246,0.08)' },
+  { bg:'#EF4444', glow:'rgba(239,68,68,0.3)',   light:'rgba(239,68,68,0.08)'  },
+  { bg:'#06B6D4', glow:'rgba(6,182,212,0.3)',   light:'rgba(6,182,212,0.08)'  },
+];
+
+function renderFamilyGroups() {
+  const guides  = D.adminData.trackerGrid || [];
+  const special = D.adminData.specialRequests || [];
+  const counted = D.adminData.countedLog || [];
+
+  // Derive families from guides where role is Codirector
+  const codirectors = guides.filter(g => {
+    const c = D.adminData.censusData?.[g.displayName];
+    return c?.role === 'Codirector' || c?.role === 'Manager';
+  }).map(g => g.displayName.split(' ')[0]); // first name only
+
+  // Also collect any family names already assigned (col D)
+  const assignedFamilies = new Set();
+  guides.forEach(g => {
+    // family comes from the trackerGrid — we stored it earlier via semesters or we need to get it
+    // Use the familyName if we have it, else derive from codirector list
+  });
+
+  // Build family → guides map using displayName's family assignment
+  // We'll use D.fullLeaderboard which has family from profile
+  const familyMap = {}; // familyName → [guide objects]
+  const personalPts = {}; // displayName → pts
+
+  // Compute personal points from countedLog (+) and specialRequests
+  counted.forEach(ct => {
+    if (ct.isSpecial) return;
+    // Check if guide name has + in original — we don't have that here
+    // Use countedLog for personal contribution approximation
+  });
+  special.forEach(sr => {
+    personalPts[sr.guide] = (personalPts[sr.guide] || 0) + (sr.count * 4);
+  });
+
+  // Get family assignments from fullLeaderboard profile data
+  // The main doGet returns profile.family — admin fetch returns trackerGrid
+  // We need to make an extra call or use what we have
+  // trackerGrid has semesters{} — family is NOT in there
+  // Best approach: fetch family data separately
+  loadFamilyData();
+}
+
+async function loadFamilyData() {
+  try {
+    const res  = await fetch(`${SCRIPT_URL}?user=${encodeURIComponent(userName)}&admin=true&families=true`);
+    const data = await res.json();
+    const fd   = data.adminData?.familyData;
+    if (!fd) { renderFamilyGroupsUI(null); return; }
+    renderFamilyGroupsUI(fd);
+  } catch(e) {
+    console.error(e);
+    renderFamilyGroupsUI(null);
+  }
+}
+
+function renderFamilyGroupsUI(fd) {
+  const guides = D.adminData.trackerGrid || [];
+
+  if (!fd) {
+    document.getElementById('family-standings-row').innerHTML =
+      `<p style="font-size:12px;color:var(--subtext);font-style:italic;grid-column:1/-1;">Could not load family data — make sure backend is updated.</p>`;
+    return;
+  }
+
+  const families      = fd.families;      // [{name, totalPts, members:[{displayName, pts}]}]
+  const unassigned    = fd.unassigned;    // [{displayName, currentSem, careerTotal}]
+  const allFamilyNames = families.map(f => f.name);
+  const maxPts        = Math.max(1, ...families.map(f => f.totalPts));
+
+  // ── STANDINGS ROW ──────────────────────────────────────────────────────────
+  const standingsEl = document.getElementById('family-standings-row');
+  const sorted = [...families].sort((a,b) => b.totalPts - a.totalPts);
+  standingsEl.innerHTML = sorted.map((fam, i) => {
+    const color = FAMILY_PALETTE[i % FAMILY_PALETTE.length];
+    const pct   = Math.round((fam.totalPts / maxPts) * 100);
+    const medals = ['🥇','🥈','🥉'];
+    return `
+      <div class="card" style="padding:1.25rem;border:1.5px solid ${color.glow};cursor:pointer;"
+           onclick="scrollToFamily('${fam.name}')">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.75rem;">
+          <span style="font-size:1.1rem;">${medals[i]||''}</span>
+          <div style="width:10px;height:10px;border-radius:50%;background:${color.bg};flex-shrink:0;"></div>
+          <p style="font-size:14px;font-weight:900;margin:0;">${fam.name} Family</p>
+        </div>
+        <p style="font-size:1.75rem;font-weight:900;color:${color.bg};margin:0 0 6px;line-height:1;">${fam.totalPts}</p>
+        <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtext);margin:0 0 8px;">${fam.members.length} guides · ${pct}% of leader</p>
+        <div style="height:4px;background:var(--border);border-radius:99px;overflow:hidden;">
+          <div style="height:100%;width:${pct}%;background:${color.bg};border-radius:99px;"></div>
+        </div>
+      </div>`;
+  }).join('');
+
+  // Populate batch assign dropdown
+  const batchSel = document.getElementById('batch-family-select');
+  batchSel.innerHTML = '<option value="">Assign selected to…</option>' +
+    allFamilyNames.map(n => `<option value="${n}">${n} Family</option>`).join('');
+
+  // ── UNASSIGNED LIST ────────────────────────────────────────────────────────
+  const unassignedEl = document.getElementById('unassigned-list');
+  document.getElementById('unassigned-count').innerText = unassigned.length ? `(${unassigned.length})` : '';
+
+  if (!unassigned.length) {
+    unassignedEl.innerHTML = `<p style="font-size:12px;color:var(--subtext);font-style:italic;">All guides are assigned to a family.</p>`;
+  } else {
+    unassignedEl.innerHTML = unassigned.map(g => `
+      <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;border:1px solid var(--border);background:var(--row-hover);">
+        <input type="checkbox" class="unassigned-check" data-guide="${g.displayName}"
+               style="accent-color:var(--gold);width:14px;height:14px;flex-shrink:0;">
+        <span style="flex:1;font-size:13px;font-weight:700;">${g.displayName}</span>
+        <select class="inline-family-sel inp" data-guide="${g.displayName}"
+                style="font-size:11px;padding:3px 6px;width:130px;" onchange="markFamilyChange('${g.displayName}', this.value)">
+          <option value="">No family</option>
+          ${allFamilyNames.map(n=>`<option value="${n}">${n}</option>`).join('')}
+        </select>
+      </div>`).join('');
+  }
+
+  // ── FAMILY ROSTERS ─────────────────────────────────────────────────────────
+  const rostersEl = document.getElementById('family-rosters');
+  rostersEl.innerHTML = families.map((fam, i) => {
+    const color = FAMILY_PALETTE[i % FAMILY_PALETTE.length];
+    const membersSorted = [...fam.members].sort((a,b) => b.pts - a.pts);
+    return `
+      <div class="card" id="family-roster-${fam.name}" style="padding:1.5rem;border-left:4px solid ${color.bg};">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+          <p style="font-size:13px;font-weight:900;margin:0;">${fam.name} Family
+            <span style="font-size:10px;font-weight:700;color:var(--subtext);margin-left:6px;">${fam.members.length} guides</span>
+          </p>
+          <span style="font-size:1.1rem;font-weight:900;color:${color.bg};">${fam.totalPts} pts</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:5px;max-height:280px;overflow-y:auto;">
+          ${membersSorted.map(m => `
+            <div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:8px;background:var(--row-hover);">
+              <span style="flex:1;font-size:12px;font-weight:700;">${m.displayName}</span>
+              <span style="font-size:11px;font-weight:900;color:${color.bg};">+${m.pts} pts</span>
+              <button onclick="removeFamilyMember('${m.displayName}')"
+                      style="background:none;border:none;cursor:pointer;color:var(--subtext);font-size:11px;padding:0 2px;"
+                      title="Remove from family">✕</button>
+            </div>`).join('')}
+        </div>
+      </div>`;
+  }).join('');
+
+  window._familyData = fd;
+}
+
+function scrollToFamily(name) {
+  const el = document.getElementById(`family-roster-${name}`);
+  if (el) el.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+function markFamilyChange(displayName, family) {
+  familyAssignmentChanges[displayName] = family;
+  document.getElementById('family-save-btn').style.display = 'block';
+}
+
+function batchAssign() {
+  const target = document.getElementById('batch-family-select').value;
+  if (!target) { showToast('Select a family first', true); return; }
+  document.querySelectorAll('.unassigned-check:checked').forEach(cb => {
+    const guide = cb.dataset.guide;
+    familyAssignmentChanges[guide] = target;
+    // Update the inline dropdown
+    const sel = document.querySelector(`.inline-family-sel[data-guide="${guide}"]`);
+    if (sel) sel.value = target;
+  });
+  document.getElementById('family-save-btn').style.display = 'block';
+  showToast(`${Object.keys(familyAssignmentChanges).length} assignment(s) queued — click Save to apply`);
+}
+
+function removeFamilyMember(displayName) {
+  familyAssignmentChanges[displayName] = '';
+  document.getElementById('family-save-btn').style.display = 'block';
+  showToast(`${displayName} queued for removal — click Save to apply`);
+}
+
+async function saveFamilyAssignments() {
+  const changes = Object.entries(familyAssignmentChanges);
+  if (!changes.length) { showToast('No changes to save', true); return; }
+
+  await postAction({
+    action: 'updateFamilyAssignments',
+    assignments: familyAssignmentChanges,
+    adminUser: userName
+  });
+
+  familyAssignmentChanges = {};
+  document.getElementById('family-save-btn').style.display = 'none';
+  showToast(`${changes.length} assignment(s) saved`);
+
+  // Reload family data
+  loadFamilyData();
 }
 
 
