@@ -1,0 +1,3536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0f0c04">
+<title>TGIS</title>
+<link rel="apple-touch-icon" href="TGISv3.png">
+<link rel="icon" type="image/png" href="TGISv3.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+    theme: {
+        extend: {
+            fontFamily: {
+                display: ['Space Grotesk', 'sans-serif'],
+                sans: ['Inter', 'sans-serif']
+            },
+            colors: {
+                'gold': '#CEB888',
+                'gold-light': '#F5EDD8',
+                'gold-mid': '#E8D5A3',
+                'ink': '#1a1510',
+                'stone': '#F9F6F0',
+                'mid': '#8C7B5E',
+                'primary-gold': '#CEB888',
+                'text-dark': '#374151',
+                'status-green': '#10B981',
+                'tgis-blue': '#1D4ED8',
+                'desk-shift-blue': '#1D4ED8',
+                'guide-bg-1': '#FEE2E2', 'guide-text-1': '#991B1B',
+                'guide-bg-2': '#FEF3C7', 'guide-text-2': '#92400E',
+                'guide-bg-3': '#D1FAE5', 'guide-text-3': '#065F46',
+                'guide-bg-4': '#DBEAFE', 'guide-text-4': '#1E40AF',
+                'guide-bg-5': '#F3E8FF', 'guide-text-5': '#5B21B6',
+                'guide-bg-6': '#FFFBEB', 'guide-text-6': '#713F12',
+                'guide-bg-7': '#F0F9FF', 'guide-text-7': '#075985',
+                'guide-bg-8': '#F0FDF4', 'guide-text-8': '#166534',
+                'guide-bg-9': '#FDF2F8', 'guide-text-9': '#9D174D',
+                'guide-bg-10': '#F9FAFB', 'guide-text-10': '#374151',
+            }
+        }
+    }
+}
+</script>
+<style>
+/* ── Design tokens ─────────────────────────────────────────── */
+:root {
+    --gold:      #CEB888;
+    --gold-lt:   #F5EDD8;
+    --ink:       #1a1510;
+    --stone:     #F9F6F0;
+    --mid:       #8C7B5E;
+    --border:    #EDE8DF;
+    --white:     #FFFFFF;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: var(--stone);
+    color: var(--ink);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+    margin: 0;
+}
+
+/* ── Sidebar ───────────────────────────────────────────────── */
+#sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 100vh; width: 18rem;
+    background: var(--ink);
+    border-right: 1px solid rgba(206,184,136,0.12);
+    padding: 2rem 1.5rem;
+    z-index: 40;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-logo {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(206,184,136,0.5);
+    margin-bottom: 4px;
+}
+.sidebar-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.2;
+    margin-bottom: 1.75rem;
+}
+.sidebar-title span { color: var(--gold); }
+
+.sidebar-profile {
+    background: rgba(206,184,136,0.06);
+    border: 1px solid rgba(206,184,136,0.15);
+    border-radius: 0.875rem;
+    padding: 0.875rem 1rem;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+.sidebar-avatar {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    background: var(--gold);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 0.9rem; color: var(--ink);
+    flex-shrink: 0;
+}
+
+.nav-label {
+    font-size: 0.55rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.2);
+    padding: 0 0.25rem;
+    margin: 1.25rem 0 0.375rem;
+}
+.nav-label:first-of-type { margin-top: 0; }
+
+.nav-button {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.625rem 0.75rem;
+    border-radius: 0.625rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.45);
+    cursor: pointer;
+    margin-bottom: 1px;
+    transition: all 0.15s;
+    border-left: 2px solid transparent;
+}
+.nav-button:hover { color: rgba(255,255,255,0.75); background: rgba(255,255,255,0.04); }
+.nav-button.active {
+    color: var(--gold);
+    background: rgba(206,184,136,0.08);
+    border-left-color: var(--gold);
+}
+
+.sidebar-footer {
+    margin-top: auto;
+    padding-top: 1.25rem;
+    border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+/* ── Content area ───────────────────────────────────────────── */
+.content-area {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 1.75rem 2rem;
+    padding-bottom: calc(env(safe-area-inset-bottom) + 100px);
+    margin-left: 18rem;
+    transition: margin 0.3s ease;
+    background: var(--stone);
+}
+
+@media (max-width: 1024px) {
+    .content-area {
+        margin-left: 0;
+        padding: 1rem;
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: calc(env(safe-area-inset-bottom) + 100px);
+    }
+    #sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+    #sidebar.open { transform: translateX(0); }
+}
+
+/* ── View sections ──────────────────────────────────────────── */
+.view-section { display: none; }
+.view-section.active { display: block; animation: fadeUp 0.25s ease-out; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── Page headers ───────────────────────────────────────────── */
+.page-eyebrow {
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 4px;
+}
+.page-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.1;
+    margin-bottom: 2px;
+}
+.page-subtitle {
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--mid);
+    letter-spacing: 0.05em;
+    margin-bottom: 1.5rem;
+}
+
+/* ── Cards ──────────────────────────────────────────────────── */
+.card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    padding: 1.25rem;
+}
+.card-dark {
+    background: var(--ink);
+    border: 1px solid rgba(206,184,136,0.2);
+    border-radius: 1rem;
+    padding: 1.25rem;
+}
+
+/* ── Stat boxes ─────────────────────────────────────────────── */
+.stat-box { text-align: center; }
+.stat-num {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1;
+}
+.stat-label {
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--mid);
+    margin-top: 4px;
+}
+
+/* ── Badges / pills ─────────────────────────────────────────── */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.55rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 99px;
+}
+.badge-gold  { background: rgba(206,184,136,0.15); color: #92400E; border: 1px solid rgba(206,184,136,0.4); }
+.badge-green { background: rgba(16,185,129,0.1); color: #065F46; border: 1px solid rgba(16,185,129,0.3); }
+.badge-red   { background: rgba(239,68,68,0.1);  color: #991B1B; border: 1px solid rgba(239,68,68,0.3); }
+.badge-purple{ background: rgba(139,92,246,0.1); color: #5B21B6; border: 1px solid rgba(139,92,246,0.3); }
+
+/* ── Ruled list ─────────────────────────────────────────────── */
+.ruled-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border);
+}
+.ruled-row:last-child { border-bottom: none; }
+
+/* ── Leaderboard rows ───────────────────────────────────────── */
+.lb-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.625rem 0.875rem;
+    border-radius: 0.625rem;
+    margin-bottom: 4px;
+    font-size: 0.8125rem;
+}
+.lb-row.me { background: rgba(206,184,136,0.12); outline: 1px solid rgba(206,184,136,0.4); }
+
+/* ── Schedule tour cards ────────────────────────────────────── */
+.tour-card {
+    border-radius: 0.75rem;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    margin-bottom: 6px;
+}
+.tour-card-body {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+}
+.tour-stripe {
+    width: 3px;
+    min-width: 3px;
+    height: 32px;
+    border-radius: 99px;
+}
+
+/* ── Form cards ─────────────────────────────────────────────── */
+.form-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+@media (min-width: 768px) {
+    .form-card { flex-direction: row; align-items: center; }
+}
+.form-card-accent { border-left-width: 4px; }
+
+/* ── Desk shift cards ───────────────────────────────────────── */
+.shift-card {
+    border-radius: 0.75rem;
+    border: 1px solid var(--border);
+    padding: 0.875rem 1rem;
+    background: var(--white);
+}
+
+/* ── Toggle button ──────────────────────────────────────────── */
+.toggle-btn {
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.375rem 0.875rem;
+    border-radius: 0.5rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: var(--mid);
+    background: transparent;
+}
+.toggle-btn.active {
+    background: var(--white);
+    color: var(--ink);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+/* ── Float nav (mobile) ─────────────────────────────────────── */
+.bottom-nav-dedicated {
+    position: fixed;
+    bottom: calc(env(safe-area-inset-bottom) + 12px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 2rem);
+    max-width: 420px;
+    height: 64px;
+    border-radius: 99px;
+    background: rgba(26,21,16,0.88);
+    backdrop-filter: blur(24px) saturate(160%);
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+    border: 1px solid rgba(206,184,136,0.2);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.06);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 0 0.75rem;
+    flex-shrink: 0;
+    z-index: 100;
+}
+.bn-btn {
+    color: rgba(255,255,255,0.3);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    min-width: 44px;
+    transition: color 0.15s;
+}
+.bn-btn.active { color: var(--gold); }
+.bn-btn svg { transition: transform 0.15s ease; }
+.bn-btn.active svg { transform: translateY(-1px); }
+
+/* ── History bar ────────────────────────────────────────────── */
+.hist-bar {
+    height: 6px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+    flex: 1;
+    margin: 0 0.75rem;
+}
+.hist-fill { height: 100%; background: var(--gold); border-radius: 99px; }
+
+/* ── Calendar ───────────────────────────────────────────────── */
+.schedule-grid { display: grid; grid-template-columns: 1fr; gap: 2rem; }
+@media (min-width: 1024px) { .schedule-grid { grid-template-columns: 400px 1fr; } }
+.calendar-day {
+    aspect-ratio: 1/1;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    border-radius: 0.625rem;
+    font-size: 0.75rem; font-weight: 700;
+    cursor: pointer; transition: all 0.15s;
+}
+.calendar-day.has-tour { background: var(--gold); color: var(--ink); }
+
+/* ── Desk dashboard ─────────────────────────────────────────── */
+.desk-card {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 1rem;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+}
+@keyframes pulseBorder {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(139,92,246,0); border-color: #8B5CF6; }
+    50%       { box-shadow: 0 0 0 6px rgba(139,92,246,0.12); border-color: #a78bfa; }
+}
+
+/* ── Status pills (desk) ────────────────────────────────────── */
+.status-pill-red  { background: #FEE2E2; border: 1px solid #EF4444; color: #B91C1C; }
+.status-pill-gray { background: #F3F4F6; border: 1px solid #D1D5DB; color: #4B5563; opacity: 0.7; }
+
+/* ── Family / standings ─────────────────────────────────────── */
+.podium-container { display: flex; align-items: flex-end; justify-content: center; gap: 8px; height: 200px; }
+.podium-base { width: 70px; display: flex; flex-direction: column; align-items: center; border-radius: 12px 12px 0 0; }
+.rank-1 { height: 150px; background: var(--gold); border: 2px solid #b39a6d; }
+.rank-2 { height: 110px; background: #E5E7EB; border: 2px solid #D1D5DB; }
+.rank-3 { height: 80px; background: #FFEDD5; border: 2px solid #FED7AA; }
+.rank-4 { height: 50px; background: #f3f4f6; border: 1px dashed #ccc; }
+
+/* ── Milestone badges ───────────────────────────────────────── */
+.badge-active { opacity: 1 !important; filter: grayscale(0) !important; filter: drop-shadow(0 0 8px rgba(206,184,136,0.5)); }
+
+/* ── Retirement screen ──────────────────────────────────────── */
+@keyframes shimmer { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+.retirement-screen { animation: fadeInUp 1s ease-out; }
+.gold-shimmer-text {
+    background: linear-gradient(90deg, #CEB888, #f5e6c8, #b39a6d, #f5e6c8, #CEB888);
+    background-size: 200% auto;
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 4s linear infinite;
+}
+.certificate-frame {
+    border: 3px solid var(--gold);
+    box-shadow: 0 0 0 6px rgba(206,184,136,0.15), 0 0 0 10px var(--gold), 0 0 0 14px rgba(206,184,136,0.15), 0 30px 60px rgba(0,0,0,0.4);
+}
+
+/* ── Loading & wrapped ──────────────────────────────────────── */
+.loader { border-top-color: var(--gold); border-left-color: var(--gold); animation: spinner 0.8s cubic-bezier(0.4,0,0.2,1) infinite; }
+@keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+@keyframes pulse-soft { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+.loading-text { animation: pulse-soft 2s ease-in-out infinite; }
+#wrapped-popup { position: fixed; bottom: 5.5rem; left: 50%; transform: translateX(-50%) translateY(20px); opacity: 0; z-index: 200; transition: all 0.5s cubic-bezier(0.22,1,0.36,1); pointer-events: none; width: calc(100% - 2rem); max-width: 24rem; }
+#wrapped-popup.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: all; }
+.up-next-badge { background: rgba(255,255,255,0.2); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.3); padding: 0.4rem 0.8rem; border-radius: 99px; font-size: 0.65rem; font-weight: 900; letter-spacing: 0.15em; text-transform: uppercase; display: inline-flex; align-items: center; gap: 0.5rem; }
+
+/* ── Desk table ─────────────────────────────────────────────── */
+.guide-row { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem; border-bottom: 1px solid #F9FAFB; }
+</style>
+</head>
+<body>
+
+<!-- LOADING OVERLAY -->
+<div id="loading-overlay" class="fixed inset-0 z-[100] flex flex-col items-center justify-center transition-opacity duration-500" style="background:var(--ink);">
+    <div id="loader-content" class="flex flex-col items-center w-full max-w-xs px-8">
+        <div style="margin-bottom:2.5rem;text-align:center;">
+            <img src="TGISv3.png" alt="TGIS" style="max-width:120px;height:auto;margin:0 auto;display:block;opacity:0.9;">
+        </div>
+        <div style="width:100%;height:1px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden;margin-bottom:1.25rem;">
+            <div id="loading-bar" style="height:100%;width:0%;background:var(--gold);border-radius:99px;transition:width 0.6s ease;"></div>
+        </div>
+        <p id="loading-status" class="loading-text" style="font-size:0.6rem;font-weight:700;letter-spacing:0.25em;text-transform:uppercase;color:rgba(255,255,255,0.25);">Connecting...</p>
+    </div>
+    <div id="error-content" class="hidden flex flex-col items-center w-full max-w-xs px-8 text-center">
+        <p style="font-size:0.6rem;font-weight:700;letter-spacing:0.25em;text-transform:uppercase;color:rgba(239,68,68,0.7);margin-bottom:0.75rem;">System Error</p>
+        <p id="error-code-display" style="font-family:monospace;font-size:0.875rem;color:rgba(255,255,255,0.5);margin-bottom:1.5rem;"></p>
+        <button onclick="location.reload()" style="background:var(--gold);color:var(--ink);font-size:0.6rem;font-weight:800;letter-spacing:0.15em;text-transform:uppercase;padding:0.625rem 1.25rem;border-radius:99px;border:none;cursor:pointer;">Retry</button>
+    </div>
+</div>
+
+<!-- SIDEBAR (desktop) -->
+<nav id="sidebar">
+    <div class="sidebar-logo">Purdue University</div>
+    <div class="sidebar-title">TGIS <span>Portal</span></div>
+
+    <div class="sidebar-profile">
+        <div id="profile-initial" class="sidebar-avatar">?</div>
+        <div style="min-width:0;">
+            <p id="sidebar-name" style="font-size:0.8125rem;font-weight:700;color:#fff;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Loading...</p>
+            <p id="sidebar-status" style="font-size:0.6rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:rgba(206,184,136,0.55);margin:1px 0 0;">Syncing...</p>
+        </div>
+    </div>
+
+    <div id="view-switcher-container" class="hidden" style="border-bottom:1px solid rgba(255,255,255,0.06);padding-bottom:1rem;margin-bottom:0.5rem;">
+        <select id="view-selector" onchange="handleViewChange(this.value)" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:0.625rem;padding:0.5rem 0.75rem;font-size:0.75rem;font-weight:600;color:#fff;outline:none;">
+            <option value="student">Student View</option>
+            <option value="manager">Manager View</option>
+        </select>
+    </div>
+
+    <div id="nav-home" class="nav-button active" onclick="switchView('home')">Home</div>
+    <div id="nav-schedule" class="nav-button" onclick="switchView('schedule')">Schedule</div>
+    <div id="nav-tracker" class="nav-button" onclick="switchView('tracker')">Tour Tracker</div>
+    <div id="nav-families" class="nav-button" onclick="switchView('families')">Family Cup</div>
+    <div id="nav-desk" class="nav-button" onclick="switchView('desk')">Desk Schedule</div>
+    <div id="nav-forms" class="nav-button" onclick="switchView('forms')">Forms</div>
+    <div id="nav-desk-dashboard" class="nav-button hidden" onclick="switchView('desk-dashboard')">Desk Dashboard</div>
+
+    <div class="sidebar-footer">
+        <button id="close-menu" class="lg:hidden" style="background:none;border:none;color:rgba(255,255,255,0.25);font-size:0.6rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;padding:0;">Close</button>
+        <button onclick="signOut()" style="background:none;border:none;color:rgba(255,255,255,0.2);font-size:0.6rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;padding:0;display:block;margin-top:6px;transition:color 0.15s;" onmouseover="this.style.color='rgba(239,68,68,0.6)'" onmouseout="this.style.color='rgba(255,255,255,0.2)'">Sign Out</button>
+    </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<div class="content-area p-4 sm:p-8">
+
+<!-- ── HOME ── -->
+<div id="view-home" class="view-section active">
+
+  <!-- MOBILE HOME -->
+  <div class="lg:hidden" style="margin:calc(-1rem - env(safe-area-inset-top)) -1rem 0;padding-bottom:1.5rem;">
+    <div style="position:relative;overflow:hidden;margin-top:calc(-1 * env(safe-area-inset-top));height:calc(240px + env(safe-area-inset-top));">
+      <img src="arch.jpeg" alt="Purdue" style="width:100%;height:100%;object-fit:cover;object-position:center;">
+      <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(26,21,16,0.2) 0%,rgba(26,21,16,0.75) 100%);"></div>
+      <div style="position:absolute;bottom:1.25rem;left:1.25rem;right:1.25rem;">
+        <p style="font-size:0.55rem;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:rgba(206,184,136,0.7);margin:0 0 3px;">Purdue University</p>
+        <h1 style="font-family:'Space Grotesk',sans-serif;font-size:1.625rem;font-weight:700;color:#fff;margin:0;line-height:1.15;">Welcome, <span id="welcome-name-mobile" style="color:var(--gold);"></span></h1>
+        <p id="live-clock-mobile" style="font-size:0.6rem;font-weight:500;color:rgba(255,255,255,0.45);letter-spacing:0.08em;margin:4px 0 0;"></p>
+      </div>
+    </div>
+
+    <div style="padding:0 1rem;display:flex;flex-direction:column;gap:0.875rem;margin-top:1rem;">
+
+      <!-- Profile card -->
+      <div onclick="switchView('tracker')" style="background:var(--ink);border:1px solid rgba(206,184,136,0.18);border-radius:1.125rem;padding:1.125rem 1.25rem;cursor:pointer;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.875rem;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div id="mobile-profile-initial" style="width:38px;height:38px;border-radius:8px;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:0.9rem;font-weight:800;color:var(--ink);flex-shrink:0;"></div>
+            <div>
+              <p id="mobile-profile-name" style="font-size:0.875rem;font-weight:700;color:#fff;margin:0;"></p>
+              <p id="mobile-profile-role" style="font-size:0.6rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:rgba(206,184,136,0.55);margin:2px 0 0;"></p>
+            </div>
+          </div>
+          <span style="color:rgba(255,255,255,0.2);font-size:1rem;">›</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.625rem;">
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:0.75rem;padding:0.75rem;text-align:center;">
+            <p id="mobile-sem-total" style="font-family:'Space Grotesk',sans-serif;font-size:1.75rem;font-weight:700;color:#10B981;margin:0;line-height:1;">--</p>
+            <p style="font-size:0.55rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.25);margin:3px 0 0;">This Semester</p>
+          </div>
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:0.75rem;padding:0.75rem;text-align:center;">
+            <p id="mobile-upcoming" style="font-family:'Space Grotesk',sans-serif;font-size:1.75rem;font-weight:700;color:var(--gold);margin:0;line-height:1;">--</p>
+            <p style="font-size:0.55rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.25);margin:3px 0 0;">Upcoming</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Next tour card -->
+      <div onclick="switchView('schedule')" id="mobile-next-tour-card" style="background:#fff;border:1px solid var(--border);border-radius:1.125rem;padding:1.125rem 1.25rem;cursor:pointer;">
+        <p style="font-size:0.55rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--mid);margin:0 0 0.625rem;">Next Tour</p>
+        <div id="mobile-next-tour-inner">
+          <p style="font-size:0.8125rem;font-weight:500;color:rgba(0,0,0,0.25);font-style:italic;">No upcoming tours</p>
+        </div>
+      </div>
+
+      <!-- Today schedule card -->
+      <div onclick="switchView('schedule')" style="background:#fff;border:1px solid var(--border);border-radius:1.125rem;overflow:hidden;cursor:pointer;">
+        <div style="padding:0.875rem 1.125rem 0.625rem;border-bottom:1px solid var(--border);">
+          <p style="font-size:0.55rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--mid);margin:0;">Today's Schedule</p>
+        </div>
+        <div id="home-today-container" style="padding:0;">
+          <div style="padding:0.875rem 1.125rem;">
+            <p style="font-size:0.8125rem;font-weight:500;color:rgba(0,0,0,0.25);">No tours today</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alert card -->
+      <div style="background:#FEF3C7;border:1px solid #FDE68A;border-radius:1.125rem;padding:1rem 1.125rem;">
+        <div style="display:flex;align-items:flex-start;gap:10px;">
+          <span style="font-size:1.125rem;flex-shrink:0;margin-top:1px;">🛑</span>
+          <div>
+            <p style="font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:0.04em;color:#92400E;margin:0 0 3px;">Use Caution Inside Ford</p>
+            <p style="font-size:0.7rem;font-weight:500;color:#92400E;margin:0;line-height:1.5;">Only give your stop inside if there are no groups and the room is clear.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- DESKTOP HOME -->
+  <div class="hidden lg:block">
+    <div style="margin-bottom:1.75rem;">
+      <p class="page-eyebrow">Purdue Tour Guides</p>
+      <h1 style="font-family:'Space Grotesk',sans-serif;font-size:2rem;font-weight:700;color:var(--ink);margin:0 0 2px;">Welcome, <span id="welcome-name" style="color:var(--gold);">Guide</span></h1>
+      <p id="live-clock" style="font-size:0.7rem;font-weight:500;color:var(--mid);margin:0;letter-spacing:0.04em;">Loading...</p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+      <div class="card stat-box">
+        <p class="stat-label">This Semester</p>
+        <p id="home-sem-total" class="stat-num" style="color:#10B981;">--</p>
+        <p style="font-size:0.65rem;color:var(--mid);margin:3px 0 0;">tours given</p>
+      </div>
+      <div class="card stat-box">
+        <p class="stat-label">Upcoming</p>
+        <p id="home-upcoming-count" class="stat-num" style="color:var(--gold);">--</p>
+        <p style="font-size:0.65rem;color:var(--mid);margin:3px 0 0;">tours scheduled</p>
+      </div>
+    </div>
+
+    <p style="font-size:0.6rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--mid);margin-bottom:0.625rem;">Next Tour</p>
+    <div id="home-next-tour-container" class="mb-5">
+      <div style="border:2px dashed var(--border);border-radius:1rem;padding:1.25rem;text-align:center;">
+        <p style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(0,0,0,0.2);">No tours scheduled</p>
+      </div>
+    </div>
+
+    <p style="font-size:0.6rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--mid);margin-bottom:0.625rem;">Today's Schedule</p>
+    <div id="home-today-container-desktop" class="mb-5">
+      <div style="border:2px dashed var(--border);border-radius:1rem;padding:1rem;text-align:center;">
+        <p style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(0,0,0,0.2);">No tours today</p>
+      </div>
+    </div>
+
+    <div style="background:#FEF9EE;border:1px solid #FDE68A;border-radius:1rem;padding:1rem 1.25rem;display:flex;align-items:flex-start;gap:0.75rem;">
+      <span style="font-size:1.125rem;flex-shrink:0;">🛑</span>
+      <div>
+        <p style="font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:0.04em;color:#92400E;margin:0 0 3px;">Use Caution Inside Ford</p>
+        <p style="font-size:0.7rem;font-weight:500;color:#92400E;margin:0;line-height:1.5;">Only give your stop inside if there are no groups and the room is clear.</p>
+      </div>
+    </div>
+
+    <div style="background:#fff;border:1px solid var(--border);border-radius:1rem;overflow:hidden;margin-top:1rem;">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:0.875rem 1.125rem;border-bottom:1px solid var(--border);">
+        <p style="font-size:0.6rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--mid);margin:0;">Announcements</p>
+      </div>
+      <div class="ruled-row" style="padding:0.75rem 1.125rem;">
+        <div style="width:6px;height:6px;border-radius:50%;background:var(--gold);flex-shrink:0;"></div>
+        <div style="flex:1;">
+          <p style="font-size:0.8125rem;font-weight:600;margin:0;">Tour Tracker</p>
+          <p style="font-size:0.7rem;color:var(--mid);margin:1px 0 0;">Updated every Thursday</p>
+        </div>
+      </div>
+      <div class="ruled-row" style="padding:0.75rem 1.125rem;">
+        <div style="width:6px;height:6px;border-radius:50%;background:var(--border);flex-shrink:0;"></div>
+        <div style="flex:1;">
+          <p style="font-size:0.8125rem;font-weight:600;color:rgba(0,0,0,0.35);margin:0;">Construction Update</p>
+          <p style="font-size:0.6rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--mid);margin:1px 0 0;">Resolved</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── SCHEDULE ── -->
+<div id="view-schedule" class="view-section">
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
+    <div>
+      <p class="page-eyebrow">Tour Guide</p>
+      <h1 class="page-title">Your Schedule</h1>
+      <p class="page-subtitle">Tap a date to filter · scroll for full list</p>
+    </div>
+    <button onclick="downloadICalendar()" style="display:flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--border);border-radius:0.625rem;padding:0.5rem 0.875rem;font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--mid);cursor:pointer;transition:all 0.15s;white-space:nowrap;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--ink)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--mid)'">⬇ iCal</button>
+  </div>
+
+  <div id="schedule-calendar-panel" style="background:#fff;border:1px solid var(--border);border-radius:1rem;padding:1rem;margin-bottom:1.25rem;overflow:hidden;transition:max-height 0.4s ease;" class="overflow-hidden">
+    <div id="week-strip-container">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.875rem;">
+        <div style="display:flex;align-items:center;gap:0.5rem;">
+          <button onclick="changeWeekStrip(-1)" style="width:28px;height:28px;border-radius:50%;border:1px solid var(--border);background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.875rem;color:var(--mid);">‹</button>
+          <h2 id="week-strip-label" style="font-size:0.8125rem;font-weight:700;color:var(--ink);margin:0;"></h2>
+          <button onclick="changeWeekStrip(1)" style="width:28px;height:28px;border-radius:50%;border:1px solid var(--border);background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.875rem;color:var(--mid);">›</button>
+        </div>
+        <button onclick="expandToMonth()" id="expand-btn" style="font-size:0.6rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);background:rgba(206,184,136,0.1);border:1px solid rgba(206,184,136,0.3);border-radius:99px;padding:4px 10px;cursor:pointer;">Month ↓</button>
+      </div>
+      <div id="week-strip" class="grid grid-cols-7 gap-1.5"></div>
+      <div style="display:flex;align-items:center;gap:1rem;margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border);">
+        <div style="display:flex;align-items:center;gap:5px;"><div style="width:6px;height:6px;border-radius:50%;background:#10B981;"></div><span style="font-size:0.6rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--mid);">Daily/Group</span></div>
+        <div style="display:flex;align-items:center;gap:5px;"><div style="width:6px;height:6px;border-radius:50%;background:#8B5CF6;"></div><span style="font-size:0.6rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--mid);">Program</span></div>
+        <div style="display:flex;align-items:center;gap:5px;"><div style="width:6px;height:6px;border-radius:50%;background:var(--gold);"></div><span style="font-size:0.6rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--mid);">Today</span></div>
+      </div>
+    </div>
+
+    <div id="month-expand-container" class="hidden">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.875rem;">
+        <div style="display:flex;align-items:center;gap:0.5rem;">
+          <button onclick="changeMonth(-1)" style="width:28px;height:28px;border-radius:50%;border:1px solid var(--border);background:none;cursor:pointer;font-size:0.875rem;color:var(--mid);">‹</button>
+          <h2 id="calendar-month-name" style="font-size:0.8125rem;font-weight:700;color:var(--ink);margin:0;"></h2>
+          <button onclick="changeMonth(1)" style="width:28px;height:28px;border-radius:50%;border:1px solid var(--border);background:none;cursor:pointer;font-size:0.875rem;color:var(--mid);">›</button>
+        </div>
+        <button onclick="collapseToWeek()" style="font-size:0.6rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--mid);background:var(--stone);border:1px solid var(--border);border-radius:99px;padding:4px 10px;cursor:pointer;">Week ↑</button>
+      </div>
+      <div class="grid grid-cols-7 mb-1">
+        <div class="text-center" style="font-size:0.6rem;font-weight:700;color:rgba(0,0,0,0.2);padding:4px 0;">S</div>
+        <div class="text-center" style="font-size:0.6rem;font-weight:700;color:rgba(0,0,0,0.2);padding:4px 0;">M</div>
+        <div class="text-center" style="font-size:0.6rem;font-weight:700;color:rgba(0,0,0,0.2);padding:4px 0;">T</div>
+        <div class="text-center" style="font-size:0.6rem;font-weight:700;color:rgba(0,0,0,0.2);padding:4px 0;">W</div>
+        <div class="text-center" style="font-size:0.6rem;font-weight:700;color:rgba(0,0,0,0.2);padding:4px 0;">T</div>
+        <div class="text-center" style="font-size:0.6rem;font-weight:700;color:rgba(0,0,0,0.2);padding:4px 0;">F</div>
+        <div class="text-center" style="font-size:0.6rem;font-weight:700;color:rgba(0,0,0,0.2);padding:4px 0;">S</div>
+      </div>
+      <div id="calendar-grid" class="grid grid-cols-7 gap-1"></div>
+    </div>
+  </div>
+
+  <div style="padding:0 2px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
+      <p id="schedule-context-label" style="font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--mid);margin:0;"></p>
+      <button id="schedule-clear-btn" onclick="selectDate(null, window.currentMyTours)" style="display:none;font-size:0.6rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);background:rgba(206,184,136,0.1);border:1px solid rgba(206,184,136,0.3);border-radius:99px;padding:3px 10px;cursor:pointer;">Show all</button>
+    </div>
+    <div id="schedule-list-container"></div>
+  </div>
+</div>
+
+<!-- ── TRACKER ── -->
+<div id="view-tracker" class="view-section">
+  <div style="margin-bottom:1.75rem;">
+    <p class="page-eyebrow">Your Stats</p>
+    <h1 class="page-title">Tour Tracker</h1>
+    <p class="page-subtitle">Updated automatically every 30 minutes</p>
+  </div>
+
+  <div class="card" style="margin-bottom:1.25rem;">
+    <div style="display:flex;flex-direction:column;gap:1rem;" class="xl:flex-row xl:items-center">
+      <div style="display:flex;gap:1rem;flex-shrink:0;">
+        <div id="badge-50" class="flex flex-col items-center opacity-20 grayscale transition-all duration-1000">
+          <div style="width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--gold),#b39a6d);display:flex;align-items:center;justify-content:center;font-size:1.375rem;">🔔</div>
+          <p style="font-size:0.55rem;font-weight:700;text-transform:uppercase;margin:6px 0 0;text-align:center;color:var(--ink);">Bell Tower Boss</p>
+        </div>
+        <div id="badge-100" class="flex flex-col items-center opacity-20 grayscale transition-all duration-1000">
+          <div style="width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--gold),#b39a6d);display:flex;align-items:center;justify-content:center;font-size:1.375rem;">💯</div>
+          <p style="font-size:0.55rem;font-weight:700;text-transform:uppercase;margin:6px 0 0;text-align:center;color:var(--ink);">Century Club</p>
+        </div>
+        <div id="badge-200" class="flex flex-col items-center opacity-20 grayscale transition-all duration-1000">
+          <div style="width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--gold),#b39a6d);display:flex;align-items:center;justify-content:center;font-size:1.375rem;">✨</div>
+          <p style="font-size:0.55rem;font-weight:700;text-transform:uppercase;margin:6px 0 0;text-align:center;color:var(--ink);">Golden Guide</p>
+        </div>
+      </div>
+      <div style="flex:1;width:100%;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:6px;">
+          <div>
+            <p style="font-size:0.6rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--mid);margin:0;">Progress to Next Milestone</p>
+            <h4 id="next-milestone-name" style="font-size:1rem;font-weight:700;color:var(--ink);margin:2px 0 0;">Calculating...</h4>
+          </div>
+          <p style="font-size:0.75rem;font-weight:800;color:var(--gold);"><span id="tours-to-go">--</span> to go</p>
+        </div>
+        <div style="height:6px;background:var(--border);border-radius:99px;overflow:hidden;">
+          <div id="milestone-progress-bar" style="height:100%;background:var(--gold);border-radius:99px;transition:width 1.5s ease;width:0%;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;margin-bottom:1.25rem;">
+    <div class="card stat-box">
+      <p class="stat-label">Career Tours</p>
+      <p id="career-total" class="stat-num">--</p>
+    </div>
+    <div class="card stat-box" style="border-color:rgba(16,185,129,0.3);">
+      <p id="sem-label" class="stat-label" style="color:#10B981;">Current Semester</p>
+      <p id="sem-total" class="stat-num" style="color:#10B981;">--</p>
+    </div>
+    <div class="card stat-box">
+      <p class="stat-label">Rank</p>
+      <p id="user-rank" class="stat-num" style="color:#1D4ED8;">--</p>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr;gap:1rem;" class="lg:grid-cols-2">
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;gap:1rem;flex-wrap:wrap;">
+        <h3 style="font-family:'Space Grotesk',sans-serif;font-size:1.0625rem;font-weight:700;margin:0;">Leaderboard</h3>
+        <div style="background:var(--stone);border:1px solid var(--border);border-radius:0.5rem;padding:2px;display:flex;">
+          <button id="toggle-career" onclick="updateLeaderboard('career')" class="toggle-btn active">All Time</button>
+          <button id="toggle-semester" onclick="updateLeaderboard('semester')" class="toggle-btn">Semester</button>
+        </div>
+      </div>
+      <div id="leaderboard-container"></div>
+    </div>
+    <div class="card">
+      <h3 style="font-family:'Space Grotesk',sans-serif;font-size:1.0625rem;font-weight:700;margin:0 0 1.25rem;">Semester History</h3>
+      <div id="history-container" style="display:flex;flex-direction:column;gap:0.75rem;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── FAMILIES ── -->
+<div id="view-families" class="view-section">
+  <div style="margin-bottom:1.25rem;">
+    <p class="page-eyebrow">Competition</p>
+    <h1 class="page-title">Family Cup</h1>
+    <p id="family-semester-label" class="page-subtitle"></p>
+  </div>
+  <div id="my-family-card"></div>
+  <p style="font-size:0.6rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--mid);margin-bottom:0.75rem;">Full Standings</p>
+  <div id="family-leaderboard-container"></div>
+</div>
+
+<!-- ── FORMS ── -->
+<div id="view-forms" class="view-section">
+  <div style="margin-bottom:1.25rem;">
+    <p class="page-eyebrow">Required</p>
+    <h1 class="page-title">Forms</h1>
+    <p class="page-subtitle">Complete all required forms by their deadline</p>
+  </div>
+  <div id="forms-list"></div>
+</div>
+
+<!-- ── DESK SCHEDULE ── -->
+<div id="view-desk" class="view-section">
+  <div style="margin-bottom:1.25rem;">
+    <p class="page-eyebrow">Desk Staff</p>
+    <h1 class="page-title">Desk Schedule</h1>
+    <p class="page-subtitle">Weekly recurring schedule</p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr;gap:1rem;margin-bottom:1.25rem;" class="md:grid-cols-4">
+    <div id="current-shift-card" class="md:col-span-2 rounded-2xl p-6 text-center shadow-lg transition-all duration-300">
+      <p class="text-xs font-bold uppercase tracking-widest mb-1" id="current-shift-status-label">Checking...</p>
+      <h3 id="current-shift-details" class="text-3xl sm:text-4xl font-black leading-tight"></h3>
+    </div>
+    <div class="card text-center">
+      <p style="font-size:0.6rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--mid);margin:0 0 4px;">Weekly Shifts</p>
+      <p id="total-weekly-shifts" style="font-family:'Space Grotesk',sans-serif;font-size:2.25rem;font-weight:700;color:#1D4ED8;margin:0;">--</p>
+    </div>
+    <div class="card text-center">
+      <p style="font-size:0.6rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--mid);margin:0 0 4px;">Weekly Hours</p>
+      <p id="total-weekly-hours" style="font-family:'Space Grotesk',sans-serif;font-size:2.25rem;font-weight:700;color:#1D4ED8;margin:0;">--</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:1.25rem;">
+    <p style="font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--mid);margin:0 0 0.75rem;">Your Weekly Shifts</p>
+    <div id="user-shifts-summary" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:0.75rem;">
+      <span style="font-size:0.8125rem;color:var(--mid);font-style:italic;">No shifts loaded.</span>
+    </div>
+  </div>
+
+  <div class="card" style="overflow:hidden;padding:1.25rem;">
+    <h3 style="font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:700;color:#1D4ED8;margin:0 0 1rem;">Master Schedules</h3>
+    <div style="display:flex;flex-direction:column;gap:1.5rem;">
+      <div id="welcome-desk-schedule">
+        <h4 style="font-size:0.8125rem;font-weight:700;color:var(--ink);border-bottom:1px solid var(--border);padding-bottom:0.5rem;margin-bottom:0.75rem;">Welcome Desk</h4>
+        <div style="overflow-x:auto;">
+          <table style="min-width:100%;border-collapse:collapse;">
+            <thead>
+              <tr>
+                <th style="padding:0.5rem 0.75rem;text-align:left;font-size:0.6rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--mid);background:var(--stone);position:sticky;left:0;">Time</th>
+                <th style="padding:0.5rem 0.75rem;text-align:left;font-size:0.6rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--mid);">Mon</th>
+                <th style="padding:0.5rem 0.75rem;text-align:left;font-size:0.6rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--mid);">Tue</th>
+                <th style="padding:0.5rem 0.75rem;text-align:left;font-size:0.6rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--mid);">Wed</th>
+                <th style="padding:0.5rem 0.75rem;text-align:left;font-size:0.6rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--mid);">Thu</th>
+                <th style="padding:0.5rem 0.75rem;text-align:left;font-size:0.6rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--mid);">Fri</th>
+              </tr>
+            </thead>
+            <tbody id="welcome-desk-body" style="divide-y divide-gray-100;">
+              <tr><td colspan="6" style="padding:1rem;text-align:center;font-size:0.8125rem;color:var(--mid);font-style:italic;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div id="front-desk-schedule">
+        <h4 style="font-size:0.8125rem;font-weight:700;color:var(--ink);border-bottom:1px solid var(--border);padding-bottom:0.5rem;margin-bottom:0.75rem;">Front Desk</h4>
+        <div style="overflow-x:auto;">
+          <table style="min-width:100%;border-collapse:collapse;">
+            <thead>
+              <tr>
+                <th style="padding:0.5rem 0.75rem;text-align:left;font-size:0.6rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--mid);background:var(--stone);position:sticky;left:0;">Time</th>
+                <th style="padding:0.5rem 0.75rem;text-align:left;font-size:0.6rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--mid);">Mon</th>
+                <th style="padding:0.5rem 0.75rem;text-align:left;font-size:0.6rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--mid);">Tue</th>
+                <th style="padding:0.5rem 0.75rem;text-align:left;font-size:0.6rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--mid);">Wed</th>
+                <th style="padding:0.5rem 0.75rem;text-align:left;font-size:0.6rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--mid);">Thu</th>
+                <th style="padding:0.5rem 0.75rem;text-align:left;font-size:0.6rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--mid);">Fri</th>
+              </tr>
+            </thead>
+            <tbody id="front-desk-body">
+              <tr><td colspan="6" style="padding:1rem;text-align:center;font-size:0.8125rem;color:var(--mid);font-style:italic;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── DESK DASHBOARD ── -->
+<div id="view-desk-dashboard" class="view-section">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:1rem;">
+    <div>
+      <p class="page-eyebrow">Operations</p>
+      <h1 class="page-title">Desk Dashboard</h1>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--border);border-radius:0.625rem;padding:3px;">
+      <button onclick="changeDeskDate(-1)" style="background:none;border:none;cursor:pointer;padding:6px 10px;color:var(--mid);border-radius:6px;font-size:1rem;">◀</button>
+      <p id="desk-display-date" style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.8125rem;color:var(--gold);padding:0 8px;margin:0;text-transform:uppercase;letter-spacing:0.06em;"></p>
+      <button onclick="changeDeskDate(1)" style="background:none;border:none;cursor:pointer;padding:6px 10px;color:var(--mid);border-radius:6px;font-size:1rem;">▶</button>
+    </div>
+  </div>
+
+  <div id="desk-countdown-panel" style="background:var(--ink);border:1px solid rgba(206,184,136,0.2);border-radius:1rem;padding:1.25rem 1.5rem;margin-bottom:1.25rem;"></div>
+
+  <div style="margin-bottom:1.75rem;">
+    <p style="font-size:0.6rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--mid);margin-bottom:0.75rem;">Daily Visits</p>
+    <div id="grid-daily" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0.875rem;"></div>
+  </div>
+  <div>
+    <p style="font-size:0.6rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--mid);margin-bottom:0.75rem;">Program Days</p>
+    <div id="grid-program" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0.875rem;"></div>
+  </div>
+</div>
+
+</div><!-- /content-area -->
+
+<div class="lg:hidden bottom-nav-dedicated" id="bottom-nav-bar">
+    <button id="bn-home" onclick="switchView('home')" class="bn-btn flex flex-col items-center gap-1 px-3 py-2 rounded-2xl transition-all">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
+        <span class="text-[9px] font-black uppercase tracking-wide">Home</span>
+    </button>
+    <button id="bn-schedule" onclick="switchView('schedule')" class="bn-btn flex flex-col items-center gap-1 px-3 py-2 rounded-2xl transition-all">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>
+        <span class="text-[9px] font-black uppercase tracking-wide">Schedule</span>
+    </button>
+    <button id="bn-tracker" onclick="switchView('tracker')" class="bn-btn flex flex-col items-center gap-1 px-3 py-2 rounded-2xl transition-all">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+        <span class="text-[9px] font-black uppercase tracking-wide">Tracker</span>
+    </button>
+    <button id="bn-families" onclick="switchView('families')" class="bn-btn flex flex-col items-center gap-1 px-3 py-2 rounded-2xl transition-all">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <span class="text-[9px] font-black uppercase tracking-wide">Points</span>
+    </button>
+    <button id="bn-forms" onclick="switchView('forms')" class="bn-btn flex flex-col items-center gap-1 px-3 py-2 rounded-2xl transition-all">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/></svg>
+        <span class="text-[9px] font-black uppercase tracking-wide">Forms</span>
+    </button>
+    <button id="bn-menu" onclick="document.getElementById('sidebar').classList.add('open')" class="bn-btn flex flex-col items-center gap-1 px-3 py-2 rounded-2xl transition-all">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        <span class="text-[9px] font-black uppercase tracking-wide">Menu</span>
+    </button>
+</div>
+
+<!-- ROLE SELECTOR OVERLAY -->
+<div id="role-selector" class="hidden fixed inset-0 z-[9998] flex flex-col items-center justify-center p-8"
+     style="background:linear-gradient(135deg,#0a0a0a 0%,#1a1408 50%,#0a0a0a 100%);">
+  <p style="font-size:9px;font-weight:900;letter-spacing:0.3em;text-transform:uppercase;color:rgba(207,185,145,0.5);margin-bottom:8px;">Purdue Admissions</p>
+  <h1 style="font-size:1.75rem;font-weight:900;color:white;margin:0 0 6px;letter-spacing:-0.02em;">Welcome back, <span id="role-selector-name" style="color:#CFB991;"></span></h1>
+  <p style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.12em;margin:0 0 2.5rem;">There are 2 profiles assigned to this account:</p>
+
+  <div style="display:flex;flex-direction:column;gap:1rem;width:100%;max-width:360px;">
+
+    <!-- Student View -->
+    <button onclick="selectRole('student')"
+            style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:1.5rem;
+                   padding:1.25rem 1.5rem;cursor:pointer;text-align:left;transition:all 0.2s;width:100%;"
+            onmouseover="this.style.borderColor='rgba(207,185,145,0.5)';this.style.background='rgba(207,185,145,0.06)'"
+            onmouseout="this.style.borderColor='rgba(255,255,255,0.12)';this.style.background='rgba(255,255,255,0.04)'">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="width:42px;height:42px;border-radius:12px;background:rgba(207,185,145,0.15);border:1px solid rgba(207,185,145,0.3);
+                    display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0;">🎓</div>
+        <div>
+          <p style="font-size:14px;font-weight:900;color:white;margin:0 0 2px;">TGIS Portal</p>
+          <p style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.35);margin:0;">Tour Guide View</p>
+        </div>
+        <span style="margin-left:auto;color:rgba(255,255,255,0.25);font-size:1.1rem;">›</span>
+      </div>
+    </button>
+
+    <!-- Admin Portal -->
+    <button onclick="selectRole('admin')"
+            style="background:rgba(207,185,145,0.08);border:1px solid rgba(207,185,145,0.3);border-radius:1.5rem;
+                   padding:1.25rem 1.5rem;cursor:pointer;text-align:left;transition:all 0.2s;width:100%;"
+            onmouseover="this.style.borderColor='#CFB991';this.style.background='rgba(207,185,145,0.15)'"
+            onmouseout="this.style.borderColor='rgba(207,185,145,0.3)';this.style.background='rgba(207,185,145,0.08)'">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="width:42px;height:42px;border-radius:12px;background:rgba(207,185,145,0.2);border:1px solid rgba(207,185,145,0.4);
+                    display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0;">⚙️</div>
+        <div>
+          <p style="font-size:14px;font-weight:900;color:#CFB991;margin:0 0 2px;">TGIS Admin</p>
+          <p style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.35);margin:0;">Manager View</p>
+        </div>
+        <span style="margin-left:auto;color:rgba(207,185,145,0.5);font-size:1.1rem;">›</span>
+      </div>
+    </button>
+
+  </div>
+
+  <p style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.2);margin-top:2rem;text-transform:uppercase;letter-spacing:0.1em;">
+    You can switch views at any time by signing out
+  </p>
+</div>
+    
+<div id="tour-lock-screen" class="hidden fixed inset-0 z-[9999] bg-[#000000] flex flex-col items-center justify-center p-8 text-center">
+    <div class="absolute inset-0 opacity-5 font-black text-[15rem] overflow-hidden pointer-events-none text-white flex items-center justify-center">
+        TOUR
+    </div>
+    
+    <div class="relative z-10 w-full max-w-sm">
+        <div class="w-20 h-20 bg-status-green rounded-full flex items-center justify-center text-3xl mb-6 mx-auto animate-pulse shadow-[0_0_40px_rgba(16,185,129,0.3)]">
+            🚶‍♂️
+        </div>
+        <h1 class="text-white text-5xl font-black tracking-tighter mb-2">On Tour</h1>
+        <p id="lock-tour-name" class="text-primary-gold font-bold uppercase tracking-[0.2em] mb-10 text-sm">Daily Visit</p>
+        
+        <div class="bg-white/5 border border-white/10 rounded-[2.5rem] p-8 backdrop-blur-xl">
+            <p class="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em] mb-2">Estimated Finish</p>
+            <p id="lock-tour-end" class="text-white text-4xl font-black tracking-tight">--:-- --</p>
+        </div>
+        
+        <p class="mt-12 text-gray-600 text-[10px] font-bold uppercase tracking-[0.2em] leading-relaxed">
+            TGIS Navigation Disabled<br>Until Tour Conclusion
+        </p>
+    </div>
+</div>
+
+<div id="retirement-screen" class="hidden fixed inset-0 z-[99999] flex flex-col items-center justify-center p-8 text-center" style="background: linear-gradient(135deg, #0a0a0a 0%, #1a1408 50%, #0a0a0a 100%);">
+    <canvas id="confetti-canvas" class="absolute inset-0 w-full h-full pointer-events-none"></canvas>
+    <!-- Background watermark -->
+    <div class="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none opacity-[0.04]">
+        <span class="font-black text-white" style="font-size: 18rem; white-space: nowrap;">RETIRED</span>
+    </div>
+
+    <div class="retirement-screen relative z-10 w-full max-w-lg">
+        <!-- Top decoration -->
+        <div class="flex items-center justify-center gap-3 mb-8">
+            <div class="h-px flex-1 bg-gradient-to-r from-transparent to-primary-gold opacity-50"></div>
+            <span class="text-4xl">⭐</span>
+            <div class="h-px flex-1 bg-gradient-to-l from-transparent to-primary-gold opacity-50"></div>
+        </div>
+
+        <!-- Headline -->
+        <p class="text-[10px] font-black uppercase tracking-[0.4em] text-primary-gold mb-3 opacity-80">Purdue Office of Admissions</p>
+        <h1 class="text-3xl sm:text-4xl font-black text-white leading-tight mb-2">Congrats on a</h1>
+        <h1 class="gold-shimmer-text text-4xl sm:text-5xl font-black leading-tight mb-10">Legendary Tour Guide Career</h1>
+
+        <!-- Certificate frame - name only -->
+<div class="certificate-frame rounded-[2rem] p-8 mb-6" style="background: linear-gradient(145deg, #1c1407, #0f0c04);">
+    <p class="text-[9px] font-black uppercase tracking-[0.4em] text-primary-gold opacity-60 mb-3">This certifies the career of</p>
+    <h2 id="retirement-name" class="text-3xl sm:text-4xl font-black text-white tracking-tight mb-3">—</h2>
+    <div class="h-px bg-primary-gold opacity-30 mb-4"></div>
+    <p class="text-[10px] text-gray-400 font-bold leading-relaxed">
+        Your dedication and passion made every Boilermaker's first step on campus unforgettable.<br>
+        We wish you all the best in your future adventures! 
+    </p>
+</div>
+
+<!-- Stat cards -->
+<div class="grid grid-cols-3 gap-3 mb-10">
+    <div class="rounded-2xl p-4 flex flex-col items-center justify-center" style="background: linear-gradient(145deg, #1c1407, #0f0c04); border: 1px solid rgba(207,185,145,0.4); box-shadow: 0 0 20px rgba(207,185,145,0.1);">
+        <p id="retirement-tours" class="text-2xl sm:text-3xl font-black text-primary-gold leading-none mb-1">—</p>
+        <p class="text-[8px] font-black uppercase tracking-widest text-gray-500 text-center">Career<br>Tours</p>
+    </div>
+    <div class="rounded-2xl p-4 flex flex-col items-center justify-center" style="background: linear-gradient(145deg, #1c1407, #0f0c04); border: 1px solid rgba(207,185,145,0.4); box-shadow: 0 0 20px rgba(207,185,145,0.1);">
+        <p id="retirement-miles" class="text-2xl sm:text-3xl font-black text-primary-gold leading-none mb-1">—</p>
+        <p class="text-[8px] font-black uppercase tracking-widest text-gray-500 text-center">Miles<br>Walked Backwards </p>
+    </div>
+    <div class="rounded-2xl p-4 flex flex-col items-center justify-center" style="background: linear-gradient(145deg, #1c1407, #0f0c04); border: 1px solid rgba(207,185,145,0.4); box-shadow: 0 0 20px rgba(207,185,145,0.1);">
+        <p id="retirement-steps" class="text-2xl sm:text-3xl font-black text-primary-gold leading-none mb-1">—</p>
+        <p class="text-[8px] font-black uppercase tracking-widest text-gray-500 text-center">Steps<br>Taken Backwards</p>
+    </div>
+</div>
+
+        <!-- Bottom decoration -->
+        <div class="flex items-center justify-center gap-3">
+            <div class="h-px flex-1 bg-gradient-to-r from-transparent to-primary-gold opacity-50"></div>
+            <span class="text-xs font-black text-primary-gold opacity-60 tracking-widest uppercase">Boiler Up</span>
+            <div class="h-px flex-1 bg-gradient-to-l from-transparent to-primary-gold opacity-50"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Wrapped Popup -->
+<!--    
+<div id="wrapped-popup">
+    <div style="background: linear-gradient(135deg, #1a1408, #2a2010); border: 1px solid rgba(207,185,145,0.4); border-radius: 1.5rem; padding: 1rem 1.25rem; display: flex; align-items: center; gap: 1rem; box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 40px rgba(207,185,145,0.08);">
+        <div style="width:44px;height:44px;background:#CFB991;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">🎁</div>
+        <div style="flex:1;min-width:0;">
+            <p style="font-size:0.6rem;font-weight:800;text-transform:uppercase;letter-spacing:0.2em;color:#CFB991;margin-bottom:1px;">New ✦</p>
+            <p style="font-size:0.9rem;font-weight:800;color:white;line-height:1.2;">Tour Guide Wrapped is Out!</p>
+            <p style="font-size:0.65rem;color:rgba(255,255,255,0.45);margin-top:1px;">Your semester, by the numbers.</p>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0.4rem;align-items:flex-end;">
+            <button onclick="document.getElementById('wrapped-popup').classList.remove('show')" style="background:rgba(255,255,255,0.08);border:none;color:rgba(255,255,255,0.4);width:22px;height:22px;border-radius:99px;cursor:pointer;font-size:0.7rem;display:flex;align-items:center;justify-content:center;">✕</button>
+            <button onclick="window.location.href='https://purduetours.github.io/TGIS/wrapped.html?user='+userName" style="background:#CFB991;border:none;color:#111;font-size:0.6rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;padding:0.3rem 0.75rem;border-radius:99px;cursor:pointer;white-space:nowrap;">View →</button>
+        </div>
+    </div>
+</div>
+-->    
+
+
+
+<script id="old-tw-cfg-removed">
+        // old tailwind config removed — new one in <head>
+        void 0;
+        /* removed: tailwind.config = {ue': '#1D4ED8',
+                        'guide-bg-1': '#FEE2E2', 'guide-text-1': '#991B1B',
+                        'guide-bg-2': '#FEF3C7', 'guide-text-2': '#92400E',
+                        'guide-bg-3': '#D1FAE5', 'guide-text-3': '#065F46',
+                        'guide-bg-4': '#DBEAFE', 'guide-text-4': '#1E40AF',
+                        'guide-bg-5': '#F3E8FF', 'guide-text-5': '#5B21B6',
+                        'guide-bg-6': '#FFFBEB', 'guide-text-6': '#713F12',
+                        'guide-bg-7': '#F0F9FF', 'guide-text-7': '#075985',
+                        'guide-bg-8': '#F0FDF4', 'guide-text-8': '#166534',
+                        'guide-bg-9': '#FDF2F8', 'guide-text-9': '#9D174D',
+                        'guide-bg-10': '#F9FAFB', 'guide-text-10': '#374151',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { 
+    display: flex; 
+    flex-direction: column; 
+    height: 100vh; 
+    overflow: hidden; 
+}
+
+        /* Desk Dashboard Specific Polish */
+#desk-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; }
+.desk-card { background: white; padding: 1.5rem; border-radius: 1.5rem; border: 1px solid #F3F4F6; }
+.status-pill-red { background-color: #FEE2E2; border-color: #EF4444; color: #B91C1C; border-width: 1px; }
+.status-pill-gray { background-color: #F3F4F6; border-color: #D1D5DB; color: #4B5563; opacity: 0.7; border-width: 1px; }
+.guide-row { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem; border-bottom: 1px solid #F9FAFB; }
+
+        /* Schedule Specific Polish */
+.date-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 4.5rem;
+    height: 4.5rem;
+    border-radius: 1.25rem;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    line-height: 1;
+}
+
+.month-label {
+    font-size: 0.65rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #9ca3af;
+    margin-bottom: 2px;
+}
+
+        /* Compact Hero Date Badge */
+.hero-date-badge {
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(4px);
+    border-radius: 1rem;
+    padding: 0.75rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.hero-month {
+    font-size: 0.7rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    opacity: 0.8;
+}
+
+.hero-day {
+    font-size: 1.75rem;
+    font-weight: 900;
+    line-height: 1;
+}
+
+.day-number {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #111827;
+}
+
+.weekday-label {
+    font-size: 0.6rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #6b7280;
+    margin-top: 2px;
+}
+
+/* ─── Wrapped Popup ─── */
+#wrapped-popup {
+    position: fixed;
+    bottom: 5.5rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    opacity: 0;
+    z-index: 200;
+    transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+    width: calc(100% - 2rem);
+    max-width: 24rem;
+}
+#wrapped-popup.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    pointer-events: all;
+}
+
+/* Glassmorphism Badge for Up Next */
+.up-next-badge {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 0.4rem 0.8rem;
+    border-radius: 99px;
+    font-size: 0.65rem;
+    font-weight: 900;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Retirement Screen */
+@keyframes shimmer {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+}
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.retirement-screen {
+    animation: fadeInUp 1s ease-out;
+}
+.gold-shimmer-text {
+    background: linear-gradient(90deg, #CFB991, #f5e6c8, #b39a6d, #f5e6c8, #CFB991);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 4s linear infinite;
+}
+.certificate-frame {
+    border: 3px solid #CFB991;
+    box-shadow: 0 0 0 6px rgba(207,185,145,0.15), 0 0 0 10px #CFB991, 0 0 0 14px rgba(207,185,145,0.15), 0 30px 60px rgba(0,0,0,0.4);
+}
+
+/* Split Layout for Schedule */
+.schedule-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+}
+
+@media (min-width: 1024px) {
+    .schedule-grid {
+        grid-template-columns: 400px 1fr; /* Compact list on left, wide calendar on right */
+    }
+}
+
+.calendar-day {
+    aspect-ratio: 1 / 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.calendar-day.has-tour {
+    background: #CFB991; /* primary-gold */
+    color: black;
+}
+        
+.content-area { 
+    flex: 1; 
+    overflow-y: auto; 
+    -webkit-overflow-scrolling: touch; 
+    padding-bottom: calc(env(safe-area-inset-bottom) + 100px);
+    margin-left: 18rem; 
+    transition: margin 0.3s ease; 
+    padding-top: 1.5rem;
+}
+
+        @keyframes pulseBorder {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(139,92,246,0); border-color: #8B5CF6; }
+    50%       { box-shadow: 0 0 0 6px rgba(139,92,246,0.15); border-color: #a78bfa; }
+}
+        @keyframes pulse-subtle {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.01); }
+}
+.animate-pulse-subtle {
+    animation: pulse-subtle 3s ease-in-out infinite;
+}
+
+.bottom-nav-dedicated {
+    position: fixed;
+    bottom: calc(env(safe-area-inset-bottom) + 12px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 2rem);
+    max-width: 420px;
+    height: 64px;
+    border-radius: 99px;
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 0 0.75rem;
+    flex-shrink: 0;
+    z-index: 100;
+}
+
+.bn-btn {
+    color: #9CA3AF;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    min-width: 44px;
+}
+
+.bn-btn.active {
+    color: #CFB991;
+    background: rgba(207, 185, 145, 0.1);
+}
+
+.bn-btn svg {
+    transition: transform 0.15s ease;
+}
+
+.bn-btn.active svg {
+    transform: translateY(-1px);
+}
+
+        @media (max-width: 1024px) { 
+            .content-area { margin-left: 0; padding-top: env(safe-area-inset-top); }
+            #sidebar { transform: translateX(-100%); transition: transform 0.3s ease; }
+            #sidebar.open { transform: translateX(0); display: block !important; }
+        }
+        
+        .nav-button { cursor: pointer; display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem; color: #4B5563; margin-bottom: 0.5rem; transition: 0.2s; }
+        .nav-button:hover { background-color: #F3F4F6; }
+        .nav-button.active { background-color: #CFB991; color: white; box-shadow: 0 4px 6px -1px rgba(207, 185, 145, 0.4); }
+        .view-section { display: none; }
+        .view-section.active { display: block; animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .loader { border-top-color: #CFB991; animation: spinner 0.6s linear infinite; }
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .toggle-btn { transition: all 0.3s ease; }
+        .toggle-btn.active { background-color: white; color: #374151; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .badge-active { opacity: 1 !important; filter: grayscale(0) !important; filter: drop-shadow(0 0 8px rgba(207, 185, 145, 0.6)); }
+
+        /* Family Podium Styles */
+        .podium-container { display: flex; align-items: flex-end; justify-content: center; gap: 8px; height: 200px; }
+        .podium-base { width: 70px; display: flex; flex-direction: column; align-items: center; border-radius: 12px 12px 0 0; }
+        .rank-1 { height: 150px; background: #CFB991; border: 2px solid #b39a6d; }
+        .rank-2 { height: 110px; background: #E5E7EB; border: 2px solid #D1D5DB; }
+        .rank-3 { height: 80px; background: #FFEDD5; border: 2px solid #FED7AA; }
+        .rank-4 { height: 50px; background: #f3f4f6; border: 1px dashed #ccc; }
+
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes pulse-soft { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        @keyframes loading-bar-pulse {
+            0%   { opacity: 1; }
+            50%  { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+
+        .loader { 
+            border-top-color: #CFB991; 
+            border-left-color: #CFB991; 
+            animation: spinner 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite; 
+        }
+
+        .loading-text {
+            animation: pulse-soft 2s ease-in-out infinite;
+        }
+    </style>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+<meta name="apple-mobile-web-app-title" content="TGIS Mobile">
+
+<link rel="apple-touch-icon" href="tgisicon.png">
+<link rel="icon" type="image/png" href="tgisicon.png">
+
+<link rel="apple-touch-icon" sizes="152x152" href="tgisicon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="tgisicon.png">
+</head>
+<body class="bg-gray-50 font-sans antialiased text-text-dark">
+<div id="loading-overlay" class="fixed inset-0 z-[100] flex flex-col items-center justify-center transition-opacity duration-500" style="background:#0f0c04;">
+
+    <div id="loader-content" class="flex flex-col items-center w-full max-w-xs px-8">
+
+        <div style="margin-bottom:2.5rem; text-align:center;">
+            <img src="TGISv3.png" 
+                 alt="Loading logo" 
+                 style="max-width: 140px; height: auto; margin: 0 auto; display: block;" />
+        </div>
+
+        <div style="width:100%;height:2px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;margin-bottom:1.5rem;">
+            <div id="loading-bar" style="height:100%;width:0%;background:#CFB991;border-radius:99px;transition:width 0.4s ease;"></div>
+        </div>
+
+        <p id="loading-status" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:rgba(207,185,145,0.5);">Connecting....</p>
+    </div>
+
+    <div id="error-content" class="hidden flex-col items-center text-center w-full max-w-xs px-8">
+        <div style="width:48px;height:48px;border-radius:12px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);display:flex;align-items:center;justify-content:center;margin-bottom:1.5rem;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2.5" stroke-linecap="round"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+        </div>
+        <h2 style="font-size:1.1rem;font-weight:900;color:#ffffff;letter-spacing:-0.01em;margin-bottom:0.5rem;">Connection Failed</h2>
+        <p style="font-size:12px;color:rgba(255,255,255,0.4);line-height:1.6;margin-bottom:1.5rem;">Couldn't reach the TGIS server. Check your connection and try again, or contact Jacob if the issue persists.</p>
+
+        <div style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:0.75rem 1rem;margin-bottom:1.5rem;text-align:left;">
+            <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:rgba(255,255,255,0.25);margin-bottom:4px;">Error code</p>
+            <p id="error-code-display" class="font-mono" style="font-size:13px;font-weight:700;color:#EF4444;">UNKNOWN_ERR</p>
+        </div>
+
+        <button onclick="window.location.reload()" style="width:100%;background:#CFB991;color:#0f0c04;padding:0.875rem;border-radius:12px;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;border:none;cursor:pointer;">
+            Retry Connection
+        </button>
+    </div>
+</div>
+
+<nav id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white shadow-2xl border-r border-gray-100 p-6 z-40 hidden lg:block overflow-y-auto">
+    <div class="mb-8 flex justify-between items-start">
+        <div>
+            <p class="text-[10px] font-black text-primary-gold uppercase tracking-[0.2em] mb-1">Purdue University</p>
+            <h1 class="text-xl font-black leading-tight">Tour Guide Information System</h1>
+        </div>
+        <button id="close-menu" class="lg:hidden text-gray-400 text-2xl">&times;</button>
+        <button onclick="signOut()" class="text-[9px] font-black uppercase tracking-widest text-gray-300 hover:text-red-400 transition-colors mt-1">Sign Out</button>
+
+    </div>
+
+    <div class="mb-8 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+        <div class="flex items-center space-x-3 mb-3">
+            <div id="profile-initial" class="w-12 h-12 rounded-full bg-primary-gold flex items-center justify-center text-white font-black text-lg shadow-inner">?</div>
+            <div>
+                <p id="sidebar-name" class="font-bold leading-tight">Loading...</p>
+                <p id="sidebar-status" class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Syncing...</p>
+            </div>
+        </div>
+        <div class="flex items-center text-[10px] text-status-green font-bold bg-white w-fit px-2 py-1 rounded-md border border-gray-100">
+            <span class="w-1.5 h-1.5 bg-status-green rounded-full mr-1.5 animate-pulse"></span> TGIS ONLINE
+        </div>
+        <div class="mb-8 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+    <!--<div class="flex items-center text-[10px] text-status-green font-bold bg-white w-fit px-2 py-1 rounded-md border border-gray-100 mb-4">
+        <span class="w-1.5 h-1.5 bg-status-green rounded-full mr-1.5 animate-pulse"></span> TGIS ONLINE
+    </div> -->
+
+    <div id="view-switcher-container" class="hidden border-t border-gray-200 pt-4 mt-2">
+        <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">System View</p>
+        <select id="view-selector" onchange="handleViewChange(this.value)" class="w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-primary-gold">
+            <option value="student">Student View</option>
+            <option value="manager">Manager View</option>
+        </select>
+    </div>
+</div>
+    </div>
+
+    <div class="mb-8">
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 ml-2">Main Menu</p>
+        <div id="nav-home" class="nav-button active" onclick="switchView('home')">Home</div>
+        <div id="nav-schedule" class="nav-button" onclick="switchView('schedule')">Schedule</div>
+        <div id="nav-tracker" class="nav-button" onclick="switchView('tracker')">Tour Tracker</div>
+        <div id="nav-families" class="nav-button" onclick="switchView('families')">Family Points</div>
+        <div id="nav-desk" class="nav-button" onclick="switchView('desk')">Desk Schedule</div>
+        <div id="nav-forms" class="nav-button" onclick="switchView('forms')">Required Forms</div>
+        <div id="nav-desk-dashboard" class="nav-button hidden" onclick="switchView('desk-dashboard')">Desk Dashboard</div>        
+
+    </div>
+</nav>
+
+<!--<header class="lg:hidden p-4 bg-white shadow-md flex justify-between items-center z-20 sticky top-0">
+    <div class="text-lg font-black">TGIS Mobile</div>
+    <button id="mobile-menu-button" class="text-3xl p-2">☰</button>
+</header> -->
+
+
+<div class="content-area p-4 sm:p-8">
+    
+
+<div id="view-home" class="view-section active">
+
+  <!-- ── MOBILE HOME (hidden on desktop) ── -->
+<div class="lg:hidden" style="margin:calc(-1rem - env(safe-area-inset-top)) -1rem 0;padding-bottom:1.5rem;">
+    <!-- HERO PHOTO CARD -->
+<div style="position:relative;overflow:hidden;border-radius:0 0 0 0;margin-bottom:1rem;
+                margin-top:calc(-1 * env(safe-area-inset-top));
+                height:calc(240px + env(safe-area-inset-top));">
+      <img src="arch.jpeg" alt="Purdue Campus"
+           style="width:100%;height:100%;object-fit:cover;object-position:center;">
+      <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.15) 0%,rgba(0,0,0,0.6) 100%);"></div>
+      <div style="position:absolute;bottom:1.25rem;left:1.25rem;right:1.25rem;">
+        <p style="font-size:9px;font-weight:900;letter-spacing:0.25em;text-transform:uppercase;color:rgba(255,255,255,0.7);margin:0 0 2px;">Purdue University</p>
+        <h1 style="font-size:1.75rem;font-weight:900;color:white;margin:0;line-height:1.1;">Welcome, <span id="welcome-name-mobile" style="color:#CFB991;"></span></h1>
+        <p id="live-clock-mobile" style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:0.1em;margin:4px 0 0;"></p>
+      </div>
+    </div>
+
+    <div style="padding:0 1rem;display:flex;flex-direction:column;gap:0.875rem;">
+
+      <!-- PROFILE CARD -->
+      <div onclick="switchView('tracker')"
+           style="background:linear-gradient(135deg,#1a1408,#2a2010);border-radius:1.5rem;padding:1.25rem;cursor:pointer;border:1px solid rgba(207,185,145,0.25);">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.875rem;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div id="mobile-profile-initial"
+                 style="width:40px;height:40px;border-radius:12px;background:#CFB991;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:900;color:#0f0c04;flex-shrink:0;"></div>
+            <div>
+              <p id="mobile-profile-name" style="font-size:14px;font-weight:900;color:white;margin:0;"></p>
+              <p id="mobile-profile-role" style="font-size:10px;font-weight:700;color:rgba(207,185,145,0.7);text-transform:uppercase;letter-spacing:0.08em;margin:1px 0 0;"></p>
+            </div>
+          </div>
+          <span style="font-size:12px;color:rgba(255,255,255,0.3);">›</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.625rem;">
+          <div style="background:rgba(255,255,255,0.06);border-radius:1rem;padding:0.75rem;text-align:center;">
+            <p id="mobile-sem-total" style="font-size:1.75rem;font-weight:900;color:#10B981;margin:0;line-height:1;">--</p>
+            <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.35);margin:3px 0 0;">This Semester</p>
+          </div>
+          <div style="background:rgba(255,255,255,0.06);border-radius:1rem;padding:0.75rem;text-align:center;">
+            <p id="mobile-upcoming" style="font-size:1.75rem;font-weight:900;color:#CFB991;margin:0;line-height:1;">--</p>
+            <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.35);margin:3px 0 0;">Upcoming</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- NEXT TOUR CARD -->
+      <div onclick="switchView('schedule')" id="mobile-next-tour-card"
+           style="background:white;border-radius:1.5rem;padding:1.25rem;cursor:pointer;border:1px solid #F3F4F6;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
+        <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;color:#9CA3AF;margin:0 0 0.625rem;">Next Tour</p>
+        <div id="mobile-next-tour-inner">
+          <p style="font-size:13px;font-weight:700;color:#D1D5DB;font-style:italic;">No upcoming tours</p>
+        </div>
+      </div>
+
+      <!-- TODAY'S SCHEDULE CARD -->
+      <div onclick="switchView('schedule')"
+           style="background:white;border-radius:1.5rem;overflow:hidden;cursor:pointer;border:1px solid #F3F4F6;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
+        <div style="padding:1rem 1.25rem 0.75rem;border-bottom:1px solid #F9FAFB;">
+          <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;color:#9CA3AF;margin:0;">Today's Schedule</p>
+        </div>
+        <div id="home-today-container" style="padding:0;">
+          <div style="padding:1rem 1.25rem;text-align:center;">
+            <p style="color:#D1D5DB;font-size:11px;font-weight:700;">No tours today</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ALERTS CARD -->
+      <div style="background:#FEF3C7;border-radius:1.5rem;padding:1.25rem;border:1px solid #FDE68A;">
+        <div style="display:flex;align-items:flex-start;gap:10px;">
+          <span style="font-size:1.25rem;flex-shrink:0;">🛑</span>
+          <div>
+            <p style="font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:0.05em;color:#92400E;margin:0 0 3px;">Use Caution Inside Ford</p>
+            <p style="font-size:11px;font-weight:600;color:#92400E;margin:0;line-height:1.5;">Only give your stop inside if there are no groups and the room is clear.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── DESKTOP HOME (hidden on mobile) ── -->
+  <div class="hidden lg:block">
+
+    <header class="mb-6">
+        <h1 class="text-4xl font-black">Welcome, <span id="welcome-name" class="text-primary-gold text-nowrap">Guide</span></h1>
+        <p id="live-clock" class="text-sm font-bold text-gray-400 uppercase tracking-wider mt-1">Loading...</p>
+    </header>
+
+    <!-- NEXT TOUR -->
+    <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] ml-1 mb-2">Next Tour</p>
+    <div id="home-next-tour-container" class="mb-5">
+        <div class="bg-gray-50 border-2 border-dashed border-gray-200 rounded-[2rem] p-5 flex items-center justify-center text-center">
+            <p class="text-gray-400 text-[10px] font-black uppercase tracking-widest">No tours scheduled</p>
+        </div>
+    </div>
+
+    <!-- QUICK STATS -->
+    <div class="grid grid-cols-2 gap-3 mb-5">
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">This Semester</p>
+            <p id="home-sem-total" class="text-4xl font-black text-status-green">--</p>
+            <p class="text-[10px] font-bold text-gray-400 mt-0.5">tours given</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Upcoming</p>
+            <p id="home-upcoming-count" class="text-4xl font-black text-primary-gold">--</p>
+            <p class="text-[10px] font-bold text-gray-400 mt-0.5">tours scheduled</p>
+        </div>
+    </div>
+
+    <!-- TODAY'S SCHEDULE -->
+    <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] ml-1 mb-2">Today's Schedule</p>
+    <div id="home-today-container-desktop" class="mb-5">
+        <div class="bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl p-4 text-center">
+            <p class="text-gray-400 text-[10px] font-black uppercase tracking-widest">No tours today</p>
+        </div>
+    </div>
+
+    <!-- ALERTS -->
+    <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] ml-1 mb-2">Alerts</p>
+    <div class="space-y-3 mb-5">
+        <div class="bg-yellow-400 rounded-2xl p-4 flex items-start gap-3 border-b-4 border-yellow-600 text-black">
+            <div class="text-2xl leading-none mt-0.5">🛑</div>
+            <div>
+                <p class="font-black uppercase tracking-tighter text-sm leading-tight">Use Caution Inside Ford</p>
+                <p class="text-yellow-900 text-[10px] font-bold uppercase tracking-widest leading-tight mt-1">
+                    Only give your stop inside if there are no groups and the room is clear.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ANNOUNCEMENTS -->
+    <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] ml-1 mb-2">Announcements</p>
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mb-5">
+        <div class="flex gap-3 items-start p-4 border-b border-gray-50">
+            <div class="w-2 h-2 rounded-full bg-primary-gold mt-1.5 shrink-0"></div>
+            <div>
+                <p class="font-bold text-sm">Tour Tracker</p>
+                <p class="text-xs text-gray-500">Updated every Thursday.</p>
+            </div>
+        </div>
+        <div class="flex gap-3 items-start p-4">
+            <div class="w-2 h-2 rounded-full bg-gray-200 mt-1.5 shrink-0"></div>
+            <div>
+                <p class="font-bold text-sm text-gray-400">Construction Update</p>
+                <p class="text-[10px] text-gray-400 uppercase font-black tracking-wider">Resolved</p>
+            </div>
+        </div>
+    </div>
+
+  </div>
+
+</div>
+
+    
+
+    <div id="view-tracker" class="view-section">
+        <header class="mb-8">
+            <h1 class="text-3xl font-black">Tour Tracker</h1>
+            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Automatically updated every 30 minutes</p>
+        </header>
+
+        <div class="bg-white rounded-3xl shadow-xl p-6 border border-gray-100 mb-8">
+            <div class="flex flex-col xl:flex-row items-center gap-8">
+                <div class="flex gap-4 shrink-0">
+                    <div id="badge-50" class="flex flex-col items-center opacity-20 grayscale transition-all duration-1000">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-gold to-yellow-600 flex items-center justify-center text-white text-2xl shadow-lg">🔔</div>
+                        <p class="text-[9px] font-black mt-2 uppercase text-center">Bell Tower Boss</p>
+                    </div>
+                    <div id="badge-100" class="flex flex-col items-center opacity-20 grayscale transition-all duration-1000">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-gold to-yellow-600 flex items-center justify-center text-white text-2xl shadow-lg">💯</div>
+                        <p class="text-[9px] font-black mt-2 uppercase text-center">Century Club</p>
+                    </div>
+                    <div id="badge-200" class="flex flex-col items-center opacity-20 grayscale transition-all duration-1000">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-gold to-yellow-600 flex items-center justify-center text-white text-2xl shadow-lg">✨</div>
+                        <p class="text-[9px] font-black mt-2 uppercase text-center">Golden Guide</p>
+                    </div>
+                </div>
+
+                <div class="flex-1 w-full">
+                    <div class="flex justify-between items-end mb-2">
+                        <div>
+                            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Progress to Next Milestone</p>
+                            <h4 id="next-milestone-name" class="font-bold text-lg">Calculating...</h4>
+                        </div>
+                        <p class="text-sm font-black text-primary-gold"><span id="tours-to-go">--</span> TOURS TO GO</p>
+                    </div>
+                    <div class="w-full h-4 bg-gray-100 rounded-full overflow-hidden border border-gray-50">
+                        <div id="milestone-progress-bar" class="h-full bg-primary-gold transition-all duration-[1.5s] ease-out" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <div class="bg-white p-8 rounded-3xl shadow-xl border border-gray-100 text-center">
+                <p class="text-xs font-bold text-gray-400 uppercase mb-2 tracking-widest">Career Tours</p>
+                <h2 id="career-total" class="text-6xl font-black">--</h2>
+            </div>
+            <div class="bg-white p-8 rounded-3xl shadow-xl border-4 border-status-green/30 text-center">
+                <p id="sem-label" class="text-xs font-bold text-status-green uppercase mb-2 tracking-widest">Current Semester</p>
+                <h2 id="sem-total" class="text-6xl font-black text-status-green">--</h2>
+            </div>
+            <div class="bg-white p-8 rounded-3xl shadow-xl border border-gray-100 text-center">
+                <p class="text-xs font-bold text-gray-400 uppercase mb-2 tracking-widest">Current Rank</p>
+                <h2 id="user-rank" class="text-6xl font-black text-tgis-blue">--</h2>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="bg-white rounded-3xl shadow-xl p-6 border border-gray-100">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                    <h3 class="text-xl font-black flex items-center">Leaderboard</h3>
+                    <div class="bg-gray-100 p-1 rounded-xl flex w-full sm:w-auto">
+                        <button id="toggle-career" onclick="updateLeaderboard('career')" class="toggle-btn active flex-1 px-4 py-1.5 text-[10px] font-black uppercase rounded-lg tracking-widest">All Time</button>
+                        <button id="toggle-semester" onclick="updateLeaderboard('semester')" class="toggle-btn flex-1 px-4 py-1.5 text-[10px] font-black uppercase rounded-lg tracking-widest">Semester</button>
+                    </div>
+                </div>
+                <div id="leaderboard-container" class="space-y-3"></div>
+            </div>
+
+            <div class="bg-white rounded-3xl shadow-xl p-6 border border-gray-100">
+                <h3 class="text-xl font-black mb-6">Semester History</h3>
+                <div id="history-container" class="space-y-4"></div>
+            </div>
+        </div>
+    </div>
+
+<div id="view-families" class="view-section">
+        <header class="mb-6">
+            <h1 class="text-3xl font-black">Family Cup</h1>
+            <p id="family-semester-label" class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1"></p>
+        </header>
+        <div id="my-family-card"></div>
+        <p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#9CA3AF;margin-bottom:10px;">Full Standings</p>
+        <div id="family-leaderboard-container"></div>
+    </div>
+
+    
+<div id="view-forms" class="view-section">
+    <header class="mb-8">
+        <h1 class="text-3xl font-black">Forms</h1>
+        <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Complete all required forms by their posted deadline</p>
+    </header>
+    <div id="forms-list" class="space-y-3">
+        <!-- populated by renderForms() -->
+    </div>
+</div>
+
+
+
+
+<div id="view-schedule" class="view-section">
+
+    <!-- HEADER -->
+    <header class="mb-6">
+        <h1 class="text-3xl font-black">Your Schedule</h1>
+        <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Tap a date to filter · scroll for full list</p>
+    </header>
+
+    <!-- CALENDAR PANEL (sticky on mobile) -->
+    <div id="schedule-calendar-panel" class="bg-white border-b border-gray-100 shadow-sm px-4 sm:px-8 pb-4 transition-all duration-400 ease-in-out overflow-hidden" style="max-height:400px;">
+
+        <!-- Week strip (default) -->
+        <div id="week-strip-container">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                    <button onclick="changeWeekStrip(-1)" class="w-7 h-7 rounded-full flex items-center justify-center hover:bg-gray-100 transition font-black text-primary-gold text-sm">&#8592;</button>
+                    <h2 id="week-strip-label" class="font-black text-sm tracking-tight text-gray-700"></h2>
+                    <button onclick="changeWeekStrip(1)" class="w-7 h-7 rounded-full flex items-center justify-center hover:bg-gray-100 transition font-black text-primary-gold text-sm">&#8594;</button>
+                </div>
+                <button onclick="expandToMonth()" id="expand-btn" class="text-[10px] font-black uppercase tracking-widest text-primary-gold bg-primary-gold/10 border border-primary-gold/25 rounded-full px-3 py-1">
+                    Month ↓
+                </button>
+            </div>
+
+            <!-- 7-day strip -->
+            <div id="week-strip" class="grid grid-cols-7 gap-1.5"></div>
+
+            <!-- Color legend -->
+            <div class="flex items-center gap-4 mt-3 pt-3 border-t border-gray-50">
+                <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-status-green"></div><span class="text-[9px] font-black uppercase tracking-widest text-gray-400">Daily/Group</span></div>
+                <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-purple-500"></div><span class="text-[9px] font-black uppercase tracking-widest text-gray-400">Program</span></div>
+                <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full border-2 border-primary-gold bg-white"></div><span class="text-[9px] font-black uppercase tracking-widest text-gray-400">Today</span></div>
+            </div>
+        </div>
+
+        <!-- Full month (hidden by default) -->
+        <div id="month-expand-container" class="hidden">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                    <button onclick="changeMonth(-1)" class="w-7 h-7 rounded-full flex items-center justify-center hover:bg-gray-100 transition font-black text-primary-gold text-sm">&#8592;</button>
+                    <h2 id="calendar-month-name" class="font-black text-sm tracking-tight text-gray-700"></h2>
+                    <button onclick="changeMonth(1)" class="w-7 h-7 rounded-full flex items-center justify-center hover:bg-gray-100 transition font-black text-primary-gold text-sm">&#8594;</button>
+                </div>
+                <button onclick="collapseToWeek()" class="text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-100 rounded-full px-3 py-1">
+                    Week ↑
+                </button>
+            </div>
+            <div class="grid grid-cols-7 mb-1">
+                <div class="text-center text-[10px] font-black text-gray-300 py-1">S</div>
+                <div class="text-center text-[10px] font-black text-gray-300 py-1">M</div>
+                <div class="text-center text-[10px] font-black text-gray-300 py-1">T</div>
+                <div class="text-center text-[10px] font-black text-gray-300 py-1">W</div>
+                <div class="text-center text-[10px] font-black text-gray-300 py-1">T</div>
+                <div class="text-center text-[10px] font-black text-gray-300 py-1">F</div>
+                <div class="text-center text-[10px] font-black text-gray-300 py-1">S</div>
+            </div>
+            <div id="calendar-grid" class="grid grid-cols-7 gap-1"></div>
+            <div class="flex items-center gap-4 mt-3 pt-3 border-t border-gray-50">
+                <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-status-green"></div><span class="text-[9px] font-black uppercase tracking-widest text-gray-400">Daily/Group</span></div>
+                <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-purple-500"></div><span class="text-[9px] font-black uppercase tracking-widest text-gray-400">Program</span></div>
+                <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full border-2 border-primary-gold bg-white"></div><span class="text-[9px] font-black uppercase tracking-widest text-gray-400">Today</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOUR LIST -->
+    <div class="px-4 sm:px-8 pt-4">
+        <div class="flex items-center justify-between mb-3">
+            <p id="schedule-context-label" class="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">Upcoming tours</p>
+            <button id="schedule-clear-btn" onclick="selectDate(null, window.currentMyTours)" style="display:none;" class="text-[10px] font-black uppercase tracking-widest text-primary-gold bg-primary-gold/10 border border-primary-gold/25 rounded-full px-3 py-1 cursor-pointer">Show all</button>
+        </div>
+        <div id="schedule-list-container"></div>
+    </div>
+
+</div>
+
+
+
+
+    
+<div id="view-desk-dashboard" class="view-section">
+    <header class="mb-6">
+        <div class="flex justify-between items-center mb-4">
+            <h1 class="text-4xl font-black uppercase tracking-tighter">Desk Operations</h1>
+            <div class="flex items-center gap-3 bg-white p-1 rounded-2xl border shadow-sm">
+                <button onclick="changeDeskDate(-1)" class="p-2 hover:bg-gray-100 rounded-xl transition-all">◀</button>
+                <p id="desk-display-date" class="font-bold text-sm px-4">Loading...</p>
+                <button onclick="changeDeskDate(1)" class="p-2 hover:bg-gray-100 rounded-xl transition-all">▶</button>
+            </div>
+        </div>
+        <div id="desk-countdown-panel"
+         style="background:linear-gradient(135deg,#1a1408,#0f0c04);border:1px solid rgba(207,185,145,0.25);
+                border-radius:1.5rem;padding:1.25rem 1.5rem;margin-bottom:1.5rem;">
+    </div>    </header>
+
+    <div class="mb-10">
+        <h2 class="text-xs font-black text-gray-400 uppercase tracking-[0.3em] mb-4">Daily Visits</h2>
+        <div id="grid-daily" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4"></div>
+    </div>
+
+    <div>
+        <h2 class="text-xs font-black text-gray-400 uppercase tracking-[0.3em] mb-4">Program Days</h2>
+        <div id="grid-program" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4"></div>
+    </div>
+</div>
+
+    
+
+   <div id="view-desk" class="view-section">
+        <header class="mb-6">
+            <h1 class="text-3xl font-black">Desk Schedule</h1>
+            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Weekly recurring schedule</p>
+        </header>
+    <h2 class="text-2xl font-black text-text-dark mb-6">Master Desk Schedule</h2>
+    
+    <div class="w-full bg-white shadow-2xl rounded-3xl overflow-hidden p-6 sm:p-10 border border-gray-100">
+        
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+            
+            <div id="current-shift-card" class="md:col-span-2 rounded-2xl p-6 text-center shadow-lg transition-all duration-300">
+                <p class="text-xs font-bold uppercase tracking-widest mb-1" id="current-shift-status-label">Checking Current Status...</p>
+                <h3 id="current-shift-details" class="text-3xl sm:text-4xl font-black leading-tight"></h3>
+            </div>
+            
+            <div class="bg-desk-shift-blue/10 border-2 border-desk-shift-blue/40 rounded-2xl p-6 text-center">
+                <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Total Weekly Shifts</p>
+                <h3 id="total-weekly-shifts" class="text-5xl font-black text-desk-shift-blue">--</h3>
+            </div>
+            
+            <div class="bg-desk-shift-blue/10 border-2 border-desk-shift-blue/40 rounded-2xl p-6 text-center">
+                <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Total Weekly Hours</p>
+                <h3 id="total-weekly-hours" class="text-5xl font-black text-desk-shift-blue">--</h3>
+            </div>
+            
+        </div>
+        
+        <div class="mb-10 p-6 bg-gray-50 rounded-2xl border border-gray-100">
+             <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">Your Weekly Desk Shifts</p>
+            <div id="user-shifts-summary" class="min-h-[40px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                <span class="text-sm text-gray-500 italic sm:col-span-2 lg:col-span-3">No shifts currently loaded.</span>
+            </div>
+        </div>
+        
+        <h3 class="text-xl font-black text-desk-shift-blue mb-4">Master Desk Schedules</h3>
+        
+        <div class="space-y-8">
+            <div id="welcome-desk-schedule">
+                <h4 class="text-lg font-bold text-text-dark border-b pb-2 mb-4">Welcome Desk</h4>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-0 bg-gray-50">Time</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monday</th>
+                                <th class="px-3 py-3 text-left text-xs font-xs font-medium text-gray-500 uppercase tracking-wider">Tuesday</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Wednesday</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thursday</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Friday</th>
+                            </tr>
+                        </thead>
+                        <tbody id="welcome-desk-body" class="bg-white divide-y divide-gray-200">
+                            <tr><td colspan="6" class="p-4 text-center text-sm text-gray-400">Loading schedule...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div id="front-desk-schedule">
+                <h4 class="text-lg font-bold text-text-dark border-b pb-2 mb-4">Front Desk</h4>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-0 bg-gray-50">Time</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monday</th>
+                                <th class="px-3 py-3 text-left text-xs font-xs font-medium text-gray-500 uppercase tracking-wider">Tuesday</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Wednesday</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thursday</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Friday</th>
+                            </tr>
+                        </thead>
+                        <tbody id="front-desk-body" class="bg-white divide-y divide-gray-200">
+                            <tr><td colspan="6" class="p-4 text-center text-sm text-gray-400">Loading schedule...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div> 
+</div>
+</div>
+
+<script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbyqIgk-V7XABUMluhLwjGudlHwkgldwRaBlAN6dFdbI1gNL-_cvN5PNTek2cfqNtc3j/exec';
+    // read username from qualtrics url passthrough
+    const STORAGE_KEY = 'tgis_username';
+    let userName = new URLSearchParams(window.location.search).get('user');
+
+    if (userName) {
+    // load account in cache, run hashng
+        localStorage.setItem(STORAGE_KEY, userName);
+        history.replaceState(null, '', window.location.pathname);
+    } else {
+    // username not found, check cache
+        userName = localStorage.getItem(STORAGE_KEY);
+        if (!userName) {
+        // no cache, request login
+            window.location.replace('https://purduetours.github.io/TGIS');
+        }
+    }
+    const TOUR_MAP = {
+    '9DV': { time: '9:30 AM', name: 'Daily Visit', color: 'bg-status-green', text: 'text-green-700', duration: 105},
+    '0DV': { time: '10:30 AM', name: 'Daily Visit', color: 'bg-status-green', text: 'text-green-700', duration: 105},
+    '1DV': { time: '1:30 PM', name: 'Daily Visit', color: 'bg-status-green', text: 'text-green-700', duration: 105},
+    '2DV': { time: '2:30 PM', name: 'Daily Visit', color: 'bg-status-green', text: 'text-green-700', duration: 105},
+    '0GV': { time: '10:30 AM', name: 'Group Visit', color: 'bg-blue-500', text: 'text-blue-700', duration: 105},
+    '8PA': { time: '8:15 AM', name: 'Program Day (Academic)', color: 'bg-purple-600', text: 'text-purple-700', duration: 105},
+    '1PF': { time: '11:00 AM', name: 'Program Day (Full)', color: 'bg-purple-600', text: 'text-purple-700', duration: 105},
+    '1PA': { time: '1:30 PM', name: 'Program Day (Academic)', color: 'bg-purple-600', text: 'text-purple-700', duration: 105},
+    '2PA': { time: '2:30 PM', name: 'Program Day (Academic)', color: 'bg-purple-600', text: 'text-purple-700', duration: 105}
+    };
+
+    const DAILY_VISITS = [
+    { code: '9DV', name: '9:30 Daily', h: 9, m: 30 },
+    { code: '0DV', name: '10:30 Daily', h: 10, m: 30 },
+    { code: '0GV', name: '10:30 Group', h: 10, m: 30 },
+    { code: '1DV', name: '1:30 Daily', h: 13, m: 30 },
+    { code: '2DV', name: '2:30 Daily', h: 14, m: 30 }
+    ];
+
+    const PROGRAM_DAYS = [
+    { code: '8PA', name: '8:15 Program', h: 8, m: 15 },
+    { code: 'EPF.', name: '11:15 Program', h: 11, m: 15 },
+    { code: '1PA', name: '1:15 Program', h: 13, m: 15 },
+    { code: '1PF', name: '1:30 Program', h: 13, m: 30 },
+    { code: '2PA', name: '2:15 Program', h: 14, m: 15 }
+    ];
+    let cachedData = null;
+    let calendarViewDate = new Date(); // Tracks displayed month
+    let selectedCalendarDate = null;   // Tracks clicked day
+
+    // Static Family Data
+    let familyData = [];
+
+
+let deskDate = new Date();
+deskDate.setHours(0,0,0,0);
+
+function changeDeskDate(days) {
+    deskDate.setDate(deskDate.getDate() + days);
+    renderDeskDashboard();
+}
+
+function renderForms() {
+    const container = document.getElementById('forms-list');
+    if (!container) return;
+
+    const forms = cachedData.forms || [];
+    const now = new Date();
+
+    const active = forms.filter(f => f.active);
+
+    if (!active.length) {
+        container.innerHTML = `
+            <div class="bg-gray-100 border-2 border-dashed border-gray-200 p-8 rounded-3xl text-center">
+                <p class="text-gray-400 font-bold text-sm italic uppercase">No forms pending at this time.</p>
+            </div>`;
+        return;
+    }
+
+    container.innerHTML = active.map(f => {
+        const isRequired = (f.type || '').toLowerCase() === 'required';
+        const submitted  = !!f.submitted;
+        const hasDue     = !!f.dueDate;
+        const dueDate    = hasDue ? new Date(f.dueDate) : null;
+        const isOverdue  = dueDate && dueDate < now && !submitted;
+        const formUrl    = `https://purduetours.github.io/TGIS/${f.formId}.html?user=${userName}`;
+
+        // Due date label
+        let dueTxt = 'No due date';
+        if (dueDate) {
+            dueTxt = 'Due ' + dueDate.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })
+                   + ' @ 11:59 PM';
+        }
+
+        // Left accent color
+        const accentColor = submitted ? '#10B981' : isRequired ? '#CFB991' : '#E5E7EB';
+
+        // Type badge
+        const typeBadge = isRequired
+            ? `<span class="bg-red-100 text-red-600 text-[10px] font-black px-2 py-1 rounded-md uppercase tracking-wider">Required</span>`
+            : `<span class="bg-gray-100 text-gray-500 text-[10px] font-black px-2 py-1 rounded-md uppercase tracking-wider">Optional</span>`;
+
+        // Status badge
+        const statusBadge = submitted
+            ? `<span class="bg-green-100 text-green-700 text-[10px] font-black px-2 py-1 rounded-md uppercase tracking-wider flex items-center gap-1">
+                 <span>✓</span> Submitted
+               </span>`
+            : isOverdue
+            ? `<span class="bg-red-100 text-red-600 text-[10px] font-black px-2 py-1 rounded-md uppercase tracking-wider">Overdue</span>`
+            : '';
+
+        // Button
+        const btn = submitted
+            ? `<button disabled class="w-full md:w-auto bg-gray-100 text-gray-400 font-black py-4 px-8 rounded-2xl uppercase text-xs tracking-widest cursor-not-allowed">
+                 Submitted ✓
+               </button>`
+            : `<button onclick="window.location.href='${formUrl}'"
+                 class="w-full md:w-auto bg-primary-gold hover:bg-[#b39a6d] text-white font-black py-4 px-8 rounded-2xl transition-all text-center shadow-lg shadow-primary-gold/30 uppercase text-xs tracking-widest">
+                 Open Form
+               </button>`;
+
+        return `
+            <div class="bg-white p-6 rounded-3xl shadow-xl flex flex-col md:flex-row justify-between items-center gap-6"
+                 style="border-left: 8px solid ${accentColor};">
+                <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-2 flex-wrap">
+                        ${typeBadge}
+                        ${statusBadge}
+                        <span class="text-gray-400 text-[10px] font-black uppercase tracking-widest">${dueTxt}</span>
+                    </div>
+                    <h2 class="text-2xl font-black text-gray-800">${f.formName}</h2>
+                </div>
+                ${btn}
+            </div>`;
+    }).join('');
+}
+
+// ── DESK SCHEDULE (from desk6) ─────────────────────────────────────────────
+const DESK_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxfKcVOjsxVbW0yVqiaZ9bVA5WuHXduJrRloAXb1TE69xrJM2Yo6Y4ELOjMw7RH-z1qdg/exec';
+const guideColors = {};
+const colorClasses = [
+    { bg: 'guide-bg-1', text: 'guide-text-1' }, { bg: 'guide-bg-2', text: 'guide-text-2' },
+    { bg: 'guide-bg-3', text: 'guide-text-3' }, { bg: 'guide-bg-4', text: 'guide-text-4' },
+    { bg: 'guide-bg-5', text: 'guide-text-5' }, { bg: 'guide-bg-6', text: 'guide-text-6' },
+    { bg: 'guide-bg-7', text: 'guide-text-7' }, { bg: 'guide-bg-8', text: 'guide-text-8' },
+    { bg: 'guide-bg-9', text: 'guide-text-9' }, { bg: 'guide-bg-10', text: 'guide-text-10' },
+];
+let deskColorIndex = 0;
+let deskDataLoaded = false;
+
+function formatGuide(displayName, guideUsername) {
+    if (!displayName) return '';
+    const isUser = guideUsername === userName;
+    let colorClass, textClass;
+    if (isUser) {
+        colorClass = 'bg-desk-shift-blue/90';
+        textClass  = 'text-white';
+    } else {
+        if (!guideColors[guideUsername]) {
+            guideColors[guideUsername] = colorClasses[deskColorIndex % colorClasses.length];
+            deskColorIndex++;
+        }
+        colorClass = `bg-${guideColors[guideUsername].bg}`;
+        textClass  = `text-${guideColors[guideUsername].text}`;
+    }
+    return `<div class="p-1 rounded-lg text-xs leading-snug font-semibold ${colorClass} ${textClass}">${displayName}</div>`;
+}
+
+function checkCurrentShift(userShifts) {
+    const now  = new Date();
+    const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const currentDay = days[now.getDay()];
+    const currentShift = (userShifts || []).find(shift => {
+        if (shift.day_of_week !== currentDay) return false;
+        const base  = '2000/01/01 ';
+        const start = new Date(base + shift.start_time);
+        const end   = new Date(base + shift.end_time);
+        const nowC  = new Date(base + `${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`);
+        return nowC >= start && nowC < end;
+    });
+    const card        = document.getElementById('current-shift-card');
+    const statusLabel = document.getElementById('current-shift-status-label');
+    const details     = document.getElementById('current-shift-details');
+    if (!card) return;
+    if (currentShift) {
+        card.className = 'md:col-span-2 rounded-2xl p-6 text-center shadow-lg transition-all duration-300 bg-status-green/10 border-2 border-status-green/50';
+        statusLabel.className = 'text-xs font-bold uppercase tracking-widest mb-1 text-status-green';
+        statusLabel.innerText = 'STATUS: CURRENTLY ON DESK';
+        details.innerHTML = `${currentShift.desk} ${currentShift.start_time} – ${currentShift.end_time}`;
+        details.className = 'text-3xl sm:text-4xl font-black leading-tight text-status-green';
+    } else {
+        card.className = 'md:col-span-2 rounded-2xl p-6 text-center shadow-lg transition-all duration-300 bg-gray-100';
+        statusLabel.className = 'text-xs font-bold uppercase tracking-widest mb-1 text-gray-500';
+        statusLabel.innerText = 'STATUS: NOT WORKING';
+        details.innerText = 'No Current Shift';
+        details.className = 'text-3xl sm:text-4xl font-black leading-tight text-gray-500';
+    }
+}
+
+function buildDeskTableBody(deskName, bodyId, data) {
+    const body = document.getElementById(bodyId);
+    if (!body) return;
+    const days = ['Monday','Tuesday','Wednesday','Thursday','Friday'];
+    const sortedSlots  = data.masterTimeSlotKeys || [];
+    const masterSched  = data.masterDeskSchedule;
+    if (!sortedSlots.length) {
+        body.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-sm text-gray-400">No ${deskName} shifts found.</td></tr>`;
+        return;
+    }
+    let html = '';
+    sortedSlots.forEach(timeKey => {
+        html += `<tr class="hover:bg-gray-50"><td class="px-3 py-2 whitespace-nowrap text-xs font-bold text-desk-shift-blue sticky left-0 bg-white">${timeKey}</td>`;
+        days.forEach(day => {
+            const shiftData = (masterSched[day] || {})[timeKey];
+            let cell = '';
+            if (shiftData) {
+                const guides = shiftData.desk[deskName] || [];
+                if (guides.length) {
+                    cell = `<div class="flex flex-row space-x-1 justify-center items-start w-full">`;
+                    guides.sort((a,b) => a.username === userName ? -1 : b.username === userName ? 1 : 0)
+                          .forEach(g => { cell += formatGuide(g.displayName, g.username); });
+                    cell += `</div>`;
+                } else {
+                    cell = `<div class="text-xs text-gray-400 italic text-center w-full">Open</div>`;
+                }
+            } else {
+                cell = `<div class="text-xs text-gray-400 italic text-center w-full">--</div>`;
+            }
+            html += `<td class="p-2 align-top text-center">${cell}</td>`;
+        });
+        html += `</tr>`;
+    });
+    body.innerHTML = html;
+}
+
+async function loadDeskSchedule() {
+    if (deskDataLoaded) return; // only fetch once
+    try {
+        const res  = await fetch(`${DESK_SCRIPT_URL}?page=desk_schedule&user=${encodeURIComponent(userName)}&_t=${Date.now()}`);
+        const data = await res.json();
+        window.deskScheduleData = data;
+        deskDataLoaded = true;
+
+        const userShifts = data.userDeskShifts || [];
+        let totalHours   = 0;
+
+        const shiftsHtml = userShifts.map(shift => {
+            totalHours += shift.duration_minutes / 60;
+            const cardColor = shift.desk === 'Welcome Desk'
+                ? 'bg-primary-gold/20 border-primary-gold/40'
+                : 'bg-desk-shift-blue/20 border-desk-shift-blue/40';
+            const textColor = shift.desk === 'Welcome Desk' ? 'text-text-dark' : 'text-desk-shift-blue';
+            return `<div class="p-3 rounded-xl border ${cardColor} hover:shadow-md transition-all">
+                <p class="text-xl sm:text-2xl font-black ${textColor} leading-tight">${shift.start_time} – ${shift.end_time}</p>
+                <p class="text-sm font-bold text-text-dark uppercase mt-1">${shift.day_of_week}</p>
+                <p class="text-xs font-semibold text-gray-500 mt-1">${shift.desk}</p>
+            </div>`;
+        }).join('');
+
+        document.getElementById('total-weekly-shifts').innerText = userShifts.length;
+        document.getElementById('total-weekly-hours').innerText  = totalHours.toFixed(1);
+        document.getElementById('user-shifts-summary').innerHTML = shiftsHtml
+            || '<span class="text-sm text-gray-500 italic sm:col-span-2 lg:col-span-3">No shifts assigned.</span>';
+
+        checkCurrentShift(userShifts);
+        buildDeskTableBody('Welcome Desk', 'welcome-desk-body', data);
+        buildDeskTableBody('Front Desk',   'front-desk-body',   data);
+
+        // Keep current-shift status fresh
+        setInterval(() => checkCurrentShift(userShifts), 60000);
+
+    } catch(e) {
+        console.error('Desk schedule load failed:', e);
+        document.getElementById('user-shifts-summary').innerHTML =
+            '<span class="text-sm text-red-500 italic sm:col-span-2 lg:col-span-3">Error loading desk schedule.</span>';
+    }
+}
+
+// Countdown timer reference
+let deskCountdownTimer = null;
+
+function renderDeskDashboard() {
+    const dailyContainer   = document.getElementById('grid-daily');
+    const programContainer = document.getElementById('grid-program');
+    const dateLabel        = document.getElementById('desk-display-date');
+    if (!dailyContainer || !programContainer || !cachedData) return;
+
+    dateLabel.innerText = deskDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const now = new Date();
+    const isToday = deskDate.toDateString() === now.toDateString();
+
+    let dailyHtml = '', programHtml = '';
+
+    // All slots combined for countdown logic
+    const ALL_SLOTS = [...DAILY_VISITS, ...PROGRAM_DAYS];
+
+    // ── COUNTDOWN PANEL ──────────────────────────────────────────────────────
+    // Find next upcoming or currently live tour
+    let countdownSlot = null;
+    let countdownStart = null;
+    if (isToday) {
+        const slotsWithTours = ALL_SLOTS.filter(slot => {
+            const guides = cachedData.tours.filter(t => {
+                const tDate = t.dateObj || (t.date ? (() => { const d = new Date(t.date); d.setHours(0,0,0,0); return d; })() : null);
+                return t.type === slot.code && tDate && tDate.getTime() === deskDate.getTime() && !['N/A','#N/A'].includes(String(t.guide).trim().toUpperCase());
+            });
+            return guides.length > 0;
+        });
+        // Sort by start time, find the next one that hasn't ended
+        const sorted = slotsWithTours.map(slot => {
+            const start = new Date(deskDate); start.setHours(slot.h, slot.m, 0, 0);
+            const end   = new Date(start); end.setMinutes(end.getMinutes() + 105);
+            return { slot, start, end };
+        }).sort((a, b) => a.start - b.start);
+
+        const next = sorted.find(s => s.end > now);
+        if (next) { countdownSlot = next.slot; countdownStart = next.start; }
+    }
+
+    const countdownEl = document.getElementById('desk-countdown-panel');
+    if (countdownEl) {
+        if (countdownSlot && countdownStart) {
+            const isLive = now >= countdownStart;
+            countdownEl.innerHTML = `
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+                    <div>
+                        <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.18em;color:rgba(255,255,255,0.45);margin:0 0 4px;">
+                            ${isLive ? '● Live Now' : 'Next Tour'}
+                        </p>
+                        <p style="font-size:1.1rem;font-weight:900;color:white;margin:0;">
+                            ${countdownSlot.name}
+                        </p>
+                        <p style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.4);margin:2px 0 0;">
+                            ${countdownStart.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}
+                        </p>
+                    </div>
+                    <div style="text-align:right;">
+                        <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:rgba(255,255,255,0.35);margin:0 0 4px;">
+                            T${isLive ? '+' : '-'}
+                        </p>
+                        <p id="desk-countdown-clock" style="font-size:2.25rem;font-weight:900;color:${isLive ? '#10B981' : '#CFB991'};font-family:monospace;letter-spacing:0.05em;margin:0;line-height:1;">
+                            --:--:--
+                        </p>
+                    </div>
+                </div>`;
+
+            // Start the countdown ticker
+            if (deskCountdownTimer) clearInterval(deskCountdownTimer);
+            deskCountdownTimer = setInterval(() => {
+                const el = document.getElementById('desk-countdown-clock');
+                if (!el) { clearInterval(deskCountdownTimer); return; }
+                const nowT = new Date();
+                const diff = Math.abs(nowT - countdownStart);
+                const h = Math.floor(diff / 3600000);
+                const m = Math.floor((diff % 3600000) / 60000);
+                const s = Math.floor((diff % 60000) / 1000);
+                el.innerText = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+
+                // Once tour ends, re-render to pick up the next one
+                const endT = new Date(countdownStart); endT.setMinutes(endT.getMinutes() + 105);
+                if (nowT > endT) { clearInterval(deskCountdownTimer); renderDeskDashboard(); }
+            }, 1000);
+        } else {
+            countdownEl.innerHTML = `
+                <div style="text-align:center;padding:0.5rem;">
+                    <p style="font-size:13px;font-weight:700;color:rgba(255,255,255,0.3);margin:0;">
+                        ${isToday ? 'No more tours today' : 'No tours on this date'}
+                    </p>
+                </div>`;
+            if (deskCountdownTimer) clearInterval(deskCountdownTimer);
+        }
+    }
+
+    // ── TOUR CARDS ───────────────────────────────────────────────────────────
+    [DAILY_VISITS, PROGRAM_DAYS].forEach((list, idx) => {
+        list.forEach(slot => {
+            const guides = cachedData.tours.filter(t => {
+                const tDate = t.dateObj || (t.date ? (() => { const d = new Date(t.date); d.setHours(0,0,0,0); return d; })() : null);
+                return t.type === slot.code && tDate && tDate.getTime() === deskDate.getTime() && !['N/A','#N/A'].includes(String(t.guide).trim().toUpperCase());
+            });
+            const hasTour = guides.length > 0;
+
+            let status = 'empty', borderColor = '#E5E7EB', borderStyle = 'border';
+            if (hasTour) {
+                const start = new Date(deskDate); start.setHours(slot.h, slot.m, 0);
+                const end   = new Date(start); end.setMinutes(start.getMinutes() + 105);
+                if (isToday) {
+                    if (now >= start && now <= end) { status = 'live';  borderColor = '#8B5CF6'; borderStyle = 'border-2'; }
+                    else if (now < start)            { status = 'ready'; borderColor = '#10B981'; borderStyle = 'border'; }
+                    else                             { status = 'done';  borderColor = '#D1D5DB'; borderStyle = 'border'; }
+                } else { status = 'scheduled'; borderColor = '#10B981'; borderStyle = 'border'; }
+            }
+
+            const statusLabel = { live: 'Live', ready: 'Ready', done: 'Done', scheduled: 'Scheduled', empty: 'Empty' }[status];
+            const statusColor = { live: '#8B5CF6', ready: '#10B981', done: '#9CA3AF', scheduled: '#10B981', empty: '#D1D5DB' }[status];
+            const isLive = status === 'live';
+
+            const cardHtml = `
+                <div style="background:white;border:2px solid ${borderColor};border-radius:1.5rem;padding:1.25rem;
+                            display:flex;flex-direction:column;${!hasTour ? 'opacity:0.3;' : ''}
+                            ${isLive ? 'animation:pulseBorder 2s ease-in-out infinite;' : ''}">
+                    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:0.75rem;">
+                        <div>
+                            <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#CFB991;margin:0 0 2px;">${slot.code}</p>
+                            <h2 style="font-size:15px;font-weight:900;margin:0;color:#111827;">${slot.name}</h2>
+                        </div>
+                        <span style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;
+                                     color:${statusColor};background:${statusColor}18;
+                                     padding:3px 8px;border-radius:99px;flex-shrink:0;white-space:nowrap;">
+                            ${statusLabel}
+                        </span>
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:6px;">
+                        ${guides.length > 0 ? guides.map(g => {
+                            const parsed = parseGuide(g.guide, g.status);
+                            const pillColor = parsed.statusLabel === 'PENDING DROP' ? '#EF4444'
+                                           : parsed.statusLabel === 'PICKED UP'    ? '#8B5CF6'
+                                           : parsed.statusLabel === 'NOT GIVEN'    ? '#3B82F6'
+                                           : '#10B981';
+                            return `
+                                <div style="padding:6px 10px;border-radius:10px;border:1px solid #F3F4F6;background:#F9FAFB;
+                                            display:flex;justify-content:space-between;align-items:center;">
+                                    <span style="font-size:12px;font-weight:700;color:#111827;">${parsed.name}</span>
+                                    <span style="font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;
+                                                 color:${pillColor};background:${pillColor}15;
+                                                 padding:2px 7px;border-radius:99px;">${parsed.statusLabel}</span>
+                                </div>`;
+                        }).join('') : '<p style="font-size:11px;color:#D1D5DB;font-style:italic;">No guides</p>'}
+                    </div>
+                </div>`;
+
+            if (idx === 0) dailyHtml += cardHtml; else programHtml += cardHtml;
+        });
+    });
+
+    dailyContainer.innerHTML   = dailyHtml;
+    programContainer.innerHTML = programHtml;
+}
+
+
+
+function parseGuide(guideStr, status) {
+    let name = String(guideStr);
+    let statusLabel = "SCHEDULED";
+    let cardClass = "bg-gray-50 border-gray-100";
+    let badgeClass = "bg-green-100 text-green-700";
+
+    if (name.includes('*')) {
+        name = name.replace('*', '').trim();
+        statusLabel = "PENDING DROP";
+        cardClass = "status-pill-red border-red-300";
+        badgeClass = "bg-red-600 text-white";
+    } else if (name.includes('`')) {
+        name = name.replace('`', '').trim();
+        statusLabel = "NOT GIVEN";
+        badgeClass = "bg-blue-100 text-blue-700";
+    } else if (name.includes('+')) {
+        name = name.replace('+', '').trim();
+        statusLabel = "PICKED UP";
+        badgeClass = "bg-purple-100 text-purple-700";
+    }
+
+    if (status === 'SENT HOME') {
+        cardClass = "status-pill-gray border-gray-300";
+        statusLabel = "SENT HOME";
+        badgeClass = "bg-gray-500 text-white";
+    }
+
+    return { name, statusLabel, cardClass, badgeClass };
+}
+
+
+    
+function renderWelcomeCenter(allTours) {
+    const grid = document.getElementById('welcome-grid');
+    const dateDisplay = document.getElementById('welcome-date-display');
+    if (!grid) return;
+
+    const now = new Date();
+    const todayStr = now.toDateString();
+    dateDisplay.innerText = now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }).toUpperCase();
+
+    grid.innerHTML = '';
+
+    // Loop through every possible tour in tour map
+    Object.keys(TOUR_MAP).forEach(typeCode => {
+        const info = TOUR_MAP[typeCode];
+        
+        // Find everyone assigned to THIS tour type TODAY
+        const assignedGuides = allTours.filter(t => 
+            t.type === typeCode && 
+            new Date(t.date).toDateString() === todayStr
+        );
+
+        // Determine Status
+        let statusColor = "bg-gray-100 border-gray-200 text-gray-400 opacity-50"; // DEFAULT: Red (Not Scheduled)
+        let statusLabel = "Not Scheduled";
+        let dotColor = "bg-red-500";
+
+        if (assignedGuides.length > 0) {
+            // It is scheduled!
+            statusColor = "bg-white border-status-green text-gray-900 shadow-xl ring-2 ring-status-green/20";
+            statusLabel = "Scheduled";
+            dotColor = "bg-status-green";
+
+            // Check if it's CURRENTLY on tour
+            const start = parse12Hour(info.time);
+            const startTime = new Date();
+            startTime.setHours(start.hours, start.minutes, 0);
+            const endTime = new Date(startTime.getTime() + info.duration * 60000);
+
+            if (now >= startTime && now <= endTime) {
+                statusColor = "bg-purple-600 border-purple-800 text-white shadow-2xl scale-105 z-10";
+                statusLabel = "ON TOUR";
+                dotColor = "bg-white animate-ping";
+            }
+        }
+
+        const guideList = assignedGuides.length > 0 
+            ? assignedGuides.map(g => `<div class="font-bold text-sm">👤 ${g.guide}</div>`).join('')
+            : '<div class="text-xs italic opacity-50 text-red-500 font-bold">No Guides Assigned</div>';
+
+        grid.innerHTML += `
+            <div class="rounded-[2.5rem] border-2 p-8 transition-all duration-500 ${statusColor}">
+                <div class="flex justify-between items-start mb-6">
+                    <div>
+                        <p class="text-[10px] font-black uppercase tracking-[0.2em] opacity-60 mb-1">${info.name}</p>
+                        <h2 class="text-4xl font-black tracking-tighter">${info.time}</h2>
+                    </div>
+                    <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-black/10 text-[10px] font-black uppercase">
+                        <span class="w-2 h-2 rounded-full ${dotColor}"></span>
+                        ${statusLabel}
+                    </div>
+                </div>
+
+                <div class="space-y-2 mt-6 pt-6 border-t border-current/10">
+                    <p class="text-[10px] font-black uppercase tracking-widest opacity-60 mb-2">Assigned Personnel</p>
+                    ${guideList}
+                </div>
+            </div>
+        `;
+    });
+}
+function switchView(viewId) {
+    // 1. Hide all sections, show the active one
+    document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+    document.getElementById(`view-${viewId}`).classList.add('active');
+    if (window.innerWidth < 1024) {
+        const ca = document.querySelector('.content-area');
+        if (ca) ca.style.paddingTop = viewId === 'home' ? '0' : 'env(safe-area-inset-top)';
+    }
+    // Lazy-load desk schedule on first visit to that tab
+    if (viewId === 'desk') loadDeskSchedule();
+
+    // 2. Update desktop sidebar active state
+    document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
+    const activeNav = document.getElementById(`nav-${viewId}`);
+    if (activeNav) activeNav.classList.add('active');
+
+    // 3. Update mobile bottom nav active state
+    document.querySelectorAll('.bn-btn').forEach(btn => btn.classList.remove('active'));
+    const activeBn = document.getElementById(`bn-${viewId}`);
+    if (activeBn) activeBn.classList.add('active');
+
+    // 4. Close sidebar if open on mobile
+    document.getElementById('sidebar').classList.remove('open');
+
+    // 5. Reset scroll
+    document.querySelector('.content-area').scrollTop = 0;
+}
+    // Helper to convert "1:30 PM" to 24-hour integers
+function parse12Hour(timeStr) {
+    const [time, modifier] = timeStr.split(' ');
+    let [hours, minutes] = time.split(':');
+    hours = parseInt(hours);
+    if (modifier === 'PM' && hours < 12) hours += 12;
+    if (modifier === 'AM' && hours === 12) hours = 0;
+    return { hours, minutes: parseInt(minutes) };
+}
+
+function checkTourLock(myTours) {
+    const lockScreen = document.getElementById('tour-lock-screen');
+    if (!lockScreen || !myTours) return;
+
+    const now = new Date();
+
+    const activeTour = myTours.find(tour => {
+        const info = TOUR_MAP[tour.type];
+        if (!info) return false;
+
+        const startParsed = parse12Hour(info.time);
+        const startTime = new Date(tour.date);
+        startTime.setHours(startParsed.hours, startParsed.minutes, 0);
+
+        // Calculate end by adding duration minutes
+        const endTime = new Date(startTime.getTime() + info.duration * 60000);
+
+        return now >= startTime && now <= endTime;
+    });
+
+    if (activeTour) {
+        const info = TOUR_MAP[activeTour.type];
+        const startParsed = parse12Hour(info.time);
+        
+        // Create end time for display
+        const displayEnd = new Date();
+        displayEnd.setHours(startParsed.hours, startParsed.minutes);
+        const finalEnd = new Date(displayEnd.getTime() + info.duration * 60000);
+
+        document.getElementById('lock-tour-name').innerText = info.name;
+        document.getElementById('lock-tour-end').innerText = finalEnd.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+        lockScreen.classList.remove('hidden');
+    } else {
+        lockScreen.classList.add('hidden');
+    }
+}
+
+function renderHomeNextTour(myTours) {
+    const container = document.getElementById('home-next-tour-container');
+    const upcomingEl = document.getElementById('home-upcoming-count');
+    if (!container) return;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const upcoming = (myTours || [])
+        .filter(t => { const d = new Date(t.date); d.setHours(0,0,0,0); return d >= today; })
+        .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    // Fill upcoming count stat card
+    if (upcomingEl) upcomingEl.innerText = upcoming.length;
+    const mup = document.getElementById('mobile-upcoming');
+    if (mup) mup.innerText = upcoming.length;
+
+    // Render today's schedule
+    renderHomeTodaySchedule(myTours || []);
+
+    if (upcoming.length === 0) {
+        container.innerHTML = `
+            <div class="bg-gray-50 border-2 border-dashed border-gray-200 rounded-[2rem] p-5 flex items-center justify-center text-center">
+                <p class="text-gray-400 text-[10px] font-black uppercase tracking-widest">No tours scheduled</p>
+            </div>`;
+        return;
+    }
+
+    const tour = upcoming[0];
+    const info = TOUR_MAP[tour.type] || { color: 'bg-gray-600', name: tour.type, time: '--:--' };
+    const displayTime = tour.time || info.time;
+    const tourDate = new Date(tour.date);
+
+    const month = tourDate.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
+    const dayNum = tourDate.getDate();
+    const dayName = tourDate.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
+
+    // "X days away" label
+    const diffDays = Math.round((new Date(tour.date) - new Date()) / (1000 * 60 * 60 * 24));
+    const diffLabel = diffDays <= 0 ? 'Today' : diffDays === 1 ? 'Tomorrow' : `${diffDays} days away`;
+
+    const isPendingDrop = tour.guide.includes('*');
+    // Also populate mobile next tour card
+    const mntCard = document.getElementById('mobile-next-tour-inner');
+    if (mntCard && upcoming.length > 0) {
+      const t = upcoming[0];
+      const info = TOUR_MAP[t.type] || { name: t.type, time: '--' };
+      const d = new Date(t.date);
+      const dateStr = d.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
+      const displayTime = t.time || info.time;
+      mntCard.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <p style="font-size:1.1rem;font-weight:900;color:#111827;margin:0;">${displayTime} · ${info.name}</p>
+            <p style="font-size:12px;font-weight:700;color:#6B7280;margin:4px 0 0;">${dateStr}</p>
+          </div>
+          <span style="font-size:1.25rem;color:#CFB991;">›</span>
+        </div>`;
+    }
+    container.innerHTML = `
+        <div style="background:#1a1408; border:1px solid ${isPendingDrop ? 'rgba(239,68,68,0.4)' : 'rgba(207,185,145,0.3)'};" class="rounded-[2rem] p-5 flex items-center gap-5">
+            <div style="background:rgba(207,185,145,0.12); border:1px solid rgba(207,185,145,0.35);" class="rounded-2xl w-16 h-16 flex flex-col items-center justify-center shrink-0">
+                <span class="text-[9px] font-black tracking-widest text-primary-gold mb-0.5">${month}</span>
+                <span class="text-2xl font-black leading-none text-white">${dayNum}</span>
+                <span class="text-[9px] font-black tracking-widest mt-0.5" style="color:rgba(207,185,145,0.6)">${dayName}</span>
+            </div>
+            <div class="flex flex-col justify-center min-w-0">
+                <div class="flex items-center gap-2 mb-2 flex-wrap">
+                    <span style="background:rgba(207,185,145,0.12); color:#CFB991;" class="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md">${info.name}</span>
+                    ${isPendingDrop ? `<span style="background:rgba(239,68,68,0.2);color:#EF4444;border:1px solid rgba(239,68,68,0.4);" class="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md">Pending Drop</span>` : ''}
+                </div>
+                <span class="text-3xl font-black text-white leading-none tracking-tight">${displayTime}</span>
+                <span class="text-[11px] font-bold mt-1" style="color:rgba(255,255,255,0.4)">${diffLabel}</span>
+            </div>
+        </div>`;
+}
+
+function renderHomeTodaySchedule(myTours) {
+    const container = document.getElementById('home-today-container');
+    if (!container) return;
+
+    const todayStr = new Date().toDateString();
+    const todayTours = myTours
+        .filter(t => new Date(t.date).toDateString() === todayStr)
+        .sort((a, b) => {
+            const getMinutes = t => {
+                const info = TOUR_MAP[t.type];
+                if (!info) return 9999;
+                const p = parse12Hour(info.time);
+                return p.hours * 60 + p.minutes;
+            };
+            return getMinutes(a) - getMinutes(b);
+        });
+
+    if (todayTours.length === 0) {
+        container.innerHTML = `
+            <div class="bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl p-4 text-center">
+                <p class="text-gray-400 text-[10px] font-black uppercase tracking-widest">No tours today</p>
+            </div>`;
+        return;
+    }
+
+    const now = new Date();
+    const dotColors = { '9DV': '#10B981', '0DV': '#10B981', '1DV': '#10B981', '2DV': '#10B981', '0GV': '#3B82F6', '8PA': '#8B5CF6', '1PF': '#8B5CF6', '1PA': '#8B5CF6', '2PA': '#8B5CF6' };
+
+    const rows = todayTours.map((tour, i) => {
+        const info = TOUR_MAP[tour.type] || { name: tour.type, time: '--' };
+        const displayTime = tour.time || info.time;
+        const dot = dotColors[tour.type] || '#9CA3AF';
+        const isLast = i === todayTours.length - 1;
+        const isPendingDrop = tour.guide.includes('*');
+        return `
+            <div class="flex items-center gap-3 px-4 py-3 ${isLast ? '' : 'border-b border-gray-50'}">
+                <div class="w-2 h-2 rounded-full shrink-0" style="background:${dot}"></div>
+                <span class="font-bold text-sm flex-1">${info.name}</span>
+                ${isPendingDrop ? `<span style="background:#FEE2E2;color:#B91C1C;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;padding:2px 7px;border-radius:99px;">Drop?</span>` : ''}
+                <span class="text-sm font-black text-gray-600">${displayTime}</span>
+            </div>`;
+    }).join('');
+
+const todayHTML = `
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+            <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+                <span class="text-xs font-black text-gray-500 uppercase tracking-widest">Today</span>
+                <span class="bg-status-green/10 text-status-green text-[10px] font-black px-2 py-0.5 rounded-md uppercase">${todayTours.length} tour${todayTours.length > 1 ? 's' : ''}</span>
+            </div>
+            ${rows}
+        </div>`;
+    container.innerHTML = todayHTML;
+    const mobileTodayEl = document.getElementById('home-today-container');
+    if (mobileTodayEl) mobileTodayEl.innerHTML = todayHTML;
+}
+    function updateClock() {
+        const now = new Date();
+        const str = now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        document.getElementById('live-clock').innerText = str;
+        const mc = document.getElementById('live-clock-mobile');
+        if (mc) mc.innerText = str;
+    }
+    setInterval(updateClock, 1000);
+
+    function signOut() {
+        localStorage.removeItem(STORAGE_KEY);
+        window.location.replace('https://purduetours.github.io/TGIS');
+    }
+
+    function selectRole(role) {
+        if (role === 'admin') {
+            window.location.href = `https://purduetours.github.io/TGIS/adminportal.html?user=${encodeURIComponent(userName)}`;
+        } else {
+            // Continue loading the student view — hide selector and resume
+            document.getElementById('role-selector').classList.add('hidden');
+            document.getElementById('loading-overlay').style.display = 'flex';
+            continueInit();
+        }
+    }
+
+  function renderFamilyUI() {
+        const container = document.getElementById('family-leaderboard-container');
+        const myCard    = document.getElementById('my-family-card');
+        const semLabel  = document.getElementById('family-semester-label');
+        if (!container) return;
+
+        const data = (cachedData && cachedData.familyStandings && cachedData.familyStandings.length)
+            ? cachedData.familyStandings : [];
+
+        if (!data.length) {
+            container.innerHTML = `<p style="color:#9CA3AF;font-size:13px;font-style:italic;text-align:center;padding:2rem;">No family data available yet.</p>`;
+            return;
+        }
+
+        if (semLabel) semLabel.innerText = (cachedData && cachedData.currentSemesterName) || '';
+
+        const sorted    = [...data].sort((a, b) => b.points - a.points);
+        const leader    = sorted[0].points || 1;
+        const myFamily  = cachedData?.profile?.family || null;
+        const myPts     = cachedData?.myFamilyPoints  || 0;
+
+        const PALETTE = [
+            { bg:'#CFB991', glow:'rgba(207,185,145,0.4)', light:'rgba(207,185,145,0.12)' },
+            { bg:'#3B82F6', glow:'rgba(59,130,246,0.4)',  light:'rgba(59,130,246,0.1)'   },
+            { bg:'#10B981', glow:'rgba(16,185,129,0.4)',  light:'rgba(16,185,129,0.1)'   },
+            { bg:'#8B5CF6', glow:'rgba(139,92,246,0.4)',  light:'rgba(139,92,246,0.1)'   },
+            { bg:'#EF4444', glow:'rgba(239,68,68,0.4)',   light:'rgba(239,68,68,0.1)'    },
+            { bg:'#06B6D4', glow:'rgba(6,182,212,0.4)',   light:'rgba(6,182,212,0.1)'    },
+        ];
+        const MEDALS = ['🥇','🥈','🥉'];
+
+        // ── YOUR FAMILY CARD ──────────────────────────────────────────────
+        if (myCard) {
+            const myIdx   = sorted.findIndex(f => f.name === myFamily);
+            const myData  = myIdx >= 0 ? sorted[myIdx] : null;
+            const myRank  = myIdx + 1;
+            const myColor = myIdx >= 0 ? PALETTE[myIdx % PALETTE.length] : PALETTE[0];
+            const myFamPts = myData ? myData.points : 0;
+            const gap      = myRank === 1 ? 0 : leader - myFamPts;
+            const suffixes = ['ST','ND','RD','TH','TH','TH'];
+
+            if (myData) {
+                myCard.innerHTML = `
+                <div style="background:linear-gradient(135deg,#1a1408,#0f0c04);border:1px solid ${myColor.glow};
+                            border-radius:1.5rem;padding:1.25rem 1.5rem;box-shadow:0 4px 24px ${myColor.glow};
+                            margin-bottom:1.25rem;">
+                    <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;
+                               color:rgba(255,255,255,0.3);margin:0 0 8px;">Your Family</p>
+                    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;">
+                        <div style="flex:1;">
+                            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap;">
+                                <div style="width:10px;height:10px;border-radius:50%;background:${myColor.bg};
+                                            box-shadow:0 0 8px ${myColor.bg};flex-shrink:0;"></div>
+                                <h2 style="font-size:1.4rem;font-weight:900;color:#fff;margin:0;">${myData.name} Family</h2>
+                                <span style="font-size:10px;font-weight:900;color:${myColor.bg};
+                                             background:${myColor.light};border:1px solid ${myColor.glow};
+                                             border-radius:99px;padding:2px 10px;letter-spacing:0.06em;">
+                                    ${myRank}${suffixes[(myRank-1)%6]} PLACE
+                                </span>
+                            </div>
+                            <p style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.35);margin:0 0 12px;">
+                                ${myRank === 1 ? '🏆 Leading the cup' : `${gap} pts behind 1st`}
+                            </p>
+                            ${myRank > 1 ? `
+                            <div style="height:4px;background:rgba(255,255,255,0.07);border-radius:99px;overflow:hidden;margin-bottom:8px;">
+                                <div style="height:100%;width:${Math.round((myFamPts/leader)*100)}%;
+                                            background:${myColor.bg};border-radius:99px;transition:width 1s ease;"></div>
+                            </div>` : ''}
+                            <div style="display:inline-flex;align-items:center;gap:8px;
+                                        background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);
+                                        border-radius:0.75rem;padding:0.5rem 0.875rem;">
+                                <span style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.4);">Your points this semester</span>
+                                <span style="font-size:1rem;font-weight:900;color:${myColor.bg};">+${myPts} pts</span>
+                            </div>
+                        </div>
+                        <div style="text-align:right;flex-shrink:0;">
+                            <p style="font-size:2.75rem;font-weight:900;color:${myColor.bg};margin:0;line-height:1;">${myFamPts}</p>
+                            <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;
+                                       color:rgba(255,255,255,0.25);margin:2px 0 0;">family pts</p>
+                        </div>
+                    </div>
+                </div>`;
+            } else {
+                myCard.innerHTML = `
+                <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);
+                            border-radius:1.5rem;padding:1.25rem;text-align:center;margin-bottom:1.25rem;">
+                    <p style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.3);margin:0;">
+                        You haven't been assigned to a family yet
+                    </p>
+                </div>`;
+            }
+        }
+
+        // ── FULL STANDINGS ────────────────────────────────────────────────
+        container.innerHTML = sorted.map((family, i) => {
+            const color  = PALETTE[i % PALETTE.length];
+            const isMe   = family.name === myFamily;
+            const pct    = Math.round((family.points / leader) * 100);
+            const gap    = i === 0 ? 0 : leader - family.points;
+            const medal  = i < 3 ? MEDALS[i] : null;
+
+            return `
+            <div style="background:white;border:1.5px solid ${isMe ? color.glow : '#F3F4F6'};
+                        border-radius:1.25rem;padding:1rem 1.25rem;margin-bottom:0.625rem;
+                        ${isMe ? `box-shadow:0 0 0 1px ${color.glow};` : ''}">
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+                    <div style="width:38px;height:38px;border-radius:10px;background:${color.light};
+                                border:1px solid ${color.glow};display:flex;align-items:center;
+                                justify-content:center;flex-shrink:0;font-size:${medal ? '18px' : '12px'};">
+                        ${medal || `<span style="font-weight:900;color:${color.bg};">${i+1}</span>`}
+                    </div>
+                    <div style="flex:1;min-width:0;">
+                        <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;flex-wrap:wrap;">
+                            <p style="font-size:15px;font-weight:900;color:#111827;margin:0;">${family.name} Family</p>
+                            ${isMe ? `<span style="font-size:9px;font-weight:900;color:${color.bg};
+                                                  background:${color.light};border:1px solid ${color.glow};
+                                                  border-radius:99px;padding:1px 8px;letter-spacing:0.06em;">YOU</span>` : ''}
+                        </div>
+                        <p style="font-size:11px;font-weight:700;color:#9CA3AF;margin:0;">
+                            ${i === 0 ? `<span style="color:${color.bg};">★ Leading</span>` : `${gap} pts behind`}
+                        </p>
+                    </div>
+                    <div style="text-align:right;flex-shrink:0;">
+                        <p style="font-size:1.5rem;font-weight:900;color:#111827;margin:0;line-height:1;">${family.points}</p>
+                        <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;
+                                   color:#9CA3AF;margin:2px 0 0;">pts</p>
+                    </div>
+                </div>
+                <div style="height:5px;background:#F3F4F6;border-radius:99px;overflow:hidden;">
+                    <div style="height:100%;width:${pct}%;background:${color.bg};
+                                border-radius:99px;transition:width 1s ease;"></div>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    // Sidebar Controls
+   // document.getElementById('mobile-menu-button').onclick = () => document.getElementById('sidebar').classList.add('open');
+    document.getElementById('close-menu').onclick = () => document.getElementById('sidebar').classList.remove('open');
+
+    // Milestones Logic (Original)
+    function handleMilestones(total) {
+        const careerTotal = total || 0;
+        if (careerTotal >= 50)  document.getElementById('badge-50').classList.add('badge-active');
+        if (careerTotal >= 100) document.getElementById('badge-100').classList.add('badge-active');
+        if (careerTotal >= 200) document.getElementById('badge-200').classList.add('badge-active');
+        let nextGoal = 50;
+        let goalName = "Bell Tower Boss";
+        if (careerTotal >= 200) { nextGoal = careerTotal; goalName = "Maximum Rank!"; }
+        else if (careerTotal >= 100) { nextGoal = 200; goalName = "Golden Guide"; }
+        else if (careerTotal >= 50) { nextGoal = 100; goalName = "Century Club"; }
+        document.getElementById('next-milestone-name').innerText = goalName;
+        document.getElementById('tours-to-go').innerText = Math.max(0, nextGoal - careerTotal);
+        document.getElementById('milestone-progress-bar').style.width = (careerTotal >= 200 ? 100 : (careerTotal / nextGoal) * 100) + "%";
+    }
+
+    // Leaderboard Logic (Original)
+    function updateLeaderboard(mode) {
+        if (!cachedData || !cachedData.fullList) return;
+        document.getElementById('toggle-career').classList.toggle('active', mode === 'career');
+        document.getElementById('toggle-semester').classList.toggle('active', mode === 'semester');
+        const sortedData = [...cachedData.fullList].sort((a, b) => mode === 'career' ? b.careerTotal - a.careerTotal : b.semesterTotal - a.semesterTotal).slice(0, 10);
+        document.getElementById('leaderboard-container').innerHTML = sortedData.map((entry, i) => `
+            <div class="flex items-center justify-between p-4 rounded-2xl ${entry.displayName.toLowerCase() === cachedData.profile.displayName.toLowerCase() ? 'bg-primary-gold/20 ring-2 ring-primary-gold' : 'bg-gray-50'}">
+                <div class="flex items-center space-x-4">
+                    <span class="font-black text-gray-300 w-6">#${i+1}</span>
+                    <span class="font-bold">${entry.displayName}</span>
+                </div>
+                <span class="font-black text-primary-gold">${mode === 'career' ? entry.careerTotal : entry.semesterTotal}</span>
+            </div>
+        `).join('');
+    }
+
+   function changeMonth(offset) {
+    calendarViewDate.setMonth(calendarViewDate.getMonth() + offset);
+    const myTours = window.currentMyTours || []; 
+    updateScheduleView(myTours);
+}
+
+function selectDate(dateString, myTours) {
+    // Toggle filter: if clicking the same date, clear it. Otherwise, set it.
+    selectedCalendarDate = (selectedCalendarDate === dateString) ? null : dateString;
+    updateScheduleView(myTours);
+}
+
+// ── Week-strip state ─────────────────────────────────────────
+let weekStripAnchor = (() => { const d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate() - d.getDay()); return d; })(); // Sunday of current week
+let calendarExpanded = false;
+
+function expandToMonth() {
+    calendarExpanded = true;
+    document.getElementById('week-strip-container').classList.add('hidden');
+    document.getElementById('month-expand-container').classList.remove('hidden');
+    updateScheduleView(window.currentMyTours || []);
+}
+
+function collapseToWeek() {
+    calendarExpanded = false;
+    document.getElementById('month-expand-container').classList.add('hidden');
+    document.getElementById('week-strip-container').classList.remove('hidden');
+    updateScheduleView(window.currentMyTours || []);
+}
+
+function changeWeekStrip(offset) {
+    weekStripAnchor = new Date(weekStripAnchor);
+    weekStripAnchor.setDate(weekStripAnchor.getDate() + offset * 7);
+    updateScheduleView(window.currentMyTours || []);
+}
+
+function renderWeekStrip(myTours) {
+    const strip = document.getElementById('week-strip');
+    const label = document.getElementById('week-strip-label');
+    if (!strip) return;
+
+    const today = new Date(); today.setHours(0,0,0,0);
+
+    // Label: "May 19 – 25"
+    const end = new Date(weekStripAnchor); end.setDate(end.getDate() + 6);
+    const startFmt = weekStripAnchor.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const endFmt   = end.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    if (label) label.innerText = `${startFmt} – ${endFmt}`;
+
+    const DAY_LABELS = ['S','M','T','W','T','F','S'];
+    strip.innerHTML = '';
+
+    for (let i = 0; i < 7; i++) {
+        const d = new Date(weekStripAnchor); d.setDate(d.getDate() + i);
+        const dateStr = d.toDateString();
+        const toursOnDay = myTours.filter(t => new Date(t.date).toDateString() === dateStr);
+        const count = toursOnDay.length;
+        const isToday = dateStr === today.toDateString();
+        const isSelected = selectedCalendarDate === dateStr;
+        const isPast = d < today;
+
+        // Dot colors per type
+        const dots = buildTypeDots(toursOnDay, isPast);
+
+        let bg, color, border, opacity;
+        if (isSelected) {
+            bg = '#CFB991'; color = '#000'; border = 'none'; opacity = '1';
+        } else if (isToday) {
+            bg = 'white'; color = '#111827'; border = '2px solid #CFB991'; opacity = '1';
+        } else if (count > 0 && !isPast) {
+            bg = '#F0FDF4'; color = '#065F46'; border = '1px solid #BBF7D0'; opacity = '1';
+        } else if (count > 0 && isPast) {
+            bg = '#F9FAFB'; color = '#9CA3AF'; border = '1px solid #F3F4F6'; opacity = '1';
+        } else {
+            bg = 'transparent'; color = isPast ? '#D1D5DB' : '#6B7280'; border = '1px solid transparent'; opacity = '1';
+        }
+
+        strip.innerHTML += `
+            <div onclick="selectDate('${dateStr}', window.currentMyTours)"
+                 style="display:flex;flex-direction:column;align-items:center;justify-content:center;
+                        padding:6px 2px 5px;border-radius:12px;cursor:pointer;
+                        background:${bg};color:${color};border:${border};opacity:${opacity};
+                        transition:all 0.15s;user-select:none;min-height:56px;gap:2px;">
+                <span style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.05em;opacity:0.7;">${DAY_LABELS[i]}</span>
+                <span style="font-size:15px;font-weight:900;line-height:1;">${d.getDate()}</span>
+                <div style="display:flex;gap:2px;min-height:6px;">${dots}</div>
+            </div>`;
+    }
+}
+
+function buildTypeDots(toursOnDay, isPast) {
+    if (toursOnDay.length === 0) return '';
+    const types = [...new Set(toursOnDay.map(t => {
+        const info = TOUR_MAP[t.type];
+        if (!info) return 'gray';
+        if (info.name.includes('Program')) return 'purple';
+        if (info.name.includes('Group')) return 'blue';
+        return 'green';
+    }))];
+    return types.slice(0, 3).map(c => {
+        let bg;
+        if (isPast) { bg = '#D1D5DB'; }
+        else if (c === 'purple') { bg = '#8B5CF6'; }
+        else if (c === 'blue') { bg = '#3B82F6'; }
+        else { bg = '#10B981'; }
+        return `<div style="width:4px;height:4px;border-radius:50%;background:${bg};"></div>`;
+    }).join('');
+}
+
+function updateScheduleView(myTours, displayName) {
+    window.currentMyTours = myTours;
+    const listContainer = document.getElementById('schedule-list-container');
+    const calendarGrid = document.getElementById('calendar-grid');
+    const monthLabel = document.getElementById('calendar-month-name');
+    const contextLabel = document.getElementById('schedule-context-label');
+    const clearBtn = document.getElementById('schedule-clear-btn');
+    if (!listContainer) return;
+
+    const today = new Date(); today.setHours(0,0,0,0);
+
+    // ── WEEK STRIP (default view) ──────────────────────────────
+    if (!calendarExpanded) {
+        renderWeekStrip(myTours);
+    }
+
+    // ── MONTH GRID (expanded view) ─────────────────────────────
+    if (calendarExpanded && calendarGrid) {
+        const year = calendarViewDate.getFullYear();
+        const month = calendarViewDate.getMonth();
+        if (monthLabel) monthLabel.innerText = calendarViewDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const firstDay   = new Date(year, month, 1).getDay();
+        const todayStr   = today.toDateString();
+
+        calendarGrid.innerHTML = '';
+        for (let i = 0; i < firstDay; i++) calendarGrid.innerHTML += `<div></div>`;
+
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dateObj  = new Date(year, month, day);
+            const dateStr  = dateObj.toDateString();
+            const toursOnDay = myTours.filter(t => new Date(t.date).toDateString() === dateStr);
+            const count    = toursOnDay.length;
+            const isToday  = dateStr === todayStr;
+            const isSelected = selectedCalendarDate === dateStr;
+            const isPast   = dateObj < today;
+
+            const dots = (count > 0 && !isSelected) ? `<div style="display:flex;justify-content:center;gap:2px;margin-top:2px;">${buildTypeDots(toursOnDay, isPast)}</div>` : '';
+
+            let cellBg, cellColor, cellBorder;
+            if (isSelected)          { cellBg='#CFB991';                        cellColor='#000';            cellBorder='none'; }
+            else if (isToday)        { cellBg='white';                          cellColor='#111827';         cellBorder='2px solid #CFB991'; }
+            else if (count>0&&!isPast){ cellBg='#F0FDF4';                       cellColor='#065F46';         cellBorder='1px solid #BBF7D0'; }
+            else if (count>0&&isPast) { cellBg='#F9FAFB';                       cellColor='#9CA3AF';         cellBorder='1px solid #F3F4F6'; }
+            else                     { cellBg='transparent';                    cellColor=isPast?'#D1D5DB':'#6B7280'; cellBorder='1px solid transparent'; }
+
+            calendarGrid.innerHTML += `
+                <div onclick="selectDate('${dateStr}', window.currentMyTours)"
+                     style="aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+                            border-radius:10px;cursor:pointer;background:${cellBg};color:${cellColor};
+                            border:${cellBorder};transition:all 0.15s;user-select:none;
+                            font-size:12px;font-weight:${count>0||isToday?'900':'600'};padding-bottom:2px;">
+                    ${day}${dots}
+                </div>`;
+        }
+    }
+
+    // ── TOUR LIST ──────────────────────────────────────────────
+    let filteredTours;
+    if (selectedCalendarDate) {
+        filteredTours = myTours.filter(t => new Date(t.date).toDateString() === selectedCalendarDate);
+        const selDate = new Date(selectedCalendarDate);
+        if (contextLabel) contextLabel.innerText = selDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+        if (clearBtn) clearBtn.style.display = 'block';
+    } else {
+        filteredTours = myTours.filter(t => { const d = new Date(t.date); d.setHours(0,0,0,0); return d >= today; });
+        if (contextLabel) contextLabel.innerText = `Upcoming — ${filteredTours.length} tour${filteredTours.length !== 1 ? 's' : ''}`;
+        if (clearBtn) clearBtn.style.display = 'none';
+    }
+
+    filteredTours.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    if (filteredTours.length === 0) {
+        listContainer.innerHTML = `
+            <div style="border:2px dashed #E5E7EB;border-radius:1rem;padding:2.5rem;text-align:center;margin-bottom:2rem;">
+                <p style="color:#9CA3AF;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;">
+                    ${selectedCalendarDate ? 'No tours on this day' : 'No upcoming tours scheduled'}
+                </p>
+            </div>`;
+        return;
+    }
+
+    // Group by date for the new card style (date-grouped, not month-grouped when filtered)
+    // For "all upcoming", group by month header then show per-day blocks
+    const TYPE_COLORS = {
+        'Daily Visit':            { accent: '#10B981', light: '#ECFDF5', text: '#065F46',  label: 'Daily Visit',        border: '#BBF7D0' },
+        'Group Visit':            { accent: '#3B82F6', light: '#EFF6FF', text: '#1E40AF',  label: 'Group Visit',        border: '#BFDBFE' },
+        'Program Day (Academic)': { accent: '#8B5CF6', light: '#F5F3FF', text: '#5B21B6',  label: 'Program (Academic)', border: '#DDD6FE' },
+        'Program Day (Full)':     { accent: '#8B5CF6', light: '#F5F3FF', text: '#5B21B6',  label: 'Program (Full)',     border: '#DDD6FE' },
+    };
+
+    // Group by month
+    const grouped = {};
+    filteredTours.forEach(t => {
+        const d = new Date(t.date);
+        const key = d.toLocaleString('default', { month: 'long', year: 'numeric' });
+        if (!grouped[key]) grouped[key] = {};
+        const dayKey = d.toDateString();
+        if (!grouped[key][dayKey]) grouped[key][dayKey] = [];
+        grouped[key][dayKey].push(t);
+    });
+
+    listContainer.innerHTML = Object.entries(grouped).map(([mLabel, dayMap]) => {
+        const dayBlocks = Object.entries(dayMap).map(([dayKey, tours]) => {
+            const d = new Date(dayKey);
+            const isPast = d < today;
+            const dayNum  = d.getDate();
+            const dayName = d.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
+            const monthShort = d.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
+            const isToday = d.toDateString() === today.toDateString();
+
+            // Multi-tour on same day? Stack them inside one card
+const tourRows = tours.map(tour => {
+                const info = TOUR_MAP[tour.type] || { name: tour.type, time: '--' };
+                const displayTime = tour.time || info.time;
+                const scheme = TYPE_COLORS[info.name] || { accent: '#9CA3AF', light: '#F9FAFB', text: '#374151', label: info.name, border: '#E5E7EB' };
+const isPendingDrop = tour.guide.includes('*');
+                const isPickedUp    = tour.guide.includes('+');
+                const tDate = new Date(tour.date); tDate.setHours(0,0,0,0);
+                const tgitKey = tDate.toISOString().split('T')[0] + '|' + tour.type;
+                const tgit = (window.myTGITMap || {})[tgitKey];
+                return `
+                    <div style="display:flex;flex-direction:column;gap:0;border-radius:10px;overflow:hidden;
+                                border:1px solid ${isPast ? '#F3F4F6' : isPendingDrop ? '#FECACA' : tgit ? '#DDD6FE' : scheme.border};">
+                        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;
+                                    background:${isPast ? '#F9FAFB' : isPendingDrop ? '#FEF2F2' : tgit ? '#F5F3FF' : scheme.light};">
+                            <div style="width:4px;min-width:4px;height:36px;border-radius:99px;background:${isPast ? '#D1D5DB' : isPendingDrop ? '#EF4444' : tgit ? '#8B5CF6' : scheme.accent};"></div>
+                            <div style="flex:1;min-width:0;">
+                                <p style="font-size:14px;font-weight:900;color:${isPast ? '#6B7280' : '#111827'};line-height:1.1;">${displayTime}</p>
+                                <p style="font-size:11px;font-weight:700;color:${isPast ? '#9CA3AF' : scheme.text};margin-top:2px;">${scheme.label}</p>
+                            </div>
+                            ${isPast ? `<span style="font-size:9px;font-weight:900;text-transform:uppercase;color:#D1D5DB;background:#F3F4F6;padding:3px 8px;border-radius:99px;">Done</span>`
+                                     : isPendingDrop ? `<span style="font-size:9px;font-weight:900;text-transform:uppercase;color:#B91C1C;background:#FEE2E2;padding:3px 8px;border-radius:99px;">Pending Drop</span>`
+                                     : isPickedUp ? `<span style="font-size:9px;font-weight:900;text-transform:uppercase;color:#7C3AED;background:#EDE9FE;padding:3px 8px;border-radius:99px;">Picked Up</span>`
+                                     : ''}
+                        </div>
+                        ${tgit ? `
+                        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;
+                                    padding:7px 12px 7px 26px;background:rgba(139,92,246,0.06);
+                                    border-top:1px solid #DDD6FE;">
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <span style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;
+                                             color:#8B5CF6;background:#EDE9FE;padding:2px 6px;border-radius:99px;">TGIT</span>
+                                <span style="font-size:12px;font-weight:800;color:#5B21B6;">${tgit.tgitDisplayName}</span>
+                                <span style="font-size:11px;font-weight:700;color:#8B5CF6;">${tgit.direction || ''}</span>
+                            </div>
+                            ${tgit.feedbackURL ? `<a href="${tgit.feedbackURL}" target="_blank"
+                                style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;
+                                       color:#8B5CF6;text-decoration:none;white-space:nowrap;">
+                                Feedback →
+                            </a>` : ''}
+                        </div>` : ''}
+                    </div>`;
+            }).join('');
+
+            return `
+                <div style="display:flex;gap:12px;margin-bottom:10px;opacity:${isPast ? '0.6' : '1'};">
+                    <!-- Date badge -->
+                    <div style="width:48px;min-width:48px;height:auto;border-radius:12px;
+                                background:${isToday ? '#CFB991' : isPast ? '#F3F4F6' : 'white'};
+                                border:${isToday ? 'none' : '1px solid #E5E7EB'};
+                                display:flex;flex-direction:column;align-items:center;
+                                justify-content:center;padding:8px 4px;gap:1px;">
+                        <span style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;
+                                     color:${isToday ? 'rgba(255,255,255,0.8)' : '#9CA3AF'};">${monthShort}</span>
+                        <span style="font-size:22px;font-weight:900;line-height:1;
+                                     color:${isToday ? 'white' : isPast ? '#9CA3AF' : '#111827'};">${dayNum}</span>
+                        <span style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.05em;
+                                     color:${isToday ? 'rgba(255,255,255,0.7)' : '#D1D5DB'};">${dayName}</span>
+                    </div>
+                    <!-- Tour(s) -->
+                    <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;">
+                        ${tourRows}
+                    </div>
+                </div>`;
+        }).join('');
+
+        return `
+            <div style="margin-bottom:1.75rem;">
+                <p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;
+                           color:#9CA3AF;margin-bottom:10px;padding-left:2px;">${mLabel}</p>
+                ${dayBlocks}
+            </div>`;
+    }).join('');
+}
+
+function updateNavigation(profile) {
+    const nav = document.getElementById('bottom-nav');
+    const isGuide = profile.rank === 'Tour Guide';
+    
+    // We add a check: hidden on mobile (hidden lg:flex handles the desktop part)
+    // and hidden if they are just a Tour Guide
+    nav.innerHTML = `
+        <button onclick="showView('home')" class="flex flex-col items-center">
+            <span class="text-xl">🏠</span>
+            <span class="text-[9px] font-black uppercase tracking-tighter">Home</span>
+        </button>
+        <button onclick="showView('schedule')" class="flex flex-col items-center">
+            <span class="text-xl">📅</span>
+            <span class="text-[9px] font-black uppercase tracking-tighter">Schedule</span>
+        </button>
+        ${!isGuide ? `
+        <button onclick="showView('welcome-center')" class="hidden lg:flex flex-col items-center">
+            <span class="text-xl">🖥️</span>
+            <span class="text-[9px] font-black uppercase tracking-tighter">Welcome</span>
+        </button>
+        ` : ''}
+        <button onclick="showView('profile')" class="flex flex-col items-center">
+            <span class="text-xl">👤</span>
+            <span class="text-[9px] font-black uppercase tracking-tighter">Profile</span>
+        </button>
+    `;
+}
+
+
+    
+
+    function handleViewChange(viewType) {
+    const isManagerView = (viewType === 'manager');
+    
+    // 1. Define which buttons belong to which view
+    const managerButtons = ['nav-desk-dashboard'];
+    const studentButtons = ['nav-home', 'nav-schedule', 'nav-tracker', 'nav-families', 'nav-desk', 'nav-forms'];
+
+    // 2. Toggle visibility
+    managerButtons.forEach(id => {
+        document.getElementById(id).style.display = isManagerView ? 'flex' : 'none';
+    });
+
+    studentButtons.forEach(id => {
+        document.getElementById(id).style.display = isManagerView ? 'none' : 'flex';
+    });
+
+    // 3. Auto-switch to the "Home" of that view
+    if (isManagerView) {
+        switchView('desk-dashboard');
+    } else {
+        switchView('home');
+    }
+}
+
+
+    
+    
+// Helper function to keep code clean
+function renderTourRow(tour, isHistory = false) {
+    const opacity = isHistory ? 'opacity-50 grayscale' : '';
+    const dateObj = new Date(tour.date);
+    
+    // Date formatting
+    const month = dateObj.toLocaleDateString('en-US', { month: 'short' });
+    const day = dateObj.getDate();
+    const weekday = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
+
+    return `
+    <div class="bg-white p-5 rounded-[2.2rem] shadow-sm border border-gray-100 flex items-center gap-5 mb-4 ${opacity}">
+        <div class="date-stack shrink-0">
+            <span class="month-label">${month}</span>
+            <span class="day-number">${day}</span>
+            <span class="weekday-label">${weekday}</span>
+        </div>
+        
+        <div class="flex-1">
+            <div class="flex items-center gap-2 mb-1">
+                <span class="w-2 h-2 rounded-full ${tour.color}"></span>
+                <p class="text-[10px] font-black ${tour.text} uppercase tracking-widest">${tour.name}</p>
+            </div>
+            <h4 class="text-xl font-black text-gray-900 tracking-tight">${tour.time}</h4>
+        </div>
+    </div>`;
+}
+
+let _cachedInitData = null;
+
+async function continueInit() {
+        cachedData = _cachedInitData;
+        if (!cachedData || !cachedData.profile) { showError("PROFILE_NOT_FOUND"); return; }
+        cachedData.fullList = cachedData.fullList || cachedData.leaderboard;
+
+        // Check for retirement
+        if (cachedData.profile.status === "Retired") {
+            document.getElementById('loading-overlay').style.display = 'none';
+            showRetirementScreen(cachedData.profile, cachedData.stats);
+            return;
+        }
+
+        // Update UI Elements
+        document.getElementById('sidebar-name').innerText = cachedData.profile.fullName;
+        document.getElementById('sidebar-status').innerText = cachedData.profile.status;
+        const mn = cachedData.profile.displayName || '';
+        const mf = cachedData.profile.fullName || '';
+        const el = document.getElementById('welcome-name-mobile');
+        if (el) el.innerText = mn;
+        const pi = document.getElementById('mobile-profile-initial');
+        if (pi) pi.innerText = mf.charAt(0);
+        const pn = document.getElementById('mobile-profile-name');
+        if (pn) pn.innerText = mf;
+        const pr = document.getElementById('mobile-profile-role');
+        if (pr) pr.innerText = cachedData.profile.status || '';
+        const deskDashBtn = document.getElementById('nav-desk-dashboard');
+        if (cachedData.profile.status !== "Tour Guide") {
+            deskDashBtn.classList.remove('hidden');
+            renderDeskDashboard();
+        }
+        document.getElementById('profile-initial').innerText = cachedData.profile.fullName.charAt(0);
+        document.getElementById('welcome-name').innerText = cachedData.profile.displayName;
+        document.getElementById('career-total').innerText = cachedData.stats.careerTotal;
+        document.getElementById('sem-total').innerText = cachedData.stats.semesterTotal;
+        document.getElementById('home-sem-total').innerText = cachedData.stats.semesterTotal;
+        const mst = document.getElementById('mobile-sem-total');
+        if (mst) mst.innerText = cachedData.stats.semesterTotal;
+        document.getElementById('sem-label').innerText = cachedData.currentSemesterName;
+        document.getElementById('user-rank').innerText = `#${cachedData.rank}`;
+
+        handleMilestones(cachedData.stats.careerTotal);
+        renderForms();
+        updateLeaderboard('career');
+        renderFamilyUI();
+        updateClock();
+
+        const histContainer = document.getElementById('history-container');
+        histContainer.innerHTML = [...cachedData.stats.history].reverse().map(h => `
+            <div class="flex items-center">
+                <div class="w-24 text-[10px] font-black text-gray-400 uppercase tracking-tighter">${h.semester}</div>
+                <div class="flex-1 h-2.5 bg-gray-100 rounded-full overflow-hidden mx-3">
+                    <div class="h-full bg-primary-gold" style="width: ${Math.min((h.count / 40) * 100, 100)}%"></div>
+                </div>
+                <div class="w-8 text-right font-black text-xs">${h.count}</div>
+            </div>
+        `).join('');
+
+        if (cachedData.tours) {
+            window.myTGITMap = {};
+            if (cachedData.tgitData && cachedData.tgitData.role === 'guide' && cachedData.tgitData.myTGITMap) {
+                window.myTGITMap = cachedData.tgitData.myTGITMap;
+            }
+            const myTours = cachedData.tours.filter(tour => {
+                const cleanName = tour.guide.replace(/[*~+`]/g, '').trim();
+                return cleanName.toLowerCase() === cachedData.profile.displayName.toLowerCase();
+            });
+            updateScheduleView(myTours, cachedData.profile.displayName);
+            renderHomeNextTour(myTours);
+            checkTourLock(myTours);
+            setInterval(() => checkTourLock(myTours), 60000);
+            renderWelcomeCenter(cachedData.tours);
+        }
+
+        const bar = document.getElementById('loading-bar');
+        const status = document.getElementById('loading-status');
+        if (bar) bar.style.width = '100%';
+        if (status) status.innerText = 'Ready';
+        setTimeout(() => {
+            document.getElementById('loading-overlay').classList.add('opacity-0');
+            setTimeout(() => document.getElementById('loading-overlay').style.display = 'none', 500);
+        }, 350);
+
+        document.getElementById('bn-home')?.classList.add('active');
+    }
+
+    async function init() {
+        if (!userName) {
+            showError("MISSING_USER_PARAM");
+            return;
+        }
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => {
+            controller.abort();
+            showError("504 TIMEOUT");
+        }, 20000);
+
+        try {
+            const res = await fetch(`${scriptURL}?user=${userName}`, { signal: controller.signal });
+
+            if (!res.ok) {
+                showError(`HTTP_${res.status}`);
+                return;
+            }
+
+            cachedData = await res.json();
+            _cachedInitData = cachedData;
+            clearTimeout(timeoutId);
+
+            if (!cachedData || !cachedData.profile) {
+                showError("PROFILE_NOT_FOUND");
+                return;
+            }
+
+            // Check for dual-portal accounts
+            const ADMIN_ROLES = ['Codirector', 'Manager', 'Admin', 'Boss'];
+            if (ADMIN_ROLES.includes(cachedData.profile.status)) {
+                document.getElementById('role-selector-name').innerText = cachedData.profile.displayName;
+                document.getElementById('loading-overlay').style.display = 'none';
+                document.getElementById('role-selector').classList.remove('hidden');
+                return;
+            }
+
+            // Regular accounts — continue loading directly
+            await continueInit();
+
+        } catch (e) {
+            console.error(e);
+            if (e.name !== 'AbortError') {
+                showError(e.message.toUpperCase().replace(/\s+/g, '_'));
+            }
+        }
+    }
+
+    function showView(viewId) {
+    // 1. Hide all views
+    const views = ['home', 'schedule', 'profile', 'welcome-center'];
+    views.forEach(v => {
+        const el = document.getElementById('view-' + v);
+        if (el) el.classList.add('hidden');
+    });
+
+    // 2. Show selected view
+    const activeView = document.getElementById('view-' + viewId);
+    if (activeView) activeView.classList.remove('hidden');
+
+    // 3. Update Nav Colors (Optional)
+    document.querySelectorAll('#bottom-nav button').forEach(btn => {
+        btn.classList.remove('text-primary-gold');
+        btn.classList.add('text-gray-400');
+    });
+}
+    // Helper function to swap loader for error message
+    function showError(code) {
+        document.getElementById('loader-content').classList.add('hidden');
+        document.getElementById('error-content').classList.remove('hidden');
+        document.getElementById('error-code-display').innerText = code;
+    }
+
+    function showRetirementScreen(profile, stats) {
+    const screen = document.getElementById('retirement-screen');
+    const careerTours = stats.careerTotal;
+    const miles = (careerTours * 2.1).toLocaleString('en-US', { maximumFractionDigits: 1 });
+    const steps = (careerTours * 5836).toLocaleString('en-US');
+
+    document.getElementById('retirement-name').innerText = profile.fullName;
+    document.getElementById('retirement-tours').innerText = careerTours.toLocaleString('en-US');
+    document.getElementById('retirement-miles').innerText = miles;
+    document.getElementById('retirement-steps').innerText = steps;
+
+    screen.classList.remove('hidden');
+
+    // Hide all nav and UI chrome so nothing else is accessible
+    document.getElementById('sidebar')?.remove();
+    document.querySelector('header')?.remove();
+    document.querySelector('.bottom-nav-dedicated')?.remove();
+    document.querySelector('.content-area')?.remove();
+    // Gold confetti
+const canvas = document.getElementById('confetti-canvas');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const pieces = Array.from({ length: 80 }, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height - canvas.height,
+    size: Math.random() * 8 + 4,
+    speedY: Math.random() * 2 + 1,
+    speedX: (Math.random() - 0.5) * 1.5,
+    rotation: Math.random() * 360,
+    rotSpeed: (Math.random() - 0.5) * 4,
+    color: ['#CFB991','#f5e6c8','#b39a6d','#e8d5a3','#fff8e7'][Math.floor(Math.random() * 5)],
+    shape: Math.random() > 0.5 ? 'rect' : 'circle'
+}));
+
+function drawConfetti() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pieces.forEach(p => {
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rotation * Math.PI / 180);
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = 0.85;
+        if (p.shape === 'rect') {
+            ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.5);
+        } else {
+            ctx.beginPath();
+            ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        ctx.restore();
+        p.y += p.speedY;
+        p.x += p.speedX;
+        p.rotation += p.rotSpeed;
+        if (p.y > canvas.height) {
+            p.y = -p.size;
+            p.x = Math.random() * canvas.width;
+        }
+    });
+    requestAnimationFrame(drawConfetti);
+}
+drawConfetti();
+}
+
+    // Animate the loading bar while init runs
+    (function animateLoader() {
+        const bar = document.getElementById('loading-bar');
+        const status = document.getElementById('loading-status');
+        if (!bar) return;
+        const steps = [
+            { w: 15, label: 'Connecting...' },
+            { w: 40, label: 'Loading profile...' },
+            { w: 70, label: 'Fetching schedule...' },
+            { w: 90, label: 'Almost there...' },
+        ];
+        let i = 0;
+        const tick = () => {
+            if (i < steps.length) {
+                bar.style.width = steps[i].w + '%';
+                if (status) status.innerText = steps[i].label;
+                i++;
+                setTimeout(tick, 900);
+            }
+        };
+        tick();
+    })();
+    setTimeout(() => document.getElementById('wrapped-popup').classList.add('show'), 1500);
+    init();
+</script>
+</body>
+</html>
