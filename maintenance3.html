@@ -773,12 +773,12 @@
                 <div class="flex items-center justify-between mb-3 pt-4">
                     <div class="flex items-center gap-2">
                         <button onclick="changeWeekStrip(-1)" class="w-7 h-7 rounded-full flex items-center justify-center hover:bg-gray-100 transition font-black text-primary-gold text-sm">&#8592;</button>
-                        <h2 id="week-strip-label" class="font-black text-sm tracking-tight text-gray-700"></h2>
+                        <h2 id="week-strip-label-mobile" class="font-black text-sm tracking-tight text-gray-700"></h2>
                         <button onclick="changeWeekStrip(1)" class="w-7 h-7 rounded-full flex items-center justify-center hover:bg-gray-100 transition font-black text-primary-gold text-sm">&#8594;</button>
                     </div>
                     <button onclick="expandToMonth()" class="text-[10px] font-black uppercase tracking-widest text-primary-gold bg-primary-gold/10 border border-primary-gold/25 rounded-full px-3 py-1">Month ↓</button>
                 </div>
-                <div id="week-strip" class="grid grid-cols-7 gap-1.5"></div>
+                <div id="week-strip-mobile" class="grid grid-cols-7 gap-1.5"></div>
                 <div class="flex items-center gap-3 mt-3 pt-3 border-t border-gray-50 flex-wrap">
                     <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-status-green"></div><span class="text-[9px] font-black uppercase tracking-widest text-gray-400">Daily</span></div>
                     <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-blue-500"></div><span class="text-[9px] font-black uppercase tracking-widest text-gray-400">Group</span></div>
@@ -787,11 +787,11 @@
                 </div>
             </div>
             <!-- Month grid (mobile) -->
-            <div id="month-expand-container" class="hidden">
+            <div id="month-expand-container-mobile" class="hidden">
                 <div class="flex items-center justify-between mb-3 pt-4">
                     <div class="flex items-center gap-2">
                         <button onclick="changeMonth(-1)" class="w-7 h-7 rounded-full flex items-center justify-center hover:bg-gray-100 transition font-black text-primary-gold text-sm">&#8592;</button>
-                        <h2 id="calendar-month-name" class="font-black text-sm tracking-tight text-gray-700"></h2>
+                        <h2 id="calendar-month-name-mobile" class="font-black text-sm tracking-tight text-gray-700"></h2>
                         <button onclick="changeMonth(1)" class="w-7 h-7 rounded-full flex items-center justify-center hover:bg-gray-100 transition font-black text-primary-gold text-sm">&#8594;</button>
                     </div>
                     <button onclick="collapseToWeek()" class="text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-100 rounded-full px-3 py-1">Week ↑</button>
@@ -799,7 +799,7 @@
                 <div class="grid grid-cols-7 mb-1">
                     <div class="text-center text-[10px] font-black text-gray-300 py-1">S</div><div class="text-center text-[10px] font-black text-gray-300 py-1">M</div><div class="text-center text-[10px] font-black text-gray-300 py-1">T</div><div class="text-center text-[10px] font-black text-gray-300 py-1">W</div><div class="text-center text-[10px] font-black text-gray-300 py-1">T</div><div class="text-center text-[10px] font-black text-gray-300 py-1">F</div><div class="text-center text-[10px] font-black text-gray-300 py-1">S</div>
                 </div>
-                <div id="calendar-grid" class="grid grid-cols-7 gap-1"></div>
+                <div id="calendar-grid-mobile" class="grid grid-cols-7 gap-1"></div>
                 <div class="flex items-center gap-3 mt-3 pt-3 border-t border-gray-50 flex-wrap">
                     <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-status-green"></div><span class="text-[9px] font-black uppercase tracking-widest text-gray-400">Daily</span></div>
                     <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-blue-500"></div><span class="text-[9px] font-black uppercase tracking-widest text-gray-400">Group</span></div>
@@ -810,10 +810,10 @@
         </div>
         <!-- Mobile tour list -->
         <div class="flex items-center justify-between mb-3">
-            <p id="schedule-context-label" class="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">Upcoming tours</p>
-            <button id="schedule-clear-btn" onclick="selectDate(null, window.currentMyTours)" style="display:none;" class="text-[10px] font-black uppercase tracking-widest text-primary-gold bg-primary-gold/10 border border-primary-gold/25 rounded-full px-3 py-1 cursor-pointer">Show all</button>
+            <p id="schedule-context-label-mobile" class="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">Upcoming tours</p>
+            <button id="schedule-clear-btn-mobile" onclick="selectDate(null, window.currentMyTours)" style="display:none;" class="text-[10px] font-black uppercase tracking-widest text-primary-gold bg-primary-gold/10 border border-primary-gold/25 rounded-full px-3 py-1 cursor-pointer">Show all</button>
         </div>
-        <div id="schedule-list-container"></div>
+        <div id="schedule-list-container-mobile"></div>
     </div><!-- /mobile -->
 
 </div>
@@ -1953,17 +1953,33 @@ function selectDate(dateString, myTours) {
 let weekStripAnchor = (() => { const d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate() - d.getDay()); return d; })(); // Sunday of current week
 let calendarExpanded = false;
 
+function getScheduleElement(baseId) {
+    const isMobile = window.innerWidth < 1024;
+    const id = isMobile ? `${baseId}-mobile` : baseId;
+    return document.getElementById(id);
+}
+
 function expandToMonth() {
     calendarExpanded = true;
-    document.getElementById('week-strip-container').classList.add('hidden');
-    document.getElementById('month-expand-container').classList.remove('hidden');
+
+    const weekContainer = getScheduleElement('week-strip-container');
+    const monthContainer = getScheduleElement('month-expand-container');
+
+    if (weekContainer) weekContainer.classList.add('hidden');
+    if (monthContainer) monthContainer.classList.remove('hidden');
+
     updateScheduleView(window.currentMyTours || []);
 }
 
 function collapseToWeek() {
     calendarExpanded = false;
-    document.getElementById('month-expand-container').classList.add('hidden');
-    document.getElementById('week-strip-container').classList.remove('hidden');
+
+    const weekContainer = getScheduleElement('week-strip-container');
+    const monthContainer = getScheduleElement('month-expand-container');
+
+    if (monthContainer) monthContainer.classList.add('hidden');
+    if (weekContainer) weekContainer.classList.remove('hidden');
+
     updateScheduleView(window.currentMyTours || []);
 }
 
@@ -1974,8 +1990,8 @@ function changeWeekStrip(offset) {
 }
 
 function renderWeekStrip(myTours) {
-    const strip = document.getElementById('week-strip');
-    const label = document.getElementById('week-strip-label');
+    const strip = getScheduleElement('week-strip');
+    const label = getScheduleElement('week-strip-label');
     if (!strip) return;
 
     const today = new Date(); today.setHours(0,0,0,0);
@@ -2071,11 +2087,11 @@ function updateScheduleView(myTours, displayName) {
         const prog = document.getElementById('ssd-programs'); if (prog) prog.innerText = upProg;
     }
 
-    const listContainer = document.getElementById('schedule-list-container');
-    const calendarGrid = document.getElementById('calendar-grid');
-    const monthLabel = document.getElementById('calendar-month-name');
-    const contextLabel = document.getElementById('schedule-context-label');
-    const clearBtn = document.getElementById('schedule-clear-btn');
+const listContainer = getScheduleElement('schedule-list-container');
+const calendarGrid = getScheduleElement('calendar-grid');
+const monthLabel = getScheduleElement('calendar-month-name');
+const contextLabel = getScheduleElement('schedule-context-label');
+const clearBtn = getScheduleElement('schedule-clear-btn');
     if (!listContainer) return;
 
     const today = new Date(); today.setHours(0,0,0,0);
