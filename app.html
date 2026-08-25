@@ -480,22 +480,15 @@
         </div>
       </div>
 
-      <!-- Quick links -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
-        <a href="https://purduetours.github.io/Main-Stage-Leaderboard/" target="_blank"
-           style="background:white;border:1px solid #E5E7EB;border-radius:1.125rem;padding:1rem;
-                  text-align:center;text-decoration:none;display:flex;flex-direction:column;
-                  align-items:center;justify-content:center;gap:6px;transition:all 0.15s;active:opacity-80;">
-          <span style="font-size:1.25rem;">🎭</span>
-          <p style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:#1a1510;margin:0;">Main Stage</p>
-        </a>
-        <a href="https://purduetours.github.io/Main-Stage-Leaderboard/" target="_blank"
-           style="background:white;border:1px solid #E5E7EB;border-radius:1.125rem;padding:1rem;
-                  text-align:center;text-decoration:none;display:flex;flex-direction:column;
-                  align-items:center;justify-content:center;gap:6px;transition:all 0.15s;">
-          <span style="font-size:1.25rem;">📖</span>
-          <p style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:#1a1510;margin:0;">Handbook</p>
-        </a>
+      <!-- ALERTS CARD -->
+      <div style="background:#FEF3C7;border-radius:1.5rem;padding:1.25rem;border:1px solid #FDE68A;">
+        <div style="display:flex;align-items:flex-start;gap:10px;">
+          <span style="font-size:1.25rem;flex-shrink:0;">🛑</span>
+          <div>
+            <p style="font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:0.05em;color:#92400E;margin:0 0 3px;">Use Caution Inside Ford</p>
+            <p style="font-size:11px;font-weight:600;color:#92400E;margin:0;line-height:1.5;">Only give your stop inside if there are no groups and the room is clear.</p>
+          </div>
+        </div>
       </div>
 
     </div>
@@ -541,24 +534,16 @@
 
     <!-- ALERTS -->
     <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] ml-1 mb-2">Alerts</p>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
-      <a href="https://www.google.com" target="_blank"
-         style="background:white;border:1px solid #E5E7EB;border-radius:1rem;padding:1rem 1.25rem;
-                text-align:center;text-decoration:none;display:flex;align-items:center;
-                justify-content:center;gap:0.75rem;transition:all 0.15s;"
-         onmouseover="this.style.borderColor='#CEB888'" onmouseout="this.style.borderColor='#E5E7EB'">
-        <span style="font-size:1.25rem;">🎭</span>
-        <p style="font-size:0.75rem;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:#1a1510;margin:0;">Main Stage</p>
-      </a>
-      <a href="https://www.google.com" target="_blank"
-         style="background:white;border:1px solid #E5E7EB;border-radius:1rem;padding:1rem 1.25rem;
-                text-align:center;text-decoration:none;display:flex;align-items:center;
-                justify-content:center;gap:0.75rem;transition:all 0.15s;"
-         onmouseover="this.style.borderColor='#CEB888'" onmouseout="this.style.borderColor='#E5E7EB'">
-        <span style="font-size:1.25rem;">📖</span>
-        <p style="font-size:0.75rem;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:#1a1510;margin:0;">Handbook</p>
-      </a>
-    </div>
+    <div class="space-y-3 mb-5">
+        <div class="bg-yellow-400 rounded-2xl p-4 flex items-start gap-3 border-b-4 border-yellow-600 text-black">
+            <div class="text-2xl leading-none mt-0.5">🛑</div>
+            <div>
+                <p class="font-black uppercase tracking-tighter text-sm leading-tight">Use Caution Inside Ford</p>
+                <p class="text-yellow-900 text-[10px] font-bold uppercase tracking-widest leading-tight mt-1">
+                    Only give your stop inside if there are no groups and the room is clear.
+                </p>
+            </div>
+        </div>
     </div>
 
     <!-- ANNOUNCEMENTS -->
