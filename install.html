@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Install TGIS · Purdue Tour Guides</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --gold:    #CEB888;
+  --ink:     #1a1510;
+  --stone:   #F9F6F0;
+  --mid:     #8C7B5E;
+  --border:  #EDE8DF;
+  --white:   #FFFFFF;
+  --green:   #10B981;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Inter', sans-serif;
+  background: var(--ink);
+  color: var(--white);
+  overflow: hidden;
+}
+
+/* ── Full-screen slide container ── */
+#slides {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem calc(env(safe-area-inset-bottom) + 6rem);
+  opacity: 0;
+  transform: translateX(60px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  pointer-events: none;
+  text-align: center;
+}
+
+.slide.active {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: all;
+}
+
+.slide.out {
+  opacity: 0;
+  transform: translateX(-60px);
+}
+
+/* ── Phone mockup ── */
+.phone-wrap {
+  position: relative;
+  width: 180px;
+  height: 320px;
+  margin-bottom: 2rem;
+  flex-shrink: 0;
+}
+
+.phone-shell {
+  width: 100%;
+  height: 100%;
+  background: #2a2520;
+  border-radius: 32px;
+  border: 2px solid rgba(206,184,136,0.3);
+  box-shadow: 0 24px 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06);
+  overflow: hidden;
+  position: relative;
+}
+
+.phone-screen {
+  position: absolute;
+  inset: 8px;
+  border-radius: 24px;
+  background: var(--stone);
+  overflow: hidden;
+}
+
+.phone-notch {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 16px;
+  background: #2a2520;
+  border-radius: 0 0 12px 12px;
+  z-index: 10;
+}
+
+/* ── Animated UI elements inside phone ── */
+.phone-ui {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 20px;
+  gap: 8px;
+  position: relative;
+}
+
+/* Safari share sheet animation */
+.share-sheet {
+  position: absolute;
+  bottom: -100%;
+  left: 0; right: 0;
+  background: white;
+  border-radius: 16px 16px 0 0;
+  padding: 12px 10px;
+  transition: bottom 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+}
+.share-sheet.show { bottom: 0; }
+
+.share-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 6px;
+  border-bottom: 1px solid #F3F4F6;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: all 0.3s ease;
+}
+.share-option.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+.share-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.share-text {
+  font-size: 9px;
+  font-weight: 700;
+  color: #111;
+}
+
+/* Home screen add animation */
+.homescreen-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  padding: 20px 8px 8px;
+  width: 100%;
+}
+.app-icon {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 12px;
+  background: #E5E7EB;
+}
+.app-icon.tgis-icon {
+  background: linear-gradient(135deg, var(--ink), #2a2010);
+  border: 1px solid rgba(206,184,136,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  position: relative;
+  overflow: hidden;
+}
+.app-icon.tgis-icon::after {
+  content: '🚂';
+  font-size: 12px;
+}
+.add-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 14px;
+  height: 14px;
+  background: var(--green);
+  border-radius: 50%;
+  border: 2px solid white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  color: white;
+  font-weight: 900;
+  opacity: 0;
+  transform: scale(0);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.add-badge.show {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Checkmark for success */
+.check-circle {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(16,185,129,0.15);
+  border: 2px solid var(--green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  font-size: 2rem;
+  transform: scale(0);
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.check-circle.show { transform: scale(1); }
+
+/* Safari URL bar animation */
+.browser-bar {
+  background: white;
+  border-radius: 8px;
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 12px 8px 0;
+}
+.browser-url {
+  font-size: 7px;
+  font-weight: 700;
+  color: #374151;
+  flex: 1;
+  text-align: left;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.share-btn {
+  font-size: 10px;
+  color: #3B82F6;
+}
+
+/* Tap indicator */
+.tap-indicator {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(206,184,136,0.9);
+  position: absolute;
+  transform: scale(0);
+  transition: transform 0.15s ease;
+  pointer-events: none;
+}
+.tap-indicator.tap {
+  transform: scale(1);
+  animation: tapPulse 0.6s ease forwards;
+}
+@keyframes tapPulse {
+  0%   { transform: scale(0); opacity: 1; }
+  50%  { transform: scale(1.2); opacity: 0.8; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+/* ── Text content ── */
+.step-eyebrow {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.5rem;
+}
+
+.step-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1.2;
+  margin-bottom: 0.75rem;
+  max-width: 280px;
+}
+
+.step-body {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.6;
+  max-width: 280px;
+}
+
+.step-body strong {
+  color: rgba(255,255,255,0.85);
+  font-weight: 700;
+}
+
+/* ── Bottom controls ── */
+#controls {
+  position: fixed;
+  bottom: 0;
+  left: 0; right: 0;
+  padding: 1.25rem 1.5rem calc(env(safe-area-inset-bottom) + 1rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  background: linear-gradient(to top, var(--ink) 70%, transparent);
+}
+
+/* Progress dots */
+#dots {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 99px;
+  background: rgba(255,255,255,0.2);
+  transition: all 0.3s ease;
+}
+.dot.active {
+  width: 20px;
+  background: var(--gold);
+}
+
+/* Next button */
+#next-btn {
+  width: 100%;
+  max-width: 320px;
+  padding: 1rem;
+  border-radius: 1rem;
+  background: var(--gold);
+  color: var(--ink);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.15s;
+  letter-spacing: 0.02em;
+}
+#next-btn:active { opacity: 0.85; transform: scale(0.98); }
+
+/* ── Slide 0: welcome ── */
+.tgis-logo-large {
+  width: 80px;
+  height: 80px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, var(--ink), #2a2010);
+  border: 1px solid rgba(206,184,136,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  margin: 0 auto 1.5rem;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+
+.device-icons {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  justify-content: center;
+}
+.device-chip {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 99px;
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.6);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.device-chip.active {
+  background: rgba(206,184,136,0.12);
+  border-color: rgba(206,184,136,0.35);
+  color: var(--gold);
+}
+
+</style>
+</head>
+<body>
+
+<div id="slides">
+
+  <!-- ── SLIDE 0: Welcome ── -->
+  <div class="slide active" id="slide-0">
+    <div class="tgis-logo-large">🚂</div>
+    <p class="step-eyebrow">Purdue Tour Guides</p>
+    <h1 class="step-title">Add TGIS to your Home Screen</h1>
+    <p class="step-body">Install the Tour Guide Information System app in three quick steps. No App Store required — it installs directly from your browser.</p>
+    <div class="device-icons" style="margin-top:1.5rem;">
+      <div class="device-chip active" id="chip-ios" onclick="selectDevice('ios')">
+        <span></span> iPhone
+      </div>
+      <div class="device-chip" id="chip-android" onclick="selectDevice('android')">
+        <span>🤖</span> Android
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 1: Open in Safari / Chrome ── -->
+  <div class="slide" id="slide-1">
+    <div class="phone-wrap">
+      <div class="phone-shell">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <!-- Simulated browser -->
+          <div style="background:#F3F4F6;height:100%;display:flex;flex-direction:column;">
+            <div style="background:white;padding:8px 8px 0;border-bottom:1px solid #E5E7EB;">
+              <div class="browser-bar" id="browser-bar-1">
+                <span style="font-size:8px;color:#10B981;">🔒</span>
+                <span class="browser-url" id="browser-url-1">tgis.pages.dev/app</span>
+                <span class="share-btn" id="share-btn-anim">⎙</span>
+              </div>
+              <div style="display:flex;gap:0;margin-top:4px;">
+                <div style="flex:1;text-align:center;padding:4px 0;border-bottom:2px solid #3B82F6;">
+                  <span style="font-size:6px;font-weight:700;color:#3B82F6;">TGIS</span>
+                </div>
+              </div>
+            </div>
+            <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+              <span style="font-size:24px;">🚂</span>
+            </div>
+            <!-- Bottom Safari toolbar -->
+            <div style="background:white;border-top:1px solid #E5E7EB;padding:6px;display:flex;justify-content:space-around;align-items:center;" id="safari-toolbar">
+              <span style="font-size:14px;color:#9CA3AF;">◀</span>
+              <span style="font-size:14px;color:#9CA3AF;">▶</span>
+              <span style="font-size:16px;color:#3B82F6;" id="share-icon-target">⎙</span>
+              <span style="font-size:14px;color:#9CA3AF;">⊞</span>
+              <span style="font-size:14px;color:#9CA3AF;">≡</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="step-eyebrow" id="slide1-eyebrow">Step 1 of 3</p>
+    <h2 class="step-title" id="slide1-title">Open TGIS in Safari</h2>
+    <p class="step-body" id="slide1-body">Open <strong>tgis.pages.dev/app</strong> in Safari (not Chrome). Then tap the <strong>Share button</strong> — the box with an arrow pointing up at the bottom of the screen.</p>
+  </div>
+
+  <!-- ── SLIDE 2: Share sheet → Add to Home Screen ── -->
+  <div class="slide" id="slide-2">
+    <div class="phone-wrap">
+      <div class="phone-shell">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div style="background:#F3F4F6;height:100%;position:relative;overflow:hidden;">
+            <div style="background:white;padding:6px;">
+              <div class="browser-bar">
+                <span style="font-size:8px;color:#10B981;">🔒</span>
+                <span class="browser-url">tgis.pages.dev/app</span>
+                <span class="share-btn">⎙</span>
+              </div>
+            </div>
+            <div style="flex:1;display:flex;align-items:center;justify-content:center;height:60px;">
+              <span style="font-size:20px;">🚂</span>
+            </div>
+            <!-- Share sheet -->
+            <div class="share-sheet" id="share-sheet-anim">
+              <div style="text-align:center;padding-bottom:8px;border-bottom:1px solid #F3F4F6;margin-bottom:4px;">
+                <div style="width:32px;height:3px;background:#D1D5DB;border-radius:99px;margin:0 auto 8px;"></div>
+                <span style="font-size:8px;font-weight:700;color:#9CA3AF;">SHARE</span>
+              </div>
+              <div class="share-option" id="share-opt-1">
+                <div class="share-icon" style="background:#3B82F6;">
+                  <span style="color:white;font-size:12px;">+</span>
+                </div>
+                <div>
+                  <div class="share-text" style="color:#111;font-weight:800;">Add to Home Screen</div>
+                  <div class="share-text" style="color:#9CA3AF;margin-top:1px;">TGIS · Purdue Tour Guides</div>
+                </div>
+              </div>
+              <div class="share-option" id="share-opt-2">
+                <div class="share-icon" style="background:#E5E7EB;">
+                  <span style="font-size:10px;">📋</span>
+                </div>
+                <div class="share-text" style="color:#6B7280;">Copy Link</div>
+              </div>
+              <div class="share-option" id="share-opt-3" style="border-bottom:none;">
+                <div class="share-icon" style="background:#E5E7EB;">
+                  <span style="font-size:10px;">✉️</span>
+                </div>
+                <div class="share-text" style="color:#6B7280;">Mail</div>
+              </div>
+            </div>
+            <!-- Tap indicator -->
+            <div class="tap-indicator" id="tap-add" style="top:108px;left:18px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="step-eyebrow">Step 2 of 3</p>
+    <h2 class="step-title">Tap "Add to Home Screen"</h2>
+    <p class="step-body">Scroll down in the share sheet and tap <strong>"Add to Home Screen"</strong>. Then tap <strong>Add</strong> in the top right corner to confirm.</p>
+  </div>
+
+  <!-- ── SLIDE 3: App on home screen ── -->
+  <div class="slide" id="slide-3">
+    <div class="phone-wrap">
+      <div class="phone-shell">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div style="background:#1a1510;height:100%;position:relative;">
+            <!-- Wallpaper-style background -->
+            <div style="position:absolute;inset:0;background:radial-gradient(circle at 60% 40%, rgba(206,184,136,0.1) 0%, transparent 60%);"></div>
+            <div class="homescreen-grid" style="position:relative;z-index:1;">
+              <div class="app-icon" style="background:rgba(255,255,255,0.1);border-radius:12px;"></div>
+              <div class="app-icon" style="background:rgba(255,255,255,0.08);border-radius:12px;"></div>
+              <div class="app-icon" style="background:rgba(255,255,255,0.12);border-radius:12px;"></div>
+              <div class="app-icon" style="background:rgba(255,255,255,0.07);border-radius:12px;"></div>
+              <div class="app-icon" style="background:rgba(255,255,255,0.09);border-radius:12px;"></div>
+              <div class="app-icon tgis-icon" id="tgis-home-icon" style="position:relative;">
+                <div class="add-badge" id="add-badge">✓</div>
+              </div>
+              <div class="app-icon" style="background:rgba(255,255,255,0.08);border-radius:12px;"></div>
+              <div class="app-icon" style="background:rgba(255,255,255,0.06);border-radius:12px;"></div>
+            </div>
+            <div style="position:absolute;bottom:12px;left:0;right:0;text-align:center;">
+              <span style="font-size:7px;font-weight:700;color:rgba(255,255,255,0.5);">TGIS</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="step-eyebrow">Step 3 of 3</p>
+    <h2 class="step-title">TGIS is on your Home Screen</h2>
+    <p class="step-body">The app will appear on your home screen like any other app. Open it and <strong>sign in with your TGIS username</strong> — no password needed.</p>
+  </div>
+
+  <!-- ── SLIDE 4: Done ── -->
+  <div class="slide" id="slide-4">
+    <div class="check-circle" id="check-circle">✓</div>
+    <p class="step-eyebrow">You're all set</p>
+    <h2 class="step-title">Ready for the semester</h2>
+    <p class="step-body">You're about to be taken to your schedule. Your tours, tracker, forms, and family points are all waiting for you.</p>
+    <div style="margin-top:2rem;display:flex;flex-direction:column;gap:0.75rem;width:100%;max-width:280px;">
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:0.875rem;padding:0.875rem 1rem;display:flex;align-items:center;gap:0.75rem;">
+        <span style="font-size:1.125rem;">📅</span>
+        <div style="text-align:left;">
+          <p style="font-size:0.75rem;font-weight:700;color:rgba(255,255,255,0.85);margin:0;">Your schedule is loaded</p>
+          <p style="font-size:0.65rem;color:rgba(255,255,255,0.35);margin:2px 0 0;">Fall 2026 tours are ready to view</p>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:0.875rem;padding:0.875rem 1rem;display:flex;align-items:center;gap:0.75rem;">
+        <span style="font-size:1.125rem;">📆</span>
+        <div style="text-align:left;">
+          <p style="font-size:0.75rem;font-weight:700;color:rgba(255,255,255,0.85);margin:0;">Add to your calendar</p>
+          <p style="font-size:0.65rem;color:rgba(255,255,255,0.35);margin:2px 0 0;">Use the button on the Schedule page</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /slides -->
+
+<!-- ── Bottom controls ── -->
+<div id="controls">
+  <div id="dots">
+    <div class="dot active"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+  </div>
+  <button id="next-btn" onclick="advance()">Get Started</button>
+</div>
+
+<script>
+// Read username from URL param
+const params   = new URLSearchParams(window.location.search);
+const userName = params.get('user') || '';
+const appURL   = userName
+  ? `https://tgis.pages.dev/app.html?user=${encodeURIComponent(userName)}`
+  : 'https://tgis.pages.dev/app.html';
+
+let currentSlide = 0;
+let device = 'ios'; // default
+const totalSlides = 5;
+
+const btns = {
+  0: 'Get Started',
+  1: 'I tapped Share ↗',
+  2: 'I tapped Add to Home Screen',
+  3: 'I added it!',
+  4: 'Take me to TGIS →'
+};
+
+function selectDevice(d) {
+  device = d;
+  document.getElementById('chip-ios').classList.toggle('active', d === 'ios');
+  document.getElementById('chip-android').classList.toggle('active', d === 'android');
+
+  // Update slide 1 text for Android
+  if (d === 'android') {
+    document.getElementById('slide1-title').innerText = 'Open TGIS in Chrome';
+    document.getElementById('slide1-body').innerHTML = 'Open <strong>tgis.pages.dev/app</strong> in Chrome. Then tap the <strong>three-dot menu</strong> (⋮) in the top right corner of the browser.';
+    document.getElementById('slide1-eyebrow').innerText = 'Step 1 of 3';
+    document.getElementById('browser-url-1').innerText = 'tgis.pages.dev/app';
+  } else {
+    document.getElementById('slide1-title').innerText = 'Open TGIS in Safari';
+    document.getElementById('slide1-body').innerHTML = 'Open <strong>tgis.pages.dev/app</strong> in Safari (not Chrome). Then tap the <strong>Share button</strong> — the box with an arrow pointing up at the bottom of the screen.';
+  }
+}
+
+function advance() {
+  if (currentSlide === totalSlides - 1) {
+    // Last slide — go to app
+    window.location.href = appURL;
+    return;
+  }
+
+  const old = currentSlide;
+  currentSlide++;
+  goToSlide(old, currentSlide);
+}
+
+function goToSlide(from, to) {
+  const slides = document.querySelectorAll('.slide');
+  const dots   = document.querySelectorAll('.dot');
+
+  slides[from].classList.add('out');
+  slides[from].classList.remove('active');
+  setTimeout(() => slides[from].classList.remove('out'), 400);
+
+  slides[to].classList.add('active');
+
+  dots.forEach((d, i) => d.classList.toggle('active', i === to));
+  document.getElementById('next-btn').innerText = btns[to];
+
+  // Trigger slide animations
+  setTimeout(() => triggerSlideAnimation(to), 100);
+}
+
+// ── Slide animations ──────────────────────────────────────────────────────
+function triggerSlideAnimation(slideIdx) {
+  if (slideIdx === 1) animateSlide1();
+  if (slideIdx === 2) animateSlide2();
+  if (slideIdx === 3) animateSlide3();
+  if (slideIdx === 4) animateSlide4();
+}
+
+function animateSlide1() {
+  // Pulse the share button
+  const shareBtn = document.getElementById('share-btn-anim');
+  const shareTarget = document.getElementById('share-icon-target');
+  let pulse = 0;
+  const interval = setInterval(() => {
+    const on = pulse % 2 === 0;
+    if (shareBtn) shareBtn.style.color = on ? '#CEB888' : '#3B82F6';
+    if (shareTarget) shareTarget.style.color = on ? '#CEB888' : '#3B82F6';
+    pulse++;
+    if (pulse > 6) clearInterval(interval);
+  }, 600);
+}
+
+function animateSlide2() {
+  // 1. Show share sheet
+  setTimeout(() => {
+    document.getElementById('share-sheet-anim').classList.add('show');
+  }, 300);
+
+  // 2. Reveal options staggered
+  ['share-opt-1','share-opt-2','share-opt-3'].forEach((id, i) => {
+    setTimeout(() => {
+      document.getElementById(id).classList.add('show');
+    }, 600 + i * 150);
+  });
+
+  // 3. Tap indicator on "Add to Home Screen"
+  setTimeout(() => {
+    const tap = document.getElementById('tap-add');
+    tap.classList.add('tap');
+    setTimeout(() => tap.classList.remove('tap'), 700);
+  }, 1400);
+
+  // 4. Repeat tap after pause
+  setTimeout(() => {
+    const tap = document.getElementById('tap-add');
+    tap.classList.add('tap');
+    setTimeout(() => tap.classList.remove('tap'), 700);
+  }, 3200);
+}
+
+function animateSlide3() {
+  setTimeout(() => {
+    document.getElementById('add-badge').classList.add('show');
+  }, 500);
+}
+
+function animateSlide4() {
+  setTimeout(() => {
+    document.getElementById('check-circle').classList.add('show');
+  }, 200);
+}
+
+// Reset share sheet when leaving slide 2
+document.querySelectorAll('.slide').forEach((s, i) => {
+  const observer = new MutationObserver(() => {
+    if (!s.classList.contains('active') && i === 2) {
+      setTimeout(() => {
+        document.getElementById('share-sheet-anim').classList.remove('show');
+        ['share-opt-1','share-opt-2','share-opt-3'].forEach(id => {
+          document.getElementById(id).classList.remove('show');
+        });
+      }, 400);
+    }
+    if (!s.classList.contains('active') && i === 3) {
+      document.getElementById('add-badge').classList.remove('show');
+    }
+  });
+  observer.observe(s, { attributes: true, attributeFilter: ['class'] });
+});
+</script>
+</body>
+</html>
