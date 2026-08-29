@@ -317,6 +317,30 @@ body { font-family: 'Inter',sans-serif; background: var(--bg); color: var(--text
 .status-pill-red  { background-color:#FEE2E2; border-color:#EF4444; color:#B91C1C; border-width:1px; }
 .status-pill-gray { background-color:#F3F4F6; border-color:#D1D5DB; color:#4B5563; opacity:0.7; border-width:1px; }
 
+.omni-chip {
+  background: var(--row-hover);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: 3px 10px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--subtext);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.omni-chip:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.omni-highlight {
+  background: rgba(206,184,136,0.25);
+  color: #92400E;
+  border-radius: 3px;
+  padding: 0 2px;
+  font-weight: 800;
+}
+
 </style>
 </head>
 <body>
@@ -404,13 +428,16 @@ body { font-family: 'Inter',sans-serif; background: var(--bg); color: var(--text
   <!-- Nav -->
   <p class="nav-section-label">Roster</p>
   <button class="nav-item active" id="nav-tracker" onclick="adminSwitchTab('tracker')">
-    <span class="nav-icon"></span> Tour Tracker
+    <span class="nav-icon"></span>Tour Tracker
   </button>
   <button class="nav-item" id="nav-census" onclick="adminSwitchTab('census')">
-    <span class="nav-icon"></span> Census Results
+    <span class="nav-icon"></span>Census Results
   </button>
   <button class="nav-item" id="nav-roster" onclick="adminSwitchTab('roster')">
-    <span class="nav-icon">👥</span> Master Roster
+    <span class="nav-icon"></span>Master Roster
+  </button>
+   <button class="nav-item" id="nav-omnisearch" onclick="adminSwitchTab('roster')">
+    <span class="nav-icon"></span>OmniSearch
   </button>
 
   <p class="nav-section-label">Operations</p>
@@ -677,7 +704,43 @@ body { font-family: 'Inter',sans-serif; background: var(--bg); color: var(--text
   </div>
 
 </div>
-  
+
+
+  <!-- ── OMNI SEARCH TAB ── -->
+<div id="tab-omnisearch" class="tab-panel">
+
+  <!-- Search bar -->
+  <div style="margin-bottom:1.5rem;">
+    <div style="position:relative;max-width:600px;">
+      <span style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);font-size:1rem;opacity:0.4;">🔍</span>
+      <input id="omni-input" type="text"
+             placeholder="Search any field — major, hometown, family, grad date…"
+             oninput="runOmniSearch()"
+             style="width:100%;padding:0.875rem 1rem 0.875rem 2.75rem;border-radius:1rem;
+                    border:2px solid var(--border);background:var(--surface);font-size:14px;
+                    font-family:inherit;font-weight:500;color:var(--text);outline:none;
+                    transition:border-color 0.15s;"
+             onfocus="this.style.borderColor='var(--gold)'"
+             onblur="this.style.borderColor='var(--border)'">
+    </div>
+    <div style="display:flex;align-items:center;gap:1rem;margin-top:0.625rem;flex-wrap:wrap;">
+      <p id="omni-status" style="font-size:11px;font-weight:700;color:var(--subtext);">
+        Type to search across all guide demographics
+      </p>
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;" id="omni-suggestions">
+        <button class="omni-chip" onclick="setOmniSearch('New Jersey')">New Jersey</button>
+        <button class="omni-chip" onclick="setOmniSearch('Industrial Engineering')">Industrial Engineering</button>
+        <button class="omni-chip" onclick="setOmniSearch('Purdue Polytechnic')">Polytechnic</button>
+        <button class="omni-chip" onclick="setOmniSearch('Spring 2023')">Spring 2023</button>
+        <button class="omni-chip" onclick="setOmniSearch('Vegan')">Vegan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div id="omni-results"></div>
+
+</div>
     <!-- ── LOG TAB ── -->
     <div id="tab-log" class="tab-panel">
       <div class="card" style="padding:1.5rem;">
@@ -975,6 +1038,7 @@ function adminSwitchTab(name) {
   // Lazy triggers
   if (name === 'census')   renderCensus();
   if (name === 'roster')   renderRoster();
+  if (name === 'omnisearch') initOmniSearch();
   if (name === 'schedule') { loadMgrTours().then(() => renderSchedule()); }
   if (name === 'families') { if (!window._familyData) loadFamilyData(); else renderFamilyGroupsUI(window._familyData); }
   if (name === 'tgit')     { loadTGITTab(); }
@@ -2212,6 +2276,135 @@ function openRosterProfile(displayName) {
 
 function closeRosterProfile() {
   document.getElementById('roster-profile-panel').style.display = 'none';
+}
+
+// ─── OMNI SEARCH ─────────────────────────────────────────────────────────────
+let omniIndex = []; // built once on first visit
+
+function initOmniSearch() {
+  if (omniIndex.length) return; // already built
+  buildOmniIndex();
+}
+
+function buildOmniIndex() {
+  const guides = D.adminData.trackerGrid || [];
+  const census = D.adminData.censusData  || {};
+
+  omniIndex = guides.map(g => {
+    const c = census[g.displayName] || {};
+    // All searchable fields as key:value pairs
+    const fields = [
+      { label: 'Name',        val: g.displayName                },
+      { label: 'First Name',  val: g.firstName                  },
+      { label: 'Last Name',   val: g.lastName                   },
+      { label: 'Username',    val: g.username                   },
+      { label: 'Role',        val: c.role                       },
+      { label: 'Family',      val: c.family                     },
+      { label: 'Major',       val: c.major                      },
+      { label: 'Minor',       val: c.minor                      },
+      { label: 'Certificate', val: c.certificate                },
+      { label: 'College',     val: c.college                    },
+      { label: 'Hometown',    val: c.hometown                   },
+      { label: 'Grad Date',   val: c.gradDate                   },
+      { label: 'Dietary',     val: c.dietary                    },
+      { label: 'First Sem',   val: g.firstSemester              },
+    ].filter(f => f.val && String(f.val).trim());
+
+    // Flat string for fast matching
+    const flat = fields.map(f => String(f.val).toLowerCase()).join(' ');
+
+    return { g, c, fields, flat };
+  });
+}
+
+function setOmniSearch(query) {
+  document.getElementById('omni-input').value = query;
+  runOmniSearch();
+}
+
+function runOmniSearch() {
+  const raw   = document.getElementById('omni-input').value.trim();
+  const terms = raw.toLowerCase().split(/\s+/).filter(Boolean);
+  const el    = document.getElementById('omni-results');
+  const stat  = document.getElementById('omni-status');
+
+  if (!terms.length) {
+    el.innerHTML = '';
+    stat.innerText = 'Type to search across all guide demographics';
+    return;
+  }
+
+  // Match: all terms must appear somewhere in the flat string
+  const matches = omniIndex.filter(entry =>
+    terms.every(t => entry.flat.includes(t))
+  );
+
+  stat.innerText = `${matches.length} result${matches.length !== 1 ? 's' : ''} for "${raw}"`;
+
+  if (!matches.length) {
+    el.innerHTML = `
+      <div style="text-align:center;padding:3rem 0;">
+        <p style="font-size:2rem;margin-bottom:0.75rem;">🔍</p>
+        <p style="font-size:14px;font-weight:700;color:var(--subtext);">No guides matched "${raw}"</p>
+        <p style="font-size:12px;color:var(--subtext);margin-top:4px;opacity:0.6;">Try a different term or check the spelling</p>
+      </div>`;
+    return;
+  }
+
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:0.875rem;">
+      ${matches.map(({ g, c, fields }) => {
+
+        // Find which fields matched and highlight them
+        const matchingFields = fields.filter(f =>
+          terms.some(t => String(f.val).toLowerCase().includes(t))
+        );
+
+        const chips = matchingFields.map(f => {
+          // Highlight the matching term within the value
+          let val = String(f.val);
+          terms.forEach(t => {
+            const re = new RegExp(`(${t})`, 'gi');
+            val = val.replace(re, '<span class="omni-highlight">$1</span>');
+          });
+          return `<div style="display:flex;align-items:baseline;gap:5px;">
+            <span style="font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;
+                         color:var(--subtext);flex-shrink:0;">${f.label}:</span>
+            <span style="font-size:11px;font-weight:700;">${val}</span>
+          </div>`;
+        }).join('');
+
+        return `
+          <div onclick="openRosterProfile('${g.displayName.replace(/'/g,"\\\'")}')"
+               style="background:var(--surface);border:1px solid var(--border);border-radius:1rem;
+                      padding:1rem;cursor:pointer;transition:all 0.15s;"
+               onmouseover="this.style.borderColor='var(--gold)';this.style.transform='translateY(-1px)'"
+               onmouseout="this.style.borderColor='var(--border)';this.style.transform='translateY(0)'">
+            <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;
+                        padding-bottom:0.75rem;border-bottom:1px solid var(--border);">
+              <div style="width:36px;height:36px;border-radius:10px;background:var(--gold);flex-shrink:0;
+                          display:flex;align-items:center;justify-content:center;font-size:0.875rem;
+                          font-weight:900;color:#0f0c04;">${g.displayName.charAt(0)}</div>
+              <div>
+                <p style="font-size:13px;font-weight:800;margin:0;">${g.displayName}</p>
+                <p style="font-size:10px;font-weight:600;color:var(--subtext);margin:1px 0 0;">
+                  ${c.role || '—'} &nbsp;·&nbsp; ${g.careerTotal} tours
+                </p>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px;">
+              ${chips}
+            </div>
+          </div>`;
+      }).join('')}
+    </div>`;
+
+  // Clicking a result opens the roster profile panel — switch to roster tab first
+  // so the panel has somewhere to render
+  document.getElementById('omni-results').querySelectorAll('[onclick]').forEach(card => {
+    const orig = card.getAttribute('onclick');
+    card.setAttribute('onclick', `adminSwitchTab('roster'); renderRoster(); setTimeout(() => { ${orig} }, 100);`);
+  });
 }
 
 // ─── ACTIVITY LOG ─────────────────────────────────────────────────────────────
