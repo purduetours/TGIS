@@ -2209,10 +2209,12 @@ function openRosterProfile(displayName) {
     </div>`).join('') || '<p style="font-size:12px;color:var(--subtext);font-style:italic;">No data available</p>';
 
   // Demographics (personal info)
-  const demoFields = [
+const demoFields = [
+    { label: 'Major',         val: census.major        },
+    { label: 'College',       val: census.college      },
     { label: 'Minor',         val: census.minor        },
     { label: 'Certificate',   val: census.certificate  },
-    { label: 'Hometown',      val: census.hometown     },
+    { label: 'Hometown',      val: census.hometown      },
     { label: 'Dietary',       val: census.dietary      },
   ].filter(f => f.val && String(f.val).trim());
 
