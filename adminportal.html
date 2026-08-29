@@ -404,10 +404,13 @@ body { font-family: 'Inter',sans-serif; background: var(--bg); color: var(--text
   <!-- Nav -->
   <p class="nav-section-label">Roster</p>
   <button class="nav-item active" id="nav-tracker" onclick="adminSwitchTab('tracker')">
-    <span class="nav-icon"></span> Guide Tracker
+    <span class="nav-icon"></span> Tour Tracker
   </button>
   <button class="nav-item" id="nav-census" onclick="adminSwitchTab('census')">
     <span class="nav-icon"></span> Census Results
+  </button>
+  <button class="nav-item" id="nav-roster" onclick="adminSwitchTab('roster')">
+    <span class="nav-icon">👥</span> Master Roster
   </button>
 
   <p class="nav-section-label">Operations</p>
@@ -570,6 +573,98 @@ body { font-family: 'Inter',sans-serif; background: var(--bg); color: var(--text
     <div id="family-rosters" style="display:flex;flex-direction:column;gap:1rem;"></div>
 
   </div>
+</div>
+
+
+  <!-- ── ROSTER TAB ── -->
+<div id="tab-roster" class="tab-panel">
+
+  <!-- Search + filter bar -->
+  <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.25rem;flex-wrap:wrap;">
+    <input id="roster-search" type="text" placeholder="Search by name…"
+           oninput="filterRoster()"
+           class="inp" style="flex:1;min-width:180px;font-size:13px;">
+    <select id="roster-filter-family" class="inp" style="width:auto;font-size:13px;" onchange="filterRoster()">
+      <option value="">All Families</option>
+    </select>
+    <select id="roster-filter-role" class="inp" style="width:auto;font-size:13px;" onchange="filterRoster()">
+      <option value="">All Roles</option>
+      <option value="Tour Guide">Tour Guide</option>
+      <option value="Codirector">Codirector</option>
+      <option value="Manager">Manager</option>
+    </select>
+    <span id="roster-count" style="font-size:11px;font-weight:700;color:var(--subtext);white-space:nowrap;"></span>
+  </div>
+
+  <!-- Roster grid -->
+  <div id="roster-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:0.75rem;"></div>
+
+  <!-- Profile panel (full-width, slides in below grid) -->
+  <div id="roster-profile-panel" style="display:none;margin-top:1.5rem;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:1.25rem;overflow:hidden;">
+
+      <!-- Profile header -->
+      <div id="rp-header" style="background:linear-gradient(135deg,#1a1408,#0f0c04);padding:1.5rem;position:relative;">
+        <button onclick="closeRosterProfile()"
+                style="position:absolute;top:1rem;right:1rem;background:rgba(255,255,255,0.1);border:none;
+                       color:rgba(255,255,255,0.6);width:28px;height:28px;border-radius:50%;cursor:pointer;
+                       font-size:14px;display:flex;align-items:center;justify-content:center;">✕</button>
+        <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem;">
+          <div id="rp-initial" style="width:52px;height:52px;border-radius:14px;background:var(--gold);
+                                       display:flex;align-items:center;justify-content:center;
+                                       font-size:1.25rem;font-weight:900;color:#0f0c04;flex-shrink:0;"></div>
+          <div>
+            <h2 id="rp-name" style="font-size:1.25rem;font-weight:900;color:white;margin:0;"></h2>
+            <p id="rp-role" style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;
+                                    color:rgba(206,184,136,0.6);margin:3px 0 0;"></p>
+          </div>
+        </div>
+        <!-- Quick stats row -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.5rem;">
+          <div style="background:rgba(255,255,255,0.06);border-radius:0.75rem;padding:0.75rem;text-align:center;">
+            <p id="rp-career" style="font-size:1.5rem;font-weight:900;color:var(--gold);margin:0;line-height:1;"></p>
+            <p style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.3);margin:3px 0 0;">Career</p>
+          </div>
+          <div style="background:rgba(255,255,255,0.06);border-radius:0.75rem;padding:0.75rem;text-align:center;">
+            <p id="rp-semester" style="font-size:1.5rem;font-weight:900;color:#10B981;margin:0;line-height:1;"></p>
+            <p style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.3);margin:3px 0 0;">This Sem</p>
+          </div>
+          <div style="background:rgba(255,255,255,0.06);border-radius:0.75rem;padding:0.75rem;text-align:center;">
+            <p id="rp-upcoming" style="font-size:1.5rem;font-weight:900;color:#3B82F6;margin:0;line-height:1;"></p>
+            <p style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.3);margin:3px 0 0;">Upcoming</p>
+          </div>
+          <div style="background:rgba(255,255,255,0.06);border-radius:0.75rem;padding:0.75rem;text-align:center;">
+            <p id="rp-rank" style="font-size:1.5rem;font-weight:900;color:#8B5CF6;margin:0;line-height:1;"></p>
+            <p style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.3);margin:3px 0 0;">Rank</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Profile body -->
+      <div style="padding:1.5rem;display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;" class="rp-body-grid">
+
+        <!-- Academic info -->
+        <div style="grid-column:1/-1;">
+          <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:var(--subtext);margin:0 0 0.75rem;">Academic</p>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:0.5rem;" id="rp-academic"></div>
+        </div>
+
+        <!-- Semester history -->
+        <div style="grid-column:1/-1;">
+          <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:var(--subtext);margin:0 0 0.75rem;">Tour History by Semester</p>
+          <div id="rp-history" style="display:flex;flex-direction:column;gap:6px;"></div>
+        </div>
+
+        <!-- Upcoming tours -->
+        <div style="grid-column:1/-1;">
+          <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:var(--subtext);margin:0 0 0.75rem;">Upcoming Tours</p>
+          <div id="rp-upcoming-tours" style="display:flex;flex-direction:column;gap:6px;"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
 </div>
   
     <!-- ── LOG TAB ── -->
@@ -868,6 +963,7 @@ function adminSwitchTab(name) {
 
   // Lazy triggers
   if (name === 'census')   renderCensus();
+  if (name === 'roster')   renderRoster();
   if (name === 'schedule') { loadMgrTours().then(() => renderSchedule()); }
   if (name === 'families') { if (!window._familyData) loadFamilyData(); else renderFamilyGroupsUI(window._familyData); }
   if (name === 'tgit')     { loadTGITTab(); }
@@ -1912,6 +2008,170 @@ async function saveFamilyAssignments() {
   loadFamilyData();
 }
 
+// ─── FULL ROSTER ─────────────────────────────────────────────────────────────
+let rosterData = [];
+
+function renderRoster() {
+  if (rosterData.length) { filterRoster(); return; } // already built
+
+  const guides  = D.adminData.trackerGrid || [];
+  const census  = D.adminData.censusData  || {};
+
+  // Collect unique family names for filter dropdown
+  const families = [...new Set(guides.map(g => {
+    const c = census[g.displayName];
+    return c?.family || '';
+  }).filter(Boolean))].sort();
+
+  const famSel = document.getElementById('roster-filter-family');
+  families.forEach(f => {
+    const opt = document.createElement('option');
+    opt.value = f; opt.innerText = f + ' Family';
+    famSel.appendChild(opt);
+  });
+
+  rosterData = guides.map(g => {
+    const c   = census[g.displayName] || {};
+    const lbG = (D.fullLeaderboard || []).find(x => x.displayName === g.displayName);
+    const rank = (D.fullLeaderboard || []).findIndex(x => x.displayName === g.displayName) + 1;
+    return { ...g, census: c, rank, history: lbG?.history || [] };
+  });
+
+  filterRoster();
+}
+
+function filterRoster() {
+  const search = (document.getElementById('roster-search')?.value || '').toLowerCase();
+  const family = document.getElementById('roster-filter-family')?.value || '';
+  const role   = document.getElementById('roster-filter-role')?.value || '';
+  const census = D.adminData.censusData || {};
+
+  const filtered = rosterData.filter(g => {
+    const c = census[g.displayName] || {};
+    if (search && !g.displayName.toLowerCase().includes(search)) return false;
+    if (family && c.family !== family) return false;
+    if (role   && c.role   !== role)   return false;
+    return true;
+  });
+
+  document.getElementById('roster-count').innerText = `${filtered.length} guide${filtered.length !== 1 ? 's' : ''}`;
+
+  const grid = document.getElementById('roster-grid');
+  grid.innerHTML = filtered.map(g => {
+    const c       = census[g.displayName] || {};
+    const initial = g.displayName.charAt(0);
+    const colors  = ['#CEB888','#10B981','#3B82F6','#8B5CF6','#EF4444','#F59E0B'];
+    const color   = colors[g.displayName.charCodeAt(0) % colors.length];
+    return `
+      <div onclick="openRosterProfile('${g.displayName.replace(/'/g,"\\\'")}')"
+           style="background:var(--surface);border:1px solid var(--border);border-radius:1rem;
+                  padding:1rem;cursor:pointer;transition:all 0.15s;"
+           onmouseover="this.style.borderColor='var(--gold)';this.style.transform='translateY(-1px)'"
+           onmouseout="this.style.borderColor='var(--border)';this.style.transform='translateY(0)'">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;">
+          <div style="width:38px;height:38px;border-radius:10px;background:${color};flex-shrink:0;
+                      display:flex;align-items:center;justify-content:center;font-size:1rem;
+                      font-weight:900;color:#0f0c04;">${initial}</div>
+          <div style="min-width:0;">
+            <p style="font-size:13px;font-weight:800;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${g.displayName}</p>
+            <p style="font-size:10px;font-weight:600;color:var(--subtext);margin:1px 0 0;">${c.role || '—'}</p>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:11px;font-weight:700;color:var(--subtext);">
+            ${g.careerTotal} tours
+          </span>
+          <span style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;
+                       color:${color};background:${color}18;padding:2px 8px;border-radius:99px;">
+            ${g.upcomingCount > 0 ? g.upcomingCount + ' upcoming' : g.firstSemester || '—'}
+          </span>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function openRosterProfile(displayName) {
+  const g      = rosterData.find(x => x.displayName === displayName);
+  if (!g) return;
+  const census = D.adminData.censusData?.[displayName] || {};
+  const tours  = (D.adminData.toursByGuide?.[displayName] || []);
+  const today  = new Date(); today.setHours(0,0,0,0);
+
+  // Header
+  document.getElementById('rp-initial').innerText  = displayName.charAt(0);
+  document.getElementById('rp-name').innerText     = g.firstName && g.lastName ? `${g.firstName} ${g.lastName}` : displayName;
+  document.getElementById('rp-role').innerText     = census.role || g.displayName;
+  document.getElementById('rp-career').innerText   = g.careerTotal || 0;
+  document.getElementById('rp-semester').innerText = g.currentSem  || 0;
+  document.getElementById('rp-upcoming').innerText = g.upcomingCount || 0;
+  document.getElementById('rp-rank').innerText     = g.rank ? '#' + g.rank : '—';
+
+  // Academic info chips
+  const academicFields = [
+    { label: 'Major',       val: census.major       },
+    { label: 'Minor',       val: census.minor       },
+    { label: 'Certificate', val: census.certificate },
+    { label: 'College',     val: census.college     },
+    { label: 'Grad Date',   val: census.gradDate    },
+    { label: 'Family',      val: census.family      },
+    { label: 'First Sem',   val: g.firstSemester    },
+    { label: 'Username',    val: g.username         },
+  ].filter(f => f.val && String(f.val).trim());
+
+  document.getElementById('rp-academic').innerHTML = academicFields.map(f => `
+    <div style="background:var(--row-hover);border:1px solid var(--border);border-radius:0.75rem;padding:0.625rem 0.875rem;">
+      <p style="font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtext);margin:0 0 2px;">${f.label}</p>
+      <p style="font-size:12px;font-weight:700;color:var(--text);margin:0;">${f.val}</p>
+    </div>`).join('') || '<p style="font-size:12px;color:var(--subtext);font-style:italic;">No academic data available</p>';
+
+  // Semester history bars
+  const maxSem = Math.max(1, ...g.history.map(h => h.count));
+  document.getElementById('rp-history').innerHTML = g.history.length
+    ? [...g.history].reverse().map(h => `
+        <div style="display:flex;align-items:center;gap:0.75rem;">
+          <span style="font-size:10px;font-weight:700;color:var(--subtext);width:100px;flex-shrink:0;">${h.semester}</span>
+          <div style="flex:1;height:8px;background:var(--border);border-radius:99px;overflow:hidden;">
+            <div style="height:100%;width:${Math.round((h.count/maxSem)*100)}%;background:var(--gold);border-radius:99px;transition:width 0.6s ease;"></div>
+          </div>
+          <span style="font-size:11px;font-weight:900;width:28px;text-align:right;">${h.count}</span>
+        </div>`).join('')
+    : '<p style="font-size:12px;color:var(--subtext);font-style:italic;">No history available</p>';
+
+  // Upcoming tours
+  const upcoming = tours
+    .filter(t => { const d = new Date(t.date); d.setHours(0,0,0,0); return d >= today; })
+    .sort((a,b) => new Date(a.date) - new Date(b.date))
+    .slice(0, 8);
+
+  document.getElementById('rp-upcoming-tours').innerHTML = upcoming.length
+    ? upcoming.map(t => {
+        const d = new Date(t.date);
+        const dateStr = d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+        return `
+          <div style="display:flex;align-items:center;gap:0.75rem;padding:0.625rem 0.875rem;
+                      background:var(--row-hover);border:1px solid var(--border);border-radius:0.75rem;">
+            <div style="text-align:center;min-width:40px;">
+              <p style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--subtext);margin:0;">${d.toLocaleDateString('en-US',{month:'short'})}</p>
+              <p style="font-size:1.1rem;font-weight:900;color:var(--text);margin:0;line-height:1;">${d.getDate()}</p>
+            </div>
+            <div style="width:1px;height:32px;background:var(--border);flex-shrink:0;"></div>
+            <div>
+              <p style="font-size:12px;font-weight:700;margin:0;">${t.type}</p>
+              <p style="font-size:10px;color:var(--subtext);margin:1px 0 0;">${d.toLocaleDateString('en-US',{weekday:'long'})}</p>
+            </div>
+          </div>`;
+      }).join('')
+    : '<p style="font-size:12px;color:var(--subtext);font-style:italic;">No upcoming tours scheduled</p>';
+
+  // Show panel and scroll to it
+  const panel = document.getElementById('roster-profile-panel');
+  panel.style.display = 'block';
+  setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+}
+
+function closeRosterProfile() {
+  document.getElementById('roster-profile-panel').style.display = 'none';
+}
 
 // ─── ACTIVITY LOG ─────────────────────────────────────────────────────────────
 function renderActivityLog() {
