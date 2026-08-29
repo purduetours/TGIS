@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Privacy Policy & Terms · TGIS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --gold:   #CEB888;
+  --ink:    #1a1510;
+  --stone:  #F9F6F0;
+  --mid:    #8C7B5E;
+  --border: #EDE8DF;
+  --white:  #FFFFFF;
+  --text:   #2C2416;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--stone);
+  color: var(--text);
+  min-height: 100vh;
+  padding-top: env(safe-area-inset-top);
+}
+
+/* ── Top bar ── */
+#topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(249,246,240,0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875rem 1.25rem;
+  gap: 1rem;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+#back-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--gold);
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+  transition: opacity 0.15s;
+}
+#back-btn:active { opacity: 0.6; }
+
+#back-btn svg { flex-shrink: 0; }
+
+.topbar-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--mid);
+}
+
+.topbar-right {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(44,36,22,0.3);
+  white-space: nowrap;
+}
+
+/* ── Document header ── */
+#doc-header {
+  background: var(--ink);
+  padding: 3rem 1.5rem 2.5rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+#doc-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 120%, rgba(206,184,136,0.12) 0%, transparent 65%);
+}
+
+.doc-header-inner { position: relative; z-index: 1; }
+
+.doc-seal {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: rgba(206,184,136,0.1);
+  border: 1px solid rgba(206,184,136,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.25rem;
+  font-size: 1.5rem;
+}
+
+.doc-eyebrow {
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(206,184,136,0.5);
+  margin-bottom: 0.5rem;
+}
+
+.doc-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.625rem;
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1.2;
+  margin-bottom: 0.75rem;
+}
+
+.doc-meta {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: rgba(255,255,255,0.3);
+  line-height: 1.6;
+}
+
+/* ── Table of contents ── */
+#toc {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 1.25rem 1.5rem;
+}
+
+.toc-label {
+  font-size: 0.55rem;
+  font-weight: 900;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--mid);
+  margin-bottom: 0.875rem;
+}
+
+.toc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.toc-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  text-decoration: none;
+  border-bottom: 1px solid var(--border);
+  transition: color 0.15s;
+}
+.toc-item:last-child { border-bottom: none; }
+.toc-item:hover { color: var(--gold); }
+
+.toc-num {
+  font-size: 0.6rem;
+  font-weight: 900;
+  color: var(--gold);
+  width: 20px;
+  flex-shrink: 0;
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.toc-text {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* ── Main content ── */
+#content {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem calc(env(safe-area-inset-bottom) + 4rem);
+}
+
+/* ── Sections ── */
+.section {
+  margin-bottom: 2.5rem;
+  scroll-margin-top: 60px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--border);
+}
+
+.section-num {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--gold);
+  background: rgba(206,184,136,0.1);
+  border: 1px solid rgba(206,184,136,0.25);
+  border-radius: 6px;
+  padding: 2px 7px;
+  flex-shrink: 0;
+}
+
+.section-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.section-body {
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: rgba(44,36,22,0.7);
+  line-height: 1.75;
+}
+
+.section-body p { margin-bottom: 0.875rem; }
+.section-body p:last-child { margin-bottom: 0; }
+
+/* ── Sub-sections ── */
+.subsection {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 0.875rem;
+  padding: 1rem 1.125rem;
+  margin-bottom: 0.75rem;
+}
+
+.subsection-title {
+  font-size: 0.7rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink);
+  margin-bottom: 0.5rem;
+}
+
+.subsection-body {
+  font-size: 0.7875rem;
+  color: rgba(44,36,22,0.65);
+  line-height: 1.7;
+}
+
+/* ── Rights list ── */
+.rights-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.875rem;
+}
+
+.rights-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  padding: 0.625rem 0.875rem;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  font-size: 0.7875rem;
+  color: rgba(44,36,22,0.7);
+  line-height: 1.5;
+}
+
+.rights-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--gold);
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+
+/* ── Terms list ── */
+.terms-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.875rem;
+}
+
+.terms-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  font-size: 0.7875rem;
+  color: rgba(44,36,22,0.7);
+  line-height: 1.5;
+}
+
+.terms-check {
+  font-size: 0.7rem;
+  font-weight: 900;
+  color: var(--gold);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* ── Divider ── */
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 2rem 0;
+}
+
+/* ── Footer disclaimer ── */
+#footer {
+  background: var(--ink);
+  padding: 2rem 1.5rem calc(env(safe-area-inset-bottom) + 2rem);
+  text-align: center;
+}
+
+.footer-inner {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.footer-seal {
+  font-size: 1.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.footer-text {
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.25);
+  line-height: 1.7;
+  margin-bottom: 1.25rem;
+}
+
+#footer-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(206,184,136,0.1);
+  border: 1px solid rgba(206,184,136,0.25);
+  border-radius: 99px;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold);
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: background 0.15s;
+}
+#footer-back-btn:hover { background: rgba(206,184,136,0.18); }
+
+/* ── Responsive ── */
+@media (min-width: 640px) {
+  #doc-header { padding: 4rem 2rem 3rem; }
+  #toc { padding: 1.5rem 2rem; }
+  .toc-list { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+  .toc-item { border-bottom: 1px solid var(--border); }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Top bar ── -->
+<div id="topbar">
+  <div class="topbar-left">
+    <button id="back-btn" onclick="goBack()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 12H5M12 5l-7 7 7 7"/>
+      </svg>
+      Back
+    </button>
+    <span style="color:var(--border);">|</span>
+    <span class="topbar-title">Legal</span>
+  </div>
+  <div class="topbar-right">Fall 2026</div>
+</div>
+
+<!-- ── Document header ── -->
+<div id="doc-header">
+  <div class="doc-header-inner">
+    <div class="doc-seal">⚖️</div>
+    <p class="doc-eyebrow">Purdue Tour Guide Program</p>
+    <h1 class="doc-title">Privacy Policy &amp;<br>Terms of Use</h1>
+    <p class="doc-meta">
+      Tour Guide Information System (TGIS)<br>
+      Effective: Fall 2026 &nbsp;·&nbsp; Last Updated: August 2026
+    </p>
+  </div>
+</div>
+
+<!-- ── Table of contents ── -->
+<div id="toc">
+  <p class="toc-label">Contents</p>
+  <div class="toc-list">
+    <a href="#s1" class="toc-item">
+      <span class="toc-num">01</span>
+      <span class="toc-text">Who We Are</span>
+    </a>
+    <a href="#s2" class="toc-item">
+      <span class="toc-num">02</span>
+      <span class="toc-text">Who This Applies To</span>
+    </a>
+    <a href="#s3" class="toc-item">
+      <span class="toc-num">03</span>
+      <span class="toc-text">What Information We Collect</span>
+    </a>
+    <a href="#s4" class="toc-item">
+      <span class="toc-num">04</span>
+      <span class="toc-text">How We Use Your Information</span>
+    </a>
+    <a href="#s5" class="toc-item">
+      <span class="toc-num">05</span>
+      <span class="toc-text">Notifications &amp; Messaging</span>
+    </a>
+    <a href="#s6" class="toc-item">
+      <span class="toc-num">06</span>
+      <span class="toc-text">Data Retention</span>
+    </a>
+    <a href="#s7" class="toc-item">
+      <span class="toc-num">07</span>
+      <span class="toc-text">Data Security</span>
+    </a>
+    <a href="#s8" class="toc-item">
+      <span class="toc-num">08</span>
+      <span class="toc-text">Your Rights</span>
+    </a>
+    <a href="#s9" class="toc-item">
+      <span class="toc-num">09</span>
+      <span class="toc-text">Changes to This Policy</span>
+    </a>
+    <a href="#s10" class="toc-item">
+      <span class="toc-num">10</span>
+      <span class="toc-text">Terms of Use</span>
+    </a>
+    <a href="#s11" class="toc-item">
+      <span class="toc-num">11</span>
+      <span class="toc-text">Contact</span>
+    </a>
+  </div>
+</div>
+
+<!-- ── Main content ── -->
+<div id="content">
+
+  <div class="section" id="s1">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <h2 class="section-title">Who We Are</h2>
+    </div>
+    <div class="section-body">
+      <p>The Tour Guide Information System (TGIS) is a student-created and student-operated platform built for and used exclusively by tour guides and management staff within the Purdue University Office of Admissions Tour Guide Program.</p>
+      <p>TGIS is not an official Purdue University product and is maintained by the student directors of the Ambassador Program.</p>
+    </div>
+  </div>
+
+  <div class="section" id="s2">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <h2 class="section-title">Who This Applies To</h2>
+    </div>
+    <div class="section-body">
+      <p>This policy applies exclusively to active and former members of the Purdue Tour Guide Program. TGIS is not accessible to or intended for the general public, prospective students, or anyone outside the Tour Guide Program.</p>
+    </div>
+  </div>
+
+  <div class="section" id="s3">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <h2 class="section-title">What Information We Collect</h2>
+    </div>
+    <div class="section-body">
+      <p>When you use TGIS, the following categories of information are collected and retained.</p>
+    </div>
+    <div style="margin-top:1rem;">
+      <div class="subsection">
+        <p class="subsection-title">Account &amp; Identity</p>
+        <p class="subsection-body">Your name, Purdue username, Purdue email address, PUID, and role within the program.</p>
+      </div>
+      <div class="subsection">
+        <p class="subsection-title">Profile Information</p>
+        <p class="subsection-body">Information you provide as part of program onboarding and census forms, including graduation date, academic major, college, hometown, and dietary preferences where voluntarily submitted.</p>
+      </div>
+      <div class="subsection">
+        <p class="subsection-title">Tour &amp; Schedule Data</p>
+        <p class="subsection-body">Records of tours assigned to you, tours you have given, and your tour history within the program.</p>
+      </div>
+      <div class="subsection">
+        <p class="subsection-title">Usage Information</p>
+        <p class="subsection-body">When you access TGIS, a record of your login — including your username, the date and time of access, and which part of the platform you accessed — is retained for administrative purposes.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="s4">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <h2 class="section-title">How We Use Your Information</h2>
+    </div>
+    <div class="section-body">
+      <p>Your information is used solely for the operation of the Tour Guide Program. Specifically:</p>
+    </div>
+    <div class="rights-list" style="margin-top:0.875rem;">
+      <div class="rights-item"><div class="rights-dot"></div>To display your schedule, tour history, and program statistics to you</div>
+      <div class="rights-item"><div class="rights-dot"></div>To allow program managers to coordinate tour assignments and track participation</div>
+      <div class="rights-item"><div class="rights-dot"></div>To send you program-related notifications and reminders</div>
+      <div class="rights-item"><div class="rights-dot"></div>To calculate and display family group standings and program milestones</div>
+      <div class="rights-item"><div class="rights-dot"></div>To fulfill administrative requirements of the Tour Guide Program</div>
+    </div>
+    <div class="section-body" style="margin-top:1rem;">
+      <p>Your information is never sold, shared with third parties for marketing, or used for any purpose outside the Tour Guide Program.</p>
+    </div>
+  </div>
+
+  <div class="section" id="s5">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <h2 class="section-title">Notifications &amp; Messaging</h2>
+    </div>
+    <div class="section-body">
+      <p>TGIS integrates with Slack to deliver program notifications to your Purdue-affiliated account. These notifications may include tour assignment confirmations, milestone achievements, census reminders, and end-of-semester summaries.</p>
+      <p>Notifications are sent to the Slack account associated with your Purdue email address. You may manage your notification preferences within Slack directly.</p>
+    </div>
+  </div>
+
+  <div class="section" id="s6">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <h2 class="section-title">Data Retention</h2>
+    </div>
+    <div class="section-body">
+      <p>Your information is retained for the duration of your participation in the Tour Guide Program and for a reasonable period thereafter for historical record-keeping purposes. Former guides' tour history is maintained as part of the program's permanent records.</p>
+      <p>If you would like to request removal of your personal information following your departure from the program, you may contact the student directors directly.</p>
+    </div>
+  </div>
+
+  <div class="section" id="s7">
+    <div class="section-header">
+      <span class="section-num">07</span>
+      <h2 class="section-title">Data Security</h2>
+    </div>
+    <div class="section-body">
+      <p>Access to TGIS and the data it contains is restricted to active tour guides and program management only. Administrative functions require additional authentication. We take reasonable precautions to protect your information from unauthorized access.</p>
+    </div>
+  </div>
+
+  <div class="section" id="s8">
+    <div class="section-header">
+      <span class="section-num">08</span>
+      <h2 class="section-title">Your Rights</h2>
+    </div>
+    <div class="section-body">
+      <p>As a user of TGIS you have the right to:</p>
+    </div>
+    <div class="rights-list" style="margin-top:0.875rem;">
+      <div class="rights-item"><div class="rights-dot"></div>Access the personal information the program holds about you</div>
+      <div class="rights-item"><div class="rights-dot"></div>Request corrections to inaccurate information</div>
+      <div class="rights-item"><div class="rights-dot"></div>Request removal of your personal information following your departure from the program</div>
+    </div>
+    <div class="section-body" style="margin-top:1rem;">
+      <p>To exercise any of these rights, contact the student directors of the Ambassador Program directly.</p>
+    </div>
+  </div>
+
+  <div class="section" id="s9">
+    <div class="section-header">
+      <span class="section-num">09</span>
+      <h2 class="section-title">Changes to This Policy</h2>
+    </div>
+    <div class="section-body">
+      <p>This policy may be updated from time to time as the program evolves. Material changes will be communicated through the usual program channels. Continued use of TGIS following any update constitutes acceptance of the revised policy.</p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section" id="s10">
+    <div class="section-header">
+      <span class="section-num">10</span>
+      <h2 class="section-title">Terms of Use</h2>
+    </div>
+    <div class="section-body">
+      <p>By accessing and using TGIS you agree to the following.</p>
+    </div>
+    <div class="terms-list">
+      <div class="terms-item"><span class="terms-check">✓</span>You will only access TGIS using your own credentials and will not share access with others</div>
+      <div class="terms-item"><span class="terms-check">✓</span>You will use the platform solely for legitimate Tour Guide Program purposes</div>
+      <div class="terms-item"><span class="terms-check">✓</span>You will not attempt to access, modify, or extract data belonging to other users</div>
+      <div class="terms-item"><span class="terms-check">✓</span>You understand that your activity within the platform is logged for administrative purposes</div>
+      <div class="terms-item"><span class="terms-check">✓</span>You will report any suspected security issues or unauthorized access to the student directors immediately</div>
+    </div>
+    <div class="section-body" style="margin-top:1rem;">
+      <p>Misuse of the platform may result in removal of access and referral to the appropriate program management or university office.</p>
+    </div>
+  </div>
+
+  <div class="section" id="s11">
+    <div class="section-header">
+      <span class="section-num">11</span>
+      <h2 class="section-title">Contact</h2>
+    </div>
+    <div class="section-body">
+      <p>Questions about this policy or requests regarding your personal data should be directed to the student directors of the Purdue University Tour Guide Ambassador Program through the standard program communication channels.</p>
+    </div>
+  </div>
+
+</div><!-- /content -->
+
+<!-- ── Footer ── -->
+<div id="footer">
+  <div class="footer-inner">
+    <div class="footer-seal">🏛️</div>
+    <p class="footer-text">
+      This policy was prepared for internal use by the Tour Guide Program.<br>
+      It is not a substitute for legal advice.<br><br>
+      Tour Guide Information System &nbsp;·&nbsp; Purdue University Office of Admissions<br>
+      West Lafayette, Indiana &nbsp;·&nbsp; Fall 2026
+    </p>
+    <button id="footer-back-btn" onclick="goBack()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 12H5M12 5l-7 7 7 7"/>
+      </svg>
+      Back to TGIS
+    </button>
+  </div>
+</div>
+
+<script>
+function goBack() {
+  if (document.referrer && document.referrer !== window.location.href) {
+    history.back();
+  } else {
+    // Fallback — go to app with username if available
+    const params = new URLSearchParams(window.location.search);
+    const user   = params.get('user');
+    window.location.href = user
+      ? `https://tgis.pages.dev/app.html?user=${encodeURIComponent(user)}`
+      : 'https://tgis.pages.dev/app.html';
+  }
+}
+</script>
+
+</body>
+</html>
