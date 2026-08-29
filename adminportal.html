@@ -710,31 +710,27 @@ body { font-family: 'Inter',sans-serif; background: var(--bg); color: var(--text
 <div id="tab-omnisearch" class="tab-panel">
 
   <!-- Search bar -->
-  <div style="margin-bottom:1.5rem;">
-    <div style="position:relative;max-width:600px;">
-      <span style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);font-size:1rem;opacity:0.4;">🔍</span>
+  <div style="display:flex;flex-direction:column;align-items:center;padding:3rem 0 2.5rem;">
+    <p style="font-size:9px;font-weight:900;letter-spacing:0.3em;text-transform:uppercase;
+              color:var(--gold);margin:0 0 0.5rem;">Purdue Tour Guides</p>
+    <h1 style="font-family:'Space Grotesk',sans-serif;font-size:2.75rem;font-weight:700;
+               margin:0 0 0.25rem;letter-spacing:-0.02em;color:var(--text);">Omni<span style="color:var(--gold);">Search</span></h1>
+    <p style="font-size:12px;font-weight:500;color:var(--subtext);margin:0 0 2rem;">
+      Search any demographic across the entire program
+    </p>
+    <div style="position:relative;width:100%;max-width:560px;">
+      <span style="position:absolute;left:1.125rem;top:50%;transform:translateY(-50%);font-size:1rem;opacity:0.35;">🔍</span>
       <input id="omni-input" type="text"
-             placeholder="Search any field — major, hometown, family, grad date…"
+             placeholder="Major, hometown, family, grad date, dietary…"
              oninput="runOmniSearch()"
-             style="width:100%;padding:0.875rem 1rem 0.875rem 2.75rem;border-radius:1rem;
-                    border:2px solid var(--border);background:var(--surface);font-size:14px;
+             style="width:100%;padding:1rem 1.25rem 1rem 3rem;border-radius:1.25rem;
+                    border:2px solid var(--border);background:var(--surface);font-size:15px;
                     font-family:inherit;font-weight:500;color:var(--text);outline:none;
-                    transition:border-color 0.15s;"
+                    transition:border-color 0.2s;box-shadow:0 2px 12px rgba(0,0,0,0.04);"
              onfocus="this.style.borderColor='var(--gold)'"
              onblur="this.style.borderColor='var(--border)'">
     </div>
-    <div style="display:flex;align-items:center;gap:1rem;margin-top:0.625rem;flex-wrap:wrap;">
-      <p id="omni-status" style="font-size:11px;font-weight:700;color:var(--subtext);">
-        Type to search across all guide demographics
-      </p>
-      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;" id="omni-suggestions">
-        <button class="omni-chip" onclick="setOmniSearch('New Jersey')">New Jersey</button>
-        <button class="omni-chip" onclick="setOmniSearch('Industrial Engineering')">Industrial Engineering</button>
-        <button class="omni-chip" onclick="setOmniSearch('Purdue Polytechnic')">Polytechnic</button>
-        <button class="omni-chip" onclick="setOmniSearch('Spring 2023')">Spring 2023</button>
-        <button class="omni-chip" onclick="setOmniSearch('Vegan')">Vegan</button>
-      </div>
-    </div>
+    <p id="omni-status" style="font-size:11px;font-weight:700;color:var(--subtext);margin-top:0.75rem;"></p>
   </div>
 
   <!-- Results -->
