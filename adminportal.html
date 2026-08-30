@@ -2322,7 +2322,7 @@ let demoRendered = false;
 function renderDemographics() {
   if (demoRendered) return;
   demoRendered = true;
-
+  window._demoGroups = {};
   const guides = D.adminData.trackerGrid || [];
   const census = D.adminData.censusData  || {};
 
@@ -2380,11 +2380,13 @@ function renderDemographics() {
           <span style="font-size:10px;font-weight:700;color:var(--subtext);">${entries.length} groups</span>
         </div>
         <div style="padding:0.75rem 1rem;display:flex;flex-direction:column;gap:2px;max-height:280px;overflow-y:auto;">
+        
           ${entries.map(([val, names]) => {
             const pct = Math.round((names.length / max) * 100);
             const share = Math.round((names.length / total) * 100);
+            window._demoGroups[`${label}_${val}`] = { category: label, value: val, names };
             return `
-              <div onclick="openDemoDrilldown('${label.replace(/'/g,"\\\'")}_${val.replace(/'/g,"\\\'")}', '${label.replace(/'/g,"\\\''")}', '${val.replace(/'/g,"\\\''")}', ${JSON.stringify(names).replace(/'/g,"\\\\'")})"
+                            <div onclick="openDemoDrilldown('${(label+'_'+val).replace(/'/g,'')}')"
                    style="display:flex;align-items:center;gap:0.625rem;padding:5px 6px;border-radius:8px;
                           cursor:pointer;transition:background 0.12s;"
                    onmouseover="this.style.background='var(--row-hover)'"
@@ -2409,7 +2411,10 @@ function renderDemographics() {
   }).join('');
 }
 
-function openDemoDrilldown(id, category, value, names) {
+function openDemoDrilldown(key) {
+  const group = (window._demoGroups || {})[key];
+  if (!group) return;
+  const { category, value, names } = group;
   document.getElementById('drill-category').innerText = category;
   document.getElementById('drill-value').innerText    = value;
 
