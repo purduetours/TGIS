@@ -439,6 +439,9 @@ body { font-family: 'Inter',sans-serif; background: var(--bg); color: var(--text
    <button class="nav-item" id="nav-omnisearch" onclick="adminSwitchTab('omnisearch')">
     <span class="nav-icon"></span>OmniSearch
   </button>
+    <button class="nav-item" id="nav-demographics" onclick="adminSwitchTab('demographics')">
+    <span class="nav-icon"></span>Demographics
+  </button>
 
   <p class="nav-section-label">Operations</p>
   <button class="nav-item" id="nav-schedule" onclick="adminSwitchTab('schedule')">
@@ -735,6 +738,42 @@ body { font-family: 'Inter',sans-serif; background: var(--bg); color: var(--text
 
   <!-- Results -->
   <div id="omni-results"></div>
+
+</div>
+
+
+  <!-- ── DEMOGRAPHICS TAB ── -->
+<div id="tab-demographics" class="tab-panel">
+
+  <div style="margin-bottom:1.5rem;">
+    <h1 style="font-size:1.75rem;font-weight:900;margin:0;">Demographics</h1>
+    <p style="font-size:11px;font-weight:700;color:var(--subtext);text-transform:uppercase;letter-spacing:0.1em;margin:2px 0 0;">
+      Click any row to see the guides in that group
+    </p>
+  </div>
+
+  <!-- Breakdown grid -->
+  <div id="demo-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1.25rem;"></div>
+
+  <!-- Drill-down panel -->
+  <div id="demo-drilldown" style="display:none;margin-top:1.5rem;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:1.25rem;overflow:hidden;">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;
+                  border-bottom:1px solid var(--border);">
+        <div>
+          <p id="drill-category" style="font-size:9px;font-weight:900;text-transform:uppercase;
+                                         letter-spacing:0.15em;color:var(--subtext);margin:0 0 2px;"></p>
+          <p id="drill-value" style="font-size:1rem;font-weight:900;margin:0;"></p>
+        </div>
+        <button onclick="closeDemoDrilldown()"
+                style="background:var(--row-hover);border:1px solid var(--border);border-radius:99px;
+                       padding:4px 12px;font-size:11px;font-weight:700;color:var(--subtext);cursor:pointer;">
+          ✕ Close
+        </button>
+      </div>
+      <div id="drill-list" style="padding:1rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.625rem;"></div>
+    </div>
+  </div>
 
 </div>
     <!-- ── LOG TAB ── -->
@@ -1034,6 +1073,7 @@ function adminSwitchTab(name) {
   // Lazy triggers
   if (name === 'census')   renderCensus();
   if (name === 'roster')   renderRoster();
+  if (name === 'demographics') renderDemographics();
   if (name === 'omnisearch') initOmniSearch();
   if (name === 'schedule') { loadMgrTours().then(() => renderSchedule()); }
   if (name === 'families') { if (!window._familyData) loadFamilyData(); else renderFamilyGroupsUI(window._familyData); }
@@ -2274,6 +2314,138 @@ const demoFields = [
 
 function closeRosterProfile() {
   document.getElementById('roster-profile-panel').style.display = 'none';
+}
+
+// ─── DEMOGRAPHICS ─────────────────────────────────────────────────────────────
+let demoRendered = false;
+
+function renderDemographics() {
+  if (demoRendered) return;
+  demoRendered = true;
+
+  const guides = D.adminData.trackerGrid || [];
+  const census = D.adminData.censusData  || {};
+
+  // Helper: build a breakdown from a field extractor function
+  function buildBreakdown(label, extractor) {
+    const map = {};
+    guides.forEach(g => {
+      const c   = census[g.displayName] || {};
+      const val = extractor(g, c);
+      if (!val || !String(val).trim()) return;
+      const key = String(val).trim();
+      if (!map[key]) map[key] = [];
+      map[key].push(g.displayName);
+    });
+    return { label, map };
+  }
+
+  // Define all breakdowns
+  const breakdowns = [
+    buildBreakdown('Graduation Date',   (g, c) => c.gradDate),
+    buildBreakdown('College',           (g, c) => c.college),
+    buildBreakdown('Major',             (g, c) => c.major),
+    buildBreakdown('Home State',        (g, c) => {
+      // Extract state from hometown — assume last word or "City, ST" format
+      const h = String(c.hometown || '').trim();
+      if (!h) return null;
+      const parts = h.split(',');
+      return parts.length > 1 ? parts[parts.length - 1].trim() : h;
+    }),
+    buildBreakdown('Year in School',    (g, c) => c.role === 'Tour Guide' ? (c.year || null) : null),
+    buildBreakdown('Minor',             (g, c) => c.minor),
+    buildBreakdown('Certificate',       (g, c) => c.certificate),
+    buildBreakdown('Family',            (g, c) => c.family ? c.family + ' Family' : null),
+    buildBreakdown('Dietary',           (g, c) => c.dietary),
+    buildBreakdown('First Semester',    (g)     => g.firstSemester),
+    buildBreakdown('Giving Tours',      (g, c)  => c.givingTours),
+    buildBreakdown('Tours Per Week',    (g, c)  => c.toursPerWeek ? c.toursPerWeek + ' per week' : null),
+    buildBreakdown('Desk Preference',   (g, c)  => c.deskWhere),
+  ];
+
+  const maxBar = (map) => Math.max(1, ...Object.values(map).map(a => a.length));
+
+  document.getElementById('demo-grid').innerHTML = breakdowns.map(({ label, map }) => {
+    const entries = Object.entries(map).sort((a, b) => b[1].length - a[1].length);
+    if (!entries.length) return '';
+    const total = guides.length;
+    const max   = maxBar(map);
+
+    return `
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:1.25rem;overflow:hidden;">
+        <div style="padding:1rem 1.25rem;border-bottom:1px solid var(--border);display:flex;
+                    align-items:center;justify-content:space-between;">
+          <p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;
+                    color:var(--subtext);margin:0;">${label}</p>
+          <span style="font-size:10px;font-weight:700;color:var(--subtext);">${entries.length} groups</span>
+        </div>
+        <div style="padding:0.75rem 1rem;display:flex;flex-direction:column;gap:2px;max-height:280px;overflow-y:auto;">
+          ${entries.map(([val, names]) => {
+            const pct = Math.round((names.length / max) * 100);
+            const share = Math.round((names.length / total) * 100);
+            return `
+              <div onclick="openDemoDrilldown('${label.replace(/'/g,"\\\'")}_${val.replace(/'/g,"\\\'")}', '${label.replace(/'/g,"\\\''")}', '${val.replace(/'/g,"\\\''")}', ${JSON.stringify(names).replace(/'/g,"\\\\'")})"
+                   style="display:flex;align-items:center;gap:0.625rem;padding:5px 6px;border-radius:8px;
+                          cursor:pointer;transition:background 0.12s;"
+                   onmouseover="this.style.background='var(--row-hover)'"
+                   onmouseout="this.style.background='transparent'">
+                <div style="flex:1;min-width:0;">
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;">
+                    <span style="font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;
+                                 text-overflow:ellipsis;max-width:160px;">${val}</span>
+                    <span style="font-size:11px;font-weight:900;color:var(--gold);flex-shrink:0;margin-left:8px;">
+                      ${names.length} <span style="font-size:9px;font-weight:600;color:var(--subtext);">(${share}%)</span>
+                    </span>
+                  </div>
+                  <div style="height:4px;background:var(--border);border-radius:99px;overflow:hidden;">
+                    <div style="height:100%;width:${pct}%;background:var(--gold);border-radius:99px;"></div>
+                  </div>
+                </div>
+                <span style="font-size:10px;color:var(--subtext);flex-shrink:0;">›</span>
+              </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function openDemoDrilldown(id, category, value, names) {
+  document.getElementById('drill-category').innerText = category;
+  document.getElementById('drill-value').innerText    = value;
+
+  const census = D.adminData.censusData  || {};
+  const guides = D.adminData.trackerGrid || {};
+
+  document.getElementById('drill-list').innerHTML = names.map(name => {
+    const g = (D.adminData.trackerGrid || []).find(x => x.displayName === name);
+    const c = census[name] || {};
+    return `
+      <div onclick="adminSwitchTab('roster'); renderRoster(); setTimeout(() => openRosterProfile('${name.replace(/'/g,"\\\''")}'), 100)"
+           style="background:var(--row-hover);border:1px solid var(--border);border-radius:0.875rem;
+                  padding:0.75rem 1rem;cursor:pointer;transition:all 0.15s;"
+           onmouseover="this.style.borderColor='var(--gold)'"
+           onmouseout="this.style.borderColor='var(--border)'">
+        <div style="display:flex;align-items:center;gap:0.625rem;">
+          <div style="width:32px;height:32px;border-radius:8px;background:var(--gold);flex-shrink:0;
+                      display:flex;align-items:center;justify-content:center;font-size:0.875rem;
+                      font-weight:900;color:#0f0c04;">${name.charAt(0)}</div>
+          <div style="min-width:0;">
+            <p style="font-size:12px;font-weight:800;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${name}</p>
+            <p style="font-size:10px;color:var(--subtext);margin:1px 0 0;">
+              ${c.role || '—'} &nbsp;·&nbsp; ${g ? g.careerTotal : 0} tours
+            </p>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  const panel = document.getElementById('demo-drilldown');
+  panel.style.display = 'block';
+  setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+}
+
+function closeDemoDrilldown() {
+  document.getElementById('demo-drilldown').style.display = 'none';
 }
 
 // ─── OMNI SEARCH ─────────────────────────────────────────────────────────────
