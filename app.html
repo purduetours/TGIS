@@ -965,7 +965,7 @@
         userName = localStorage.getItem(STORAGE_KEY);
         if (!userName) {
         // no cache, request login
-            window.location.replace('https://purduetours.github.io/TGIS');
+            window.location.replace('https://tgis.pages.dev');
         }
     }
     const TOUR_MAP = {
@@ -1092,7 +1092,7 @@ function renderForms() {
         const hasDue     = !!f.dueDate;
         const dueDate    = hasDue ? new Date(f.dueDate) : null;
         const isOverdue  = dueDate && dueDate < now && !submitted;
-        const formUrl    = `https://purduetours.github.io/TGIS/${f.formId}.html?user=${userName}`;
+        const formUrl    = `https://tgis.pages.dev/${f.formId}.html?user=${userName}`;
 
         // Due date label
         let dueTxt = 'No due date';
@@ -1767,7 +1767,7 @@ const todayHTML = `
 
     function signOut() {
         localStorage.removeItem(STORAGE_KEY);
-        window.location.replace('https://purduetours.github.io/TGIS');
+        window.location.replace('https://tgis.pages.dev');
     }
 
     function selectRole(role) {
