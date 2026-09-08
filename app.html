@@ -1942,7 +1942,10 @@ const todayHTML = `
         if (!cachedData || !cachedData.fullList) return;
         document.getElementById('toggle-career').classList.toggle('active', mode === 'career');
         document.getElementById('toggle-semester').classList.toggle('active', mode === 'semester');
-        const sortedData = [...cachedData.fullList].sort((a, b) => mode === 'career' ? b.careerTotal - a.careerTotal : b.semesterTotal - a.semesterTotal).slice(0, 10);
+        const baseList = mode === 'semester' && cachedData.semesterLeaderboard
+          ? cachedData.semesterLeaderboard
+          : cachedData.fullList;
+        const sortedData = [...baseList].sort((a, b) => mode === 'career' ? b.careerTotal - a.careerTotal : b.semesterTotal - a.semesterTotal).slice(0, 10);
         document.getElementById('leaderboard-container').innerHTML = sortedData.map((entry, i) => `
             <div class="flex items-center justify-between p-4 rounded-2xl ${entry.displayName.toLowerCase() === cachedData.profile.displayName.toLowerCase() ? 'bg-primary-gold/20 ring-2 ring-primary-gold' : 'bg-gray-50'}">
                 <div class="flex items-center space-x-4">
@@ -2380,7 +2383,7 @@ let _cachedInitData = null;
 async function continueInit() {
         cachedData = _cachedInitData;
         if (!cachedData || !cachedData.profile) { showError("PROFILE_NOT_FOUND"); return; }
-        cachedData.fullList = cachedData.fullList || cachedData.leaderboard;
+        cachedData.fullList = cachedData.fullLeaderboard || cachedData.fullList || cachedData.leaderboard;
 
         // Check for retirement
         if (cachedData.profile.status === "Retired") {
