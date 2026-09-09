@@ -290,8 +290,8 @@ body { font-family: 'Inter',sans-serif; background: var(--bg); color: var(--text
 .day-column { display: flex; flex-direction: column; gap: 0.5rem; }
 .tour-slot {
   border-radius: 1rem; padding: 0.75rem; font-size: 12px;
-  min-height: 80px; display: flex; flex-direction: column;
-  border: 1px solid rgba(0,0,0,0.06);
+  height: 160px; display: flex; flex-direction: column;
+  border: 1px solid rgba(0,0,0,0.06); overflow-y: auto;
 }
 .tour-time-label { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; opacity: 0.7; }
 .guide-name-pill-schedule {
@@ -888,6 +888,78 @@ body { font-family: 'Inter',sans-serif; background: var(--bg); color: var(--text
   </div>
 
 </div>
+
+
+  <!-- ── GUIDE STATUS MODAL ── -->
+<div id="guide-status-modal" style="display:none;position:fixed;inset:0;z-index:999;
+     background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);align-items:center;justify-content:center;">
+  <div style="background:var(--bg);border:1px solid var(--border);border-radius:1.5rem;
+              padding:1.75rem;max-width:420px;width:90%;box-shadow:0 24px 60px rgba(0,0,0,0.3);">
+
+    <div style="margin-bottom:1.25rem;">
+      <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;
+                color:var(--subtext);margin:0 0 4px;">Guide Status</p>
+      <h2 id="gsm-guide-name" style="font-size:1.25rem;font-weight:900;margin:0;"></h2>
+      <p id="gsm-tour-info" style="font-size:11px;color:var(--subtext);margin:3px 0 0;"></p>
+    </div>
+
+    <!-- Status buttons -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:1rem;">
+      <button onclick="selectGuideStatus('scheduled')" id="gsm-btn-scheduled"
+              style="padding:0.75rem;border-radius:0.875rem;border:2px solid var(--gold);
+                     background:rgba(206,184,136,0.1);font-size:11px;font-weight:900;
+                     color:var(--gold);cursor:pointer;transition:all 0.15s;">
+        ✅ Scheduled
+      </button>
+      <button onclick="selectGuideStatus('pending')" id="gsm-btn-pending"
+              style="padding:0.75rem;border-radius:0.875rem;border:2px solid var(--border);
+                     background:transparent;font-size:11px;font-weight:900;
+                     color:var(--subtext);cursor:pointer;transition:all 0.15s;">
+        ⏳ Pending Drop
+      </button>
+      <button onclick="selectGuideStatus('pickedup')" id="gsm-btn-pickedup"
+              style="padding:0.75rem;border-radius:0.875rem;border:2px solid var(--border);
+                     background:transparent;font-size:11px;font-weight:900;
+                     color:var(--subtext);cursor:pointer;transition:all 0.15s;">
+        ✋ Picked Up
+      </button>
+      <button onclick="selectGuideStatus('notgiven')" id="gsm-btn-notgiven"
+              style="padding:0.75rem;border-radius:0.875rem;border:2px solid var(--border);
+                     background:transparent;font-size:11px;font-weight:900;
+                     color:var(--subtext);cursor:pointer;transition:all 0.15s;">
+        ❌ Not Given
+      </button>
+    </div>
+
+    <!-- Replace section -->
+    <div style="border-top:1px solid var(--border);padding-top:1rem;margin-bottom:1rem;">
+      <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;
+                color:var(--subtext);margin:0 0 0.5rem;">Replace With</p>
+      <input id="gsm-replace-search" type="text" placeholder="Search guide name…"
+             oninput="filterGuideReplace()"
+             class="inp" style="width:100%;font-size:12px;margin-bottom:0.5rem;">
+      <div id="gsm-replace-results" style="max-height:140px;overflow-y:auto;
+           display:flex;flex-direction:column;gap:4px;"></div>
+    </div>
+
+    <!-- Actions -->
+    <div style="display:flex;gap:0.75rem;">
+      <button onclick="closeGuideStatusModal()"
+              style="flex:1;padding:0.75rem;border-radius:0.875rem;border:1px solid var(--border);
+                     background:transparent;font-size:12px;font-weight:700;
+                     color:var(--subtext);cursor:pointer;font-family:inherit;">
+        Cancel
+      </button>
+      <button id="gsm-save-btn" onclick="saveGuideStatus()"
+              style="flex:1;padding:0.75rem;border-radius:0.875rem;border:none;
+                     background:var(--gold);color:#0f0c04;font-size:12px;font-weight:900;
+                     cursor:pointer;font-family:inherit;">
+        Save
+      </button>
+    </div>
+  </div>
+</div>
+  
     <!-- ── LOG TAB ── -->
     <div id="tab-log" class="tab-panel">
       <div class="card" style="padding:1.5rem;">
@@ -2867,6 +2939,108 @@ function runOmniSearch() {
   });
 }
 
+// ─── GUIDE STATUS MODAL ──────────────────────────────────────────────────────
+let _gsmState = { guide: '', date: '', type: '', status: 'scheduled', replaceName: '' };
+
+function openGuideStatusModal(guideName, dateISO, tourType) {
+  _gsmState = { guide: guideName, date: dateISO, type: tourType, status: 'scheduled', replaceName: '' };
+
+  document.getElementById('gsm-guide-name').innerText = guideName;
+  document.getElementById('gsm-tour-info').innerText  = dateISO + ' · ' + tourType;
+  document.getElementById('gsm-replace-search').value = '';
+  document.getElementById('gsm-replace-results').innerHTML = '';
+
+  selectGuideStatus('scheduled');
+
+  const modal = document.getElementById('guide-status-modal');
+  modal.style.display = 'flex';
+}
+
+function closeGuideStatusModal() {
+  document.getElementById('guide-status-modal').style.display = 'none';
+}
+
+function selectGuideStatus(status) {
+  _gsmState.status = status;
+  _gsmState.replaceName = '';
+
+  const btns = ['scheduled','pending','pickedup','notgiven'];
+  btns.forEach(s => {
+    const btn = document.getElementById('gsm-btn-' + s);
+    if (!btn) return;
+    const isActive = s === status;
+    btn.style.borderColor = isActive ? 'var(--gold)' : 'var(--border)';
+    btn.style.background  = isActive ? 'rgba(206,184,136,0.1)' : 'transparent';
+    btn.style.color       = isActive ? 'var(--gold)' : 'var(--subtext)';
+  });
+}
+
+function filterGuideReplace() {
+  const q       = (document.getElementById('gsm-replace-search').value || '').toLowerCase();
+  const results = document.getElementById('gsm-replace-results');
+  if (!q) { results.innerHTML = ''; return; }
+
+  const guides = (D.adminData.trackerGrid || [])
+    .filter(g => g.displayName.toLowerCase().includes(q))
+    .slice(0, 8);
+
+  results.innerHTML = guides.map(g => `
+    <div onclick="selectReplaceGuide('${g.displayName.replace(/'/g,"\\'")}')"
+         style="padding:6px 10px;border-radius:8px;background:var(--row-hover);
+                border:1px solid var(--border);cursor:pointer;font-size:12px;font-weight:700;
+                transition:border-color 0.12s;"
+         onmouseover="this.style.borderColor='var(--gold)'"
+         onmouseout="this.style.borderColor='var(--border)'">
+      ${g.displayName}
+    </div>`).join('');
+}
+
+function selectReplaceGuide(name) {
+  _gsmState.replaceName = name;
+  _gsmState.status      = 'replace';
+  document.getElementById('gsm-replace-search').value = name;
+  document.getElementById('gsm-replace-results').innerHTML = '';
+
+  // Deselect status buttons
+  ['scheduled','pending','pickedup','notgiven'].forEach(s => {
+    const btn = document.getElementById('gsm-btn-' + s);
+    if (btn) { btn.style.borderColor='var(--border)'; btn.style.background='transparent'; btn.style.color='var(--subtext)'; }
+  });
+}
+
+async function saveGuideStatus() {
+  const { guide, date, type, status, replaceName } = _gsmState;
+
+  let symbol = '';
+  let newGuide = guide;
+
+  if (status === 'scheduled')  { symbol = '';   newGuide = guide; }
+  if (status === 'pending')    { symbol = '*';  newGuide = guide + '*'; }
+  if (status === 'pickedup')   { symbol = '+';  newGuide = guide + '+'; }
+  if (status === 'notgiven')   { symbol = '`';  newGuide = '\`' + guide; }
+  if (status === 'replace' && replaceName) { newGuide = replaceName; }
+
+  if (status === 'scheduled' && !replaceName) {
+    closeGuideStatusModal();
+    return;
+  }
+
+  await postAction({
+    action:     'updateGuideStatus',
+    date,
+    tourType:   type,
+    oldGuide:   guide,
+    newGuide,
+    adminUser:  userName
+  });
+
+  showToast('Updated ' + guide + ' → ' + newGuide);
+  closeGuideStatusModal();
+
+  // Refresh schedule
+  loadMgrTours().then(() => renderSchedule());
+}
+
 // ─── ACTIVITY LOG ─────────────────────────────────────────────────────────────
 function renderActivityLog() {
   const items = [...(D.adminData.adminLog || [])].reverse();
@@ -2956,7 +3130,6 @@ function renderSchedule() {
   const container = document.getElementById('schedule-container');
   if (!container) return;
 
-  // Initialise date picker
   const picker = document.getElementById('schedule-date-picker');
   if (picker) {
     picker.value = currentMonday.toISOString().split('T')[0];
@@ -2975,6 +3148,8 @@ function renderSchedule() {
   for (let i = 0; i < 5; i++) {
     const d = new Date(currentMonday); d.setDate(d.getDate() + i);
     const isToday = d.toDateString() === new Date().toDateString();
+    const dateISO = d.toISOString().split('T')[0];
+
     html += `<div class="day-column">
       <div style="text-align:center;margin-bottom:0.5rem;padding:0.5rem;border-radius:0.75rem;
                   background:${isToday ? 'var(--gold)' : 'var(--surface)'};border:1px solid var(--border);">
@@ -2986,40 +3161,57 @@ function renderSchedule() {
           ${d.toLocaleDateString('en-US',{month:'short',day:'numeric'})}
         </p>
       </div>`;
+
     slots.forEach(s => {
-      const entries = tourData.filter(t => t.type === s.c && t.dateObj && t.dateObj.getTime() === d.getTime());
+      const entries  = tourData.filter(t => t.type === s.c && t.dateObj && t.dateObj.getTime() === d.getTime());
       const cancelled = entries.some(e => ['N/A','#N/A'].includes(String(e.guide).trim().toUpperCase()));
+
+      html += `<div class="tour-slot ${s.cls}">
+        <p class="tour-time-label">${s.t}</p>
+        <div style="display:flex;flex-direction:column;gap:4px;flex:1;">`;
+
       if (cancelled) {
-        html += `<div class="tour-slot ${s.cls}" style="opacity:0.4;align-items:center;justify-content:center;">
-          <p class="tour-time-label">${s.t}</p>
-          <p style="font-size:10px;font-style:italic;text-align:center;">No Tour</p>
-        </div>`;
+        html += `<p style="font-size:10px;font-style:italic;opacity:0.5;margin:auto 0;">No Tour</p>`;
+      } else if (entries.length === 0) {
+        html += `<p style="font-size:10px;color:rgba(0,0,0,0.25);font-style:italic;margin:auto 0;">Empty</p>`;
       } else {
-        html += `<div class="tour-slot ${s.cls}">
-          <p class="tour-time-label">${s.t}</p>
-          <div style="display:flex;flex-direction:column;gap:4px;">`;
-        if (entries.length > 0) {
-          entries.forEach(e => {
-            const clean = String(e.guide).replace(/[*\`+]/g,'').trim();
-            const hasSig = String(e.guide).includes('\`');
-            html += `<div class="guide-name-pill-schedule">
-              <span>${clean}</span>
-              <span class="hidden print:inline" style="font-family:monospace;font-weight:900;">
-                ${hasSig ? 'ACP' : '____'}
-              </span>
-            </div>`;
-          });
-        } else {
-          html += `<p style="font-size:10px;color:rgba(0,0,0,0.3);font-style:italic;">Empty</p>`;
-        }
-        html += `</div></div>`;
+        entries.forEach(entry => {
+          const raw   = String(entry.guide);
+          const clean = raw.replace(/[*\`+~]/g,'').trim();
+          const hasPending  = raw.includes('*');
+          const hasPickedUp = raw.includes('+');
+          const hasNotGiven = raw.includes('\`');
+
+          const pillBg = hasPending  ? 'rgba(239,68,68,0.12)'  :
+                         hasPickedUp ? 'rgba(139,92,246,0.12)' :
+                         hasNotGiven ? 'rgba(107,114,128,0.12)' :
+                                       'rgba(0,0,0,0.06)';
+          const pillBorder = hasPending  ? '1px solid rgba(239,68,68,0.3)'  :
+                             hasPickedUp ? '1px solid rgba(139,92,246,0.3)' :
+                             hasNotGiven ? '1px solid rgba(107,114,128,0.3)' :
+                                          '1px solid transparent';
+          const badge = hasPending  ? '<span style="font-size:8px;font-weight:900;color:#EF4444;margin-left:4px;">DROP</span>'  :
+                        hasPickedUp ? '<span style="font-size:8px;font-weight:900;color:#8B5CF6;margin-left:4px;">PICKUP</span>' :
+                        hasNotGiven ? '<span style="font-size:8px;font-weight:900;color:#6B7280;margin-left:4px;">N/G</span>'   : '';
+
+          html += `<div class="guide-name-pill-schedule"
+                        style="background:${pillBg};border:${pillBorder};cursor:pointer;"
+                        onclick="openGuideStatusModal('${clean.replace(/'/g,"\\'")}', '${dateISO}', '${s.c}')">
+            <span>${clean}</span>${badge}
+            <span class="hidden print:inline" style="font-family:monospace;font-weight:900;">
+              ${hasNotGiven ? 'ACP' : '____'}
+            </span>
+          </div>`;
+        });
       }
+
+      html += `</div></div>`;
     });
     html += `</div>`;
   }
   container.innerHTML = html;
 }
-
+  
 function renderDeskDashboard() {
   const dailyContainer   = document.getElementById('grid-daily');
   const programContainer = document.getElementById('grid-program');
