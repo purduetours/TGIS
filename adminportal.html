@@ -3020,7 +3020,7 @@ async function saveGuideStatus() {
   if (status === 'scheduled')  { symbol = '';   newGuide = guide; }
   if (status === 'pending')    { symbol = '*';  newGuide = guide + '*'; }
   if (status === 'pickedup')   { symbol = '+';  newGuide = guide + '+'; }
-  if (status === 'notgiven')   { symbol = '`';  newGuide = '\`' + guide; }
+  if (status === 'notgiven')   { symbol = '`';  newGuide = guide + '\`'; }
   if (status === 'replace' && replaceName) { newGuide = replaceName; }
 
   if (status === 'scheduled' && !replaceName) {
