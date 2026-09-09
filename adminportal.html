@@ -909,25 +909,25 @@ body { font-family: 'Inter',sans-serif; background: var(--bg); color: var(--text
               style="padding:0.75rem;border-radius:0.875rem;border:2px solid var(--gold);
                      background:rgba(206,184,136,0.1);font-size:11px;font-weight:900;
                      color:var(--gold);cursor:pointer;transition:all 0.15s;">
-        ✅ Scheduled
+        Scheduled
       </button>
       <button onclick="selectGuideStatus('pending')" id="gsm-btn-pending"
               style="padding:0.75rem;border-radius:0.875rem;border:2px solid var(--border);
                      background:transparent;font-size:11px;font-weight:900;
                      color:var(--subtext);cursor:pointer;transition:all 0.15s;">
-        ⏳ Pending Drop
+         Pending Drop
       </button>
       <button onclick="selectGuideStatus('pickedup')" id="gsm-btn-pickedup"
               style="padding:0.75rem;border-radius:0.875rem;border:2px solid var(--border);
                      background:transparent;font-size:11px;font-weight:900;
                      color:var(--subtext);cursor:pointer;transition:all 0.15s;">
-        ✋ Picked Up
+         Picked Up
       </button>
       <button onclick="selectGuideStatus('notgiven')" id="gsm-btn-notgiven"
               style="padding:0.75rem;border-radius:0.875rem;border:2px solid var(--border);
                      background:transparent;font-size:11px;font-weight:900;
                      color:var(--subtext);cursor:pointer;transition:all 0.15s;">
-        ❌ Not Given
+         Not Given
       </button>
     </div>
 
@@ -3011,6 +3011,9 @@ function selectReplaceGuide(name) {
 async function saveGuideStatus() {
   const { guide, date, type, status, replaceName } = _gsmState;
 
+  const saveBtn = document.getElementById('gsm-save-btn');
+  if (saveBtn) { saveBtn.disabled = true; saveBtn.innerText = 'Saving…'; saveBtn.style.opacity = '0.6'; }
+
   let symbol = '';
   let newGuide = guide;
 
@@ -3037,10 +3040,12 @@ async function saveGuideStatus() {
   showToast('Updated ' + guide + ' → ' + newGuide);
   closeGuideStatusModal();
 
-  // Refresh schedule
-  loadMgrTours().then(() => renderSchedule());
+   // Refresh schedule
+  loadMgrTours().then(() => {
+    renderSchedule();
+    if (saveBtn) { saveBtn.disabled = false; saveBtn.innerText = 'Save'; saveBtn.style.opacity = '1'; }
+  });
 }
-
 // ─── ACTIVITY LOG ─────────────────────────────────────────────────────────────
 function renderActivityLog() {
   const items = [...(D.adminData.adminLog || [])].reverse();
