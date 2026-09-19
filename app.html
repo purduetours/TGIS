@@ -2226,7 +2226,7 @@ const isPendingDrop = tour.guide.includes('*');
                 const isPickedUp    = tour.guide.includes('+');
                 const tDate = new Date(tour.date); tDate.setHours(0,0,0,0);
                 const tgitKey = tDate.toISOString().split('T')[0] + '|' + tour.type;
-                const tgit = (window.myTGITMap || {})[tgitKey];
+                const tgit = (tour.direction && tour.tgitName) ? { tgitDisplayName: tour.tgitName, direction: tour.direction, feedbackURL: null } : null;
                 return `
                     <div style="display:flex;flex-direction:column;gap:0;border-radius:10px;overflow:hidden;
                                 border:1px solid ${isPast ? '#F3F4F6' : isPendingDrop ? '#FECACA' : tgit ? '#DDD6FE' : scheme.border};">
