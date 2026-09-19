@@ -1309,7 +1309,7 @@ function renderDeskDashboard() {
     let countdownStart = null;
     if (isToday) {
         const slotsWithTours = ALL_SLOTS.filter(slot => {
-            const guides = cachedData.tours.filter(t => {
+            const guides = (window.allToursForDesk || cachedData.tours).filter(t => {
                 const tDate = t.dateObj || (t.date ? (() => { const d = new Date(t.date); d.setHours(0,0,0,0); return d; })() : null);
                 return t.type === slot.code && tDate && tDate.getTime() === deskDate.getTime() && !['N/A','#N/A'].includes(String(t.guide).trim().toUpperCase());
             });
@@ -1383,7 +1383,7 @@ function renderDeskDashboard() {
     // ── TOUR CARDS ───────────────────────────────────────────────────────────
     [DAILY_VISITS, PROGRAM_DAYS].forEach((list, idx) => {
         list.forEach(slot => {
-            const guides = cachedData.tours.filter(t => {
+            const guides = (window.allToursForDesk || cachedData.tours).filter(t => {
                 const tDate = t.dateObj || (t.date ? (() => { const d = new Date(t.date); d.setHours(0,0,0,0); return d; })() : null);
                 return t.type === slot.code && tDate && tDate.getTime() === deskDate.getTime() && !['N/A','#N/A'].includes(String(t.guide).trim().toUpperCase());
             });
@@ -2408,7 +2408,13 @@ async function continueInit() {
         const deskDashBtn = document.getElementById('nav-desk-dashboard');
         if (cachedData.profile.status !== "Tour Guide") {
             deskDashBtn.classList.remove('hidden');
-            renderDeskDashboard();
+            if (!window.allToursForDesk) {
+    fetch(`${scriptURL}?user=${userName}&scope=allTours`)
+        .then(r => r.json())
+        .then(d => { window.allToursForDesk = d.tours; renderDeskDashboard(); });
+} else {
+    renderDeskDashboard();
+}
         }
         document.getElementById('profile-initial').innerText = cachedData.profile.fullName.charAt(0);
         document.getElementById('welcome-name').innerText = cachedData.profile.displayName;
