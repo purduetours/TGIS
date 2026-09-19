@@ -1005,8 +1005,7 @@ body { font-family: 'Inter',sans-serif; background: var(--bg); color: var(--text
           <button onclick="changeDeskDate(1)" style="background:none;border:none;cursor:pointer;padding:6px 10px;color:var(--subtext);border-radius:8px;font-size:16px;">▶</button>
         </div>
       </div>
-            <div id="desk-countdown-panel" style="background:var(--ink);border:1px solid rgba(206,184,136,0.2);border-radius:1rem;padding:1.25rem 1.5rem;margin-bottom:1.25rem;"></div>
-      <div id="status-bar" style="display:flex;gap:8px;overflow-x:auto;padding-bottom:1rem;margin-bottom:1.5rem;border-bottom:1px solid var(--border);"></div>
+      <div id="desk-countdown-panel" style="background:#1a1510;border:1px solid rgba(206,184,136,0.2);border-radius:1rem;padding:1.25rem 1.5rem;margin-bottom:1.25rem;"></div>      <div id="status-bar" style="display:flex;gap:8px;overflow-x:auto;padding-bottom:1rem;margin-bottom:1.5rem;border-bottom:1px solid var(--border);"></div>
       <div style="margin-bottom:2rem;">
         <p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:var(--subtext);margin-bottom:0.75rem;">Daily Visits</p>
         <div id="grid-daily" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;"></div>
@@ -3327,8 +3326,8 @@ function renderDeskDashboard() {
             </p>
           </div>
           <div style="text-align:right;">
-            <p style="font-size:2.5rem;font-weight:900;color:var(--gold);margin:0;line-height:1;font-family:'Space Grotesk',sans-serif;">
-              ${isLive ? 'IN PROGRESS' : mins + ':' + String(secs).padStart(2,'0')}
+            <p id="admin-countdown-timer" style="font-size:2.5rem;font-weight:900;color:var(--gold);margin:0;line-height:1;">
+              ${isLive ? 'IN PROGRESS' : ''}
             </p>
             <p style="font-size:9px;font-weight:700;color:rgba(255,255,255,0.3);margin:2px 0 0;">
               ${isLive ? '' : 'until tour time'}
@@ -3341,6 +3340,20 @@ function renderDeskDashboard() {
           ${isToday ? 'No more tours today' : 'Viewing ' + mgrDeskDate.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'})}
         </p>`;
     }
+      if (!isLive) {
+        if (window._adminCountdownInterval) clearInterval(window._adminCountdownInterval);
+        window._adminCountdownInterval = setInterval(() => {
+          const el = document.getElementById('admin-countdown-timer');
+          if (!el) { clearInterval(window._adminCountdownInterval); return; }
+          const remaining = Math.max(0, countdownStart - new Date());
+          if (remaining === 0) { clearInterval(window._adminCountdownInterval); el.innerText = 'IN PROGRESS'; return; }
+          const h = Math.floor(remaining / 3600000);
+          const m = Math.floor((remaining % 3600000) / 60000);
+          const s = Math.floor((remaining % 60000) / 1000);
+          el.innerText = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+        }, 1000);
+      }
+    
   }
   dailyContainer.innerHTML   = dailyHtml;
   programContainer.innerHTML = programHtml;
