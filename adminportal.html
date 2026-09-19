@@ -1005,6 +1005,7 @@ body { font-family: 'Inter',sans-serif; background: var(--bg); color: var(--text
           <button onclick="changeDeskDate(1)" style="background:none;border:none;cursor:pointer;padding:6px 10px;color:var(--subtext);border-radius:8px;font-size:16px;">▶</button>
         </div>
       </div>
+            <div id="desk-countdown-panel" style="background:var(--ink);border:1px solid rgba(206,184,136,0.2);border-radius:1rem;padding:1.25rem 1.5rem;margin-bottom:1.25rem;"></div>
       <div id="status-bar" style="display:flex;gap:8px;overflow-x:auto;padding-bottom:1rem;margin-bottom:1.5rem;border-bottom:1px solid var(--border);"></div>
       <div style="margin-bottom:2rem;">
         <p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:var(--subtext);margin-bottom:0.75rem;">Daily Visits</p>
@@ -3292,6 +3293,55 @@ function renderDeskDashboard() {
     else programHtml += cardHtml;
   });
 
+    // Countdown panel
+  const countdownEl = document.getElementById('desk-countdown-panel');
+  if (countdownEl) {
+    const isToday = mgrDeskDate.toDateString() === now.toDateString();
+    const ALL_SLOTS = [...DAILY_VISITS, ...PROGRAM_DAYS];
+    let countdownSlot = null, countdownStart = null;
+    if (isToday) {
+      const sorted = ALL_SLOTS
+        .filter(slot => tourData.some(t => t.type === slot.code && t.dateObj && t.dateObj.getTime() === mgrDeskDate.getTime() && !['N/A','#N/A'].includes(String(t.guide).trim().toUpperCase())))
+        .map(slot => {
+          const start = new Date(mgrDeskDate); start.setHours(slot.h, slot.m, 0, 0);
+          const end   = new Date(start); end.setMinutes(end.getMinutes() + 105);
+          return { slot, start, end };
+        }).sort((a, b) => a.start - b.start);
+      const next = sorted.find(s => s.end > now);
+      if (next) { countdownSlot = next.slot; countdownStart = next.start; }
+    }
+    if (countdownSlot && countdownStart) {
+      const isLive = now >= countdownStart;
+      const diff   = Math.max(0, countdownStart - now);
+      const mins   = Math.floor(diff / 60000);
+      const secs   = Math.floor((diff % 60000) / 1000);
+      countdownEl.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+          <div>
+            <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.18em;color:rgba(255,255,255,0.45);margin:0 0 4px;">
+              ${isLive ? '● Live Now' : 'Next Tour'}
+            </p>
+            <p style="font-size:1.1rem;font-weight:900;color:white;margin:0;">${countdownSlot.name}</p>
+            <p style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.4);margin:2px 0 0;">
+              ${countdownStart.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}
+            </p>
+          </div>
+          <div style="text-align:right;">
+            <p style="font-size:2.5rem;font-weight:900;color:var(--gold);margin:0;line-height:1;font-family:'Space Grotesk',sans-serif;">
+              ${isLive ? 'IN PROGRESS' : mins + ':' + String(secs).padStart(2,'0')}
+            </p>
+            <p style="font-size:9px;font-weight:700;color:rgba(255,255,255,0.3);margin:2px 0 0;">
+              ${isLive ? '' : 'until tour time'}
+            </p>
+          </div>
+        </div>`;
+    } else {
+      countdownEl.innerHTML = `
+        <p style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.3);text-align:center;">
+          ${isToday ? 'No more tours today' : 'Viewing ' + mgrDeskDate.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'})}
+        </p>`;
+    }
+  }
   dailyContainer.innerHTML   = dailyHtml;
   programContainer.innerHTML = programHtml;
   statusBar.innerHTML        = statusHtml;
