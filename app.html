@@ -2480,55 +2480,141 @@ async function continueInit() {
         document.getElementById('bn-home')?.classList.add('active');
     }
 
-    async function init() {
-        if (!userName) {
-            showError("MISSING_USER_PARAM");
+const SUPABASE_URL      = 'https://eaoxcfziynexsqviltzm.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVhb3hjZnppeW5leHNxdmlsdHptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4NjQxNjQsImV4cCI6MjEwNjQ0MDE2NH0.qgrSPPV-rW5JJWqeZq3CSLxH56FeqcME2OadYdj0XP8';
+
+async function sbFetch(path) {
+    const res = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
+        headers: {
+            'apikey':        SUPABASE_ANON_KEY,
+            'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+            'Content-Type':  'application/json'
+        }
+    });
+    if (!res.ok) throw new Error('Supabase error: ' + res.status);
+    return res.json();
+}
+
+async function init() {
+    if (!userName) { showError("MISSING_USER_PARAM"); return; }
+
+    try {
+        updateLoadingStatus('Connecting...');
+
+        // 1. Get guide profile
+        const profiles = await sbFetch(`guides?username=eq.${encodeURIComponent(userName)}&limit=1`);
+        if (!profiles || !profiles.length) { showError("PROFILE_NOT_FOUND"); return; }
+        const p = profiles[0];
+
+        updateLoadingStatus('Loading your data...');
+
+        // 2. Run remaining queries in parallel
+        const displayName = p.display_name;
+        const [trackerRows, myTours, allTracker, forms, specialRequests] = await Promise.all([
+            // This guide's tracker row
+            sbFetch(`tracker?display_name=eq.${encodeURIComponent(displayName)}&limit=1`),
+            // This guide's tours only
+            sbFetch(`tours?guide=ilike.*${encodeURIComponent(displayName)}*&order=tour_date.asc`),
+            // All guides for leaderboard (lean — just name and totals)
+            sbFetch(`tracker?select=display_name,fall_2026,total&order=total.desc`),
+            // Active forms
+            sbFetch(`forms?active=eq.Active`),
+            // Special requests
+            sbFetch(`special_requests?select=*`)
+        ]);
+
+        updateLoadingStatus('Building your schedule...');
+
+        // 3. Build history from tracker row
+        const tr = trackerRows[0] || {};
+        const semesterOrder = ['summer_2023','fall_2023','spring_2024','summer_2024','fall_2024',
+                               'spring_2025','summer_2025','fall_2025','spring_2026','summer_2026','fall_2026'];
+        const semesterLabels = ['Summer 2023','Fall 2023','Spring 2024','Summer 2024','Fall 2024',
+                                'Spring 2025','Summer 2025','Fall 2025','Spring 2026','Summer 2026','Fall 2026'];
+        const history = semesterOrder.map((col, i) => ({
+            semester: semesterLabels[i],
+            count:    tr[col] || 0
+        })).filter(h => h.count > 0);
+
+        // 4. Build leaderboard
+        const fullLeaderboard = allTracker.map(g => ({
+            displayName:   g.display_name,
+            semesterTotal: g.fall_2026 || 0,
+            careerTotal:   g.total     || 0,
+            history:       g.display_name === displayName ? history : []
+        })).sort((a,b) => b.careerTotal - a.careerTotal);
+
+        // 5. Build family standings from special requests + tours
+        const familyMap = {};
+        // Count from tours (pickups = +)
+        myTours.forEach(t => {
+            const raw = String(t.guide || '');
+            if (!raw.includes('+')) return;
+            // family points logic — simplified for now
+        });
+
+        // 6. Assemble cachedData in the same shape as before
+        cachedData = {
+            profile: {
+                username:    p.username,
+                displayName: p.display_name,
+                fullName:    p.full_name,
+                family:      p.family,
+                status:      p.status
+            },
+            stats: {
+                semesterTotal: tr.fall_2026   || 0,
+                careerTotal:   tr.total       || 0,
+                history
+            },
+            rank:                fullLeaderboard.findIndex(g => g.displayName === displayName) + 1,
+            currentSemesterName: 'Fall 2026',
+            leaderboard:         fullLeaderboard.slice(0, 10),
+            semesterLeaderboard: [...fullLeaderboard].sort((a,b) => b.semesterTotal - a.semesterTotal).slice(0, 10),
+            fullLeaderboard,
+            fullList:            fullLeaderboard,
+            tours:               myTours.map(t => ({
+                date:  t.tour_date,
+                guide: t.guide,
+                type:  t.type,
+                time:  null,
+                direction: t.direction || null,
+                tgitName:  t.tgit_username || null
+            })),
+            forms: forms.map(f => ({
+                formId:   f.form_id,
+                formName: f.form_name,
+                active:   f.active === 'Active',
+                startDate: f.start_date,
+                dueDate:   f.due_date,
+                type:      f.type,
+                submitted: false // TODO: track per-guide form submission
+            })),
+            familyStandings: [],
+            myFamilyPoints:  0,
+            tgitData:        null,
+            lastUpdated:     new Date().toLocaleString()
+        };
+
+        _cachedInitData = cachedData;
+
+        // 7. Check for dual-portal accounts
+        const ADMIN_ROLES = ['Codirector', 'Manager', 'Admin', 'Boss'];
+        if (ADMIN_ROLES.includes(cachedData.profile.status)) {
+            document.getElementById('role-selector-name').innerText = cachedData.profile.displayName;
+            document.getElementById('loading-overlay').style.display = 'none';
+            document.getElementById('role-selector').classList.remove('hidden');
             return;
         }
 
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => {
-            controller.abort();
-            showError("504 TIMEOUT");
-        }, 20000);
+        await continueInit();
 
-        try {
-            const res = await fetch(`${scriptURL}?user=${userName}`, { signal: controller.signal });
-
-            if (!res.ok) {
-                showError(`HTTP_${res.status}`);
-                return;
-            }
-
-            cachedData = await res.json();
-            _cachedInitData = cachedData;
-            clearTimeout(timeoutId);
-
-            if (!cachedData || !cachedData.profile) {
-                showError("PROFILE_NOT_FOUND");
-                return;
-            }
-
-            // Check for dual-portal accounts
-            const ADMIN_ROLES = ['Codirector', 'Manager', 'Admin', 'Boss'];
-            if (ADMIN_ROLES.includes(cachedData.profile.status)) {
-                document.getElementById('role-selector-name').innerText = cachedData.profile.displayName;
-                document.getElementById('loading-overlay').style.display = 'none';
-                document.getElementById('role-selector').classList.remove('hidden');
-                return;
-            }
-
-            // Regular accounts — continue loading directly
-            await continueInit();
-
-        } catch (e) {
-            console.error(e);
-            if (e.name !== 'AbortError') {
-                showError(e.message.toUpperCase().replace(/\s+/g, '_'));
-            }
-        }
+    } catch(e) {
+        console.error(e);
+        showError(e.message.toUpperCase().replace(/\s+/g, '_'));
     }
-
+}
+    
     function showView(viewId) {
     // 1. Hide all views
     const views = ['home', 'schedule', 'profile', 'welcome-center'];
