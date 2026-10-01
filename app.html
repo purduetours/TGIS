@@ -2559,14 +2559,16 @@ async function init() {
 
         // 3. Build history from tracker row
         const tr = trackerRows[0] || {};
-        const semesterOrder = ['summer_2023','fall_2023','spring_2024','summer_2024','fall_2024',
-                               'spring_2025','summer_2025','fall_2025','spring_2026','summer_2026','fall_2026'];
-        const semesterLabels = ['Summer 2023','Fall 2023','Spring 2024','Summer 2024','Fall 2024',
-                                'Spring 2025','Summer 2025','Fall 2025','Spring 2026','Summer 2026','Fall 2026'];
-        const history = semesterOrder.map((col, i) => ({
-            semester: semesterLabels[i],
-            count:    tr[col] || 0
-        })).filter(h => h.count > 0);
+                const NON_SEMESTER_COLS = new Set(['id','display_name','first_name','last_name','total','updated_at']);
+        const history = Object.entries(tr)
+            .filter(([col]) => !NON_SEMESTER_COLS.has(col))
+            .map(([col, count]) => ({
+                semester: col.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+                count:    Number(count) || 0,
+                sortKey:  col
+            }))
+            .filter(h => h.count > 0)
+            .sort((a, b) => a.sortKey.localeCompare(b.sortKey));
 
         // 4. Build leaderboard
         const fullLeaderboard = allTracker.map(g => ({
