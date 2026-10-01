@@ -2495,6 +2495,41 @@ async function sbFetch(path) {
     return res.json();
 }
 
+function buildFamilyStandings(allGuides, specialRequests, allTours) {
+    const familyMap    = {};
+    const familyByName = {};
+    allGuides.forEach(g => {
+        if (!g.family) return;
+        familyByName[g.display_name] = g.family;
+        if (!familyMap[g.family]) familyMap[g.family] = 0;
+    });
+    allTours.forEach(t => {
+        const raw = String(t.guide || '');
+        if (!raw.includes('+')) return;
+        const clean = raw.replace(/[*+`~]/g,'').trim();
+        const fam = familyByName[clean];
+        if (fam) familyMap[fam] = (familyMap[fam] || 0) + 2;
+    });
+    specialRequests.forEach(r => {
+        const fam = familyByName[String(r.guide || '').trim()];
+        if (fam) familyMap[fam] = (familyMap[fam] || 0) + ((parseInt(r.count) || 1) * 4);
+    });
+    return Object.entries(familyMap)
+        .map(([name, points]) => ({ name, points }))
+        .sort((a, b) => b.points - a.points);
+}
+
+function calcMyFamilyPoints(myTours, specialRequests, displayName) {
+    let pts = 0;
+    myTours.forEach(t => {
+        if (String(t.guide || '').includes('+')) pts += 2;
+    });
+    specialRequests.forEach(r => {
+        if (String(r.guide || '').trim() === displayName) pts += (parseInt(r.count) || 1) * 4;
+    });
+    return pts;
+}
+
 async function init() {
     if (!userName) { showError("MISSING_USER_PARAM"); return; }
 
@@ -2510,17 +2545,14 @@ async function init() {
 
         // 2. Run remaining queries in parallel
         const displayName = p.display_name;
-        const [trackerRows, myTours, allTracker, forms, specialRequests] = await Promise.all([
-            // This guide's tracker row
-            sbFetch(`tracker?display_name=eq.${encodeURIComponent(displayName)}&limit=1`),
-            // This guide's tours only
+        const [trackerRows, myTours, allTracker, forms, specialRequests, allGuides, allTours] = await Promise.all([
+            sbFetch(`guides?username=eq.${encodeURIComponent(userName)}&limit=1`),
             sbFetch(`tours?guide=ilike.*${encodeURIComponent(displayName)}*&order=tour_date.asc`),
-            // All guides for leaderboard (lean — just name and totals)
             sbFetch(`tracker?select=display_name,fall_2026,total&order=total.desc`),
-            // Active forms
             sbFetch(`forms?active=eq.Active`),
-            // Special requests
-            sbFetch(`special_requests?select=*`)
+            sbFetch(`special_requests?select=*`),
+            sbFetch(`guides?select=display_name,family`),
+            sbFetch(`tours?select=tour_date,guide,type,direction,tgit_username&order=tour_date.asc`)
         ]);
 
         //updateLoadingStatus('Building your schedule...');
@@ -2590,8 +2622,8 @@ async function init() {
                 type:      f.type,
                 submitted: false // TODO: track per-guide form submission
             })),
-            familyStandings: [],
-            myFamilyPoints:  0,
+            familyStandings: buildFamilyStandings(allGuides, specialRequests, allTours),
+            myFamilyPoints:  calcMyFamilyPoints(myTours, specialRequests, displayName),
             tgitData:        null,
             lastUpdated:     new Date().toLocaleString()
         };
