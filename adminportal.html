@@ -1479,6 +1479,16 @@ function cellChanged(input) {
 function updateDirtyUI() {
   const count = Object.keys(dirty).length;
   document.getElementById('stat-dirty').innerText = count;
+  const saveBar = document.getElementById('save-bar');
+  if (saveBar) {
+    if (count > 0) {
+      saveBar.classList.add('show');
+      const countEl = document.getElementById('save-bar-count');
+      if (countEl) countEl.innerText = count + ' unsaved change' + (count !== 1 ? 's' : '');
+    } else {
+      saveBar.classList.remove('show');
+    }
+  }
 }
 
 async function saveAllChanges() {
