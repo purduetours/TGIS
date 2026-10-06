@@ -2614,7 +2614,7 @@ async function init() {
             fullLeaderboard,
             fullList:            fullLeaderboard,
             tours:               myTours.map(t => ({
-                date:  t.tour_date,
+                                date:  t.tour_date + 'T12:00:00',
                 guide: t.guide,
                 type:  t.type,
                 time:  null,
