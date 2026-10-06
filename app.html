@@ -1554,6 +1554,7 @@ function switchView(viewId) {
     // 1. Hide all sections, show the active one
     document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
     document.getElementById(`view-${viewId}`).classList.add('active');
+        if (viewId === 'profile') renderProfileView();
     if (window.innerWidth < 1024) {
         const ca = document.querySelector('.content-area');
         if (ca) ca.style.paddingTop = viewId === 'home' ? '0' : 'env(safe-area-inset-top)';
@@ -1765,6 +1766,76 @@ const todayHTML = `
     }
     setInterval(updateClock, 1000);
 
+function renderProfileView() {
+    const p    = cachedData.profile;
+    const st   = cachedData.stats;
+
+    // Photo
+    const photoEl    = document.getElementById('profile-slack-photo');
+    const fallbackEl = document.getElementById('profile-initial-fallback');
+    if (p.slackPhoto) {
+        photoEl.src = p.slackPhoto;
+        photoEl.style.display = 'block';
+        fallbackEl.style.display = 'none';
+    } else {
+        fallbackEl.innerText = (p.displayName || '?').charAt(0).toUpperCase();
+        photoEl.style.display = 'none';
+        fallbackEl.style.display = 'flex';
+    }
+
+    // Header
+    document.getElementById('pv-fullname').innerText  = p.fullName || p.displayName || '';
+    document.getElementById('pv-role').innerText      = p.status || '';
+    document.getElementById('pv-career').innerText    = st.careerTotal   || 0;
+    document.getElementById('pv-semester').innerText  = st.semesterTotal || 0;
+    document.getElementById('pv-family').innerText    = p.family || '—';
+
+    // Row builder
+    function infoRow(icon, label, value) {
+        if (!value || !String(value).trim()) return '';
+        return `
+            <div style="display:flex;align-items:center;gap:0.875rem;padding:0.875rem 1rem;border-bottom:1px solid #F9FAFB;">
+                <div style="width:32px;height:32px;border-radius:8px;background:#F9FAFB;
+                            display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${icon}</svg>
+                </div>
+                <div style="flex:1;min-width:0;">
+                    <p style="font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#9CA3AF;margin:0 0 1px;">${label}</p>
+                    <p style="font-size:0.875rem;font-weight:600;color:#111827;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${value}</p>
+                </div>
+            </div>`;
+    }
+
+    const BOOK   = '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>';
+    const UNIV   = '<path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>';
+    const AWARD  = '<circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>';
+    const MAP    = '<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>';
+    const CAL    = '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>';
+    const USER   = '<circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>';
+    const LEAF   = '<path d="M2 22c1.25-1.25 2.5-3.5 2.5-5.5 0-4 3-7 7.5-7 4 0 7.5 2.5 7.5 7 0 2-1 3.5-2 5M8 22s1-2 4-2 4 2 4 2"/>';
+    const LAYERS = '<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>';
+
+    document.getElementById('pv-academic').innerHTML =
+        infoRow(BOOK,   'Major',       p.major) +
+        infoRow(UNIV,   'College',     p.college) +
+        infoRow(LAYERS, 'Minor',       p.minor) +
+        infoRow(AWARD,  'Certificate', p.certificate) +
+        infoRow(CAL,    'Grad Date',   p.gradDate) ||
+        '<p style="padding:1rem;font-size:0.8125rem;color:#9CA3AF;font-style:italic;">No academic data</p>';
+
+    document.getElementById('pv-personal').innerHTML =
+        infoRow(MAP,  'Hometown',         p.hometown) +
+        infoRow(LEAF, 'Dietary',          p.dietary) +
+        infoRow(USER, 'Year',             p.year) ||
+        '<p style="padding:1rem;font-size:0.8125rem;color:#9CA3AF;font-style:italic;">No personal data</p>';
+
+    document.getElementById('pv-program').innerHTML =
+        infoRow(USER, 'Username',      p.username) +
+        infoRow(USER, 'Family Group',  p.family) +
+        infoRow(USER, 'Status',        p.status) ||
+        '<p style="padding:1rem;font-size:0.8125rem;color:#9CA3AF;font-style:italic;">No program data</p>';
+}
+    
     function signOut() {
         localStorage.removeItem(STORAGE_KEY);
         window.location.replace('https://tgis.pages.dev');
@@ -2595,12 +2666,23 @@ async function init() {
         const currentSemName = currentSemCol.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
 
         cachedData = {
-            profile: {
+                        profile: {
                 username:    p.username,
                 displayName: p.display_name,
                 fullName:    p.full_name,
                 family:      p.family,
-                status:      p.status
+                status:      p.status,
+                email:       p.email,
+                major:       p.major,
+                college:     p.college,
+                minor:       p.minor,
+                certificate: p.certificate,
+                hometown:    p.hometown,
+                gradDate:    p.grad_date,
+                year:        p.year,
+                dietary:     p.dietary,
+                givingTours: p.giving_tours,
+                slackPhoto:  null
             },
             stats: {
                 semesterTotal: Number(tr[currentSemCol]) || 0,
@@ -2646,6 +2728,15 @@ async function init() {
             document.getElementById('role-selector').classList.remove('hidden');
             return;
         }
+
+               // Fetch Slack photo from Apps Script (non-blocking)
+        try {
+            const photoRes = await fetch(`${scriptURL}?scope=slackPhoto&user=${encodeURIComponent(userName)}`);
+            if (photoRes.ok) {
+                const photoData = await photoRes.json();
+                if (photoData.photoUrl) cachedData.profile.slackPhoto = photoData.photoUrl;
+            }
+        } catch(e) { /* photo is optional, fail silently */ }
 
         await continueInit();
 
@@ -2791,12 +2882,93 @@ drawConfetti();
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/></svg>
         <span class="text-[9px] font-black uppercase tracking-wide">Forms</span>
     </button>
-    <button id="bn-menu" onclick="document.getElementById('sidebar').classList.add('open')" class="bn-btn flex flex-col items-center gap-1 px-3 py-2 rounded-2xl transition-all">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-        <span class="text-[9px] font-black uppercase tracking-wide">Menu</span>
+        <button id="bn-profile" onclick="switchView('profile')" class="bn-btn flex flex-col items-center gap-1 px-3 py-2 rounded-2xl transition-all">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        <span class="text-[9px] font-black uppercase tracking-wide">Profile</span>
     </button>
 </div>
 
+<!-- ── PROFILE VIEW ── -->
+<div id="view-profile" class="view-section">
+
+  <!-- Hero header -->
+  <div style="margin:calc(-1rem - env(safe-area-inset-top)) -1rem 0;padding-bottom:1.5rem;background:var(--ink,#1a1510);">
+    <div style="padding:calc(env(safe-area-inset-top) + 3rem) 1.25rem 1.5rem;position:relative;">
+
+      <!-- Avatar -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:0.75rem;">
+        <div id="profile-photo-wrap" style="width:88px;height:88px;border-radius:22px;overflow:hidden;
+             border:2px solid rgba(207,185,145,0.35);box-shadow:0 8px 24px rgba(0,0,0,0.4);flex-shrink:0;">
+          <img id="profile-slack-photo" src="" alt=""
+               style="width:100%;height:100%;object-fit:cover;display:none;">
+          <div id="profile-initial-fallback"
+               style="width:100%;height:100%;background:var(--primary-gold,#CFB991);
+                      display:flex;align-items:center;justify-content:center;
+                      font-size:2rem;font-weight:900;color:#1a1510;"></div>
+        </div>
+        <div style="text-align:center;">
+          <h1 id="pv-fullname" style="font-size:1.25rem;font-weight:900;color:#fff;margin:0;"></h1>
+          <p id="pv-role" style="font-size:0.6rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;
+                                  color:rgba(207,185,145,0.55);margin:4px 0 0;"></p>
+        </div>
+      </div>
+
+      <!-- Quick stats -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;margin-top:1.25rem;">
+        <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:0.875rem;padding:0.75rem;text-align:center;">
+          <p id="pv-career" style="font-size:1.375rem;font-weight:900;color:#CFB991;margin:0;line-height:1;"></p>
+          <p style="font-size:0.5rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin:3px 0 0;">Career</p>
+        </div>
+        <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:0.875rem;padding:0.75rem;text-align:center;">
+          <p id="pv-semester" style="font-size:1.375rem;font-weight:900;color:#10B981;margin:0;line-height:1;"></p>
+          <p style="font-size:0.5rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin:3px 0 0;">This Sem</p>
+        </div>
+        <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:0.875rem;padding:0.75rem;text-align:center;">
+          <p id="pv-family" style="font-size:1.375rem;font-weight:900;color:#8B5CF6;margin:0;line-height:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></p>
+          <p style="font-size:0.5rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin:3px 0 0;">Family</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Info sections -->
+  <div style="padding:1.25rem 0;display:flex;flex-direction:column;gap:1.25rem;">
+
+    <!-- Academic -->
+    <div style="background:#fff;border-radius:1rem;overflow:hidden;border:1px solid #F3F4F6;">
+      <div style="padding:0.75rem 1rem;border-bottom:1px solid #F3F4F6;">
+        <p style="font-size:0.6rem;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#9CA3AF;margin:0;">Academic</p>
+      </div>
+      <div id="pv-academic"></div>
+    </div>
+
+    <!-- Personal -->
+    <div style="background:#fff;border-radius:1rem;overflow:hidden;border:1px solid #F3F4F6;">
+      <div style="padding:0.75rem 1rem;border-bottom:1px solid #F3F4F6;">
+        <p style="font-size:0.6rem;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#9CA3AF;margin:0;">Personal</p>
+      </div>
+      <div id="pv-personal"></div>
+    </div>
+
+    <!-- Program -->
+    <div style="background:#fff;border-radius:1rem;overflow:hidden;border:1px solid #F3F4F6;">
+      <div style="padding:0.75rem 1rem;border-bottom:1px solid #F3F4F6;">
+        <p style="font-size:0.6rem;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#9CA3AF;margin:0;">Program</p>
+      </div>
+      <div id="pv-program"></div>
+    </div>
+
+    <!-- Sign out -->
+    <button onclick="signOut()"
+            style="width:100%;padding:0.875rem;border-radius:1rem;border:1px solid #FEE2E2;
+                   background:#FFF5F5;color:#EF4444;font-size:0.8125rem;font-weight:700;
+                   cursor:pointer;font-family:inherit;transition:all 0.15s;">
+      Sign Out
+    </button>
+
+  </div>
+</div>
+    
 <!-- ROLE SELECTOR OVERLAY -->
 <div id="role-selector" class="hidden fixed inset-0 z-[9998] flex flex-col items-center justify-center p-8"
      style="background:linear-gradient(135deg,#0a0a0a 0%,#1a1408 50%,#0a0a0a 100%);">
