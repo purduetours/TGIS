@@ -2565,15 +2565,15 @@ async function init() {
             .filter(([col]) => !NON_SEMESTER_COLS.has(col))
             .map(([col, count]) => ({
                 semester: col.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
-                count:    Number(count) || 0,
-                sortKey:  col
+                count:    Number(count) || 0
             }))
             .filter(h => h.count > 0)
-            .sort((a, b) => a.sortKey.localeCompare(b.sortKey));
+            .reverse();
 
         // 4. Build leaderboard
-        const NON_COLS_LB = new Set(['id','display_name','first_name','last_name','total','updated_at']);
-        const semCol = Object.keys(tr).filter(k => !NON_COLS_LB.has(k)).sort().pop() || 'fall_2026';
+                const NON_COLS_LB = new Set(['id','display_name','first_name','last_name','total','updated_at']);
+        const semCols = Object.keys(tr).filter(k => !NON_COLS_LB.has(k));
+        const semCol = semCols[semCols.length - 1] || 'fall_2026';
 
         const fullLeaderboard = allTracker.map(g => ({
             displayName:   g.display_name,
