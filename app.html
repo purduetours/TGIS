@@ -2682,7 +2682,7 @@ async function init() {
                 year:        p.year,
                 dietary:     p.dietary,
                 givingTours: p.giving_tours,
-                slackPhoto:  null
+                slackPhoto:  p.slack_photo || null,
             },
             stats: {
                 semesterTotal: Number(tr[currentSemCol]) || 0,
@@ -2730,13 +2730,7 @@ async function init() {
         }
 
                // Fetch Slack photo from Apps Script (non-blocking)
-        try {
-            const photoRes = await fetch(`${scriptURL}?scope=slackPhoto&user=${encodeURIComponent(userName)}`);
-            if (photoRes.ok) {
-                const photoData = await photoRes.json();
-                if (photoData.photoUrl) cachedData.profile.slackPhoto = photoData.photoUrl;
-            }
-        } catch(e) { /* photo is optional, fail silently */ }
+        cachedData.profile.slackPhoto = p.slack_photo || null;
 
         await continueInit();
 
