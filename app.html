@@ -2572,10 +2572,13 @@ async function init() {
             .sort((a, b) => a.sortKey.localeCompare(b.sortKey));
 
         // 4. Build leaderboard
+        const NON_COLS_LB = new Set(['id','display_name','first_name','last_name','total','updated_at']);
+        const semCol = Object.keys(tr).filter(k => !NON_COLS_LB.has(k)).sort().pop() || 'fall_2026';
+
         const fullLeaderboard = allTracker.map(g => ({
             displayName:   g.display_name,
-            semesterTotal: Number(g[currentSemCol]) || 0,
-            careerTotal:   g.total     || 0,
+            semesterTotal: Number(g[semCol]) || 0,
+            careerTotal:   Number(g.total)   || 0,
             history:       g.display_name === displayName ? history : []
         })).sort((a,b) => b.careerTotal - a.careerTotal);
 
@@ -2588,10 +2591,8 @@ async function init() {
             // family points logic — simplified for now
         });
 
-        // 6. Assemble cachedData in the same shape as before
-              const NON_COLS = new Set(['id','display_name','first_name','last_name','total','updated_at']);
-        const currentSemCol = Object.keys(tr).filter(k => !NON_COLS.has(k)).sort().pop();
-        const currentSemName = currentSemCol ? currentSemCol.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()) : 'Current Semester';
+        const currentSemCol = semCol;
+        const currentSemName = currentSemCol.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
 
         cachedData = {
             profile: {
