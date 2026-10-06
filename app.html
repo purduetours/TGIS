@@ -1843,7 +1843,7 @@ function renderProfileView() {
 
     function selectRole(role) {
         if (role === 'admin') {
-            window.location.href = `https://purduetours.github.io/TGIS/adminportal.html?user=${encodeURIComponent(userName)}`;
+            window.location.href = `https://tgis.pages.dev/adminportal?user=${encodeURIComponent(userName)}`;
         } else {
             // Continue loading the student view — hide selector and resume
             document.getElementById('role-selector').classList.add('hidden');
