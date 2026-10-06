@@ -2545,7 +2545,7 @@ async function init() {
 
         // 2. Run remaining queries in parallel
         const displayName = p.display_name;
-        const [trackerRows, myTours, allTracker, forms, specialRequests, allGuides, allTours, myTrackerRows] = await Promise.all([
+        const [profileRows, myTours, allTracker, myTrackerRows, forms, specialRequests, allGuides, allTours] = await Promise.all([
             sbFetch(`guides?username=eq.${encodeURIComponent(userName)}&limit=1`),
             sbFetch(`tours?guide=ilike.*${encodeURIComponent(displayName)}*&order=tour_date.asc`),
             sbFetch(`tracker?select=*&order=total.desc`),
