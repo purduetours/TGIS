@@ -2589,6 +2589,10 @@ async function init() {
         });
 
         // 6. Assemble cachedData in the same shape as before
+              const NON_COLS = new Set(['id','display_name','first_name','last_name','total','updated_at']);
+        const currentSemCol = Object.keys(tr).filter(k => !NON_COLS.has(k)).sort().pop();
+        const currentSemName = currentSemCol ? currentSemCol.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()) : 'Current Semester';
+
         cachedData = {
             profile: {
                 username:    p.username,
@@ -2597,17 +2601,13 @@ async function init() {
                 family:      p.family,
                 status:      p.status
             },
-                        stats: {
+            stats: {
                 semesterTotal: Number(tr[currentSemCol]) || 0,
                 careerTotal:   Number(tr.total)          || 0,
                 history
             },
-            currentSemesterName: currentSemCol ? currentSemCol.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()) : 'Current Semester',
-                              const NON_COLS = new Set(['id','display_name','first_name','last_name','total','updated_at']);
-        const currentSemCol = Object.keys(tr).filter(k => !NON_COLS.has(k)).sort().pop();
-            currentSemesterName: currentSemCol ? currentSemCol.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()) : 'Current Semester',
+            currentSemesterName: currentSemName,
             rank:                fullLeaderboard.findIndex(g => g.displayName === displayName) + 1,
-            currentSemesterName: 'Fall 2026',
             leaderboard:         fullLeaderboard.slice(0, 10),
             semesterLeaderboard: [...fullLeaderboard].sort((a,b) => b.semesterTotal - a.semesterTotal).slice(0, 10),
             fullLeaderboard,
