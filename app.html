@@ -2545,10 +2545,11 @@ async function init() {
 
         // 2. Run remaining queries in parallel
         const displayName = p.display_name;
-        const [trackerRows, myTours, allTracker, forms, specialRequests, allGuides, allTours] = await Promise.all([
+        const [trackerRows, myTours, allTracker, forms, specialRequests, allGuides, allTours, myTrackerRows] = await Promise.all([
             sbFetch(`guides?username=eq.${encodeURIComponent(userName)}&limit=1`),
             sbFetch(`tours?guide=ilike.*${encodeURIComponent(displayName)}*&order=tour_date.asc`),
-            sbFetch(`tracker?select=display_name,fall_2026,total&order=total.desc`),
+            sbFetch(`tracker?select=*&order=total.desc`),
+            sbFetch(`tracker?display_name=eq.${encodeURIComponent(displayName)}&select=*&limit=1`),
             sbFetch(`forms?active=eq.Active`),
             sbFetch(`special_requests?select=*`),
             sbFetch(`guides?select=display_name,family`),
@@ -2558,8 +2559,8 @@ async function init() {
         //updateLoadingStatus('Building your schedule...');
 
         // 3. Build history from tracker row
-        const tr = trackerRows[0] || {};
-                const NON_SEMESTER_COLS = new Set(['id','display_name','first_name','last_name','total','updated_at']);
+        const tr = myTrackerRows[0] || {};
+        const NON_SEMESTER_COLS = new Set(['id','display_name','first_name','last_name','total','updated_at']);
         const history = Object.entries(tr)
             .filter(([col]) => !NON_SEMESTER_COLS.has(col))
             .map(([col, count]) => ({
@@ -2573,7 +2574,7 @@ async function init() {
         // 4. Build leaderboard
         const fullLeaderboard = allTracker.map(g => ({
             displayName:   g.display_name,
-            semesterTotal: g.fall_2026 || 0,
+            semesterTotal: Number(g[currentSemCol]) || 0,
             careerTotal:   g.total     || 0,
             history:       g.display_name === displayName ? history : []
         })).sort((a,b) => b.careerTotal - a.careerTotal);
@@ -2596,11 +2597,14 @@ async function init() {
                 family:      p.family,
                 status:      p.status
             },
-            stats: {
-                semesterTotal: tr.fall_2026   || 0,
-                careerTotal:   tr.total       || 0,
+                       const NON_COLS = new Set(['id','display_name','first_name','last_name','total','updated_at']);
+            const currentSemCol = Object.keys(tr).filter(k => !NON_COLS.has(k)).sort().pop();
+                    stats: {
+                semesterTotal: Number(tr[currentSemCol]) || 0,
+                careerTotal:   Number(tr.total)          || 0,
                 history
             },
+            currentSemesterName: currentSemCol ? currentSemCol.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()) : 'Current Semester',
             rank:                fullLeaderboard.findIndex(g => g.displayName === displayName) + 1,
             currentSemesterName: 'Fall 2026',
             leaderboard:         fullLeaderboard.slice(0, 10),
