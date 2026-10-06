@@ -417,93 +417,139 @@
 <div id="view-home" class="view-section active">
 
   <!-- ── MOBILE HOME (hidden on desktop) ── -->
-<div class="lg:hidden" style="margin:calc(-1rem - env(safe-area-inset-top)) -1rem 0;padding-bottom:1.5rem;">
-    <!-- HERO PHOTO CARD -->
-<div style="position:relative;overflow:hidden;border-radius:0 0 0 0;margin-bottom:1rem;
-                margin-top:calc(-1 * env(safe-area-inset-top));
-                height:calc(240px + env(safe-area-inset-top));">
-      <img src="rossade.jpeg" alt="Purdue Campus"
-           style="width:100%;height:100%;object-fit:cover;object-position:center;">
-      <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.15) 0%,rgba(0,0,0,0.6) 100%);"></div>
-      <div style="position:absolute;bottom:1.25rem;left:1.25rem;right:1.25rem;">
-        <p style="font-size:9px;font-weight:900;letter-spacing:0.25em;text-transform:uppercase;color:rgba(255,255,255,0.7);margin:0 0 2px;">Purdue University</p>
-        <h1 style="font-size:1.75rem;font-weight:900;color:white;margin:0;line-height:1.1;">Welcome, <span id="welcome-name-mobile" style="color:#CFB991;"></span></h1>
-        <p id="live-clock-mobile" style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:0.1em;margin:4px 0 0;"></p>
-      </div>
-    </div>
 
-    <div style="padding:0 1rem;display:flex;flex-direction:column;gap:0.875rem;">
+  <!-- ── MOBILE HOME (hidden on desktop) ── -->
+<div class="lg:hidden" style="margin:calc(-1rem - env(safe-area-inset-top)) -1rem 0;min-height:100vh;background:#F5F5F5;">
 
-      <!-- PROFILE CARD -->
-      <div onclick="switchView('tracker')"
-           style="background:linear-gradient(135deg,#1a1408,#2a2010);border-radius:1.5rem;padding:1.25rem;cursor:pointer;border:1px solid rgba(207,185,145,0.25);">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.875rem;">
-          <div style="display:flex;align-items:center;gap:10px;">
-            <div id="mobile-profile-initial"
-                 style="width:40px;height:40px;border-radius:12px;background:#CFB991;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:900;color:#0f0c04;flex-shrink:0;"></div>
-            <div>
-              <p id="mobile-profile-name" style="font-size:14px;font-weight:900;color:white;margin:0;"></p>
-              <p id="mobile-profile-role" style="font-size:10px;font-weight:700;color:rgba(207,185,145,0.7);text-transform:uppercase;letter-spacing:0.08em;margin:1px 0 0;"></p>
+    <!-- GOLD GRADIENT TOP BAR -->
+    <div style="background:linear-gradient(135deg,#b39a6d 0%,#CFB991 40%,#e8d5a3 70%,#CFB991 100%);
+                padding:calc(env(safe-area-inset-top) + 1rem) 1.25rem 2.5rem;
+                position:relative;overflow:hidden;">
+        <div style="position:absolute;inset:0;opacity:0.08;background:repeating-linear-gradient(45deg,transparent,transparent 10px,rgba(0,0,0,0.1) 10px,rgba(0,0,0,0.1) 11px);"></div>
+
+        <!-- Top row: logo + profile photo -->
+        <div style="display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1;margin-bottom:1.5rem;">
+            <div style="display:flex;align-items:center;gap:8px;">
+                <img src="TGISv3.png" alt="TGIS" style="height:28px;width:auto;filter:brightness(0) invert(1);opacity:0.9;">
+                <span style="font-size:0.6rem;font-weight:900;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.7);">TGIS</span>
             </div>
-          </div>
-          <span style="font-size:12px;color:rgba(255,255,255,0.3);">›</span>
+            <div onclick="switchView('profile')" style="cursor:pointer;">
+                <div style="width:38px;height:38px;border-radius:50%;overflow:hidden;border:2px solid rgba(255,255,255,0.6);box-shadow:0 2px 8px rgba(0,0,0,0.2);">
+                    <img id="home-slack-photo" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:none;">
+                    <div id="home-photo-initial" style="width:100%;height:100%;background:rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:900;color:#fff;"></div>
+                </div>
+            </div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.625rem;">
-          <div style="background:rgba(255,255,255,0.06);border-radius:1rem;padding:0.75rem;text-align:center;">
-            <p id="mobile-sem-total" style="font-size:1.75rem;font-weight:900;color:#10B981;margin:0;line-height:1;">--</p>
-            <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.35);margin:3px 0 0;">This Semester</p>
-          </div>
-          <div style="background:rgba(255,255,255,0.06);border-radius:1rem;padding:0.75rem;text-align:center;">
-            <p id="mobile-upcoming" style="font-size:1.75rem;font-weight:900;color:#CFB991;margin:0;line-height:1;">--</p>
-            <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.35);margin:3px 0 0;">Upcoming</p>
-          </div>
-        </div>
-      </div>
 
-      <!-- NEXT TOUR CARD -->
-      <div onclick="switchView('schedule')" id="mobile-next-tour-card"
-           style="background:white;border-radius:1.5rem;padding:1.25rem;cursor:pointer;border:1px solid #F3F4F6;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
-        <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;color:#9CA3AF;margin:0 0 0.625rem;">Next Tour</p>
-        <div id="mobile-next-tour-inner">
-          <p style="font-size:13px;font-weight:700;color:#D1D5DB;font-style:italic;">No upcoming tours</p>
+        <!-- Greeting -->
+        <div style="position:relative;z-index:1;">
+            <p id="home-greeting" style="font-size:1.5rem;font-weight:900;color:rgba(26,21,16,0.85);margin:0;line-height:1.2;"></p>
+            <p id="live-clock-mobile" style="font-size:0.7rem;font-weight:600;color:rgba(26,21,16,0.5);margin:4px 0 0;letter-spacing:0.05em;"></p>
         </div>
-      </div>
+    </div>
 
-      <!-- TODAY'S SCHEDULE CARD -->
-      <div onclick="switchView('schedule')"
-           style="background:white;border-radius:1.5rem;overflow:hidden;cursor:pointer;border:1px solid #F3F4F6;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
-        <div style="padding:1rem 1.25rem 0.75rem;border-bottom:1px solid #F9FAFB;">
-          <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;color:#9CA3AF;margin:0;">Today's Schedule</p>
-        </div>
-        <div id="home-today-container" style="padding:0;">
-          <div style="padding:1rem 1.25rem;text-align:center;">
-            <p style="color:#D1D5DB;font-size:11px;font-weight:700;">No tours today</p>
-          </div>
-        </div>
-      </div>
+    <!-- WHITE CARD SHEET -->
+    <div style="background:#F5F5F5;border-radius:1.5rem 1.5rem 0 0;margin-top:-1.25rem;
+                padding:1.5rem 1rem 6rem;position:relative;z-index:2;min-height:calc(100vh - 160px);">
 
-      <!-- ALERTS CARD -->
-      <div style="background:#FEF3C7;border-radius:1.5rem;padding:1.25rem;border:1px solid #FDE68A;">
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
-        <a href="https://www.purduetours.github.io/Main-Stage-Leaderboard" target="_blank"
-           style="background:white;border:1px solid #E5E7EB;border-radius:1.125rem;padding:1rem;
-                  text-align:center;text-decoration:none;display:flex;flex-direction:column;
-                  align-items:center;justify-content:center;gap:6px;">
-          <span style="font-size:1.25rem;">🎭</span>
-          <p style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:#1a1510;margin:0;">Main Stage</p>
-        </a>
-        <a href="https://www.purduetours.github.io/Main-Stage-Leaderboard" target="_blank"
-           style="background:white;border:1px solid #E5E7EB;border-radius:1.125rem;padding:1rem;
-                  text-align:center;text-decoration:none;display:flex;flex-direction:column;
-                  align-items:center;justify-content:center;gap:6px;">
-          <span style="font-size:1.25rem;">📖</span>
-          <p style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:#1a1510;margin:0;">Handbook</p>
-        </a>
-      </div>
+        <!-- NEXT TOUR CARD -->
+        <div onclick="switchView('schedule')" id="mobile-next-tour-card"
+             style="background:white;border-radius:1.25rem;padding:1.25rem;margin-bottom:1rem;
+                    cursor:pointer;border:1px solid #EFEFEF;box-shadow:0 2px 12px rgba(0,0,0,0.05);">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
+                <p style="font-size:0.6rem;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#9CA3AF;margin:0;">Next Tour</p>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+            </div>
+            <div id="mobile-next-tour-inner">
+                <p style="font-size:0.8125rem;font-weight:600;color:#D1D5DB;font-style:italic;">No upcoming tours</p>
+            </div>
+        </div>
+
+        <!-- QUICK ACTIONS -->
+        <p style="font-size:0.6rem;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#9CA3AF;margin:0 0 0.75rem 0.25rem;">Quick Actions</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.625rem;margin-bottom:1rem;">
+
+            <button onclick="switchView('schedule')"
+                    style="background:white;border:1px solid #EFEFEF;border-radius:1.125rem;padding:1rem 0.5rem;
+                           cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:0.5rem;
+                           box-shadow:0 1px 4px rgba(0,0,0,0.04);">
+                <div style="width:40px;height:40px;border-radius:12px;background:#F0F7FF;display:flex;align-items:center;justify-content:center;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                </div>
+                <span style="font-size:0.6rem;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;color:#374151;">Schedule</span>
+            </button>
+
+            <button onclick="switchView('tracker')"
+                    style="background:white;border:1px solid #EFEFEF;border-radius:1.125rem;padding:1rem 0.5rem;
+                           cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:0.5rem;
+                           box-shadow:0 1px 4px rgba(0,0,0,0.04);">
+                <div style="width:40px;height:40px;border-radius:12px;background:#F0FDF4;display:flex;align-items:center;justify-content:center;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+                </div>
+                <span style="font-size:0.6rem;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;color:#374151;">Tracker</span>
+            </button>
+
+            <button onclick="switchView('profile')"
+                    style="background:white;border:1px solid #EFEFEF;border-radius:1.125rem;padding:1rem 0.5rem;
+                           cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:0.5rem;
+                           box-shadow:0 1px 4px rgba(0,0,0,0.04);">
+                <div style="width:40px;height:40px;border-radius:12px;background:#FDF4FF;display:flex;align-items:center;justify-content:center;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                </div>
+                <span style="font-size:0.6rem;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;color:#374151;">Account</span>
+            </button>
+
+            <button onclick="switchView('forms')"
+                    style="background:white;border:1px solid #EFEFEF;border-radius:1.125rem;padding:1rem 0.5rem;
+                           cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:0.5rem;
+                           box-shadow:0 1px 4px rgba(0,0,0,0.04);">
+                <div style="width:40px;height:40px;border-radius:12px;background:#FFF7ED;display:flex;align-items:center;justify-content:center;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/></svg>
+                </div>
+                <span style="font-size:0.6rem;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;color:#374151;">Forms</span>
+            </button>
+
+            <a href="https://www.google.com" target="_blank"
+               style="background:white;border:1px solid #EFEFEF;border-radius:1.125rem;padding:1rem 0.5rem;
+                      cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:0.5rem;
+                      box-shadow:0 1px 4px rgba(0,0,0,0.04);text-decoration:none;">
+                <div style="width:40px;height:40px;border-radius:12px;background:#FFF1F2;display:flex;align-items:center;justify-content:center;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                </div>
+                <span style="font-size:0.6rem;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;color:#374151;">Handbook</span>
+            </a>
+
+            <button onclick="switchView('families')"
+                    style="background:white;border:1px solid #EFEFEF;border-radius:1.125rem;padding:1rem 0.5rem;
+                           cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:0.5rem;
+                           box-shadow:0 1px 4px rgba(0,0,0,0.04);">
+                <div style="width:40px;height:40px;border-radius:12px;background:#FFFBEB;display:flex;align-items:center;justify-content:center;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#CFB991" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                </div>
+                <span style="font-size:0.6rem;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;color:#374151;">Points</span>
+            </button>
+
+        </div>
+
+        <!-- TODAY'S SCHEDULE CARD -->
+        <div onclick="switchView('schedule')"
+             style="background:white;border-radius:1.25rem;overflow:hidden;cursor:pointer;
+                    border:1px solid #EFEFEF;box-shadow:0 2px 12px rgba(0,0,0,0.05);">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid #F9FAFB;">
+                <p style="font-size:0.6rem;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#9CA3AF;margin:0;">Today's Schedule</p>
+                <span style="font-size:0.7rem;font-weight:700;color:#CFB991;">See all →</span>
+            </div>
+            <div id="home-today-container">
+                <div style="padding:1rem 1.25rem;text-align:center;">
+                    <p style="color:#D1D5DB;font-size:0.8rem;font-weight:600;">No tours today</p>
+                </div>
+            </div>
+        </div>
 
     </div>
-  </div>
+</div>
+
+
 
   <!-- ── DESKTOP HOME (hidden on mobile) ── -->
   <div class="hidden lg:block">
@@ -2466,7 +2512,7 @@ async function continueInit() {
         // Update UI Elements
         document.getElementById('sidebar-name').innerText = cachedData.profile.fullName;
         document.getElementById('sidebar-status').innerText = cachedData.profile.status;
-        const mn = cachedData.profile.displayName || '';
+                const mn = cachedData.profile.displayName || '';
         const mf = cachedData.profile.fullName || '';
         const el = document.getElementById('welcome-name-mobile');
         if (el) el.innerText = mn;
@@ -2474,6 +2520,23 @@ async function continueInit() {
         if (pi) pi.innerText = mf.charAt(0);
         const pn = document.getElementById('mobile-profile-name');
         if (pn) pn.innerText = mf;
+
+        // New home screen
+        const firstName = mf.split(' ')[0] || mn;
+        const hr = new Date().getHours();
+        const greeting = hr < 12 ? 'Good morning' : hr < 17 ? 'Good afternoon' : 'Good evening';
+        const greetEl = document.getElementById('home-greeting');
+        if (greetEl) greetEl.innerText = greeting + ', ' + firstName + '.';
+
+        const homePhotoEl   = document.getElementById('home-slack-photo');
+        const homeInitialEl = document.getElementById('home-photo-initial');
+        if (cachedData.profile.slackPhoto && homePhotoEl) {
+            homePhotoEl.src = cachedData.profile.slackPhoto;
+            homePhotoEl.style.display = 'block';
+            if (homeInitialEl) homeInitialEl.style.display = 'none';
+        } else if (homeInitialEl) {
+            homeInitialEl.innerText = firstName.charAt(0).toUpperCase();
+        }
         const pr = document.getElementById('mobile-profile-role');
         if (pr) pr.innerText = cachedData.profile.status || '';
         const deskDashBtn = document.getElementById('nav-desk-dashboard');
