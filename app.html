@@ -544,108 +544,65 @@ html.dark .theme-switch::after { transform: translateX(18px); }
   <!-- ── MOBILE HOME (hidden on desktop) ── -->
 <div class="lg:hidden" style="margin: 0 -1rem 0; min-height: 100dvh; background: #F5F5F5;">
     <!-- WHITE CARD SHEET -->
+    <!-- Mobile home: each section is filled by renderMobileHome() and links to its full page -->
     <div style="background:#F5F5F5;
                 padding:0.25rem 1rem 6rem;position:relative;z-index:2;min-height:calc(100vh - 160px);">
 
         <!-- GREETING -->
-        <div style="margin-bottom:1.25rem;">
+        <div style="margin-bottom:1rem;">
             <p id="home-greeting" style="font-size:1.375rem;font-weight:900;color:#1a1510;margin:0;line-height:1.2;"></p>
             <p id="live-clock-mobile" style="font-size:0.7rem;font-weight:600;color:#9CA3AF;margin:3px 0 0;letter-spacing:0.05em;"></p>
         </div>
 
-        <!-- NEXT TOUR CARD -->
-        <div onclick="switchView('schedule')" id="mobile-next-tour-card"
-             style="background:white;border-radius:1.25rem;padding:1.25rem;margin-bottom:1rem;
-                    cursor:pointer;border:1px solid #EFEFEF;box-shadow:0 2px 12px rgba(0,0,0,0.05);">
+        <!-- NEXT TOUR -->
+        <div onclick="switchView('schedule')"
+             style="background:white;border-radius:1.25rem;padding:1.125rem;margin-bottom:0.75rem;cursor:pointer;
+                    border:1px solid #EFEFEF;box-shadow:0 2px 12px rgba(0,0,0,0.05);">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
                 <p style="font-size:0.6rem;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#9CA3AF;margin:0;">Next Tour</p>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
             </div>
-            <div id="mobile-next-tour-inner">
-                <p style="font-size:0.8125rem;font-weight:600;color:#D1D5DB;font-style:italic;">No upcoming tours</p>
+            <div id="mh-next">
+                <p style="font-size:0.8125rem;font-weight:600;color:#9CA3AF;font-style:italic;margin:0;">Loading…</p>
             </div>
         </div>
 
-        <!-- QUICK ACTIONS -->
-        <p style="font-size:0.6rem;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#9CA3AF;margin:0 0 0.75rem 0.25rem;">Quick Actions</p>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.625rem;margin-bottom:1rem;">
+        <!-- STATS -->
+        <div id="mh-stats" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.625rem;margin-bottom:0.75rem;"></div>
 
-            <button onclick="switchView('schedule')"
-                    style="background:white;border:1px solid #EFEFEF;border-radius:1.125rem;padding:1rem 0.5rem;
-                           cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:0.5rem;
-                           box-shadow:0 1px 4px rgba(0,0,0,0.04);">
-                <div style="width:40px;height:40px;border-radius:12px;background:#F0F7FF;display:flex;align-items:center;justify-content:center;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-                </div>
-                <span style="font-size:0.6rem;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;color:#374151;">Schedule</span>
-            </button>
+        <!-- NEXT MILESTONE -->
+        <div id="mh-milestone" hidden onclick="switchView('tracker')"
+             style="background:white;border-radius:1.25rem;padding:1rem 1.125rem;margin-bottom:0.75rem;cursor:pointer;
+                    border:1px solid #EFEFEF;box-shadow:0 2px 12px rgba(0,0,0,0.05);"></div>
 
-            <button onclick="switchView('tracker')"
-                    style="background:white;border:1px solid #EFEFEF;border-radius:1.125rem;padding:1rem 0.5rem;
-                           cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:0.5rem;
-                           box-shadow:0 1px 4px rgba(0,0,0,0.04);">
-                <div style="width:40px;height:40px;border-radius:12px;background:#F0FDF4;display:flex;align-items:center;justify-content:center;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
-                </div>
-                <span style="font-size:0.6rem;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;color:#374151;">Tracker</span>
-            </button>
+        <!-- FORMS DUE -->
+        <div id="mh-forms" hidden onclick="switchView('forms')"
+             style="background:white;border-radius:1.25rem;overflow:hidden;margin-bottom:0.75rem;cursor:pointer;
+                    border:1px solid #EFEFEF;box-shadow:0 2px 12px rgba(0,0,0,0.05);"></div>
 
-            <button onclick="switchView('profile')"
-                    style="background:white;border:1px solid #EFEFEF;border-radius:1.125rem;padding:1rem 0.5rem;
-                           cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:0.5rem;
-                           box-shadow:0 1px 4px rgba(0,0,0,0.04);">
-                <div style="width:40px;height:40px;border-radius:12px;background:#FDF4FF;display:flex;align-items:center;justify-content:center;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-                </div>
-                <span style="font-size:0.6rem;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;color:#374151;">Account</span>
-            </button>
+        <!-- COMING UP -->
+        <div id="mh-upcoming" hidden onclick="switchView('schedule')"
+             style="background:white;border-radius:1.25rem;overflow:hidden;margin-bottom:0.75rem;cursor:pointer;
+                    border:1px solid #EFEFEF;box-shadow:0 2px 12px rgba(0,0,0,0.05);"></div>
 
-            <button onclick="switchView('forms')"
-                    style="background:white;border:1px solid #EFEFEF;border-radius:1.125rem;padding:1rem 0.5rem;
-                           cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:0.5rem;
-                           box-shadow:0 1px 4px rgba(0,0,0,0.04);">
-                <div style="width:40px;height:40px;border-radius:12px;background:#FFF7ED;display:flex;align-items:center;justify-content:center;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/></svg>
-                </div>
-                <span style="font-size:0.6rem;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;color:#374151;">Forms</span>
-            </button>
+        <!-- FAMILY CUP -->
+        <div id="mh-family" hidden onclick="switchView('families')"
+             style="background:white;border-radius:1.25rem;padding:1rem 1.125rem;margin-bottom:0.75rem;cursor:pointer;
+                    border:1px solid #EFEFEF;box-shadow:0 2px 12px rgba(0,0,0,0.05);"></div>
 
-            <a href="https://www.google.com" target="_blank"
-               style="background:white;border:1px solid #EFEFEF;border-radius:1.125rem;padding:1rem 0.5rem;
-                      cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:0.5rem;
-                      box-shadow:0 1px 4px rgba(0,0,0,0.04);text-decoration:none;">
-                <div style="width:40px;height:40px;border-radius:12px;background:#FFF1F2;display:flex;align-items:center;justify-content:center;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-                </div>
-                <span style="font-size:0.6rem;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;color:#374151;">Handbook</span>
-            </a>
-
-            <button onclick="switchView('families')"
-                    style="background:white;border:1px solid #EFEFEF;border-radius:1.125rem;padding:1rem 0.5rem;
-                           cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:0.5rem;
-                           box-shadow:0 1px 4px rgba(0,0,0,0.04);">
-                <div style="width:40px;height:40px;border-radius:12px;background:#FFFBEB;display:flex;align-items:center;justify-content:center;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#CFB991" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                </div>
-                <span style="font-size:0.6rem;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;color:#374151;">Points</span>
-            </button>
-
-        </div>
-
-        <!-- TODAY'S SCHEDULE CARD -->
-        <div onclick="switchView('schedule')"
-             style="background:white;border-radius:1.25rem;overflow:hidden;cursor:pointer;
-                    border:1px solid #EFEFEF;box-shadow:0 2px 12px rgba(0,0,0,0.05);">
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid #F9FAFB;">
-                <p style="font-size:0.6rem;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#9CA3AF;margin:0;">Today's Schedule</p>
-                <span style="font-size:0.7rem;font-weight:700;color:#CFB991;">See all →</span>
+        <!-- HANDBOOK -->
+        <a href="https://www.google.com" target="_blank"
+           style="display:flex;align-items:center;gap:0.75rem;background:white;border-radius:1.25rem;padding:0.875rem 1.125rem;
+                  border:1px solid #EFEFEF;box-shadow:0 2px 12px rgba(0,0,0,0.05);text-decoration:none;">
+            <div style="width:36px;height:36px;border-radius:10px;background:#FFF1F2;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
             </div>
-            <div id="home-today-container">
-                <div style="padding:1rem 1.25rem;text-align:center;">
-                    <p style="color:#D1D5DB;font-size:0.8rem;font-weight:600;">No tours today</p>
-                </div>
+            <div style="flex:1;min-width:0;">
+                <p style="font-size:0.8125rem;font-weight:800;color:#111827;margin:0;">Guide Handbook</p>
+                <p style="font-size:0.7rem;font-weight:600;color:#9CA3AF;margin:2px 0 0;">Policies, routes and scripts</p>
             </div>
-        </div>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </a>
 
     </div>
 </div>
@@ -1806,6 +1763,175 @@ function checkTourLock(myTours) {
     }
 }
 
+// ── MOBILE HOME ──────────────────────────────────────────────────────────
+function renderMobileHome(myTours) {
+    if (!document.getElementById('mh-next') || !cachedData) return;
+    const label = (t, extra = '') => `<p style="font-size:0.6rem;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#9CA3AF;margin:0;${extra}">${t}</p>`;
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const dayDiff = d => { const x = new Date(d); x.setHours(0, 0, 0, 0); return Math.round((x - today) / 86400000); };
+    const tourMinutes = t => { const info = TOUR_MAP[t.type]; if (!info) return 9999; const p = parse12Hour(t.time || info.time); return p.hours * 60 + p.minutes; };
+    const upcoming = (myTours || [])
+        .filter(t => dayDiff(t.date) >= 0)
+        .sort((a, b) => (new Date(a.date) - new Date(b.date)) || (tourMinutes(a) - tourMinutes(b)));
+
+    // Next tour
+    const next = upcoming[0];
+    const nextEl = document.getElementById('mh-next');
+    if (!next) {
+        nextEl.innerHTML = `
+            <p style="font-size:1rem;font-weight:900;color:#111827;margin:0;">No upcoming tours</p>
+            <p style="font-size:0.75rem;font-weight:600;color:#9CA3AF;margin:4px 0 0;">Open the schedule to pick up a tour.</p>`;
+    } else {
+        const info = TOUR_MAP[next.type] || { name: next.type, time: '--' };
+        const d = new Date(next.date);
+        const diff = dayDiff(next.date);
+        const when = diff === 0 ? 'Today' : diff === 1 ? 'Tomorrow' : `In ${diff} days`;
+        const whenColor = diff === 0 ? '#10B981' : '#CFB991';
+        const pendingDrop = (next.guide || '').includes('*');
+        nextEl.innerHTML = `
+            <div style="display:flex;align-items:center;gap:1rem;">
+                <div style="width:60px;height:64px;border-radius:14px;background:rgba(207,185,145,0.15);border:1px solid rgba(207,185,145,0.35);
+                            display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;">
+                    <span style="font-size:0.55rem;font-weight:900;letter-spacing:0.12em;color:#CFB991;">${d.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}</span>
+                    <span style="font-size:1.5rem;font-weight:900;color:#111827;line-height:1.05;">${d.getDate()}</span>
+                    <span style="font-size:0.55rem;font-weight:900;letter-spacing:0.12em;color:#9CA3AF;">${d.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase()}</span>
+                </div>
+                <div style="flex:1;min-width:0;">
+                    <p style="font-size:0.75rem;font-weight:800;color:#6B7280;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${info.name}</p>
+                    <p style="font-size:1.625rem;font-weight:900;color:#111827;margin:2px 0 6px;line-height:1;">${next.time || info.time}</p>
+                    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                        <span style="font-size:0.6rem;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;padding:3px 8px;border-radius:99px;color:${whenColor};background:${whenColor}1f;">${when}</span>
+                        ${pendingDrop ? `<span style="font-size:0.6rem;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;padding:3px 8px;border-radius:99px;color:#EF4444;background:rgba(239,68,68,0.12);">Pending Drop</span>` : ''}
+                    </div>
+                </div>
+            </div>`;
+    }
+
+    // Stats
+    const st = cachedData.stats || {};
+    const tile = (view, value, valueColor, title, sub) => `
+        <button onclick="switchView('${view}')"
+                style="background:white;border:1px solid #EFEFEF;border-radius:1.125rem;padding:0.875rem 0.5rem;cursor:pointer;
+                       box-shadow:0 1px 4px rgba(0,0,0,0.04);text-align:center;font-family:inherit;">
+            <p style="font-size:1.5rem;font-weight:900;color:${valueColor};margin:0;line-height:1;">${value}</p>
+            <p style="font-size:0.55rem;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:#9CA3AF;margin:6px 0 0;">${title}</p>
+            <p style="font-size:0.65rem;font-weight:800;color:#374151;margin:2px 0 0;">${sub}</p>
+        </button>`;
+    document.getElementById('mh-stats').innerHTML =
+        tile('tracker', st.semesterTotal ?? '--', '#10B981', 'Semester', cachedData.semesterRank ? `Rank #${cachedData.semesterRank}` : '&nbsp;') +
+        tile('tracker', st.careerTotal ?? '--', '#111827', 'Career', cachedData.rank ? `Rank #${cachedData.rank}` : '&nbsp;') +
+        tile('schedule', upcoming.length, '#CFB991', 'Upcoming', upcoming.length === 1 ? 'tour' : 'tours');
+
+    // Next milestone (same thresholds as the tracker badges)
+    const career = st.careerTotal || 0;
+    const milestones = [[50, 'Bell Tower Boss'], [100, 'Century Club'], [200, 'Golden Guide']];
+    const goal = milestones.find(([n]) => career < n);
+    const prev = goal ? (milestones[milestones.indexOf(goal) - 1] || [0])[0] : 0;
+    const msEl = document.getElementById('mh-milestone');
+    msEl.hidden = false;
+    msEl.innerHTML = goal ? `
+        <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:0.5rem;">
+            <div>${label('Next Milestone')}<p style="font-size:0.9375rem;font-weight:900;color:#111827;margin:4px 0 0;">${goal[1]}</p></div>
+            <p style="font-size:0.75rem;font-weight:800;color:#CFB991;margin:0;white-space:nowrap;">${goal[0] - career} to go</p>
+        </div>
+        <div style="height:8px;border-radius:99px;background:#F3F4F6;overflow:hidden;">
+            <div style="height:100%;width:${Math.min(100, ((career - prev) / (goal[0] - prev)) * 100)}%;background:#CFB991;border-radius:99px;"></div>
+        </div>
+        <p style="font-size:0.65rem;font-weight:700;color:#9CA3AF;margin:6px 0 0;">${career} of ${goal[0]} career tours</p>` : `
+        ${label('Milestones')}<p style="font-size:0.9375rem;font-weight:900;color:#111827;margin:4px 0 0;">All badges earned · ${career} career tours</p>`;
+
+    // Forms due
+    const now = new Date();
+    const openForms = (cachedData.forms || [])
+        .filter(f => f.active && !f.submitted)
+        .sort((a, b) => (a.dueDate ? new Date(a.dueDate) : Infinity) - (b.dueDate ? new Date(b.dueDate) : Infinity));
+    const formsEl = document.getElementById('mh-forms');
+    if (!openForms.length) {
+        formsEl.hidden = true;
+    } else {
+        const rows = openForms.slice(0, 3).map((f, i) => {
+            const due = f.dueDate ? new Date(f.dueDate) : null;
+            const daysLeft = due ? Math.ceil((due - now) / 86400000) : null;
+            const color = daysLeft === null ? '#9CA3AF' : daysLeft < 0 ? '#EF4444' : daysLeft <= 2 ? '#F59E0B' : '#6B7280';
+            const txt = daysLeft === null ? 'No due date' : daysLeft < 0 ? 'Overdue' : daysLeft === 0 ? 'Due today' : `Due ${due.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+            return `
+            <div style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem 1.125rem;${i ? 'border-top:1px solid #F3F4F6;' : ''}">
+                <div style="width:6px;height:6px;border-radius:99px;background:${(f.type || '').toLowerCase() === 'required' ? '#CFB991' : '#D1D5DB'};flex-shrink:0;"></div>
+                <span style="flex:1;min-width:0;font-size:0.8125rem;font-weight:700;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${f.formName || f.formId}</span>
+                <span style="font-size:0.7rem;font-weight:800;color:${color};white-space:nowrap;">${txt}</span>
+            </div>`;
+        }).join('');
+        formsEl.hidden = false;
+        formsEl.innerHTML = `
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:0.875rem 1.125rem;border-bottom:1px solid #F3F4F6;">
+                ${label('Forms Due')}
+                <span style="font-size:0.6rem;font-weight:900;color:#CFB991;background:rgba(207,185,145,0.15);padding:2px 8px;border-radius:99px;">${openForms.length}</span>
+            </div>${rows}`;
+    }
+
+    // Coming up (tours after the next one)
+    const later = upcoming.slice(1, 5);
+    const upEl = document.getElementById('mh-upcoming');
+    if (!later.length) {
+        upEl.hidden = true;
+    } else {
+        const rows = later.map((t, i) => {
+            const info = TOUR_MAP[t.type] || { name: t.type, time: '--' };
+            const d = new Date(t.date);
+            const diff = dayDiff(t.date);
+            const dayTxt = diff === 0 ? 'Today' : diff === 1 ? 'Tmrw' : d.toLocaleDateString('en-US', { weekday: 'short' });
+            return `
+            <div style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem 1.125rem;${i ? 'border-top:1px solid #F3F4F6;' : ''}">
+                <div style="width:40px;text-align:center;flex-shrink:0;">
+                    <p style="font-size:0.55rem;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:#9CA3AF;margin:0;">${dayTxt}</p>
+                    <p style="font-size:1rem;font-weight:900;color:#111827;margin:0;line-height:1.1;">${d.getDate()}</p>
+                </div>
+                <div style="width:1px;align-self:stretch;background:#F3F4F6;flex-shrink:0;"></div>
+                <span style="flex:1;min-width:0;font-size:0.8125rem;font-weight:700;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${info.name}</span>
+                ${(t.guide || '').includes('*') ? `<span style="font-size:0.55rem;font-weight:900;text-transform:uppercase;color:#EF4444;">Drop?</span>` : ''}
+                <span style="font-size:0.75rem;font-weight:800;color:#6B7280;white-space:nowrap;">${t.time || info.time}</span>
+            </div>`;
+        }).join('');
+        upEl.hidden = false;
+        upEl.innerHTML = `
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:0.875rem 1.125rem;border-bottom:1px solid #F3F4F6;">
+                ${label('Coming Up')}
+                <span style="font-size:0.7rem;font-weight:700;color:#CFB991;">See all →</span>
+            </div>${rows}`;
+    }
+
+    // Family Cup
+    const famEl = document.getElementById('mh-family');
+    const myFamily = cachedData.profile && cachedData.profile.family;
+    const standings = [...(cachedData.familyStandings || [])].sort((a, b) => b.points - a.points);
+    const famIdx = standings.findIndex(f => f.name === myFamily);
+    if (!myFamily || famIdx < 0) {
+        famEl.hidden = true;
+    } else {
+        const fam = standings[famIdx];
+        const place = famIdx + 1;
+        const ord = n => n + (['th', 'st', 'nd', 'rd'][(n % 100 - 20) % 10] || ['th', 'st', 'nd', 'rd'][n % 100] || 'th');
+        const gap = place === 1 ? 'Leading the cup' : `${standings[0].points - fam.points} pts behind 1st`;
+        famEl.hidden = false;
+        famEl.innerHTML = `
+            <div style="display:flex;align-items:center;gap:0.875rem;">
+                <div style="width:44px;height:44px;border-radius:12px;background:#FFFBEB;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#CFB991" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                </div>
+                <div style="flex:1;min-width:0;">
+                    ${label('Family Cup')}
+                    <p style="font-size:0.9375rem;font-weight:900;color:#111827;margin:3px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${fam.name}</p>
+                    <p style="font-size:0.7rem;font-weight:700;color:#9CA3AF;margin:1px 0 0;">${gap}</p>
+                </div>
+                <div style="width:1px;align-self:stretch;background:#F3F4F6;"></div>
+                <div style="text-align:center;flex-shrink:0;">
+                    <p style="font-size:1.375rem;font-weight:900;color:#CFB991;margin:0;line-height:1;">${ord(place)}</p>
+                    <p style="font-size:0.6rem;font-weight:800;color:#9CA3AF;margin:3px 0 0;">${fam.points} pts</p>
+                </div>
+            </div>`;
+    }
+}
+
 function renderHomeNextTour(myTours) {
     const container = document.getElementById('home-next-tour-container');
     const upcomingEl = document.getElementById('home-upcoming-count');
@@ -2770,6 +2896,7 @@ async function continueInit() {
                 updateScheduleView(myTours, cachedData.profile.displayName);
             }
             renderHomeNextTour(myTours);
+            renderMobileHome(myTours);
             checkTourLock(myTours);
             setInterval(() => checkTourLock(myTours), 60000);
             renderWelcomeCenter(cachedData.tours);
