@@ -434,9 +434,14 @@ html.dark .theme-switch::after { transform: translateX(18px); }
 
 <nav id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white shadow-2xl border-r border-gray-100 p-6 z-40 hidden lg:block overflow-y-auto">
     <div class="mb-6 flex justify-between items-start">
-        <div>
-            <p class="text-[10px] font-black text-primary-gold uppercase tracking-[0.2em] mb-1">Purdue University</p>
-            <h1 class="text-xl font-black leading-tight">Tour Guide Information System</h1>
+        <!-- White logo sits on a dark panel so it shows on the white sidebar; falls back to text if the image is missing -->
+        <div id="sidebar-logo" class="flex-1 rounded-2xl px-4 py-3 flex items-center justify-center" style="background:#1a1510;">
+            <img src="tgisv4logowhite.png" alt="TGIS v4" style="max-width:100%;max-height:56px;width:auto;height:auto;display:block;"
+                 onerror="this.style.display='none'; document.getElementById('sidebar-logo-fallback').style.display='block';">
+            <div id="sidebar-logo-fallback" style="display:none;">
+                <p class="text-[10px] font-black text-primary-gold uppercase tracking-[0.2em] mb-1">Purdue University</p>
+                <h1 class="text-xl font-black leading-tight" style="color:#fff;">Tour Guide Information System</h1>
+            </div>
         </div>
         <button id="close-menu" class="lg:hidden text-gray-400 text-2xl">&times;</button>
     </div>
