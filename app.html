@@ -212,7 +212,7 @@
     flex: 1; 
     overflow-y: auto; 
     -webkit-overflow-scrolling: touch; 
-    padding-bottom: calc(env(safe-area-inset-bottom) + 72px);
+    padding-bottom: 72px;
     margin-left: 18rem; 
     transition: margin 0.3s ease; 
     padding-top: 1.5rem;
@@ -236,11 +236,9 @@
     left: 0;
     right: 0;
     width: 100%;
-    /* Home-screen app: keep only a sliver of the ~34px home-indicator inset so the
-       buttons sit at the bottom edge like a native tab bar (0 in Safari). */
-    --bn-inset: max(calc(env(safe-area-inset-bottom) - 20px), 0px);
-    height: calc(60px + var(--bn-inset));
-    padding-bottom: var(--bn-inset);
+    /* No home-indicator inset: buttons sit on the literal bottom edge in home-screen mode. */
+    height: 60px;
+    padding-bottom: 0;
     border-radius: 0;
     background: white;
     backdrop-filter: none;
@@ -438,8 +436,7 @@
         <!-- Top row: logo + weather + profile photo -->
 <div style="display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1;padding: 0.875rem 1.25rem 2.25rem;">
     <div style="display:flex;align-items:center;gap:8px;">
-                <img src="TGISv3.png" alt="TGIS" style="height:26px;width:auto;filter:brightness(0) invert(1);opacity:0.9;">
-                <span style="font-size:0.6rem;font-weight:900;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.7);">TGIS</span>
+                <span style="font-size:1.25rem;font-weight:900;letter-spacing:0.04em;line-height:1;color:#fff;">TGIS <span style="font-weight:700;opacity:0.75;">v4</span></span>
             </div>
 
             <!-- Weather + Profile -->
