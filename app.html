@@ -2182,15 +2182,24 @@ function renderProfileView() {
           ? cachedData.semesterLeaderboard
           : cachedData.fullList;
         const sortedData = [...baseList].sort((a, b) => mode === 'career' ? b.careerTotal - a.careerTotal : b.semesterTotal - a.semesterTotal).slice(0, 10);
-        document.getElementById('leaderboard-container').innerHTML = sortedData.map((entry, i) => `
-            <div class="flex items-center justify-between p-4 rounded-2xl ${entry.displayName.toLowerCase() === cachedData.profile.displayName.toLowerCase() ? 'bg-primary-gold/20 ring-2 ring-primary-gold' : 'bg-gray-50'}">
-                <div class="flex items-center space-x-4">
-                    <span class="font-black text-gray-300 w-6">#${i+1}</span>
-                    <span class="font-bold">${entry.displayName}</span>
-                </div>
-                <span class="font-black text-primary-gold">${mode === 'career' ? entry.careerTotal : entry.semesterTotal}</span>
-            </div>
-        `).join('');
+        const me = cachedData.profile.displayName.toLowerCase();
+        const medal = ['#CFB991', '#A8A9AD', '#B08D57']; // gold, silver, bronze for the top 3
+        document.getElementById('leaderboard-container').innerHTML = sortedData.map((entry, i) => {
+            const isMe = entry.displayName.toLowerCase() === me;
+            const initial = (entry.displayName || '?').trim().charAt(0).toUpperCase();
+            const avatar = entry.photo
+                ? `<img src="${entry.photo}" alt="" class="w-10 h-10 rounded-xl object-cover flex-shrink-0" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'w-10 h-10 rounded-xl flex-shrink-0 bg-primary-gold/30 flex items-center justify-center font-black text-sm text-primary-gold',textContent:'${initial}'}))">`
+                : `<div class="w-10 h-10 rounded-xl flex-shrink-0 bg-primary-gold/30 flex items-center justify-center font-black text-sm text-primary-gold">${initial}</div>`;
+            const rankColor = i < 3 ? `color:${medal[i]}` : '';
+            return `
+            <div class="flex items-center gap-3 p-3 rounded-2xl ${isMe ? 'bg-primary-gold/20 ring-2 ring-primary-gold' : 'bg-gray-50'}">
+                <span class="font-black text-gray-300 w-7 text-center text-sm flex-shrink-0" style="${rankColor}">#${i+1}</span>
+                <div class="w-px self-stretch bg-gray-200 flex-shrink-0"></div>
+                ${avatar}
+                <span class="font-bold flex-1 min-w-0 truncate">${entry.displayName}</span>
+                <span class="font-black text-primary-gold text-lg flex-shrink-0">${mode === 'career' ? entry.careerTotal : entry.semesterTotal}</span>
+            </div>`;
+        }).join('');
     }
 
    function changeMonth(offset) {
@@ -2826,7 +2835,7 @@ async function init() {
             sbFetch(`tracker?display_name=eq.${encodeURIComponent(displayName)}&select=*&limit=1`),
             sbFetch(`forms?active=eq.Active`),
             sbFetch(`special_requests?select=*`),
-            sbFetch(`guides?select=display_name,family`),
+            sbFetch(`guides?select=display_name,family,slack_photo`),
             sbFetch(`tours?select=tour_date,guide,type,direction,tgit_username&order=tour_date.asc`)
         ]);
 
@@ -2849,8 +2858,11 @@ async function init() {
         const semCols = Object.keys(tr).filter(k => !NON_COLS_LB.has(k));
         const semCol = semCols[semCols.length - 1] || 'fall_2026';
 
+        const photoByName = {};
+        allGuides.forEach(g => { if (g.slack_photo) photoByName[g.display_name] = g.slack_photo; });
         const fullLeaderboard = allTracker.map(g => ({
             displayName:   g.display_name,
+            photo:         photoByName[g.display_name] || null,
             semesterTotal: Number(g[semCol]) || 0,
             careerTotal:   Number(g.total)   || 0,
             history:       g.display_name === displayName ? history : []
