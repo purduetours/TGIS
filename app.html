@@ -3219,5 +3219,32 @@ drawConfetti();
 </div>
 -->    
 
+<script>
+// Keep the bottom nav on the physical bottom edge of the phone. Some iOS home-screen
+// builds report a viewport shorter than the screen, which leaves fixed bottom bars
+// floating; measure that gap and push the bar down into it.
+(function pinBottomNav() {
+    const nav = document.getElementById('bottom-nav-bar');
+    if (!nav) return;
+    const update = () => {
+        const landscape = window.innerWidth > window.innerHeight;
+        const screenH = landscape ? Math.min(screen.width, screen.height) : Math.max(screen.width, screen.height);
+        const gap = Math.round(screenH - window.innerHeight);
+        const standalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+        nav.style.bottom = (standalone && gap > 0 && gap < 200) ? `-${gap}px` : '0px';
+        if (dbg) dbg.textContent = `screen ${screenH} | inner ${window.innerHeight} | gap ${gap} | standalone ${!!standalone} | navBottom ${Math.round(nav.getBoundingClientRect().bottom)}`;
+    };
+    let dbg = null;
+    if (new URLSearchParams(location.search).has('navdebug')) {
+        dbg = document.createElement('div');
+        dbg.style.cssText = 'position:fixed;top:50%;left:8px;right:8px;z-index:9999;background:#000;color:#0f0;font:11px monospace;padding:6px;border-radius:6px;';
+        document.body.appendChild(dbg);
+    }
+    update();
+    window.addEventListener('resize', update);
+    window.addEventListener('orientationchange', () => setTimeout(update, 300));
+    if (window.visualViewport) window.visualViewport.addEventListener('resize', update);
+})();
+</script>
 </body>
 </html>
