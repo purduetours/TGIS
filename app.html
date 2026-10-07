@@ -426,35 +426,16 @@
 
 <div class="content-area p-4 sm:p-8">
 
-<!-- ── MOBILE PAGE HEADER (gold ribbon for every view except home, which has its own) ── -->
+<!-- ── MOBILE PAGE HEADER (same gold ribbon on every view; title is "TGIS v4" on home, page name elsewhere) ── -->
 <div id="mobile-page-header" class="lg:hidden -mx-4 sm:-mx-8" style="display:none;margin-top:0;margin-bottom:1rem;">
-    <div style="background:linear-gradient(135deg,#b39a6d 0%,#CFB991 40%,#e8d5a3 70%,#CFB991 100%);
-                position:relative;overflow:hidden;padding-top:env(safe-area-inset-top);">
-        <div style="position:absolute;inset:0;opacity:0.08;background:repeating-linear-gradient(45deg,transparent,transparent 10px,rgba(0,0,0,0.1) 10px,rgba(0,0,0,0.1) 11px);"></div>
-        <div style="position:relative;z-index:1;padding:0.875rem 1.25rem 2.25rem;">
-            <span id="mobile-page-title" style="font-size:1.25rem;font-weight:900;letter-spacing:0.04em;line-height:1;color:#fff;"></span>
-        </div>
-    </div>
-    <!-- Rounded sheet edge overlapping the ribbon, matching the home screen -->
-    <div id="mobile-page-sheet" style="background:#F9FAFB;border-radius:1.5rem 1.5rem 0 0;margin-top:-1.25rem;height:1.25rem;position:relative;z-index:2;"></div>
-</div>
-    
-
-<div id="view-home" class="view-section active">
-
-  <!-- ── MOBILE HOME (hidden on desktop) ── -->
-
-  <!-- ── MOBILE HOME (hidden on desktop) ── -->
-<div class="lg:hidden" style="margin: 0 -1rem 0; min-height: 100dvh; background: #F5F5F5;">
-    <!-- GOLD GRADIENT TOP BAR -->
            <div style="background:linear-gradient(135deg,#b39a6d 0%,#CFB991 40%,#e8d5a3 70%,#CFB991 100%);
                 position:relative;overflow:hidden;padding-top:env(safe-area-inset-top);">
         <div style="position:absolute;inset:0;opacity:0.08;background:repeating-linear-gradient(45deg,transparent,transparent 10px,rgba(0,0,0,0.1) 10px,rgba(0,0,0,0.1) 11px);"></div>
 
         <!-- Top row: logo + weather + profile photo -->
 <div style="display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1;padding: 0.875rem 1.25rem 2.25rem;">
-    <div style="display:flex;align-items:center;gap:8px;">
-                <span style="font-size:1.25rem;font-weight:900;letter-spacing:0.04em;line-height:1;color:#fff;">TGIS <span style="font-weight:700;opacity:0.75;">v4</span></span>
+    <div style="display:flex;align-items:center;gap:8px;min-width:0;">
+                <span id="mobile-page-title" style="font-size:1.5rem;font-weight:900;letter-spacing:0.02em;line-height:1;color:#1a1510;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">TGIS v4</span>
             </div>
 
             <!-- Weather + Profile -->
@@ -482,9 +463,20 @@
         </div>
     </div>
 
+    <!-- Rounded sheet edge overlapping the ribbon, matching the home screen -->
+    <div id="mobile-page-sheet" style="background:#F9FAFB;border-radius:1.5rem 1.5rem 0 0;margin-top:-1.25rem;height:1.25rem;position:relative;z-index:2;"></div>
+</div>
+    
+
+<div id="view-home" class="view-section active">
+
+  <!-- ── MOBILE HOME (hidden on desktop) ── -->
+
+  <!-- ── MOBILE HOME (hidden on desktop) ── -->
+<div class="lg:hidden" style="margin: 0 -1rem 0; min-height: 100dvh; background: #F5F5F5;">
     <!-- WHITE CARD SHEET -->
-    <div style="background:#F5F5F5;border-radius:1.5rem 1.5rem 0 0;margin-top:-1.25rem;
-                padding:1.5rem 1rem 6rem;position:relative;z-index:2;min-height:calc(100vh - 160px);">
+    <div style="background:#F5F5F5;
+                padding:0.25rem 1rem 6rem;position:relative;z-index:2;min-height:calc(100vh - 160px);">
 
         <!-- GREETING -->
         <div style="margin-bottom:1.25rem;">
@@ -1636,21 +1628,24 @@ function renderWelcomeCenter(allTours) {
         `;
     });
 }
-// On mobile every view starts with a gold ribbon that runs under the status bar:
-// home has its own; other views share #mobile-page-header titled after the page.
+// On mobile every view starts with the same gold ribbon (#mobile-page-header) that runs
+// under the status bar; it reads "TGIS v4" on home and the page's title elsewhere.
 function applyMobileTopPadding(viewId) {
     if (window.innerWidth >= 1024) return;
     const ca = document.querySelector('.content-area');
     if (ca) ca.style.paddingTop = '0';
     const header = document.getElementById('mobile-page-header');
     if (!header) return;
-    if (viewId === 'home') { header.style.display = 'none'; return; }
-    const h1 = viewId === 'profile' ? null : document.querySelector(`#view-${viewId} > header h1`);
-    const title = (h1 && h1.textContent.trim()) || viewId.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    let title = 'TGIS v4';
+    if (viewId !== 'home') {
+        const h1 = viewId === 'profile' ? null : document.querySelector(`#view-${viewId} > header h1`);
+        title = (h1 && h1.textContent.trim()) || viewId.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    }
     document.getElementById('mobile-page-title').textContent = title;
-    // Profile opens with a dark hero, so the sheet edge takes that colour instead.
-    document.getElementById('mobile-page-sheet').style.background = viewId === 'profile' ? '#1a1510' : '#F9FAFB';
-    header.style.marginBottom = viewId === 'profile' ? '0' : '1rem';
+    // Sheet edge takes the colour of whatever the view opens with.
+    const sheetColor = { home: '#F5F5F5', profile: '#1a1510' }[viewId] || '#F9FAFB';
+    document.getElementById('mobile-page-sheet').style.background = sheetColor;
+    header.style.marginBottom = (viewId === 'home' || viewId === 'profile') ? '0' : '1rem';
     header.style.display = 'block';
 }
 function switchView(viewId) {
