@@ -501,7 +501,9 @@ html.dark .theme-switch::after { transform: translateX(18px); }
 
         <!-- Top row: logo + weather + profile photo -->
 <div style="display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1;padding: 0.875rem 1.25rem 2.25rem;">
-    <div style="display:flex;align-items:center;gap:8px;min-width:0;">
+    <div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1;margin-right:12px;">
+                <img id="mobile-home-logo" src="tgisv4logomobileclear.png" alt="Tour Guide Information System" style="display:none;height:auto;max-height:30px;width:100%;max-width:100%;object-fit:contain;object-position:left center;"
+                     onerror="this.dataset.failed='1'; this.style.display='none'; document.getElementById('mobile-page-title').style.display='';">
                 <span id="mobile-page-title" style="font-size:1.5rem;font-weight:900;letter-spacing:0.02em;line-height:1;color:#1a1510;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">TGIS v4</span>
             </div>
 
@@ -1713,7 +1715,13 @@ function applyMobileTopPadding(viewId) {
         const h1 = viewId === 'profile' ? null : document.querySelector(`#view-${viewId} > header h1`);
         title = (h1 && h1.textContent.trim()) || viewId.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
     }
-    document.getElementById('mobile-page-title').textContent = title;
+    const titleEl = document.getElementById('mobile-page-title');
+    titleEl.textContent = title;
+    // Home shows the logo image instead of the text title.
+    const homeLogo = document.getElementById('mobile-home-logo');
+    const showLogo = viewId === 'home' && homeLogo && !homeLogo.dataset.failed;
+    if (homeLogo) homeLogo.style.display = showLogo ? 'block' : 'none';
+    titleEl.style.display = showLogo ? 'none' : '';
     // Sheet edge takes the colour of whatever the view opens with.
     const sheetColor = { home: 'var(--home-bg)', profile: '#1a1510' }[viewId] || 'var(--page-bg)';
     document.getElementById('mobile-page-sheet').style.background = sheetColor;
