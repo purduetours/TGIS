@@ -281,6 +281,9 @@
 
         @media (max-width: 1023px) {
             .view-section > header h1 { display: none; }
+            /* Grey page subtitles hidden for now; headers left with no controls collapse entirely */
+            .view-section > header p.text-gray-400 { display: none; }
+            .view-section > header:not(:has(button)) { display: none; }
             #profile-hero { margin-top: 0 !important; }
             #profile-hero > div { padding-top: 1rem !important; }
         }
