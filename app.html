@@ -762,18 +762,23 @@ html.dark .theme-switch::after { transform: translateX(18px); }
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-            <div class="bg-white p-8 rounded-3xl shadow-xl border border-gray-100 text-center">
-                <p class="text-xs font-bold text-gray-400 uppercase mb-2 tracking-widest">Career Tours</p>
-                <h2 id="career-total" class="text-6xl font-black">--</h2>
+        <!-- Career and semester totals, each with its leaderboard rank underneath -->
+        <div class="grid grid-cols-2 gap-3 sm:gap-6 mb-10">
+            <div class="bg-white p-5 sm:p-8 rounded-3xl shadow-xl border border-gray-100 text-center">
+                <p class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase mb-2 tracking-widest">Career Tours</p>
+                <h2 id="career-total" class="text-5xl sm:text-6xl font-black">--</h2>
+                <div class="mt-3 pt-3 border-t border-gray-100">
+                    <p class="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest">Rank</p>
+                    <p id="user-rank" class="text-xl sm:text-2xl font-black text-tgis-blue">--</p>
+                </div>
             </div>
-            <div class="bg-white p-8 rounded-3xl shadow-xl border-4 border-status-green/30 text-center">
-                <p id="sem-label" class="text-xs font-bold text-status-green uppercase mb-2 tracking-widest">Current Semester</p>
-                <h2 id="sem-total" class="text-6xl font-black text-status-green">--</h2>
-            </div>
-            <div class="bg-white p-8 rounded-3xl shadow-xl border border-gray-100 text-center">
-                <p class="text-xs font-bold text-gray-400 uppercase mb-2 tracking-widest">Career Rank</p>
-                <h2 id="user-rank" class="text-6xl font-black text-tgis-blue">--</h2>
+            <div class="bg-white p-5 sm:p-8 rounded-3xl shadow-xl border-4 border-status-green/30 text-center">
+                <p id="sem-label" class="text-[10px] sm:text-xs font-bold text-status-green uppercase mb-2 tracking-widest">Current Semester</p>
+                <h2 id="sem-total" class="text-5xl sm:text-6xl font-black text-status-green">--</h2>
+                <div class="mt-3 pt-3 border-t border-gray-100">
+                    <p class="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest">Rank</p>
+                    <p id="sem-rank" class="text-xl sm:text-2xl font-black text-status-green">--</p>
+                </div>
             </div>
         </div>
 
@@ -2693,6 +2698,7 @@ async function continueInit() {
         if (mst) mst.innerText = cachedData.stats.semesterTotal;
         document.getElementById('sem-label').innerText = cachedData.currentSemesterName;
         document.getElementById('user-rank').innerText = `#${cachedData.rank}`;
+        document.getElementById('sem-rank').innerText = cachedData.semesterRank ? `#${cachedData.semesterRank}` : '--';
 
         handleMilestones(cachedData.stats.careerTotal);
         renderForms();
@@ -2890,6 +2896,7 @@ async function init() {
             rank:                fullLeaderboard.findIndex(g => g.displayName === displayName) + 1,
             leaderboard:         fullLeaderboard.slice(0, 10),
             semesterLeaderboard: [...fullLeaderboard].sort((a,b) => b.semesterTotal - a.semesterTotal).slice(0, 10),
+            semesterRank:        [...fullLeaderboard].sort((a,b) => b.semesterTotal - a.semesterTotal).findIndex(g => g.displayName === displayName) + 1,
             fullLeaderboard,
             fullList:            fullLeaderboard,
             tours:               myTours.map(t => ({
