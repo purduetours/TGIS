@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BoilerGuide - Purdue Tour Guides App</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for crisp mobile icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font: Montserrat & Inter for Purdue Athletic/Modern look -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        purdue: {
+                            gold: '#CEB888',
+                            darkGold: '#9B7E46',
+                            agedGold: '#8E6F3E',
+                            black: '#000000',
+                            charcoal: '#18181B',
+                            cardBg: '#242427',
+                            cardHover: '#2E2E32',
+                            lightBg: '#FAFAFA'
+                        }
+                    },
+                    fontFamily: {
+                        header: ['Montserrat', 'sans-serif'],
+                        body: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0B0B0C;
+            color: #F4F4F5;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .font-header {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        /* Gold gradient text */
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #FFF1D0 0%, #CEB888 50%, #9B7E46 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .gold-gradient-bg {
+            background: linear-gradient(135deg, #CEB888 0%, #B89E60 50%, #9B7E46 100%);
+        }
+
+        .gold-glow {
+            box-shadow: 0 0 20px rgba(206, 184, 136, 0.25);
+        }
+
+        .gold-border-glow {
+            border-color: rgba(206, 184, 136, 0.4);
+            box-shadow: inset 0 0 10px rgba(206, 184, 136, 0.1);
+        }
+
+        /* Hide scrollbars for clean app feeling */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Custom Pulse for Active Tracker */
+        @keyframes pulse-gold {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.85; }
+        }
+        .animate-gold-pulse {
+            animation: pulse-gold 2s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="flex justify-center items-center min-h-screen bg-neutral-950 p-0 sm:p-4">
+
+    <!-- Mobile Outer Shell Container -->
+    <div class="w-full max-w-md h-screen sm:h-[880px] bg-purdue-charcoal sm:rounded-[40px] shadow-2xl flex flex-col overflow-hidden relative border-0 sm:border-4 border-neutral-800">
+        
+        <!-- Status Bar Mockup (Visible on sm or larger, mimics mobile screen) -->
+        <div class="px-6 pt-3 pb-2 flex justify-between items-center text-xs text-neutral-400 select-none bg-black/40 backdrop-blur-md z-30">
+            <span class="font-semibold text-neutral-200">9:41</span>
+            <div class="flex items-center gap-2">
+                <i class="fa-solid font-bold fa-signal"></i>
+                <i class="fa-solid fa-wifi"></i>
+                <i class="fa-solid fa-battery-full text-purdue-gold"></i>
+            </div>
+        </div>
+
+        <!-- Top Purdue Guide Header -->
+        <header class="px-5 py-3 bg-black/80 backdrop-blur-md border-b border-neutral-800 flex justify-between items-center z-20 sticky top-0">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-purdue-gold to-purdue-darkGold p-[1.5px] shadow-md">
+                    <div class="w-full h-full bg-black rounded-[10px] flex items-center justify-center font-header font-black text-purdue-gold text-lg">
+                        P
+                    </div>
+                </div>
+                <div>
+                    <h1 class="font-header font-extrabold text-sm tracking-wide text-white uppercase flex items-center gap-1.5">
+                        Boiler<span class="text-purdue-gold">Guide</span>
+                        <span class="bg-purdue-gold/20 text-purdue-gold text-[9px] px-1.5 py-0.5 rounded-full font-sans font-semibold tracking-normal border border-purdue-gold/30">PROD</span>
+                    </h1>
+                    <p class="text-[10px] text-neutral-400 font-medium">Purdue Admissions & Visitor Center</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-2">
+                <!-- Weather Chip -->
+                <div class="bg-neutral-800/80 hover:bg-neutral-800 px-2.5 py-1 rounded-full border border-neutral-700/60 flex items-center gap-1.5 text-xs text-neutral-300">
+                    <i class="fa-solid fa-cloud-sun text-purdue-gold text-xs"></i>
+                    <span class="font-semibold text-[11px]">68°F</span>
+                    <span class="text-[9px] text-neutral-400">WL</span>
+                </div>
+                <!-- Notifications button -->
+                <button onclick="toggleModal('notificationsModal')" class="relative w-8 h-8 rounded-full bg-neutral-800 border border-neutral-700 flex items-center justify-center text-neutral-300 hover:text-white transition">
+                    <i class="fa-regular fa-bell text-xs"></i>
+                    <span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-amber-400 ring-2 ring-black"></span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Scrollable Content Box -->
+        <main id="appContent" class="flex-1 overflow-y-auto no-scrollbar pb-24 px-4 pt-4 space-y-4">
+            
+            <!-- Announcement Banner Widget -->
+            <div class="bg-gradient-to-r from-amber-950/40 via-purdue-gold/10 to-transparent border-l-4 border-purdue-gold rounded-r-xl p-3 relative overflow-hidden backdrop-blur-sm">
+                <div class="flex items-start gap-2.5">
+                    <div class="p-1.5 rounded-lg bg-purdue-gold/20 text-purdue-gold mt-0.5">
+                        <i class="fa-solid fa-bullhorn text-xs"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between items-center">
+                            <span class="text-[10px] font-bold text-purdue-gold uppercase tracking-wider">All-Guide Announcement</span>
+                            <span class="text-[9px] text-neutral-400">Today, 2:15 PM</span>
+                        </div>
+                        <p class="text-xs text-neutral-200 mt-0.5 font-medium leading-snug">
+                            Mandatory All-Guide Meeting this Sunday @ 6:00 PM in RAWL 108. Wear your Gold Polos!
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE 1: HOME & SCHEDULE (DEFAULT) -->
+            <div id="page-schedule" class="page-view space-y-4">
+                
+                <!-- Next Tour Action Card -->
+                <div class="bg-gradient-to-br from-neutral-900 via-purdue-cardBg to-neutral-900 rounded-2xl p-4 border border-purdue-gold/30 gold-glow relative overflow-hidden">
+                    <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-purdue-gold/5 rounded-full blur-2xl pointer-events-none"></div>
+                    
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purdue-gold text-black uppercase tracking-wider">
+                                <span class="w-1.5 h-1.5 rounded-full bg-black animate-ping"></span> Up Next Today
+                            </span>
+                            <h2 class="font-header font-bold text-lg text-white mt-1.5">Engineering Specialty Tour</h2>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs text-neutral-400 block font-medium">Starts in</span>
+                            <span class="font-header font-extrabold text-lg text-purdue-gold" id="countdownTimer">00:24:18</span>
+                        </div>
+                    </div>
+
+                    <!-- Tour Meta Pill Info -->
+                    <div class="grid grid-cols-2 gap-2 my-3 text-xs">
+                        <div class="bg-black/40 rounded-xl p-2.5 border border-neutral-800 flex items-center gap-2.5">
+                            <i class="fa-regular fa-clock text-purdue-gold text-sm"></i>
+                            <div>
+                                <p class="text-[10px] text-neutral-400 uppercase font-semibold">Time</p>
+                                <p class="text-neutral-200 font-medium">2:00 PM - 3:30 PM</p>
+                            </div>
+                        </div>
+                        <div class="bg-black/40 rounded-xl p-2.5 border border-neutral-800 flex items-center gap-2.5">
+                            <i class="fa-solid fa-location-dot text-purdue-gold text-sm"></i>
+                            <div>
+                                <p class="text-[10px] text-neutral-400 uppercase font-semibold">Start Location</p>
+                                <p class="text-neutral-200 font-medium">Stewart Center (STEW)</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tour Details & Group Info -->
+                    <div class="flex items-center justify-between text-xs text-neutral-400 pt-1 pb-3 px-1 border-b border-neutral-800">
+                        <span><i class="fa-solid fa-users text-neutral-500 mr-1"></i> 28 Registered Guests</span>
+                        <span><i class="fa-solid fa-user-shield text-neutral-500 mr-1"></i> Co-Guide: <strong>Marcus V.</strong></span>
+                    </div>
+
+                    <!-- Card Actions -->
+                    <div class="flex gap-2 mt-3">
+                        <button onclick="startTourActive()" class="flex-1 bg-gradient-to-r from-purdue-gold to-purdue-darkGold text-black font-header font-extrabold text-xs py-3 rounded-xl shadow-lg hover:brightness-110 active:scale-[0.98] transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-play"></i> START TOUR & CHECK-IN
+                        </button>
+                        <button onclick="openSubRequestModal('Engineering Specialty Tour', '2:00 PM')" class="bg-neutral-800 hover:bg-neutral-700 text-neutral-300 px-3.5 py-3 rounded-xl text-xs font-semibold border border-neutral-700 transition" title="Request Sub">
+                            <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Interactive Calendar Section Header -->
+                <div class="flex justify-between items-center pt-2">
+                    <h3 class="font-header font-bold text-sm text-white flex items-center gap-2">
+                        <i class="fa-regular fa-calendar-days text-purdue-gold"></i>
+                        Weekly Agenda
+                    </h3>
+                    <div class="flex items-center gap-1 bg-neutral-900 p-0.5 rounded-lg border border-neutral-800 text-xs">
+                        <button class="px-2 py-0.5 rounded-md bg-purdue-gold text-black font-semibold text-[10px]">Week</button>
+                        <button class="px-2 py-0.5 rounded-md text-neutral-400 text-[10px] hover:text-white">Month</button>
+                    </div>
+                </div>
+
+                <!-- Horizontal Date Selector -->
+                <div class="flex justify-between items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
+                    <button class="flex-1 min-w-[50px] bg-neutral-900 border border-neutral-800 rounded-xl p-2 text-center text-xs hover:border-neutral-700 transition">
+                        <span class="block text-[10px] text-neutral-500 font-semibold">MON</span>
+                        <span class="font-bold text-sm text-neutral-300">05</span>
+                    </button>
+                    <button class="flex-1 min-w-[50px] bg-gradient-to-b from-purdue-gold/20 to-purdue-darkGold/30 border border-purdue-gold rounded-xl p-2 text-center text-xs shadow-md">
+                        <span class="block text-[10px] text-purdue-gold font-bold">TUE</span>
+                        <span class="font-header font-black text-base text-white">06</span>
+                        <span class="block w-1 h-1 bg-purdue-gold rounded-full mx-auto mt-0.5"></span>
+                    </button>
+                    <button class="flex-1 min-w-[50px] bg-neutral-900 border border-neutral-800 rounded-xl p-2 text-center text-xs hover:border-neutral-700 transition">
+                        <span class="block text-[10px] text-neutral-500 font-semibold">WED</span>
+                        <span class="font-bold text-sm text-neutral-300">07</span>
+                        <span class="block w-1 h-1 bg-neutral-600 rounded-full mx-auto mt-0.5"></span>
+                    </button>
+                    <button class="flex-1 min-w-[50px] bg-neutral-900 border border-neutral-800 rounded-xl p-2 text-center text-xs hover:border-neutral-700 transition">
+                        <span class="block text-[10px] text-neutral-500 font-semibold">THU</span>
+                        <span class="font-bold text-sm text-neutral-300">08</span>
+                    </button>
+                    <button class="flex-1 min-w-[50px] bg-neutral-900 border border-neutral-800 rounded-xl p-2 text-center text-xs hover:border-neutral-700 transition">
+                        <span class="block text-[10px] text-neutral-500 font-semibold">FRI</span>
+                        <span class="font-bold text-sm text-neutral-300">09</span>
+                        <span class="block w-1 h-1 bg-purdue-gold rounded-full mx-auto mt-0.5"></span>
+                    </button>
+                </div>
+
+                <!-- Schedule List Cards -->
+                <div class="space-y-2.5">
+                    <!-- Assigned Shift -->
+                    <div class="bg-purdue-cardBg border border-neutral-800 rounded-xl p-3 flex justify-between items-center hover:border-neutral-700 transition">
+                        <div class="flex items-center gap-3">
+                            <div class="w-2 h-10 bg-emerald-500 rounded-full"></div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <h4 class="font-semibold text-xs text-white">Daily Campus Walk-In</h4>
+                                    <span class="bg-emerald-500/20 text-emerald-400 text-[9px] px-1.5 py-0.2 rounded font-bold">ASSIGNED</span>
+                                </div>
+                                <p class="text-[11px] text-neutral-400">10:00 AM - 11:30 AM • HLAS Hall</p>
+                            </div>
+                        </div>
+                        <button class="text-neutral-400 hover:text-white p-2 text-xs">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
+
+                    <!-- Available Sub Shift (SubItUp Style Pick-up) -->
+                    <div class="bg-gradient-to-r from-amber-950/20 to-purdue-cardBg border border-amber-500/40 rounded-xl p-3 flex justify-between items-center">
+                        <div class="flex items-center gap-3">
+                            <div class="w-2 h-10 bg-amber-500 rounded-full"></div>
+                            <div>
+                                <div class="flex items-center gap-1.5">
+                                    <h4 class="font-semibold text-xs text-amber-200">VIP Honors College Tour</h4>
+                                    <span class="bg-amber-500/20 text-amber-300 text-[9px] px-1.5 py-0.2 rounded font-bold">+50 PTS</span>
+                                </div>
+                                <p class="text-[11px] text-neutral-400">3:30 PM - 5:00 PM • HCRN Great Hall</p>
+                                <p class="text-[10px] text-amber-400/80 mt-0.5"><i class="fa-solid fa-user-minus mr-1"></i> Posted by Sarah K.</p>
+                            </div>
+                        </div>
+                        <button onclick="claimShift(this)" class="bg-amber-500 hover:bg-amber-400 text-black font-bold text-[11px] px-3 py-1.5 rounded-lg shadow transition">
+                            CLAIM
+                        </button>
+                    </div>
+
+                    <!-- Future Assigned -->
+                    <div class="bg-purdue-cardBg border border-neutral-800 rounded-xl p-3 flex justify-between items-center opacity-70">
+                        <div class="flex items-center gap-3">
+                            <div class="w-2 h-10 bg-neutral-600 rounded-full"></div>
+                            <div>
+                                <h4 class="font-semibold text-xs text-white">Friday Academic Experience</h4>
+                                <p class="text-[11px] text-neutral-400">Oct 9, 1:00 PM - 2:30 PM • Wilmeth Active Learning (WALC)</p>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-lock text-neutral-600 text-xs px-2"></i>
+                    </div>
+                </div>
+
+                <!-- Quick Script Flashcard Widget -->
+                <div class="bg-neutral-900 border border-neutral-800 rounded-2xl p-3.5 space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-[10px] font-bold text-purdue-gold uppercase tracking-wider flex items-center gap-1">
+                            <i class="fa-solid fa-lightbulb"></i> Tour Fact Flashcard
+                        </span>
+                        <button onclick="nextFact()" class="text-[11px] text-neutral-400 hover:text-white flex items-center gap-1">
+                            Next Fact <i class="fa-solid fa-rotate text-[10px]"></i>
+                        </button>
+                    </div>
+                    <p id="factText" class="text-xs text-neutral-300 italic font-normal leading-relaxed">
+                        "The Purdue Bell Tower was built in 1995 and stands 160 feet tall. Legend says if an undergraduate walks under the clock tower, they won't graduate in four years!"
+                    </p>
+                </div>
+            </div>
+
+            <!-- PAGE 2: TOUR TRACKER & HISTORY -->
+            <div id="page-tracker" class="page-view space-y-4 hidden">
+                
+                <!-- Active / Quick Log Tracker Widget -->
+                <div id="trackerWidget" class="bg-gradient-to-br from-neutral-900 to-black border border-purdue-gold/40 rounded-2xl p-4 space-y-4 shadow-xl">
+                    <div class="flex justify-between items-center border-b border-neutral-800 pb-2">
+                        <h3 class="font-header font-bold text-sm text-white flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            Live Tour Companion
+                        </h3>
+                        <span class="text-[10px] bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded-full border border-neutral-700">Active Mode</span>
+                    </div>
+
+                    <!-- Metrics Grid -->
+                    <div class="grid grid-cols-3 gap-2 text-center">
+                        <div class="bg-neutral-800/60 p-2.5 rounded-xl border border-neutral-800">
+                            <i class="fa-solid fa-stopwatch text-purdue-gold text-xs block mb-1"></i>
+                            <span id="trackerTime" class="font-header font-bold text-sm text-white block">42:15</span>
+                            <span class="text-[9px] text-neutral-400 uppercase">Elapsed</span>
+                        </div>
+                        <div class="bg-neutral-800/60 p-2.5 rounded-xl border border-neutral-800">
+                            <i class="fa-solid fa-[#5c0] fa-shoe-prints text-purdue-gold text-xs block mb-1"></i>
+                            <span id="trackerSteps" class="font-header font-bold text-sm text-white block">3,842</span>
+                            <span class="text-[9px] text-neutral-400 uppercase">Steps</span>
+                        </div>
+                        <div class="bg-neutral-800/60 p-2.5 rounded-xl border border-neutral-800">
+                            <i class="fa-solid fa-users text-purdue-gold text-xs block mb-1"></i>
+                            <span id="trackerGuests" class="font-header font-bold text-sm text-white block">32</span>
+                            <span class="text-[9px] text-neutral-400 uppercase">Guests</span>
+                        </div>
+                    </div>
+
+                    <!-- Live Stop Tracker Checklist -->
+                    <div class="space-y-1.5">
+                        <span class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">Route Milestones</span>
+                        <div class="grid grid-cols-2 gap-2 text-xs">
+                            <label class="flex items-center gap-2 p-2 rounded-lg bg-neutral-800/40 border border-neutral-800 cursor-pointer">
+                                <input type="checkbox" checked class="accent-purdue-gold rounded">
+                                <span class="text-neutral-300 text-[11px] line-through text-neutral-500">1. Stewart Center</span>
+                            </label>
+                            <label class="flex items-center gap-2 p-2 rounded-lg bg-neutral-800/40 border border-neutral-800 cursor-pointer">
+                                <input type="checkbox" checked class="accent-purdue-gold rounded">
+                                <span class="text-neutral-300 text-[11px] line-through text-neutral-500">2. PMU / Union</span>
+                            </label>
+                            <label class="flex items-center gap-2 p-2 rounded-lg bg-neutral-800/80 border border-purdue-gold/30 cursor-pointer">
+                                <input type="checkbox" class="accent-purdue-gold rounded">
+                                <span class="text-white text-[11px] font-medium">3. Engineering Mall</span>
+                            </label>
+                            <label class="flex items-center gap-2 p-2 rounded-lg bg-neutral-800/40 border border-neutral-800 cursor-pointer">
+                                <input type="checkbox" class="accent-purdue-gold rounded">
+                                <span class="text-neutral-300 text-[11px]">4. WALC Library</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- End Tour Action -->
+                    <button onclick="finishTour()" class="w-full bg-red-600/90 hover:bg-red-600 text-white font-header font-bold text-xs py-2.5 rounded-xl transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-flag-checkered"></i> FINISH & SUBMIT TOUR LOG
+                    </button>
+                </div>
+
+                <!-- Milestone Progress Bar -->
+                <div class="bg-purdue-cardBg border border-neutral-800 rounded-2xl p-4 space-y-2">
+                    <div class="flex justify-between items-end">
+                        <div>
+                            <span class="text-[10px] font-bold text-purdue-gold uppercase tracking-wider block">Semester Milestone Progress</span>
+                            <h4 class="font-header font-extrabold text-sm text-white">Road to 50 Tours Club</h4>
+                        </div>
+                        <span class="font-header font-black text-purdue-gold text-lg">34 / 50</span>
+                    </div>
+                    <div class="w-full h-3 bg-neutral-800 rounded-full overflow-hidden p-0.5 border border-neutral-700">
+                        <div class="h-full gold-gradient-bg rounded-full" style="width: 68%;"></div>
+                    </div>
+                    <p class="text-[10px] text-neutral-400 text-right">16 tours away from custom Purdue Guide Fleece jacket!</p>
+                </div>
+
+                <!-- History Search & Filters -->
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center">
+                        <h3 class="font-header font-bold text-sm text-white">Tour Log History</h3>
+                        <span class="text-xs text-neutral-400">Total: 34 Tours</span>
+                    </div>
+
+                    <!-- Search Input -->
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-xs text-neutral-500"></i>
+                        <input type="text" placeholder="Search by tour type, guest or date..." class="w-full bg-neutral-900 border border-neutral-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-purdue-gold transition">
+                    </div>
+
+                    <!-- Filter Chips -->
+                    <div class="flex gap-1.5 overflow-x-auto no-scrollbar py-1">
+                        <button class="bg-purdue-gold text-black px-3 py-1 rounded-full text-[10px] font-bold whitespace-nowrap">All Types</button>
+                        <button class="bg-neutral-800 text-neutral-300 px-3 py-1 rounded-full text-[10px] font-medium border border-neutral-700 whitespace-nowrap">Daily Walk-In</button>
+                        <button class="bg-neutral-800 text-neutral-300 px-3 py-1 rounded-full text-[10px] font-medium border border-neutral-700 whitespace-nowrap">Engineering</button>
+                        <button class="bg-neutral-800 text-neutral-300 px-3 py-1 rounded-full text-[10px] font-medium border border-neutral-700 whitespace-nowrap">VIP / Special</button>
+                    </div>
+                </div>
+
+                <!-- History Items List -->
+                <div class="space-y-2">
+                    <div class="bg-purdue-cardBg border border-neutral-800/80 rounded-xl p-3 flex justify-between items-center hover:bg-neutral-800/50 transition">
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2">
+                                <span class="font-semibold text-xs text-white">Daily Walk-In Tour</span>
+                                <div class="flex text-amber-400 text-[10px]">
+                                    <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                                </div>
+                            </div>
+                            <p class="text-[10px] text-neutral-400">Oct 2, 2026 • 24 Guests • STEW</p>
+                            <p class="text-[10px] text-neutral-300 italic">"Guide was super knowledgeable about CS dept!"</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs font-bold text-purdue-gold block">+30 PTS</span>
+                            <span class="text-[9px] bg-neutral-800 px-2 py-0.5 rounded text-neutral-400">Logged</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-purdue-cardBg border border-neutral-800/80 rounded-xl p-3 flex justify-between items-center hover:bg-neutral-800/50 transition">
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2">
+                                <span class="font-semibold text-xs text-white">High School VIP Group</span>
+                                <div class="flex text-amber-400 text-[10px]">
+                                    <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                                </div>
+                            </div>
+                            <p class="text-[10px] text-neutral-400">Sep 28, 2026 • 45 Guests • PMU</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs font-bold text-purdue-gold block">+50 PTS</span>
+                            <span class="text-[9px] bg-neutral-800 px-2 py-0.5 rounded text-neutral-400">Logged</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-purdue-cardBg border border-neutral-800/80 rounded-xl p-3 flex justify-between items-center hover:bg-neutral-800/50 transition">
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2">
+                                <span class="font-semibold text-xs text-white">Polytechnic Specialty</span>
+                                <div class="flex text-amber-400 text-[10px]">
+                                    <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i>
+                                </div>
+                            </div>
+                            <p class="text-[10px] text-neutral-400">Sep 24, 2026 • 18 Guests • KNOY</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs font-bold text-purdue-gold block">+30 PTS</span>
+                            <span class="text-[9px] bg-neutral-800 px-2 py-0.5 rounded text-neutral-400">Logged</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE 3: LEADERBOARD & TEAM COMPETITION -->
+            <div id="page-leaderboard" class="page-view space-y-4 hidden">
+                
+                <!-- Team Competition Header Switcher -->
+                <div class="bg-neutral-900 p-1 rounded-xl border border-neutral-800 grid grid-cols-2 gap-1 text-xs">
+                    <button id="btnTeamGold" onclick="toggleLeaderboardTab('gold')" class="py-2 rounded-lg font-bold bg-purdue-gold text-black shadow transition">
+                        GOLD vs. BLACK TEAM
+                    </button>
+                    <button id="btnIndiv" onclick="toggleLeaderboardTab('indiv')" class="py-2 rounded-lg font-bold text-neutral-400 hover:text-white transition">
+                        INDIVIDUAL TOP 10
+                    </button>
+                </div>
+
+                <!-- Team War Clash Progress Banner -->
+                <div class="bg-gradient-to-r from-amber-950/60 via-neutral-900 to-neutral-950 border border-purdue-gold/30 rounded-2xl p-4 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-[10px] font-bold text-purdue-gold uppercase tracking-widest">Fall 2026 Gold Cup Standings</span>
+                        <span class="text-[10px] text-neutral-400">Ends in 12 Days</span>
+                    </div>
+
+                    <!-- Team Bar Clash -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between font-header font-black text-sm">
+                            <span class="text-purdue-gold flex items-center gap-1"><i class="fa-solid fa-shield"></i> GOLD TEAM (1,480 pts)</span>
+                            <span class="text-neutral-400">BLACK TEAM (1,210 pts)</span>
+                        </div>
+                        <div class="w-full h-4 bg-neutral-800 rounded-full flex overflow-hidden p-0.5 border border-neutral-700">
+                            <div class="h-full gold-gradient-bg rounded-l-full" style="width: 55%;"></div>
+                            <div class="h-full bg-neutral-700 rounded-r-full" style="width: 45%;"></div>
+                        </div>
+                    </div>
+                    <p class="text-[10px] text-neutral-300 text-center">Gold Team lead by <strong class="text-purdue-gold">+270 points</strong>! Top winning team gets end-of-semester banquet pizza party!</p>
+                </div>
+
+                <!-- TOP 3 PODIUM DISPLAY -->
+                <div class="pt-2">
+                    <h3 class="text-center font-header font-bold text-xs uppercase tracking-wider text-neutral-400 mb-3">Top Guides This Month</h3>
+                    <div class="flex justify-center items-end gap-2 px-2">
+                        
+                        <!-- 2nd Place -->
+                        <div class="flex-1 bg-neutral-900 border border-neutral-800 rounded-2xl p-2.5 text-center flex flex-col items-center">
+                            <div class="relative mb-1">
+                                <div class="w-12 h-12 rounded-full bg-neutral-700 p-0.5 border-2 border-slate-300">
+                                    <img src="https://placehold.co/100x100/333333/ffffff?text=Alex" class="w-full h-full rounded-full object-cover">
+                                </div>
+                                <span class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-slate-300 text-black font-extrabold text-[10px] flex items-center justify-center">2</span>
+                            </div>
+                            <span class="font-bold text-xs text-white truncate w-full">Alex M.</span>
+                            <span class="text-[10px] text-purdue-gold font-semibold">410 pts</span>
+                            <span class="text-[8px] text-neutral-500">14 Tours</span>
+                        </div>
+
+                        <!-- 1st Place (Gold Champion) -->
+                        <div class="flex-1 bg-gradient-to-b from-purdue-gold/20 to-neutral-900 border-2 border-purdue-gold rounded-2xl p-3 text-center flex flex-col items-center shadow-xl transform -translate-y-2">
+                            <div class="relative mb-1">
+                                <i class="fa-solid fa-crown text-amber-400 text-xs absolute -top-3.5 left-1/2 -translate-x-1/2"></i>
+                                <div class="w-14 h-14 rounded-full bg-purdue-gold p-0.5 border-2 border-amber-300 shadow-md">
+                                    <img src="https://placehold.co/100x100/CEB888/000000?text=Pete" class="w-full h-full rounded-full object-cover">
+                                </div>
+                                <span class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-purdue-gold text-black font-extrabold text-[10px] flex items-center justify-center">1</span>
+                            </div>
+                            <span class="font-header font-bold text-xs text-white truncate w-full">Pete B.</span>
+                            <span class="text-xs text-purdue-gold font-extrabold">580 pts</span>
+                            <span class="text-[9px] bg-purdue-gold/20 text-purdue-gold px-1.5 py-0.2 rounded mt-0.5">Engineering Fountain badge</span>
+                        </div>
+
+                        <!-- 3rd Place -->
+                        <div class="flex-1 bg-neutral-900 border border-neutral-800 rounded-2xl p-2.5 text-center flex flex-col items-center">
+                            <div class="relative mb-1">
+                                <div class="w-12 h-12 rounded-full bg-neutral-700 p-0.5 border-2 border-amber-700">
+                                    <img src="https://placehold.co/100x100/444444/ffffff?text=Jordan" class="w-full h-full rounded-full object-cover">
+                                </div>
+                                <span class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-amber-700 text-white font-extrabold text-[10px] flex items-center justify-center">3</span>
+                            </div>
+                            <span class="font-bold text-xs text-white truncate w-full">Jordan K.</span>
+                            <span class="text-[10px] text-purdue-gold font-semibold">390 pts</span>
+                            <span class="text-[8px] text-neutral-500">12 Tours</span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Points Breakdown Legend Accordion -->
+                <div class="bg-neutral-900/80 border border-neutral-800 rounded-xl p-3 space-y-2">
+                    <span class="text-[10px] font-bold text-purdue-gold uppercase tracking-wider block">How To Earn Points</span>
+                    <div class="grid grid-cols-2 gap-2 text-[11px] text-neutral-300">
+                        <div class="flex justify-between bg-black/40 p-1.5 rounded">
+                            <span>Weekend Tour</span>
+                            <span class="font-bold text-purdue-gold">+50 pts</span>
+                        </div>
+                        <div class="flex justify-between bg-black/40 p-1.5 rounded">
+                            <span>Sub Pick-up (&lt;24h)</span>
+                            <span class="font-bold text-purdue-gold">+40 pts</span>
+                        </div>
+                        <div class="flex justify-between bg-black/40 p-1.5 rounded">
+                            <span>VIP / Specialty Tour</span>
+                            <span class="font-bold text-purdue-gold">+30 pts</span>
+                        </div>
+                        <div class="flex justify-between bg-black/40 p-1.5 rounded">
+                            <span>Standard Campus Tour</span>
+                            <span class="font-bold text-purdue-gold">+20 pts</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Leaderboard Rest List -->
+                <div class="space-y-1.5">
+                    <div class="bg-purdue-cardBg p-2.5 rounded-xl border border-neutral-800 flex justify-between items-center text-xs">
+                        <div class="flex items-center gap-2.5">
+                            <span class="font-bold text-neutral-500 w-4 text-center">4</span>
+                            <div class="w-7 h-7 rounded-full bg-neutral-700 text-white flex items-center justify-center font-bold text-[10px]">
+                                TS
+                            </div>
+                            <span class="font-medium text-white">Taylor Swift</span>
+                        </div>
+                        <span class="font-bold text-purdue-gold">340 pts</span>
+                    </div>
+
+                    <!-- YOUR RANKING CARD (HIGHLIGHTED) -->
+                    <div class="bg-gradient-to-r from-purdue-gold/20 via-purdue-cardBg to-purdue-cardBg p-2.5 rounded-xl border-2 border-purdue-gold/60 flex justify-between items-center text-xs shadow-md">
+                        <div class="flex items-center gap-2.5">
+                            <span class="font-bold text-purdue-gold w-4 text-center">5</span>
+                            <div class="w-7 h-7 rounded-full bg-purdue-gold text-black flex items-center justify-center font-black text-[10px]">
+                                YOU
+                            </div>
+                            <div>
+                                <span class="font-bold text-white block">You (Chris Boiler)</span>
+                                <span class="text-[9px] text-purdue-gold">Gold Team Guide</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-extrabold text-purdue-gold block">310 pts</span>
+                            <span class="text-[8px] text-neutral-400">10 Tours Given</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-purdue-cardBg p-2.5 rounded-xl border border-neutral-800 flex justify-between items-center text-xs opacity-80">
+                        <div class="flex items-center gap-2.5">
+                            <span class="font-bold text-neutral-500 w-4 text-center">6</span>
+                            <div class="w-7 h-7 rounded-full bg-neutral-700 text-white flex items-center justify-center font-bold text-[10px]">
+                                RM
+                            </div>
+                            <span class="font-medium text-white">Ryan Miller</span>
+                        </div>
+                        <span class="font-bold text-neutral-300">290 pts</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- PAGE 4: FORMS & RESOURCES -->
+            <div id="page-forms" class="page-view space-y-4 hidden">
+                
+                <div>
+                    <h2 class="font-header font-bold text-base text-white">Forms & Operations Hub</h2>
+                    <p class="text-xs text-neutral-400">Fast access to Sub requests, incidents, and tour cheatsheets.</p>
+                </div>
+
+                <!-- Fast Action Forms Grid -->
+                <div class="grid grid-cols-2 gap-2.5">
+                    <button onclick="openSubRequestModal()" class="bg-gradient-to-br from-neutral-900 to-purdue-cardBg p-3.5 rounded-2xl border border-neutral-800 text-left hover:border-purdue-gold/50 transition group">
+                        <div class="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center mb-2 group-hover:scale-110 transition">
+                            <i class="fa-solid fa-arrow-right-arrow-left text-sm"></i>
+                        </div>
+                        <h4 class="font-bold text-xs text-white">Shift Swap / Sub</h4>
+                        <p class="text-[10px] text-neutral-400 mt-0.5">Post tour to Sub Board</p>
+                    </button>
+
+                    <button onclick="toggleModal('incidentModal')" class="bg-gradient-to-br from-neutral-900 to-purdue-cardBg p-3.5 rounded-2xl border border-neutral-800 text-left hover:border-purdue-gold/50 transition group">
+                        <div class="w-9 h-9 rounded-xl bg-red-500/10 text-red-400 flex items-center justify-center mb-2 group-hover:scale-110 transition">
+                            <i class="fa-solid fa-triangle-exclamation text-sm"></i>
+                        </div>
+                        <h4 class="font-bold text-xs text-white">Incident Report</h4>
+                        <p class="text-[10px] text-neutral-400 mt-0.5">Log injury or tour issue</p>
+                    </button>
+
+                    <button onclick="toggleModal('absenceModal')" class="bg-gradient-to-br from-neutral-900 to-purdue-cardBg p-3.5 rounded-2xl border border-neutral-800 text-left hover:border-purdue-gold/50 transition group">
+                        <div class="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center mb-2 group-hover:scale-110 transition">
+                            <i class="fa-regular fa-calendar-xmark text-sm"></i>
+                        </div>
+                        <h4 class="font-bold text-xs text-white">Absence Request</h4>
+                        <p class="text-[10px] text-neutral-400 mt-0.5">Submit exam / illness conflict</p>
+                    </button>
+
+                    <button onclick="toggleModal('scriptModal')" class="bg-gradient-to-br from-neutral-900 to-purdue-cardBg p-3.5 rounded-2xl border border-neutral-800 text-left hover:border-purdue-gold/50 transition group">
+                        <div class="w-9 h-9 rounded-xl bg-purdue-gold/10 text-purdue-gold flex items-center justify-center mb-2 group-hover:scale-110 transition">
+                            <i class="fa-solid fa-book-bookmark text-sm"></i>
+                        </div>
+                        <h4 class="font-bold text-xs text-white">Tour Script & Facts</h4>
+                        <p class="text-[10px] text-neutral-400 mt-0.5">Official cheat sheets</p>
+                    </button>
+                </div>
+
+                <!-- Important Emergency Contacts Callout -->
+                <div class="bg-neutral-900 border border-neutral-800 rounded-2xl p-3.5 space-y-2">
+                    <h4 class="font-header font-bold text-xs text-white flex items-center gap-2">
+                        <i class="fa-solid fa-phone-volume text-red-400"></i> Emergency & Operations Contacts
+                    </h4>
+                    <div class="space-y-1.5 text-xs">
+                        <div class="flex justify-between items-center p-2 rounded-lg bg-black/40">
+                            <div>
+                                <p class="font-semibold text-white">Admissions Desk</p>
+                                <p class="text-[10px] text-neutral-400">HLAS / Stewart Center</p>
+                            </div>
+                            <a href="tel:7654941776" class="bg-neutral-800 hover:bg-neutral-700 text-purdue-gold text-[11px] font-bold px-2.5 py-1 rounded-lg border border-neutral-700">
+                                (765) 494-1776
+                            </a>
+                        </div>
+                        <div class="flex justify-between items-center p-2 rounded-lg bg-black/40">
+                            <div>
+                                <p class="font-semibold text-white">Purdue Police Non-Emergency</p>
+                                <p class="text-[10px] text-neutral-400">PUPD Station</p>
+                            </div>
+                            <a href="tel:7654948221" class="bg-neutral-800 hover:bg-neutral-700 text-purdue-gold text-[11px] font-bold px-2.5 py-1 rounded-lg border border-neutral-700">
+                                (765) 494-8221
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Downloads & External Links -->
+                <div class="space-y-2">
+                    <span class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">Quick Downloads</span>
+                    <div class="bg-purdue-cardBg border border-neutral-800 rounded-xl divide-y divide-neutral-800 text-xs">
+                        <a href="#" class="p-3 flex justify-between items-center hover:bg-neutral-800/50 text-neutral-200">
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-file-pdf text-red-400"></i> Fall 2026 Tour Route Map (PDF)</span>
+                            <i class="fa-solid fa-download text-neutral-500"></i>
+                        </a>
+                        <a href="#" class="p-3 flex justify-between items-center hover:bg-neutral-800/50 text-neutral-200">
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-file-word text-blue-400"></i> Purdue Traditions & Myths Factsheet</span>
+                            <i class="fa-solid fa-download text-neutral-500"></i>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- PAGE 5: PROFILE & STATS -->
+            <div id="page-profile" class="page-view space-y-4 hidden">
+                
+                <!-- Main Profile Header Card -->
+                <div class="bg-gradient-to-br from-neutral-900 via-purdue-cardBg to-neutral-900 border border-purdue-gold/30 rounded-2xl p-4 text-center relative overflow-hidden">
+                    <div class="w-20 h-20 rounded-full bg-gradient-to-br from-purdue-gold to-purdue-darkGold p-1 mx-auto mb-2 shadow-lg relative">
+                        <img src="https://placehold.co/200x200/18181B/CEB888?text=Chris+B" class="w-full h-full rounded-full object-cover">
+                        <span class="absolute bottom-0 right-0 bg-emerald-500 w-4 h-4 rounded-full border-2 border-black" title="Active Status"></span>
+                    </div>
+                    <h2 class="font-header font-extrabold text-base text-white">Chris Boilermaker</h2>
+                    <p class="text-xs text-purdue-gold font-medium">Computer Science • Class of 2027</p>
+                    <p class="text-[10px] text-neutral-400">Senior Tour Guide • Gold Team Captain</p>
+
+                    <!-- QR Code Pass for Quick Check-In -->
+                    <button onclick="toggleModal('qrModal')" class="mt-3 bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 text-neutral-200 text-xs px-3 py-1.5 rounded-xl inline-flex items-center gap-2 transition">
+                        <i class="fa-solid fa-qrcode text-purdue-gold"></i> Show TGIS Check-in ID Pass
+                    </button>
+                </div>
+
+                <!-- Stats Summary Matrix -->
+                <div class="grid grid-cols-3 gap-2 text-center">
+                    <div class="bg-purdue-cardBg border border-neutral-800 rounded-xl p-3">
+                        <span class="font-header font-black text-lg text-purdue-gold block">34</span>
+                        <span class="text-[9px] text-neutral-400 uppercase font-semibold">Tours Given</span>
+                    </div>
+                    <div class="bg-purdue-cardBg border border-neutral-800 rounded-xl p-3">
+                        <span class="font-header font-black text-lg text-white block">4.92</span>
+                        <span class="text-[9px] text-neutral-400 uppercase font-semibold">Avg Rating</span>
+                    </div>
+                    <div class="bg-purdue-cardBg border border-neutral-800 rounded-xl p-3">
+                        <span class="font-header font-black text-lg text-amber-400 block">310</span>
+                        <span class="text-[9px] text-neutral-400 uppercase font-semibold">Gold Points</span>
+                    </div>
+                </div>
+
+                <!-- Milestone Badges Shelf -->
+                <div class="bg-neutral-900 border border-neutral-800 rounded-2xl p-3.5 space-y-2.5">
+                    <div class="flex justify-between items-center">
+                        <span class="text-[10px] font-bold text-purdue-gold uppercase tracking-wider">Guide Achievement Badges</span>
+                        <span class="text-[10px] text-neutral-400">4 / 8 Unlocked</span>
+                    </div>
+
+                    <div class="grid grid-cols-4 gap-2 text-center">
+                        <div class="p-2 rounded-xl bg-black/40 border border-purdue-gold/40 flex flex-col items-center">
+                            <div class="w-8 h-8 rounded-full bg-purdue-gold/20 text-purdue-gold flex items-center justify-center text-sm mb-1">
+                                <i class="fa-solid fa-bell"></i>
+                            </div>
+                            <span class="text-[9px] font-bold text-white leading-tight">Bell Tower Legend</span>
+                        </div>
+
+                        <div class="p-2 rounded-xl bg-black/40 border border-purdue-gold/40 flex flex-col items-center">
+                            <div class="w-8 h-8 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-sm mb-1">
+                                <i class="fa-solid fa-water"></i>
+                            </div>
+                            <span class="text-[9px] font-bold text-white leading-tight">Fountain Jumper</span>
+                        </div>
+
+                        <div class="p-2 rounded-xl bg-black/40 border border-purdue-gold/40 flex flex-col items-center">
+                            <div class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm mb-1">
+                                <i class="fa-solid fa-hands-holding-child"></i>
+                            </div>
+                            <span class="text-[9px] font-bold text-white leading-tight">VIP Host</span>
+                        </div>
+
+                        <div class="p-2 rounded-xl bg-black/20 border border-neutral-800 opacity-40 flex flex-col items-center">
+                            <div class="w-8 h-8 rounded-full bg-neutral-800 text-neutral-500 flex items-center justify-center text-sm mb-1">
+                                <i class="fa-solid fa-graduation-cap"></i>
+                            </div>
+                            <span class="text-[9px] font-medium text-neutral-400 leading-tight">100 Tours Club</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Shift Preferences Settings -->
+                <div class="bg-purdue-cardBg border border-neutral-800 rounded-2xl p-3.5 space-y-3">
+                    <h3 class="font-header font-bold text-xs text-white">Shift Preferences</h3>
+                    <div class="space-y-2 text-xs">
+                        <div class="flex justify-between items-center">
+                            <span class="text-neutral-300">Max Tours / Week</span>
+                            <span class="font-bold text-purdue-gold">3 Tours</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-neutral-300">Preferred Tour Type</span>
+                            <span class="font-bold text-white">Engineering / CS</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-neutral-300">Polo Shirt Size</span>
+                            <span class="font-bold text-white">Medium</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+
+        <!-- Bottom Tab Navigation Bar (iOS / Native Mobile Styling) -->
+        <nav class="absolute bottom-0 left-0 right-0 bg-black/90 backdrop-blur-lg border-t border-neutral-800 px-2 py-2 z-30">
+            <div class="flex justify-around items-center">
+                
+                <!-- Tab 1: Schedule -->
+                <button onclick="switchTab('schedule')" id="tab-schedule" class="tab-btn flex flex-col items-center py-1 px-3 rounded-xl text-purdue-gold transition">
+                    <i class="fa-regular fa-calendar-check text-base mb-1"></i>
+                    <span class="text-[10px] font-bold">Schedule</span>
+                </button>
+
+                <!-- Tab 2: Tracker -->
+                <button onclick="switchTab('tracker')" id="tab-tracker" class="tab-btn flex flex-col items-center py-1 px-3 rounded-xl text-neutral-400 hover:text-neutral-200 transition">
+                    <i class="fa-solid fa-shoe-prints text-base mb-1"></i>
+                    <span class="text-[10px] font-semibold">Tracker</span>
+                </button>
+
+                <!-- Tab 3: Leaderboard -->
+                <button onclick="switchTab('leaderboard')" id="tab-leaderboard" class="tab-btn flex flex-col items-center py-1 px-3 rounded-xl text-neutral-400 hover:text-neutral-200 transition">
+                    <i class="fa-solid fa-trophy text-base mb-1"></i>
+                    <span class="text-[10px] font-semibold">Rankings</span>
+                </button>
+
+                <!-- Tab 4: Forms -->
+                <button onclick="switchTab('forms')" id="tab-forms" class="tab-btn flex flex-col items-center py-1 px-3 rounded-xl text-neutral-400 hover:text-neutral-200 transition">
+                    <i class="fa-solid fa-folder-open text-base mb-1"></i>
+                    <span class="text-[10px] font-semibold">Forms</span>
+                </button>
+
+                <!-- Tab 5: Profile -->
+                <button onclick="switchTab('profile')" id="tab-profile" class="tab-btn flex flex-col items-center py-1 px-3 rounded-xl text-neutral-400 hover:text-neutral-200 transition">
+                    <i class="fa-regular fa-user text-base mb-1"></i>
+                    <span class="text-[10px] font-semibold">Profile</span>
+                </button>
+
+            </div>
+        </nav>
+
+        <!-- MODALS / POPUP OVERLAYS -->
+        
+        <!-- 1. Sub Request Modal -->
+        <div id="subModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+            <div class="bg-purdue-charcoal border border-neutral-800 w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 space-y-4">
+                <div class="flex justify-between items-center border-b border-neutral-800 pb-3">
+                    <h3 class="font-header font-bold text-sm text-white flex items-center gap-2">
+                        <i class="fa-solid fa-arrow-right-arrow-left text-purdue-gold"></i> Request Shift Swap / Sub
+                    </h3>
+                    <button onclick="toggleModal('subModal')" class="text-neutral-400 hover:text-white p-1">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+
+                <div class="space-y-3 text-xs">
+                    <div>
+                        <label class="block text-neutral-400 mb-1 font-medium">Select Shift</label>
+                        <select id="subShiftSelect" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-white">
+                            <option>Engineering Specialty Tour - Today 2:00 PM</option>
+                            <option>Friday Academic Experience - Oct 9 1:00 PM</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-neutral-400 mb-1 font-medium">Reason for Sub Request</label>
+                        <textarea rows="3" placeholder="e.g. Exam conflict, illness, or academic project presentation..." class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-white placeholder-neutral-600 focus:outline-none focus:border-purdue-gold"></textarea>
+                    </div>
+
+                    <div class="p-2.5 bg-amber-950/30 border border-amber-500/30 rounded-xl text-amber-200 text-[11px]">
+                        <i class="fa-solid fa-circle-info mr-1"></i> Posting to Sub Board notifies all available guides on your team.
+                    </div>
+
+                    <button onclick="submitSubForm()" class="w-full bg-purdue-gold text-black font-header font-extrabold text-xs py-3 rounded-xl shadow hover:brightness-110 transition">
+                        POST SHIFT TO SUB BOARD
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. QR Code Pass Modal -->
+        <div id="qrModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div class="bg-purdue-charcoal border border-purdue-gold/40 w-full max-w-xs rounded-3xl p-5 text-center space-y-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-[10px] font-bold text-purdue-gold uppercase">TGIS Guide ID</span>
+                    <button onclick="toggleModal('qrModal')" class="text-neutral-400 hover:text-white">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <div class="bg-white p-4 rounded-2xl inline-block shadow-inner">
+                    <!-- QR Placeholder -->
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=PURDUE_GUIDE_CHRIS_8849" class="w-36 h-36 mx-auto">
+                </div>
+
+                <div>
+                    <h4 class="font-header font-bold text-sm text-white">Chris Boilermaker</h4>
+                    <p class="text-[11px] text-neutral-400">ID: 003291849 • TGIS Ver. 4.2</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Notifications Modal -->
+        <div id="notificationsModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+            <div class="bg-purdue-charcoal border border-neutral-800 w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 space-y-3">
+                <div class="flex justify-between items-center border-b border-neutral-800 pb-2">
+                    <h3 class="font-header font-bold text-sm text-white">Notifications</h3>
+                    <button onclick="toggleModal('notificationsModal')" class="text-neutral-400 hover:text-white p-1">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div class="space-y-2 text-xs">
+                    <div class="p-2.5 bg-neutral-900 rounded-xl border border-neutral-800">
+                        <p class="font-semibold text-white">Sub Shift Grabbed!</p>
+                        <p class="text-[10px] text-neutral-400">Sarah K. accepted your Thursday tour shift.</p>
+                    </div>
+                    <div class="p-2.5 bg-neutral-900 rounded-xl border border-neutral-800">
+                        <p class="font-semibold text-purdue-gold">+20 Points Credited</p>
+                        <p class="text-[10px] text-neutral-400">Daily Walk-In tour verified by Supervisor.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Quick Message Toast Container -->
+        <div id="toast" class="fixed bottom-20 left-1/2 -translate-x-1/2 bg-purdue-gold text-black px-4 py-2 rounded-full font-bold text-xs shadow-2xl opacity-0 pointer-events-none transition-all duration-300 z-50 flex items-center gap-2">
+            <i class="fa-solid fa-circle-check"></i>
+            <span id="toastMsg">Action completed!</span>
+        </div>
+
+    </div>
+
+    <!-- Application Logic Script -->
+    <script>
+        // Tab Navigation Switcher
+        function switchTab(tabId) {
+            // Hide all pages
+            document.querySelectorAll('.page-view').forEach(page => page.classList.add('hidden'));
+            
+            // Reset all tab button styles
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('text-purdue-gold');
+                btn.classList.add('text-neutral-400');
+                const span = btn.querySelector('span');
+                if(span) span.classList.replace('font-bold', 'font-semibold');
+            });
+
+            // Show selected page
+            const targetPage = document.getElementById(`page-${tabId}`);
+            if(targetPage) targetPage.classList.remove('hidden');
+
+            // Highlight selected tab button
+            const activeBtn = document.getElementById(`tab-${tabId}`);
+            if(activeBtn) {
+                activeBtn.classList.remove('text-neutral-400');
+                activeBtn.classList.add('text-purdue-gold');
+                const span = activeBtn.querySelector('span');
+                if(span) span.classList.replace('font-semibold', 'font-bold');
+            }
+        }
+
+        // Leaderboard Tab Switcher
+        function toggleLeaderboardTab(type) {
+            const btnGold = document.getElementById('btnTeamGold');
+            const btnIndiv = document.getElementById('btnIndiv');
+
+            if(type === 'gold') {
+                btnGold.className = "py-2 rounded-lg font-bold bg-purdue-gold text-black shadow transition";
+                btnIndiv.className = "py-2 rounded-lg font-bold text-neutral-400 hover:text-white transition";
+                showToast("Displaying Team Cup Competition");
+            } else {
+                btnIndiv.className = "py-2 rounded-lg font-bold bg-purdue-gold text-black shadow transition";
+                btnGold.className = "py-2 rounded-lg font-bold text-neutral-400 hover:text-white transition";
+                showToast("Displaying Individual Leaderboard");
+            }
+        }
+
+        // Fact Generator List
+        const purdueFacts = [
+            '"The Purdue Bell Tower was built in 1995 and stands 160 feet tall. Legend says if an undergraduate walks under the clock tower, they won\'t graduate in four years!"',
+            '"Neil Armstrong was a Purdue graduate (\'55)! Purdue has produced 27+ astronauts, earning it the title Cradle of Astronauts."',
+            '"The Purdue Grand Prix go-kart race has been held every spring since 1958 and is known as The Greatest Spectacle in College Racing."',
+            '"Purdue\'s mascot, the Boilermaker Special, is an official street-legal locomotive engine built by students!"'
+        ];
+        let factIdx = 0;
+        function nextFact() {
+            factIdx = (factIdx + 1) % purdueFacts.length;
+            document.getElementById('factText').textContent = purdueFacts[factIdx];
+        }
+
+        // Sub Request Claim Button
+        function claimShift(btn) {
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> CLAIMED';
+            btn.className = "bg-emerald-500 text-black font-bold text-[11px] px-3 py-1.5 rounded-lg shadow";
+            btn.disabled = true;
+            showToast("Shift claimed! +50 points pending review.");
+        }
+
+        // Modal Helpers
+        function toggleModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if(modal) {
+                modal.classList.toggle('hidden');
+            }
+        }
+
+        function openSubRequestModal(tourName, tourTime) {
+            toggleModal('subModal');
+        }
+
+        function submitSubForm() {
+            toggleModal('subModal');
+            showToast("Sub request posted to Team Sub Board!");
+        }
+
+        // Start Tour Active Mode
+        function startTourActive() {
+            switchTab('tracker');
+            showToast("Tour Check-In Recorded. Live Tracker Activated!");
+        }
+
+        function finishTour() {
+            showToast("Tour Log Submitted! +30 Gold Points Earned.");
+        }
+
+        // Toast Popup Helper
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            toastMsg.textContent = msg;
+            toast.classList.remove('opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
