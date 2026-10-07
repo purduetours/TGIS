@@ -3226,20 +3226,33 @@ drawConfetti();
 (function pinBottomNav() {
     const nav = document.getElementById('bottom-nav-bar');
     if (!nav) return;
-    const update = () => {
-        const landscape = window.innerWidth > window.innerHeight;
-        const screenH = landscape ? Math.min(screen.width, screen.height) : Math.max(screen.width, screen.height);
-        const gap = Math.round(screenH - window.innerHeight);
-        const standalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
-        nav.style.bottom = (standalone && gap > 0 && gap < 200) ? `-${gap}px` : '0px';
-        if (dbg) dbg.textContent = `screen ${screenH} | inner ${window.innerHeight} | gap ${gap} | standalone ${!!standalone} | navBottom ${Math.round(nav.getBoundingClientRect().bottom)}`;
-    };
+    // Probe element to read the real safe-area insets in px.
+    const probe = document.createElement('div');
+    probe.style.cssText = 'position:fixed;visibility:hidden;pointer-events:none;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);';
+    document.body.appendChild(probe);
     let dbg = null;
     if (new URLSearchParams(location.search).has('navdebug')) {
         dbg = document.createElement('div');
-        dbg.style.cssText = 'position:fixed;top:50%;left:8px;right:8px;z-index:9999;background:#000;color:#0f0;font:11px monospace;padding:6px;border-radius:6px;';
+        dbg.style.cssText = 'position:fixed;top:40%;left:8px;right:8px;z-index:9999;background:#000;color:#0f0;font:11px monospace;padding:6px;border-radius:6px;white-space:pre;';
         document.body.appendChild(dbg);
     }
+    const update = () => {
+        const cs = getComputedStyle(probe);
+        const safeTop = parseFloat(cs.paddingTop) || 0;
+        const safeBottom = parseFloat(cs.paddingBottom) || 0;
+        const landscape = window.innerWidth > window.innerHeight;
+        const screenH = landscape ? Math.min(screen.width, screen.height) : Math.max(screen.width, screen.height);
+        const standalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+        // Part of the screen/viewport difference is the status bar; only the rest is a bottom gap.
+        const gap = Math.round(screenH - window.innerHeight - safeTop);
+        nav.style.bottom = (standalone && gap > 0 && gap < 150) ? `-${gap}px` : '0px';
+        if (dbg) {
+            const r = nav.getBoundingClientRect();
+            dbg.textContent = `screen ${screenH}  inner ${window.innerHeight}  vv ${window.visualViewport ? Math.round(visualViewport.height) : '-'}  docH ${document.documentElement.clientHeight}\n` +
+                `safeTop ${safeTop}  safeBottom ${safeBottom}  standalone ${!!standalone}\n` +
+                `gap ${gap}  nav.bottom ${nav.style.bottom}  navRect ${Math.round(r.top)}-${Math.round(r.bottom)}`;
+        }
+    };
     update();
     window.addEventListener('resize', update);
     window.addEventListener('orientationchange', () => setTimeout(update, 300));
