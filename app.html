@@ -236,8 +236,11 @@
     left: 0;
     right: 0;
     width: 100%;
-    height: calc(60px + env(safe-area-inset-bottom));
-    padding-bottom: env(safe-area-inset-bottom);
+    /* Home-screen app: keep only a sliver of the ~34px home-indicator inset so the
+       buttons sit at the bottom edge like a native tab bar (0 in Safari). */
+    --bn-inset: max(calc(env(safe-area-inset-bottom) - 20px), 0px);
+    height: calc(60px + var(--bn-inset));
+    padding-bottom: var(--bn-inset);
     border-radius: 0;
     background: white;
     backdrop-filter: none;
