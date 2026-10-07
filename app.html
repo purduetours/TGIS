@@ -32,11 +32,18 @@
         }
     </script>
     <style>
+        html {
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+}
         body { 
     display: flex; 
     flex-direction: column; 
-    height: 100dvh; 
+    position: fixed;
+    inset: 0;
     overflow: hidden; 
+    overscroll-behavior: none;
 }
 
         /* Desk Dashboard Specific Polish */
@@ -1611,15 +1618,18 @@ function renderWelcomeCenter(allTours) {
         `;
     });
 }
+// Mobile home lets its gold header run under the status bar; other views pad below it.
+function applyMobileTopPadding(viewId) {
+    if (window.innerWidth >= 1024) return;
+    const ca = document.querySelector('.content-area');
+    if (ca) ca.style.paddingTop = viewId === 'home' ? '0' : 'env(safe-area-inset-top)';
+}
 function switchView(viewId) {
     // 1. Hide all sections, show the active one
     document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
     document.getElementById(`view-${viewId}`).classList.add('active');
         if (viewId === 'profile') renderProfileView();
-    if (window.innerWidth < 1024) {
-        const ca = document.querySelector('.content-area');
-        if (ca) ca.style.paddingTop = viewId === 'home' ? '0' : 'env(safe-area-inset-top)';
-    }
+    applyMobileTopPadding(viewId);
     // Lazy-load desk schedule on first visit to that tab
     if (viewId === 'desk') loadDeskSchedule();
 
@@ -2951,6 +2961,7 @@ drawConfetti();
         tick();
     })();
     setTimeout(() => document.getElementById('wrapped-popup').classList.add('show'), 1500);
+    applyMobileTopPadding('home');
     init();
 </script>
 <div class="lg:hidden bottom-nav-dedicated" id="bottom-nav-bar">
