@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">    <title>TGIS v4 [Beta]</title>
+    <script>
+        try { if (localStorage.getItem('tgis-theme') === 'dark') document.documentElement.classList.add('dark'); } catch (e) {}
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <script>
@@ -324,6 +327,59 @@
         .loading-text {
             animation: pulse-soft 2s ease-in-out infinite;
         }
+    </style>
+    <style>
+/* ── DARK MODE (html.dark, toggled from Profile) ──
+   Overrides light Tailwind classes and light inline colours, including markup
+   rendered later from JS templates. The gold header keeps its colours. */
+:root { --page-bg: #F9FAFB; --home-bg: #F5F5F5; }
+html.dark { --page-bg: #0f0f10; --home-bg: #0f0f10; color-scheme: dark; }
+html.dark body { background: #0f0f10 !important; color: #f3f4f6; }
+
+/* Surfaces */
+html.dark .bg-white,
+html.dark [style*="background:white" i], html.dark [style*="background: white" i],
+html.dark [style*="background:#fff;" i], html.dark [style$="background:#fff" i],
+html.dark [style*="background:#ffffff" i], html.dark [style*="background-color:white" i],
+html.dark [style*="background-color: white" i] { background: #1c1c1e !important; }
+html.dark .bg-gray-50,
+html.dark [style*="background:#F9FAFB" i], html.dark [style*="background: #F9FAFB" i],
+html.dark [style*="background:#F5F5F5" i], html.dark [style*="background: #F5F5F5" i] { background: #0f0f10 !important; }
+html.dark .bg-gray-100, html.dark .bg-gray-200,
+html.dark [style*="background:#F3F4F6" i], html.dark [style*="background: #F3F4F6" i] { background: #2c2c2e !important; }
+html.dark .hover\:bg-gray-100:hover, html.dark .hover\:bg-gray-50:hover, html.dark .nav-button:hover { background: #2c2c2e !important; }
+
+/* Text */
+html.dark .text-gray-900, html.dark .text-gray-800, html.dark .text-gray-700,
+html.dark .text-black, html.dark .text-text-dark,
+html.dark [style*="color:#111827" i], html.dark [style*="color: #111827" i],
+html.dark [style*="color:#1a1510" i], html.dark [style*="color:#111;" i], html.dark [style*="color:#0f0c04" i],
+html.dark [style*="color:#374151" i], html.dark [style*="color: #374151" i] { color: #f3f4f6 !important; }
+html.dark .text-gray-600, html.dark .text-gray-500,
+html.dark [style*="color:#4B5563" i], html.dark [style*="color: #4B5563" i],
+html.dark [style*="color:#6B7280" i], html.dark [style*="color: #6B7280" i] { color: #a1a1aa !important; }
+html.dark .nav-button { color: #d1d5db; }
+html.dark .nav-button.active { color: #fff; }
+
+/* Borders */
+html.dark .border-gray-50, html.dark .border-gray-100, html.dark .border-gray-200, html.dark .border-gray-300,
+html.dark [style*="solid #F3F4F6" i], html.dark [style*="solid #F9FAFB" i],
+html.dark [style*="solid #EFEFEF" i], html.dark [style*="solid #E5E7EB" i] { border-color: #2c2c2e !important; }
+
+/* Light red tints (Sign Out, alerts) */
+html.dark [style*="background:#FFF5F5" i], html.dark [style*="background:#FEE2E2" i] { background: rgba(239,68,68,0.12) !important; border-color: rgba(239,68,68,0.3) !important; }
+
+/* Bottom nav */
+html.dark .bottom-nav-dedicated { background: #1c1c1e !important; border-top-color: #2c2c2e !important; box-shadow: none !important; }
+
+/* Keep the gold header as designed */
+html.dark #mobile-page-title { color: #1a1510 !important; }
+
+/* Toggle switch */
+.theme-switch { position: relative; width: 46px; height: 28px; border-radius: 99px; background: #E5E7EB; border: none; cursor: pointer; transition: background 0.2s; flex-shrink: 0; }
+.theme-switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.25); transition: transform 0.2s; }
+html.dark .theme-switch { background: #CFB991 !important; }
+html.dark .theme-switch::after { transform: translateX(18px); }
     </style>
     <meta name="apple-mobile-web-app-capable" content="yes">
 
@@ -1643,10 +1699,16 @@ function applyMobileTopPadding(viewId) {
     }
     document.getElementById('mobile-page-title').textContent = title;
     // Sheet edge takes the colour of whatever the view opens with.
-    const sheetColor = { home: '#F5F5F5', profile: '#1a1510' }[viewId] || '#F9FAFB';
+    const sheetColor = { home: 'var(--home-bg)', profile: '#1a1510' }[viewId] || 'var(--page-bg)';
     document.getElementById('mobile-page-sheet').style.background = sheetColor;
     header.style.marginBottom = (viewId === 'home' || viewId === 'profile') ? '0' : '1rem';
     header.style.display = 'block';
+}
+function toggleDarkMode() {
+    const dark = document.documentElement.classList.toggle('dark');
+    try { localStorage.setItem('tgis-theme', dark ? 'dark' : 'light'); } catch (e) {}
+    const t = document.getElementById('theme-toggle');
+    if (t) t.setAttribute('aria-checked', dark);
 }
 function switchView(viewId) {
     // 1. Hide all sections, show the active one
@@ -3083,6 +3145,17 @@ drawConfetti();
         <p style="font-size:0.6rem;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#9CA3AF;margin:0;">Program</p>
       </div>
       <div id="pv-program"></div>
+    </div>
+
+    <!-- Appearance -->
+    <div style="background:#fff;border-radius:1rem;overflow:hidden;border:1px solid #F3F4F6;">
+      <div style="padding:0.75rem 1rem;border-bottom:1px solid #F3F4F6;">
+        <p style="font-size:0.6rem;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#9CA3AF;margin:0;">Appearance</p>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:0.875rem 1rem;">
+        <span style="font-size:0.8125rem;font-weight:700;color:#111827;">Dark Mode</span>
+        <button id="theme-toggle" class="theme-switch" role="switch" aria-label="Dark mode" onclick="toggleDarkMode()"></button>
+      </div>
     </div>
 
     <!-- Sign out -->
