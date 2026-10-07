@@ -438,8 +438,8 @@ html.dark .theme-switch::after { transform: translateX(18px); }
 <nav id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white shadow-2xl border-r border-gray-100 p-6 z-40 hidden lg:block overflow-y-auto">
     <div class="mb-6 flex justify-between items-start">
         <!-- Logo has a white background, so it blends into the sidebar; falls back to text if the image is missing -->
-        <div id="sidebar-logo" class="flex-1">
-            <img src="tgisv4logowhite.png" alt="TGIS v4" style="max-width:100%;max-height:64px;width:auto;height:auto;display:block;"
+        <div id="sidebar-logo" class="flex-1 text-center">
+            <img src="tgisv4logowhite.png" alt="TGIS v4" style="max-width:100%;max-height:64px;width:auto;height:auto;display:block;margin:0 auto;"
                  onerror="this.style.display='none'; document.getElementById('sidebar-logo-fallback').style.display='block';">
             <div id="sidebar-logo-fallback" style="display:none;">
                 <p class="text-[10px] font-black text-primary-gold uppercase tracking-[0.2em] mb-1">Purdue University</p>
@@ -451,7 +451,7 @@ html.dark .theme-switch::after { transform: translateX(18px); }
 
     <div class="mb-8 p-4 bg-gray-50 rounded-2xl border border-gray-100">
         <div class="flex items-center space-x-3 mb-3">
-            <div id="profile-initial" class="w-12 h-12 rounded-full bg-primary-gold flex items-center justify-center text-white font-black text-lg shadow-inner">?</div>
+            <div id="profile-initial" class="w-12 h-12 rounded-full bg-primary-gold flex items-center justify-center text-white font-black text-lg shadow-inner overflow-hidden flex-shrink-0">?</div>
             <div class="flex-1 min-w-0">
                 <p id="sidebar-name" class="font-bold leading-tight">Loading...</p>
                 <p id="sidebar-status" class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Syncing...</p>
@@ -2706,7 +2706,15 @@ async function continueInit() {
     renderDeskDashboard();
 }
         }
-        document.getElementById('profile-initial').innerText = cachedData.profile.fullName.charAt(0);
+        const sidebarAvatar = document.getElementById('profile-initial');
+        sidebarAvatar.innerText = cachedData.profile.fullName.charAt(0);
+        if (cachedData.profile.slackPhoto) {
+            const img = document.createElement('img');
+            img.src = cachedData.profile.slackPhoto;
+            img.alt = '';
+            img.className = 'w-full h-full object-cover';
+            img.onload = () => { sidebarAvatar.textContent = ''; sidebarAvatar.appendChild(img); };
+        }
         document.getElementById('welcome-name').innerText = cachedData.profile.displayName;
         document.getElementById('career-total').innerText = cachedData.stats.careerTotal;
         document.getElementById('sem-total').innerText = cachedData.stats.semesterTotal;
