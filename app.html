@@ -707,7 +707,7 @@ html.dark .theme-switch::after { transform: translateX(18px); }
         <header class="mb-6"><h1 class="text-3xl font-black">Search</h1></header>
         <div style="position:relative;margin-bottom:0.5rem;">
             <svg style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-            <input id="omni-input" type="search" autocomplete="off" placeholder="Name, major, hometown, family, grad date…"
+            <input id="omni-input" type="search" autocomplete="off" placeholder="Name, email, major, hometown…"
                    oninput="runOmniSearch()"
                    style="width:100%;box-sizing:border-box;padding:0.875rem 1rem 0.875rem 2.75rem;border-radius:1rem;border:1px solid #EFEFEF;
                           background:white;font-size:16px;font-family:inherit;font-weight:600;color:#111827;outline:none;
@@ -1723,7 +1723,7 @@ function toggleDarkMode() {
     if (t) t.setAttribute('aria-checked', dark);
 }
 // ─── OMNI SEARCH (ported from adminportal.html) ─────────────────────────────
-// Guide-facing: only fields guides can already see about each other (no email/dietary).
+// Guide-facing: name, email, major, minor, certificate, college, hometown (no dietary).
 let omniIndex = null;
 let omniLoading = false;
 
@@ -1735,20 +1735,18 @@ async function initOmniSearch() {
     omniLoading = true;
     document.getElementById('omni-status').innerText = 'Loading guides…';
     try {
-        const guides = await sbFetch('guides?select=display_name,full_name,family,major,minor,certificate,college,hometown,grad_date,year,slack_photo&order=display_name.asc');
+        const guides = await sbFetch('guides?select=display_name,full_name,email,major,minor,certificate,college,hometown,slack_photo&order=display_name.asc');
         const tours = {};
         ((cachedData && cachedData.fullList) || []).forEach(g => { tours[g.displayName] = g.careerTotal; });
         omniIndex = (guides || []).filter(g => g.display_name).map(g => {
             const fields = [
                 { label: 'Name',        val: g.full_name || g.display_name },
-                { label: 'Family',      val: g.family      },
+                { label: 'Email',       val: g.email       },
                 { label: 'Major',       val: g.major       },
                 { label: 'Minor',       val: g.minor       },
                 { label: 'Certificate', val: g.certificate },
                 { label: 'College',     val: g.college     },
                 { label: 'Hometown',    val: g.hometown    },
-                { label: 'Grad Date',   val: g.grad_date   },
-                { label: 'Year',        val: g.year        },
             ].filter(f => f.val && String(f.val).trim());
             return { g, tours: tours[g.display_name], fields, flat: (g.display_name + ' ' + fields.map(f => f.val).join(' ')).toLowerCase() };
         });
@@ -1761,7 +1759,7 @@ async function initOmniSearch() {
 
     // Suggestion chips from the signed-in guide's own details
     const p = (cachedData && cachedData.profile) || {};
-    const chips = [p.family, p.major, p.hometown, p.gradDate].filter(v => v && String(v).trim()).slice(0, 4);
+    const chips = [p.major, p.college, p.hometown].filter(v => v && String(v).trim()).slice(0, 4);
     document.getElementById('omni-suggest').innerHTML = chips.map(c =>
         `<button class="omni-chip" onclick="setOmniSearch(this.dataset.q)" data-q="${omniEsc(c)}">${omniEsc(c)}</button>`).join('');
     runOmniSearch();
@@ -1782,7 +1780,7 @@ function runOmniSearch() {
 
     if (!terms.length) {
         el.innerHTML = '';
-        stat.innerText = `Search ${omniIndex.length} guides by name, major, hometown, family and more`;
+        stat.innerText = `Search ${omniIndex.length} guides by name, email, major, hometown and more`;
         return;
     }
 
@@ -1808,7 +1806,9 @@ function runOmniSearch() {
         const row = f => `
             <div style="display:flex;align-items:baseline;gap:6px;">
                 <span style="font-size:0.55rem;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:#9CA3AF;flex-shrink:0;width:68px;">${f.label}</span>
-                <span style="font-size:0.75rem;font-weight:700;color:#374151;min-width:0;">${mark(f.val)}</span>
+                <span style="font-size:0.75rem;font-weight:700;color:#374151;min-width:0;overflow-wrap:anywhere;">${f.label === 'Email'
+                    ? `<a href="mailto:${omniEsc(f.val)}" onclick="event.stopPropagation()" style="color:inherit;text-decoration:underline;text-decoration-color:#CFB991;">${mark(f.val)}</a>`
+                    : mark(f.val)}</span>
             </div>`;
         const initial = omniEsc((g.display_name || '?').charAt(0).toUpperCase());
         const avatar = g.slack_photo
@@ -1821,7 +1821,7 @@ function runOmniSearch() {
                     ${avatar}
                     <div style="min-width:0;flex:1;">
                         <p style="font-size:0.875rem;font-weight:800;color:#111827;margin:0;">${mark(g.full_name || g.display_name)}</p>
-                        <p style="font-size:0.65rem;font-weight:600;color:#9CA3AF;margin:1px 0 0;">${omniEsc(g.family || '—')}${tours !== undefined ? ` · ${tours} tours` : ''}</p>
+                        ${tours !== undefined ? `<p style="font-size:0.65rem;font-weight:600;color:#9CA3AF;margin:1px 0 0;">${tours} tours</p>` : ''}
                     </div>
                 </div>
                 <div style="display:flex;flex-direction:column;gap:4px;">${matched.map(row).join('')}</div>
