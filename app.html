@@ -392,6 +392,17 @@ html.dark #mobile-page-title { color: #1a1510 !important; }
 .mh-action-icon { width: 34px; height: 34px; border-radius: 10px; background: rgba(255,255,255,0.22); display: flex; align-items: center; justify-content: center; }
 .mh-action-label { font-size: 0.75rem; font-weight: 900; line-height: 1.15; }
 
+/* OmniSearch */
+.omni-chip { background: white; border: 1px solid #EFEFEF; border-radius: 99px; padding: 5px 12px; font-size: 0.7rem; font-weight: 700;
+             color: #6B7280; cursor: pointer; font-family: inherit; }
+.omni-highlight { background: rgba(207,185,145,0.3); border-radius: 3px; padding: 0 2px; font-weight: 800; }
+html.dark .omni-chip { background: #1c1c1e; border-color: #2c2c2e; color: #a1a1aa; }
+html.dark .omni-highlight { color: #f3f4f6; }
+
+html.dark .mh-action { box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08); }
+html.dark [style*="solid #FEE2E2" i] { border-color: rgba(239,68,68,0.3) !important; }
+html.dark #mh-drops [style*="color:#B91C1C" i] { color: #FCA5A5 !important; }
+
 /* Toggle switch */
 .theme-switch { position: relative; width: 46px; height: 28px; border-radius: 99px; background: #E5E7EB; border: none; cursor: pointer; transition: background 0.2s; flex-shrink: 0; }
 .theme-switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.25); transition: transform 0.2s; }
@@ -579,12 +590,13 @@ html.dark .theme-switch::after { transform: translateX(18px); }
         </div>
 
         <!-- QUICK ACTIONS (horizontal scroller; cards come from QUICK_ACTIONS) -->
+        <p style="font-size:0.6rem;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#9CA3AF;margin:0.25rem 0 0.625rem 0.25rem;">Quick Actions</p>
         <div id="mh-actions" class="mh-actions"></div>
 
-        <!-- NEXT MILESTONE -->
-        <div id="mh-milestone" hidden onclick="switchView('tracker')"
-             style="background:white;border-radius:1.25rem;padding:1rem 1.125rem;margin-bottom:0.75rem;cursor:pointer;
-                    border:1px solid #EFEFEF;box-shadow:0 2px 12px rgba(0,0,0,0.05);"></div>
+        <!-- PENDING DROPS (only shown when you have tours marked for drop) -->
+        <div id="mh-drops" hidden onclick="switchView('schedule')"
+             style="background:#FFF5F5;border-radius:1.25rem;overflow:hidden;margin-bottom:0.75rem;cursor:pointer;
+                    border:1px solid #FEE2E2;"></div>
 
         <!-- FORMS DUE -->
         <div id="mh-forms" hidden onclick="switchView('forms')"
@@ -690,9 +702,20 @@ html.dark .theme-switch::after { transform: translateX(18px); }
     
 
     <!-- Placeholder pages opened from the mobile home quick actions -->
+    <!-- SEARCH: OmniSearch from adminportal.html, over guide-visible fields only -->
     <div id="view-search" class="view-section">
         <header class="mb-6"><h1 class="text-3xl font-black">Search</h1></header>
-        <p style="font-size:0.8125rem;font-weight:600;color:#9CA3AF;text-align:center;padding:3rem 1rem;">Coming soon</p>
+        <div style="position:relative;margin-bottom:0.5rem;">
+            <svg style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <input id="omni-input" type="search" autocomplete="off" placeholder="Name, major, hometown, family, grad date…"
+                   oninput="runOmniSearch()"
+                   style="width:100%;box-sizing:border-box;padding:0.875rem 1rem 0.875rem 2.75rem;border-radius:1rem;border:1px solid #EFEFEF;
+                          background:white;font-size:16px;font-family:inherit;font-weight:600;color:#111827;outline:none;
+                          box-shadow:0 2px 12px rgba(0,0,0,0.05);">
+        </div>
+        <p id="omni-status" style="font-size:0.7rem;font-weight:700;color:#9CA3AF;margin:0 0 0.75rem 0.25rem;"></p>
+        <div id="omni-suggest" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:1rem;"></div>
+        <div id="omni-results" style="display:flex;flex-direction:column;gap:0.625rem;"></div>
     </div>
     <div id="view-handbook" class="view-section">
         <header class="mb-6"><h1 class="text-3xl font-black">Handbook</h1></header>
@@ -1699,6 +1722,116 @@ function toggleDarkMode() {
     const t = document.getElementById('theme-toggle');
     if (t) t.setAttribute('aria-checked', dark);
 }
+// ─── OMNI SEARCH (ported from adminportal.html) ─────────────────────────────
+// Guide-facing: only fields guides can already see about each other (no email/dietary).
+let omniIndex = null;
+let omniLoading = false;
+
+const omniEsc = v => String(v).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+const omniEscRe = t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+async function initOmniSearch() {
+    if (omniIndex || omniLoading) return;
+    omniLoading = true;
+    document.getElementById('omni-status').innerText = 'Loading guides…';
+    try {
+        const guides = await sbFetch('guides?select=display_name,full_name,family,major,minor,certificate,college,hometown,grad_date,year,slack_photo&order=display_name.asc');
+        const tours = {};
+        ((cachedData && cachedData.fullList) || []).forEach(g => { tours[g.displayName] = g.careerTotal; });
+        omniIndex = (guides || []).filter(g => g.display_name).map(g => {
+            const fields = [
+                { label: 'Name',        val: g.full_name || g.display_name },
+                { label: 'Family',      val: g.family      },
+                { label: 'Major',       val: g.major       },
+                { label: 'Minor',       val: g.minor       },
+                { label: 'Certificate', val: g.certificate },
+                { label: 'College',     val: g.college     },
+                { label: 'Hometown',    val: g.hometown    },
+                { label: 'Grad Date',   val: g.grad_date   },
+                { label: 'Year',        val: g.year        },
+            ].filter(f => f.val && String(f.val).trim());
+            return { g, tours: tours[g.display_name], fields, flat: (g.display_name + ' ' + fields.map(f => f.val).join(' ')).toLowerCase() };
+        });
+    } catch (e) {
+        document.getElementById('omni-status').innerText = 'Could not load guides. Try again later.';
+        omniLoading = false;
+        return;
+    }
+    omniLoading = false;
+
+    // Suggestion chips from the signed-in guide's own details
+    const p = (cachedData && cachedData.profile) || {};
+    const chips = [p.family, p.major, p.hometown, p.gradDate].filter(v => v && String(v).trim()).slice(0, 4);
+    document.getElementById('omni-suggest').innerHTML = chips.map(c =>
+        `<button class="omni-chip" onclick="setOmniSearch(this.dataset.q)" data-q="${omniEsc(c)}">${omniEsc(c)}</button>`).join('');
+    runOmniSearch();
+}
+
+function setOmniSearch(query) {
+    document.getElementById('omni-input').value = query;
+    runOmniSearch();
+}
+
+function runOmniSearch() {
+    if (!omniIndex) return;
+    const raw   = document.getElementById('omni-input').value.trim();
+    const terms = raw.toLowerCase().split(/\s+/).filter(Boolean);
+    const el    = document.getElementById('omni-results');
+    const stat  = document.getElementById('omni-status');
+    document.getElementById('omni-suggest').style.display = terms.length ? 'none' : 'flex';
+
+    if (!terms.length) {
+        el.innerHTML = '';
+        stat.innerText = `Search ${omniIndex.length} guides by name, major, hometown, family and more`;
+        return;
+    }
+
+    // Every term must appear somewhere in the guide's fields
+    const matches = omniIndex.filter(entry => terms.every(t => entry.flat.includes(t)));
+    stat.innerText = `${matches.length} result${matches.length !== 1 ? 's' : ''} for "${raw}"`;
+
+    if (!matches.length) {
+        el.innerHTML = `
+            <div style="text-align:center;padding:2.5rem 0;">
+                <p style="font-size:0.875rem;font-weight:700;color:#6B7280;margin:0;">No guides matched "${omniEsc(raw)}"</p>
+                <p style="font-size:0.75rem;color:#9CA3AF;margin:4px 0 0;">Try a different term or check the spelling</p>
+            </div>`;
+        return;
+    }
+
+    const re = new RegExp(`(${terms.map(omniEscRe).join('|')})`, 'gi');
+    const mark = v => omniEsc(v).replace(re, '<span class="omni-highlight">$1</span>');
+
+    el.innerHTML = matches.map(({ g, tours, fields }) => {
+        const matched = fields.filter(f => terms.some(t => String(f.val).toLowerCase().includes(t)) && f.label !== 'Name');
+        const rest    = fields.filter(f => !matched.includes(f) && f.label !== 'Name');
+        const row = f => `
+            <div style="display:flex;align-items:baseline;gap:6px;">
+                <span style="font-size:0.55rem;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:#9CA3AF;flex-shrink:0;width:68px;">${f.label}</span>
+                <span style="font-size:0.75rem;font-weight:700;color:#374151;min-width:0;">${mark(f.val)}</span>
+            </div>`;
+        const initial = omniEsc((g.display_name || '?').charAt(0).toUpperCase());
+        const avatar = g.slack_photo
+            ? `<img src="${omniEsc(g.slack_photo)}" alt="" style="width:40px;height:40px;border-radius:10px;object-fit:cover;flex-shrink:0;">`
+            : `<div style="width:40px;height:40px;border-radius:10px;background:#CFB991;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.9rem;font-weight:900;color:#1a1510;">${initial}</div>`;
+        return `
+            <div onclick="const m=this.querySelector('.omni-more'); if(m) m.hidden=!m.hidden;"
+                 style="background:white;border:1px solid #EFEFEF;border-radius:1rem;padding:0.875rem 1rem;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.04);">
+                <div style="display:flex;align-items:center;gap:0.75rem;${fields.length > 1 ? 'margin-bottom:0.625rem;padding-bottom:0.625rem;border-bottom:1px solid #F3F4F6;' : ''}">
+                    ${avatar}
+                    <div style="min-width:0;flex:1;">
+                        <p style="font-size:0.875rem;font-weight:800;color:#111827;margin:0;">${mark(g.full_name || g.display_name)}</p>
+                        <p style="font-size:0.65rem;font-weight:600;color:#9CA3AF;margin:1px 0 0;">${omniEsc(g.family || '—')}${tours !== undefined ? ` · ${tours} tours` : ''}</p>
+                    </div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:4px;">${matched.map(row).join('')}</div>
+                ${rest.length ? `<div class="omni-more" hidden style="margin-top:4px;">
+                    <div style="display:flex;flex-direction:column;gap:4px;">${rest.map(row).join('')}</div>
+                </div>` : ''}
+            </div>`;
+    }).join('');
+}
+
 function switchView(viewId) {
     // 1. Hide all sections, show the active one
     document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
@@ -1707,6 +1840,7 @@ function switchView(viewId) {
     if (viewId === 'profile') renderProfileView();
     // Lazy-load desk schedule on first visit to that tab
     if (viewId === 'desk') loadDeskSchedule();
+    if (viewId === 'search') initOmniSearch();
 
     // 2. Update desktop sidebar active state
     document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
@@ -1790,7 +1924,7 @@ function renderQuickActions() {
     el.innerHTML = QUICK_ACTIONS.map(a => {
         const fg = a.fg || '#fff';
         return `
-        <button class="mh-action" onclick="switchView('${a.view}')" style="background:${a.bg};color:${fg};">
+        <button class="mh-action" onclick="switchView('${a.view}')" style="background:${a.bg};--fg:${fg};color:var(--fg);">
             <span class="mh-action-icon">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${fg}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${a.icon}</svg>
             </span>
@@ -1842,25 +1976,34 @@ function renderMobileHome(myTours) {
             </div>`;
     }
 
-    const st = cachedData.stats || {};
-
-    // Next milestone (same thresholds as the tracker badges)
-    const career = st.careerTotal || 0;
-    const milestones = [[50, 'Bell Tower Boss'], [100, 'Century Club'], [200, 'Golden Guide']];
-    const goal = milestones.find(([n]) => career < n);
-    const prev = goal ? (milestones[milestones.indexOf(goal) - 1] || [0])[0] : 0;
-    const msEl = document.getElementById('mh-milestone');
-    msEl.hidden = false;
-    msEl.innerHTML = goal ? `
-        <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:0.5rem;">
-            <div>${label('Next Milestone')}<p style="font-size:0.9375rem;font-weight:900;color:#111827;margin:4px 0 0;">${goal[1]}</p></div>
-            <p style="font-size:0.75rem;font-weight:800;color:#CFB991;margin:0;white-space:nowrap;">${goal[0] - career} to go</p>
-        </div>
-        <div style="height:8px;border-radius:99px;background:#F3F4F6;overflow:hidden;">
-            <div style="height:100%;width:${Math.min(100, ((career - prev) / (goal[0] - prev)) * 100)}%;background:#CFB991;border-radius:99px;"></div>
-        </div>
-        <p style="font-size:0.65rem;font-weight:700;color:#9CA3AF;margin:6px 0 0;">${career} of ${goal[0]} career tours</p>` : `
-        ${label('Milestones')}<p style="font-size:0.9375rem;font-weight:900;color:#111827;margin:4px 0 0;">All badges earned · ${career} career tours</p>`;
+    // Pending drops
+    const drops = upcoming.filter(t => (t.guide || '').includes('*'));
+    const dropsEl = document.getElementById('mh-drops');
+    if (!drops.length) {
+        dropsEl.hidden = true;
+    } else {
+        const rows = drops.map((t, i) => {
+            const info = TOUR_MAP[t.type] || { name: t.type, time: '--' };
+            const d = new Date(t.date);
+            const diff = dayDiff(t.date);
+            const dayTxt = diff === 0 ? 'Today' : diff === 1 ? 'Tomorrow' : d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+            return `
+            <div style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem 1.125rem;${i ? 'border-top:1px solid #FEE2E2;' : ''}">
+                <span style="flex:1;min-width:0;font-size:0.8125rem;font-weight:800;color:#B91C1C;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${info.name}</span>
+                <span style="font-size:0.75rem;font-weight:700;color:#B91C1C;white-space:nowrap;opacity:0.8;">${dayTxt} · ${t.time || info.time}</span>
+            </div>`;
+        }).join('');
+        dropsEl.hidden = false;
+        dropsEl.innerHTML = `
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:0.875rem 1.125rem;border-bottom:1px solid #FEE2E2;">
+                <div style="display:flex;align-items:center;gap:0.5rem;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg>
+                    <p style="font-size:0.6rem;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#EF4444;margin:0;">Pending Drop${drops.length > 1 ? 's' : ''}</p>
+                </div>
+                <span style="font-size:0.6rem;font-weight:900;color:#EF4444;background:rgba(239,68,68,0.12);padding:2px 8px;border-radius:99px;">${drops.length}</span>
+            </div>${rows}
+            <p style="font-size:0.65rem;font-weight:600;color:#B91C1C;opacity:0.7;margin:0;padding:0 1.125rem 0.75rem;">You're still on these until someone picks them up.</p>`;
+    }
 
     // Forms due
     const now = new Date();
