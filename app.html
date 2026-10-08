@@ -400,8 +400,18 @@
         <div id="nav-families" class="nav-button" onclick="switchView('families')">Family Points</div>
         <div id="nav-desk" class="nav-button" onclick="switchView('desk')">Desk Schedule</div>
         <div id="nav-forms" class="nav-button" onclick="switchView('forms')">Required Forms</div>
-        <div id="nav-desk-dashboard" class="nav-button hidden" onclick="switchView('desk-dashboard')">Desk Dashboard</div>        
+        <div id="nav-desk-dashboard" class="nav-button hidden" onclick="switchView('desk-dashboard')">Desk Dashboard</div>
 
+    </div>
+
+    <!-- TGIS v4 ANNOUNCEMENT (desktop only; mobile shows it on the home screen) -->
+    <div class="hidden lg:block p-4 rounded-2xl border border-primary-gold/40 shadow-sm" style="background:linear-gradient(135deg,#CFB991,#b89f6e);">
+        <div class="flex items-center justify-between mb-2">
+            <p class="text-[9px] font-black uppercase tracking-[0.15em] m-0" style="color:rgba(15,12,4,0.65);">Coming Soon</p>
+            <span class="text-[10px] font-black uppercase tracking-wider rounded-full px-2.5 py-0.5" style="background:#0f0c04;color:#CFB991;">10/19</span>
+        </div>
+        <p class="text-lg font-black leading-tight mb-1" style="color:#0f0c04;">TGIS v4 is coming!</p>
+        <p class="text-xs font-semibold leading-snug m-0" style="color:rgba(15,12,4,0.8);">Please stay tuned for instructions on the rollover to the new app. It will be released on 10/19.</p>
     </div>
 </nav>
 
@@ -433,6 +443,16 @@
     </div>
 
     <div style="padding:0 1rem;display:flex;flex-direction:column;gap:0.875rem;">
+
+      <!-- TGIS v4 ANNOUNCEMENT BANNER -->
+      <div style="background:linear-gradient(135deg,#CFB991,#b89f6e);border-radius:1.5rem;padding:1.25rem;border:1px solid rgba(207,185,145,0.6);box-shadow:0 2px 12px rgba(0,0,0,0.08);">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
+          <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:rgba(15,12,4,0.65);margin:0;">Coming Soon</p>
+          <span style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:#CFB991;background:#0f0c04;border-radius:999px;padding:3px 10px;">10/19</span>
+        </div>
+        <p style="font-size:1.25rem;font-weight:900;color:#0f0c04;margin:0 0 0.375rem;line-height:1.15;">TGIS v4 is coming!</p>
+        <p style="font-size:12px;font-weight:600;color:rgba(15,12,4,0.8);margin:0;line-height:1.45;">Please stay tuned for instructions on the rollover to the new app. It will be released on 10/19.</p>
+      </div>
 
       <!-- PROFILE CARD -->
       <div onclick="switchView('tracker')"
