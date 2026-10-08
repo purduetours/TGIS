@@ -381,6 +381,17 @@ html.dark #sidebar-logo img { filter: invert(1) hue-rotate(180deg); }
 /* Keep the gold header as designed */
 html.dark #mobile-page-title { color: #1a1510 !important; }
 
+/* Mobile home quick-actions scroller */
+.mh-actions { display: flex; gap: 0.625rem; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
+              margin: 0 -1rem 0.75rem; padding: 0.125rem 1rem 0.25rem; scroll-padding: 0 1rem; scrollbar-width: none; }
+.mh-actions::-webkit-scrollbar { display: none; }
+.mh-action { flex: 0 0 auto; width: 92px; height: 112px; border-radius: 1.125rem; border: none; padding: 0.75rem; cursor: pointer;
+             scroll-snap-align: start; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start;
+             text-align: left; font-family: inherit; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transition: transform 0.12s ease; }
+.mh-action:active { transform: scale(0.96); }
+.mh-action-icon { width: 34px; height: 34px; border-radius: 10px; background: rgba(255,255,255,0.22); display: flex; align-items: center; justify-content: center; }
+.mh-action-label { font-size: 0.75rem; font-weight: 900; line-height: 1.15; }
+
 /* Toggle switch */
 .theme-switch { position: relative; width: 46px; height: 28px; border-radius: 99px; background: #E5E7EB; border: none; cursor: pointer; transition: background 0.2s; flex-shrink: 0; }
 .theme-switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.25); transition: transform 0.2s; }
@@ -567,8 +578,8 @@ html.dark .theme-switch::after { transform: translateX(18px); }
             </div>
         </div>
 
-        <!-- STATS -->
-        <div id="mh-stats" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.625rem;margin-bottom:0.75rem;"></div>
+        <!-- QUICK ACTIONS (horizontal scroller; cards come from QUICK_ACTIONS) -->
+        <div id="mh-actions" class="mh-actions"></div>
 
         <!-- NEXT MILESTONE -->
         <div id="mh-milestone" hidden onclick="switchView('tracker')"
@@ -590,19 +601,6 @@ html.dark .theme-switch::after { transform: translateX(18px); }
              style="background:white;border-radius:1.25rem;padding:1rem 1.125rem;margin-bottom:0.75rem;cursor:pointer;
                     border:1px solid #EFEFEF;box-shadow:0 2px 12px rgba(0,0,0,0.05);"></div>
 
-        <!-- HANDBOOK -->
-        <a href="https://www.google.com" target="_blank"
-           style="display:flex;align-items:center;gap:0.75rem;background:white;border-radius:1.25rem;padding:0.875rem 1.125rem;
-                  border:1px solid #EFEFEF;box-shadow:0 2px 12px rgba(0,0,0,0.05);text-decoration:none;">
-            <div style="width:36px;height:36px;border-radius:10px;background:#FFF1F2;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-            </div>
-            <div style="flex:1;min-width:0;">
-                <p style="font-size:0.8125rem;font-weight:800;color:#111827;margin:0;">Guide Handbook</p>
-                <p style="font-size:0.7rem;font-weight:600;color:#9CA3AF;margin:2px 0 0;">Policies, routes and scripts</p>
-            </div>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-        </a>
 
     </div>
 </div>
@@ -690,6 +688,16 @@ html.dark .theme-switch::after { transform: translateX(18px); }
 </div>
 
     
+
+    <!-- Placeholder pages opened from the mobile home quick actions -->
+    <div id="view-search" class="view-section">
+        <header class="mb-6"><h1 class="text-3xl font-black">Search</h1></header>
+        <p style="font-size:0.8125rem;font-weight:600;color:#9CA3AF;text-align:center;padding:3rem 1rem;">Coming soon</p>
+    </div>
+    <div id="view-handbook" class="view-section">
+        <header class="mb-6"><h1 class="text-3xl font-black">Handbook</h1></header>
+        <p style="font-size:0.8125rem;font-weight:600;color:#9CA3AF;text-align:center;padding:3rem 1rem;">Coming soon</p>
+    </div>
 
     <div id="view-tracker" class="view-section">
         <header class="mb-8">
@@ -1764,6 +1772,33 @@ function checkTourLock(myTours) {
 }
 
 // ── MOBILE HOME ──────────────────────────────────────────────────────────
+// Quick-action cards on the mobile home, in scroll order. Add an entry to add a card.
+const QUICK_ACTIONS = [
+    { view: 'schedule', label: 'Schedule',      bg: '#3B82F6', icon: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>' },
+    { view: 'search',   label: 'Search',        bg: '#1a1510', icon: '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>' },
+    { view: 'tracker',  label: 'Tracker',       bg: '#10B981', icon: '<path d="M18 20V10M12 20V4M6 20v-6"/>' },
+    { view: 'families', label: 'Points',        bg: '#CFB991', fg: '#1a1510', icon: '<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>' },
+    { view: 'forms',    label: 'Forms',         bg: '#F59E0B', icon: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/>' },
+    { view: 'handbook', label: 'Handbook',      bg: '#EF4444', icon: '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>' },
+    { view: 'desk',     label: 'Desk Schedule', bg: '#06B6D4', icon: '<rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/>' },
+    { view: 'profile',  label: 'Account',       bg: '#8B5CF6', icon: '<circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>' },
+];
+
+function renderQuickActions() {
+    const el = document.getElementById('mh-actions');
+    if (!el) return;
+    el.innerHTML = QUICK_ACTIONS.map(a => {
+        const fg = a.fg || '#fff';
+        return `
+        <button class="mh-action" onclick="switchView('${a.view}')" style="background:${a.bg};color:${fg};">
+            <span class="mh-action-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${fg}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${a.icon}</svg>
+            </span>
+            <span class="mh-action-label">${a.label}</span>
+        </button>`;
+    }).join('');
+}
+
 function renderMobileHome(myTours) {
     if (!document.getElementById('mh-next') || !cachedData) return;
     const label = (t, extra = '') => `<p style="font-size:0.6rem;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#9CA3AF;margin:0;${extra}">${t}</p>`;
@@ -1807,20 +1842,7 @@ function renderMobileHome(myTours) {
             </div>`;
     }
 
-    // Stats
     const st = cachedData.stats || {};
-    const tile = (view, value, valueColor, title, sub) => `
-        <button onclick="switchView('${view}')"
-                style="background:white;border:1px solid #EFEFEF;border-radius:1.125rem;padding:0.875rem 0.5rem;cursor:pointer;
-                       box-shadow:0 1px 4px rgba(0,0,0,0.04);text-align:center;font-family:inherit;">
-            <p style="font-size:1.5rem;font-weight:900;color:${valueColor};margin:0;line-height:1;">${value}</p>
-            <p style="font-size:0.55rem;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:#9CA3AF;margin:6px 0 0;">${title}</p>
-            <p style="font-size:0.65rem;font-weight:800;color:#374151;margin:2px 0 0;">${sub}</p>
-        </button>`;
-    document.getElementById('mh-stats').innerHTML =
-        tile('tracker', st.semesterTotal ?? '--', '#10B981', 'Semester', cachedData.semesterRank ? `Rank #${cachedData.semesterRank}` : '&nbsp;') +
-        tile('tracker', st.careerTotal ?? '--', '#111827', 'Career', cachedData.rank ? `Rank #${cachedData.rank}` : '&nbsp;') +
-        tile('schedule', upcoming.length, '#CFB991', 'Upcoming', upcoming.length === 1 ? 'tour' : 'tours');
 
     // Next milestone (same thresholds as the tracker badges)
     const career = st.careerTotal || 0;
@@ -3221,6 +3243,7 @@ drawConfetti();
     })();
     setTimeout(() => document.getElementById('wrapped-popup').classList.add('show'), 1500);
     applyMobileTopPadding('home');
+    renderQuickActions();
     init();
 </script>
 <div class="lg:hidden bottom-nav-dedicated" id="bottom-nav-bar">
