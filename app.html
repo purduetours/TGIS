@@ -286,6 +286,11 @@
             .view-section > header:not(:has(button:not(.hidden))) { display: none; }
             /* Gold header stays pinned while the page scrolls underneath */
             #mobile-page-header { position: -webkit-sticky; position: sticky; top: 0; z-index: 30; }
+            /* No rubber-band bounce at the top/bottom of the page (iOS 16+) */
+            .content-area { overscroll-behavior-y: none; }
+            /* Fallback for older iOS: gold continues above the header so a bounce never shows white */
+            #mobile-page-header::before { content: ''; position: absolute; left: 0; right: 0; bottom: 100%; height: 100vh;
+                background: linear-gradient(90deg, #b39a6d 0%, #CFB991 40%, #dcc79c 70%, #CFB991 100%); pointer-events: none; }
             #profile-hero { margin-top: 0 !important; }
             #profile-hero > div { padding-top: 1rem !important; }
         }
