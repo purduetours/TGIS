@@ -283,7 +283,9 @@
             .view-section > header h1 { display: none; }
             /* Grey page subtitles hidden for now; headers left with no controls collapse entirely */
             .view-section > header p.text-gray-400 { display: none; }
-            .view-section > header:not(:has(button)) { display: none; }
+            .view-section > header:not(:has(button:not(.hidden))) { display: none; }
+            /* Gold header stays pinned while the page scrolls underneath */
+            #mobile-page-header { position: -webkit-sticky; position: sticky; top: 0; z-index: 30; }
             #profile-hero { margin-top: 0 !important; }
             #profile-hero > div { padding-top: 1rem !important; }
         }
@@ -833,7 +835,7 @@ html.dark .theme-switch::after { transform: translateX(18px); }
                 <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Tap a date to filter · scroll for full list</p>
             </div>
             <button onclick="downloadICalendar()"
-                    class="flex-shrink-0 flex items-center gap-1.5 border border-gray-200 text-gray-500 hover:border-primary-gold hover:text-primary-gold font-black text-[10px] uppercase tracking-widest px-3 py-2 rounded-xl transition-all">
+                    class="flex-shrink-0 hidden lg:flex items-center gap-1.5 border border-gray-200 text-gray-500 hover:border-primary-gold hover:text-primary-gold font-black text-[10px] uppercase tracking-widest px-3 py-2 rounded-xl transition-all">
                 <span>⬇</span> iCal
             </button>
         </div>
