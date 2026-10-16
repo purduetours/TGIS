@@ -35,16 +35,22 @@
         }
     </script>
     <style>
+        /* --vp-gap: how far short of the physical screen iOS home-screen apps report the
+           viewport (set by pinBottomNav). The body and bottom nav extend down by it so the
+           nav sits on the real bottom edge; it is 0 everywhere else. */
         html {
     height: 100%;
-    overflow: hidden;
     overscroll-behavior: none;
+    background: #fff;
 }
         body { 
     display: flex; 
     flex-direction: column; 
     position: fixed;
-    inset: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: calc(-1 * var(--vp-gap, 0px));
     overflow: hidden; 
     overscroll-behavior: none;
 }
@@ -235,7 +241,7 @@
 
 .bottom-nav-dedicated {
     position: fixed;
-    bottom: 0;
+    bottom: calc(-1 * var(--vp-gap, 0px));
     left: 0;
     right: 0;
     width: 100%;
@@ -343,6 +349,7 @@
    rendered later from JS templates. The gold header keeps its colours. */
 :root { --page-bg: #F9FAFB; --home-bg: #F5F5F5; }
 html.dark { --page-bg: #0f0f10; --home-bg: #0f0f10; color-scheme: dark; }
+html.dark { background: #1c1c1e; }
 html.dark body { background: #0f0f10 !important; color: #f3f4f6; }
 
 /* Surfaces */
@@ -3697,15 +3704,17 @@ drawConfetti();
         const safeBottom = parseFloat(cs.paddingBottom) || 0;
         const landscape = window.innerWidth > window.innerHeight;
         const screenH = landscape ? Math.min(screen.width, screen.height) : Math.max(screen.width, screen.height);
-        const standalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
-        // Part of the screen/viewport difference is the status bar; only the rest is a bottom gap.
-        const gap = Math.round(screenH - window.innerHeight - safeTop);
-        nav.style.bottom = (standalone && gap > 0 && gap < 150) ? `-${gap}px` : '0px';
+        // iOS home-screen apps only (navigator.standalone is iOS-specific); Android and Safari
+        // tabs legitimately report less than the screen because of system bars.
+        const standalone = window.navigator.standalone === true;
+        const rawGap = Math.round(screenH - window.innerHeight);
+        const gap = (standalone && rawGap > 0 && rawGap < 150) ? rawGap : 0;
+        document.documentElement.style.setProperty('--vp-gap', gap + 'px');
         if (dbg) {
             const r = nav.getBoundingClientRect();
             dbg.textContent = `screen ${screenH}  inner ${window.innerHeight}  vv ${window.visualViewport ? Math.round(visualViewport.height) : '-'}  docH ${document.documentElement.clientHeight}\n` +
                 `safeTop ${safeTop}  safeBottom ${safeBottom}  standalone ${!!standalone}\n` +
-                `gap ${gap}  nav.bottom ${nav.style.bottom}  navRect ${Math.round(r.top)}-${Math.round(r.bottom)}`;
+                `rawGap ${rawGap}  applied ${gap}  navRect ${Math.round(r.top)}-${Math.round(r.bottom)}`;
         }
     };
     update();
