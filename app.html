@@ -1969,10 +1969,43 @@ function renderQuickActions() {
 }
 
 // ── AVAILABLE TOURS (uncovered sub requests) ─────────────────────────────
-// Link used when a tour row has no thread link of its own. Paste the #subrequests
+// Link used when a request has no thread link of its own. Paste the #subrequests
 // channel link here (Slack: right-click channel → Copy link).
 const SUBREQUESTS_SLACK_URL = '';
+// Open sub requests come from the Apps Script backend (?page=subrequests, see
+// apps-script/subrequests.gs). Falls back to Supabase tours marked * if unavailable.
+const SUBREQUESTS_SCRIPT_URL = DESK_SCRIPT_URL;
 let availableTours = [];
+
+// Slack mrkdwn → plain text: <@U123|name> → @name, <url|label> → label, entities decoded.
+function slackPlain(text) {
+    return String(text || '')
+        .replace(/<@[A-Z0-9]+\|([^>]+)>/g, '@$1')
+        .replace(/<@([A-Z0-9]+)>/g, '@someone')
+        .replace(/<#[A-Z0-9]+\|([^>]+)>/g, '#$1')
+        .replace(/<!(here|channel|everyone)>/g, '@$1')
+        .replace(/<[^|>]+\|([^>]+)>/g, '$1')
+        .replace(/<([^>]+)>/g, '$1')
+        .replace(/(^|[\s(])[*_~]([^*_~\n]+)[*_~](?=[\s).,!?:;]|$)/g, '$1$2')
+        .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+}
+
+async function fetchSubrequestsFromScript() {
+    const res = await fetch(`${SUBREQUESTS_SCRIPT_URL}?page=subrequests&user=${encodeURIComponent(userName)}&_t=${Date.now()}`);
+    const data = await res.json();
+    if (!data || !Array.isArray(data.subrequests)) throw new Error('No subrequests in response');
+    const me = (cachedData.profile.displayName || '').toLowerCase();
+    return data.subrequests
+        .filter(r => !(r.requester && String(r.requester).toLowerCase() === me))
+        .map(r => ({
+            source: 'slack',
+            ts: Number(r.ts) || 0,
+            text: slackPlain(r.text),
+            guide: r.requester || null,
+            link: r.permalink || null,
+        }))
+        .sort((a, b) => a.ts - b.ts);
+}
 
 // Upcoming tours from other guides marked for drop (*). Loads every column so a
 // per-thread Slack link column on `tours` is used automatically when it exists.
@@ -1981,6 +2014,11 @@ async function loadAvailableTours() {
     if (!el || !cachedData) return;
     const d = new Date();
     const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    try {
+        availableTours = await fetchSubrequestsFromScript();
+        renderAvailableCard();
+        return;
+    } catch (e) { /* backend route not deployed yet: fall back to Supabase */ }
     let rows;
     try {
         rows = await sbFetch(`tours?tour_date=gte.${today}&select=*&order=tour_date.asc`);
@@ -2000,11 +2038,22 @@ async function loadAvailableTours() {
         }))
         .filter(t => t.guide.toLowerCase() !== me)
         .sort((a, b) => (new Date(a.date) - new Date(b.date)) || (tourMinutes(a) - tourMinutes(b)));
+    renderAvailableCard();
+}
 
+function renderAvailableCard() {
+    const el = document.getElementById('mh-available');
     const n = availableTours.length;
     if (!n) { el.hidden = true; return; }
     const next = availableTours[0];
-    const nextInfo = TOUR_MAP[next.type] || { name: next.type, time: '' };
+    let nextLine;
+    if (next.source === 'slack') {
+        nextLine = next.text.split('\n')[0];
+    } else {
+        const nextInfo = TOUR_MAP[next.type] || { name: next.type, time: '' };
+        nextLine = `Next: ${new Date(next.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} · ${nextInfo.name}`;
+    }
+    const esc = v => String(v).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
     el.hidden = false;
     el.innerHTML = `
         <div style="display:flex;align-items:center;gap:0.875rem;">
@@ -2013,8 +2062,7 @@ async function loadAvailableTours() {
             </div>
             <div style="flex:1;min-width:0;">
                 <p style="font-size:0.9375rem;font-weight:900;color:#111827;margin:0;">${n} tour${n === 1 ? '' : 's'} available to pick up</p>
-                <p style="font-size:0.7rem;font-weight:700;color:#9CA3AF;margin:2px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-                    Next: ${new Date(next.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} · ${nextInfo.name}</p>
+                <p style="font-size:0.7rem;font-weight:700;color:#9CA3AF;margin:2px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(nextLine)}</p>
             </div>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
         </div>`;
@@ -2025,8 +2073,6 @@ function openAvailableSheet() {
     const n = availableTours.length;
     document.getElementById('avs-title').innerText = `${n} tour${n === 1 ? '' : 's'} available to pick up`;
     document.getElementById('avs-list').innerHTML = availableTours.map(t => {
-        const info = TOUR_MAP[t.type] || { name: t.type, time: '--' };
-        const d = new Date(t.date);
         const href = t.link || SUBREQUESTS_SLACK_URL;
         const btn = href
             ? `<a href="${esc(href)}" target="_blank" rel="noopener"
@@ -2036,6 +2082,18 @@ function openAvailableSheet() {
                    ${t.link ? 'Open thread in Slack' : 'Open #subrequests in Slack'}
                </a>`
             : `<p style="margin:0.75rem 0 0;font-size:0.7rem;font-weight:600;color:#9CA3AF;">Find this request in #subrequests on Slack.</p>`;
+        if (t.source === 'slack') {
+            const posted = t.ts ? new Date(t.ts * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
+            return `
+        <div style="background:white;border:1px solid #EFEFEF;border-radius:1rem;padding:0.875rem 1rem;">
+            <p style="font-size:0.6rem;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:#9CA3AF;margin:0 0 4px;">
+                ${t.guide ? esc(t.guide) + ' · ' : ''}${posted ? 'Posted ' + posted : ''}</p>
+            <p style="font-size:0.8125rem;font-weight:700;color:#111827;margin:0;white-space:pre-line;">${esc(t.text)}</p>
+            ${btn}
+        </div>`;
+        }
+        const info = TOUR_MAP[t.type] || { name: t.type, time: '--' };
+        const d = new Date(t.date);
         return `
         <div style="background:white;border:1px solid #EFEFEF;border-radius:1rem;padding:0.875rem 1rem;">
             <div style="display:flex;align-items:center;gap:0.875rem;">
@@ -3837,7 +3895,9 @@ drawConfetti();
         // tabs legitimately report less than the screen because of system bars.
         const standalone = window.navigator.standalone === true;
         const rawGap = Math.round(screenH - window.innerHeight);
-        const gap = (standalone && rawGap > 0 && rawGap < 150) ? rawGap : 0;
+        // Measured only: applying it pushed the nav off-screen on device, so it stays 0
+        // until ?navdebug readings show what iOS is actually doing.
+        const gap = 0;
         document.documentElement.style.setProperty('--vp-gap', gap + 'px');
         if (dbg) {
             const r = nav.getBoundingClientRect();
