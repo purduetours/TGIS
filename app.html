@@ -416,6 +416,19 @@ html.dark .mh-action { box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08); }
 html.dark [style*="solid #FEE2E2" i] { border-color: rgba(239,68,68,0.3) !important; }
 html.dark #mh-drops [style*="color:#B91C1C" i] { color: #FCA5A5 !important; }
 
+/* Available tours bottom sheet */
+#available-sheet { position: fixed; inset: 0; z-index: 200; }
+.avs-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.4); animation: avsFade 0.2s ease-out; }
+.avs-panel { position: absolute; left: 0; right: 0; bottom: 0; max-height: 80%; display: flex; flex-direction: column;
+             background: #F5F5F5; border-radius: 1.5rem 1.5rem 0 0; padding-top: 0.5rem;
+             padding-bottom: calc(env(safe-area-inset-bottom) + var(--vp-gap, 0px)); animation: avsUp 0.25s ease-out; }
+.avs-grabber { width: 40px; height: 5px; border-radius: 99px; background: #D1D5DB; margin: 0 auto 0.75rem; }
+.avs-list { overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 0 1rem 1rem; display: flex; flex-direction: column; gap: 0.625rem; }
+@keyframes avsFade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes avsUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+html.dark .avs-panel { background: #0f0f10; }
+html.dark .avs-grabber { background: #3a3a3c; }
+
 /* Toggle switch */
 .theme-switch { position: relative; width: 46px; height: 28px; border-radius: 99px; background: #E5E7EB; border: none; cursor: pointer; transition: background 0.2s; flex-shrink: 0; }
 .theme-switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.25); transition: transform 0.2s; }
@@ -605,6 +618,11 @@ html.dark .theme-switch::after { transform: translateX(18px); }
         <!-- QUICK ACTIONS (horizontal scroller; cards come from QUICK_ACTIONS) -->
         <p style="font-size:0.6rem;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#9CA3AF;margin:0.25rem 0 0.625rem 0.25rem;">Quick Actions</p>
         <div id="mh-actions" class="mh-actions"></div>
+
+        <!-- AVAILABLE TOURS (other guides' uncovered sub requests; opens the list sheet) -->
+        <div id="mh-available" hidden onclick="openAvailableSheet()"
+             style="background:white;border-radius:1.25rem;padding:1rem 1.125rem;margin-bottom:0.75rem;cursor:pointer;
+                    border:1px solid #EFEFEF;box-shadow:0 2px 12px rgba(0,0,0,0.05);"></div>
 
         <!-- PENDING DROPS (only shown when you have tours marked for drop) -->
         <div id="mh-drops" hidden onclick="switchView('schedule')"
@@ -1950,6 +1968,99 @@ function renderQuickActions() {
     }).join('');
 }
 
+// ── AVAILABLE TOURS (uncovered sub requests) ─────────────────────────────
+// Link used when a tour row has no thread link of its own. Paste the #subrequests
+// channel link here (Slack: right-click channel → Copy link).
+const SUBREQUESTS_SLACK_URL = '';
+let availableTours = [];
+
+// Upcoming tours from other guides marked for drop (*). Loads every column so a
+// per-thread Slack link column on `tours` is used automatically when it exists.
+async function loadAvailableTours() {
+    const el = document.getElementById('mh-available');
+    if (!el || !cachedData) return;
+    const d = new Date();
+    const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    let rows;
+    try {
+        rows = await sbFetch(`tours?tour_date=gte.${today}&select=*&order=tour_date.asc`);
+    } catch (e) {
+        el.hidden = true;
+        return;
+    }
+    const me = (cachedData.profile.displayName || '').toLowerCase();
+    const tourMinutes = t => { const info = TOUR_MAP[t.type]; if (!info) return 9999; const p = parse12Hour(info.time); return p.hours * 60 + p.minutes; };
+    availableTours = (rows || [])
+        .filter(t => String(t.guide || '').includes('*'))
+        .map(t => ({
+            date: t.tour_date + 'T12:00:00',
+            type: t.type,
+            guide: String(t.guide).replace(/\*/g, '').trim(),
+            link: t.slack_permalink || t.slack_url || t.slack_thread_url || t.thread_url || t.slack_link || null,
+        }))
+        .filter(t => t.guide.toLowerCase() !== me)
+        .sort((a, b) => (new Date(a.date) - new Date(b.date)) || (tourMinutes(a) - tourMinutes(b)));
+
+    const n = availableTours.length;
+    if (!n) { el.hidden = true; return; }
+    const next = availableTours[0];
+    const nextInfo = TOUR_MAP[next.type] || { name: next.type, time: '' };
+    el.hidden = false;
+    el.innerHTML = `
+        <div style="display:flex;align-items:center;gap:0.875rem;">
+            <div style="width:44px;height:44px;border-radius:12px;background:rgba(16,185,129,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <span style="font-size:1.25rem;font-weight:900;color:#10B981;">${n}</span>
+            </div>
+            <div style="flex:1;min-width:0;">
+                <p style="font-size:0.9375rem;font-weight:900;color:#111827;margin:0;">${n} tour${n === 1 ? '' : 's'} available to pick up</p>
+                <p style="font-size:0.7rem;font-weight:700;color:#9CA3AF;margin:2px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                    Next: ${new Date(next.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} · ${nextInfo.name}</p>
+            </div>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>`;
+}
+
+function openAvailableSheet() {
+    const esc = v => String(v).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+    const n = availableTours.length;
+    document.getElementById('avs-title').innerText = `${n} tour${n === 1 ? '' : 's'} available to pick up`;
+    document.getElementById('avs-list').innerHTML = availableTours.map(t => {
+        const info = TOUR_MAP[t.type] || { name: t.type, time: '--' };
+        const d = new Date(t.date);
+        const href = t.link || SUBREQUESTS_SLACK_URL;
+        const btn = href
+            ? `<a href="${esc(href)}" target="_blank" rel="noopener"
+                  style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:0.75rem;padding:0.625rem;border-radius:0.75rem;
+                         background:#1a1510;color:#fff;font-size:0.75rem;font-weight:800;text-decoration:none;">
+                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#CFB991" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                   ${t.link ? 'Open thread in Slack' : 'Open #subrequests in Slack'}
+               </a>`
+            : `<p style="margin:0.75rem 0 0;font-size:0.7rem;font-weight:600;color:#9CA3AF;">Find this request in #subrequests on Slack.</p>`;
+        return `
+        <div style="background:white;border:1px solid #EFEFEF;border-radius:1rem;padding:0.875rem 1rem;">
+            <div style="display:flex;align-items:center;gap:0.875rem;">
+                <div style="width:48px;text-align:center;flex-shrink:0;">
+                    <p style="font-size:0.55rem;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:#9CA3AF;margin:0;">${d.toLocaleDateString('en-US', { weekday: 'short' })}</p>
+                    <p style="font-size:1.25rem;font-weight:900;color:#111827;margin:0;line-height:1.1;">${d.getDate()}</p>
+                    <p style="font-size:0.55rem;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:#CFB991;margin:0;">${d.toLocaleDateString('en-US', { month: 'short' })}</p>
+                </div>
+                <div style="width:1px;align-self:stretch;background:#F3F4F6;flex-shrink:0;"></div>
+                <div style="flex:1;min-width:0;">
+                    <p style="font-size:0.875rem;font-weight:800;color:#111827;margin:0;">${esc(info.name)}</p>
+                    <p style="font-size:0.75rem;font-weight:700;color:#6B7280;margin:2px 0 0;">${esc(info.time)}</p>
+                    <p style="font-size:0.65rem;font-weight:600;color:#9CA3AF;margin:2px 0 0;">Dropped by ${esc(t.guide)}</p>
+                </div>
+            </div>
+            ${btn}
+        </div>`;
+    }).join('');
+    document.getElementById('available-sheet').hidden = false;
+}
+
+function closeAvailableSheet() {
+    document.getElementById('available-sheet').hidden = true;
+}
+
 function renderMobileHome(myTours) {
     if (!document.getElementById('mh-next') || !cachedData) return;
     const label = (t, extra = '') => `<p style="font-size:0.6rem;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#9CA3AF;margin:0;${extra}">${t}</p>`;
@@ -3079,6 +3190,7 @@ async function continueInit() {
             }
             renderHomeNextTour(myTours);
             renderMobileHome(myTours);
+            loadAvailableTours();
             checkTourLock(myTours);
             setInterval(() => checkTourLock(myTours), 60000);
             renderWelcomeCenter(cachedData.tours);
@@ -3406,6 +3518,23 @@ drawConfetti();
     renderQuickActions();
     init();
 </script>
+<!-- Available tours sheet (mobile) -->
+<div id="available-sheet" class="lg:hidden" hidden>
+    <div class="avs-backdrop" onclick="closeAvailableSheet()"></div>
+    <div class="avs-panel" role="dialog" aria-label="Tours available to pick up">
+        <div class="avs-grabber"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0 1.25rem 0.75rem;">
+            <div>
+                <p style="font-size:0.6rem;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#9CA3AF;margin:0;">Open Sub Requests</p>
+                <p id="avs-title" style="font-size:1.125rem;font-weight:900;color:#111827;margin:2px 0 0;"></p>
+            </div>
+            <button onclick="closeAvailableSheet()" aria-label="Close"
+                    style="width:32px;height:32px;border-radius:10px;border:none;background:#F3F4F6;color:#6B7280;font-size:1rem;cursor:pointer;">✕</button>
+        </div>
+        <div id="avs-list" class="avs-list"></div>
+    </div>
+</div>
+
 <div class="lg:hidden bottom-nav-dedicated" id="bottom-nav-bar">
     <button id="bn-home" onclick="switchView('home')" class="bn-btn flex flex-col items-center gap-1 px-3 py-2 rounded-2xl transition-all">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
