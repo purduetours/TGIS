@@ -465,7 +465,8 @@ html.dark .avs-grabber { background: #3a3a3c; }
     /* gold header: roomier on desktop */
     #mobile-page-title { font-size: 1.875rem !important; }
     /* header sits on the page colour, with a heavy gold divider instead of the gold band */
-    #mobile-page-header .mph-bg { background: var(--page-bg) !important; overflow: visible !important; border-bottom: 4px solid #CFB991; }
+    #mobile-page-header .mph-bg { background: #F1F2F4 !important; overflow: visible !important; border-bottom: 1px solid #E5E7EB;
+                                  box-shadow: 0 6px 16px -6px rgba(0,0,0,0.12); }
     #mobile-page-header .mph-texture, #mobile-page-header::before, #mobile-page-sheet { display: none !important; }
     #mobile-page-header .mph-row { padding: 1.25rem 2rem !important; }
     #mobile-page-header .mph-photo { display: none !important; }
@@ -489,11 +490,39 @@ html.dark #sidebar .nav-button { color: #1a1510 !important; }
 html.dark #sidebar .nav-button.active { background: rgba(255,255,255,0.85) !important; }
 @media (min-width: 1024px) {
     html.dark #mobile-page-title { color: #f3f4f6 !important; }
+    html.dark #mobile-page-header .mph-bg { background: #161618 !important; border-bottom-color: #2c2c2e; box-shadow: 0 6px 16px -6px rgba(0,0,0,0.6); }
     html.dark #home-weather-chip { background: #1c1c1e !important; border-color: #2c2c2e !important; }
     html.dark #home-weather-text { color: #e5e7eb !important; }
 }
 html.dark .nav-icon { box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12); }
 html.dark .nav-button.active { background: rgba(207,185,145,0.18); color: #fff; }
+
+/* Home layout: one column on mobile (original order), dashboard on desktop */
+.mh-grid { display: flex; flex-direction: column; }
+.mh-col-main, .mh-col-side { display: contents; }
+.mh-o1 { order: 1; } .mh-o2 { order: 2; } .mh-o3 { order: 3; } .mh-o4 { order: 4; }
+.mh-o5 { order: 5; } .mh-o6 { order: 6; } .mh-o7 { order: 7; } .mh-o8 { order: 8; }
+.mh-desk-only { display: none; }
+@media (min-width: 1024px) {
+    .mh-wrap { margin: 0 !important; background: transparent !important; min-height: 0 !important; }
+    .mh-sheet { background: transparent !important; padding: 0 0 2rem !important; min-height: 0 !important; }
+    .mh-greet { margin-bottom: 1.5rem !important; }
+    #home-greeting { font-size: 2rem !important; }
+    #live-clock-mobile { font-size: 0.8rem !important; }
+    .mh-grid { display: grid; grid-template-columns: minmax(0, 1.75fr) minmax(320px, 1fr); gap: 1.5rem; align-items: start; }
+    .mh-col-main, .mh-col-side { display: flex; flex-direction: column; min-width: 0; }
+    .mh-col-main > *, .mh-col-side > * { order: 0; }
+    .mh-col-main > [hidden], .mh-col-side > [hidden] { display: none; }
+    .mh-desk-only { display: block; }
+    .mh-col-main > *, .mh-col-side > * { margin-bottom: 1rem !important; }
+    .mh-next-card { padding: 1.5rem !important; }
+    /* quick actions: a wrapping grid instead of a scroller */
+    .mh-actions { display: grid; grid-template-columns: repeat(auto-fill, minmax(116px, 1fr)); gap: 0.75rem; overflow: visible;
+                  margin: 0 0 1rem !important; padding: 0; scroll-snap-type: none; }
+    .mh-action { width: auto; height: 120px; }
+    .mh-action:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
+    .mh-col-main > [onclick]:hover, .mh-col-side > [onclick]:hover { border-color: #CFB991 !important; }
+}
 
 /* Toggle switch */
 .theme-switch { position: relative; width: 46px; height: 28px; border-radius: 99px; background: #E5E7EB; border: none; cursor: pointer; transition: background 0.2s; flex-shrink: 0; }
@@ -662,146 +691,104 @@ html.dark .theme-switch::after { transform: translateX(18px); }
 
 <div id="view-home" class="view-section active">
 
-  <!-- ── MOBILE HOME (hidden on desktop) ── -->
-
-  <!-- ── MOBILE HOME (hidden on desktop) ── -->
-<div class="lg:hidden" style="margin: 0 -1rem 0; min-height: 100dvh; background: #F5F5F5;">
+  <!-- ── HOME ── -->
+<!-- One home layout for both sizes: a single column on mobile, a two-column dashboard on desktop.
+     Sections are filled by renderMobileHome(); the mh-o* classes keep the mobile order. -->
+<div class="mh-wrap" style="margin: 0 -1rem 0; min-height: 100dvh; background: #F5F5F5;">
     <!-- WHITE CARD SHEET -->
-    <!-- Mobile home: each section is filled by renderMobileHome() and links to its full page -->
-    <div style="background:#F5F5F5;
+    <div class="mh-sheet" style="background:#F5F5F5;
                 padding:0.25rem 1rem 6rem;position:relative;z-index:2;min-height:calc(100vh - 160px);">
 
         <!-- GREETING -->
-        <div style="margin-bottom:1rem;">
+        <div class="mh-greet" style="margin-bottom:1rem;">
             <p id="home-greeting" style="font-size:1.375rem;font-weight:900;color:#1a1510;margin:0;line-height:1.2;"></p>
             <p id="live-clock-mobile" style="font-size:0.7rem;font-weight:600;color:#9CA3AF;margin:3px 0 0;letter-spacing:0.05em;"></p>
         </div>
 
-        <!-- NEXT TOUR -->
-        <div onclick="switchView('schedule')"
-             style="background:white;border-radius:1.25rem;padding:1.125rem;margin-bottom:0.75rem;cursor:pointer;
-                    border:1px solid #EFEFEF;box-shadow:0 2px 12px rgba(0,0,0,0.05);">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
-                <p style="font-size:0.6rem;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#9CA3AF;margin:0;">Next Tour</p>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        <div class="mh-grid">
+          <div class="mh-col-main">
+            <!-- NEXT TOUR -->
+            <div class="mh-o1 mh-next-card" onclick="switchView('schedule')"
+                 style="background:white;border-radius:1.25rem;padding:1.125rem;margin-bottom:0.75rem;cursor:pointer;
+                        border:1px solid #EFEFEF;box-shadow:0 2px 12px rgba(0,0,0,0.05);">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
+                    <p style="font-size:0.6rem;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#9CA3AF;margin:0;">Next Tour</p>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+                </div>
+                <div id="mh-next">
+                    <p style="font-size:0.8125rem;font-weight:600;color:#9CA3AF;font-style:italic;margin:0;">Loading…</p>
+                </div>
             </div>
-            <div id="mh-next">
-                <p style="font-size:0.8125rem;font-weight:600;color:#9CA3AF;font-style:italic;margin:0;">Loading…</p>
+
+            <!-- QUICK ACTIONS (scroller on mobile, grid on desktop; cards come from QUICK_ACTIONS) -->
+            <p class="mh-o2" style="font-size:0.6rem;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#9CA3AF;margin:0.25rem 0 0.625rem 0.25rem;">Quick Actions</p>
+            <div id="mh-actions" class="mh-actions mh-o3"></div>
+
+            <!-- COMING UP -->
+            <div id="mh-upcoming" class="mh-o7" hidden onclick="switchView('schedule')"
+                 style="background:white;border-radius:1.25rem;overflow:hidden;margin-bottom:0.75rem;cursor:pointer;
+                        border:1px solid #EFEFEF;box-shadow:0 2px 12px rgba(0,0,0,0.05);"></div>
+          </div>
+
+          <div class="mh-col-side">
+            <!-- YOUR STATS (desktop only) -->
+            <div id="mh-stats-desk" class="mh-desk-only" onclick="switchView('tracker')"
+                 style="background:white;border-radius:1.25rem;padding:1rem 1.125rem;margin-bottom:0.75rem;cursor:pointer;
+                        border:1px solid #EFEFEF;box-shadow:0 2px 12px rgba(0,0,0,0.05);"></div>
+
+            <!-- AVAILABLE TOURS (other guides' uncovered sub requests; opens the list sheet) -->
+            <div id="mh-available" class="mh-o4" hidden onclick="openAvailableSheet()"
+                 style="background:white;border-radius:1.25rem;padding:1rem 1.125rem;margin-bottom:0.75rem;cursor:pointer;
+                        border:1px solid #EFEFEF;box-shadow:0 2px 12px rgba(0,0,0,0.05);"></div>
+
+            <!-- PENDING DROPS (only shown when you have tours marked for drop) -->
+            <div id="mh-drops" class="mh-o5" hidden onclick="switchView('schedule')"
+                 style="background:#FFF5F5;border-radius:1.25rem;overflow:hidden;margin-bottom:0.75rem;cursor:pointer;
+                        border:1px solid #FEE2E2;"></div>
+
+            <!-- FORMS DUE -->
+            <div id="mh-forms" class="mh-o6" hidden onclick="switchView('forms')"
+                 style="background:white;border-radius:1.25rem;overflow:hidden;margin-bottom:0.75rem;cursor:pointer;
+                        border:1px solid #EFEFEF;box-shadow:0 2px 12px rgba(0,0,0,0.05);"></div>
+
+            <!-- FAMILY CUP -->
+            <div id="mh-family" class="mh-o8" hidden onclick="switchView('families')"
+                 style="background:white;border-radius:1.25rem;padding:1rem 1.125rem;margin-bottom:0.75rem;cursor:pointer;
+                        border:1px solid #EFEFEF;box-shadow:0 2px 12px rgba(0,0,0,0.05);"></div>
+
+            <!-- ANNOUNCEMENTS (desktop only) -->
+            <div class="mh-desk-only"
+                 style="background:white;border-radius:1.25rem;overflow:hidden;margin-bottom:0.75rem;
+                        border:1px solid #EFEFEF;box-shadow:0 2px 12px rgba(0,0,0,0.05);">
+                <div style="padding:0.875rem 1.125rem;border-bottom:1px solid #F3F4F6;">
+                    <p style="font-size:0.6rem;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#9CA3AF;margin:0;">Announcements</p>
+                </div>
+                <div style="display:flex;gap:0.75rem;align-items:flex-start;padding:0.75rem 1.125rem;">
+                    <div style="width:7px;height:7px;border-radius:99px;background:#CFB991;margin-top:6px;flex-shrink:0;"></div>
+                    <div>
+                        <p style="font-size:0.8125rem;font-weight:800;color:#111827;margin:0;">Tour Tracker</p>
+                        <p style="font-size:0.75rem;font-weight:600;color:#6B7280;margin:2px 0 0;">Updated every Thursday.</p>
+                    </div>
+                </div>
+                <div style="display:flex;gap:0.75rem;align-items:flex-start;padding:0.75rem 1.125rem;border-top:1px solid #F3F4F6;">
+                    <div style="width:7px;height:7px;border-radius:99px;background:#D1D5DB;margin-top:6px;flex-shrink:0;"></div>
+                    <div>
+                        <p style="font-size:0.8125rem;font-weight:800;color:#9CA3AF;margin:0;">Construction Update</p>
+                        <p style="font-size:0.6rem;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:#9CA3AF;margin:2px 0 0;">Resolved</p>
+                    </div>
+                </div>
+                <a href="https://www.purduetours.github.io/Main-Stage-Leaderboard" target="_blank" rel="noopener"
+                   style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem 1.125rem;border-top:1px solid #F3F4F6;text-decoration:none;">
+                    <span style="font-size:1.1rem;">🎭</span>
+                    <span style="flex:1;font-size:0.8125rem;font-weight:800;color:#111827;">Main Stage Leaderboard</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+                </a>
             </div>
+          </div>
         </div>
-
-        <!-- QUICK ACTIONS (horizontal scroller; cards come from QUICK_ACTIONS) -->
-        <p style="font-size:0.6rem;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#9CA3AF;margin:0.25rem 0 0.625rem 0.25rem;">Quick Actions</p>
-        <div id="mh-actions" class="mh-actions"></div>
-
-        <!-- AVAILABLE TOURS (other guides' uncovered sub requests; opens the list sheet) -->
-        <div id="mh-available" hidden onclick="openAvailableSheet()"
-             style="background:white;border-radius:1.25rem;padding:1rem 1.125rem;margin-bottom:0.75rem;cursor:pointer;
-                    border:1px solid #EFEFEF;box-shadow:0 2px 12px rgba(0,0,0,0.05);"></div>
-
-        <!-- PENDING DROPS (only shown when you have tours marked for drop) -->
-        <div id="mh-drops" hidden onclick="switchView('schedule')"
-             style="background:#FFF5F5;border-radius:1.25rem;overflow:hidden;margin-bottom:0.75rem;cursor:pointer;
-                    border:1px solid #FEE2E2;"></div>
-
-        <!-- FORMS DUE -->
-        <div id="mh-forms" hidden onclick="switchView('forms')"
-             style="background:white;border-radius:1.25rem;overflow:hidden;margin-bottom:0.75rem;cursor:pointer;
-                    border:1px solid #EFEFEF;box-shadow:0 2px 12px rgba(0,0,0,0.05);"></div>
-
-        <!-- COMING UP -->
-        <div id="mh-upcoming" hidden onclick="switchView('schedule')"
-             style="background:white;border-radius:1.25rem;overflow:hidden;margin-bottom:0.75rem;cursor:pointer;
-                    border:1px solid #EFEFEF;box-shadow:0 2px 12px rgba(0,0,0,0.05);"></div>
-
-        <!-- FAMILY CUP -->
-        <div id="mh-family" hidden onclick="switchView('families')"
-             style="background:white;border-radius:1.25rem;padding:1rem 1.125rem;margin-bottom:0.75rem;cursor:pointer;
-                    border:1px solid #EFEFEF;box-shadow:0 2px 12px rgba(0,0,0,0.05);"></div>
-
 
     </div>
 </div>
-
-
-
-  <!-- ── DESKTOP HOME (hidden on mobile) ── -->
-  <div class="hidden lg:block">
-
-    <header class="mb-6">
-        <h1 class="text-4xl font-black">Welcome, <span id="welcome-name" class="text-primary-gold text-nowrap">Guide</span></h1>
-        <p id="live-clock" class="text-sm font-bold text-gray-400 uppercase tracking-wider mt-1">Loading...</p>
-    </header>
-
-    <!-- NEXT TOUR -->
-    <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] ml-1 mb-2">Next Tour</p>
-    <div id="home-next-tour-container" class="mb-5">
-        <div class="bg-gray-50 border-2 border-dashed border-gray-200 rounded-[2rem] p-5 flex items-center justify-center text-center">
-            <p class="text-gray-400 text-[10px] font-black uppercase tracking-widest">No tours scheduled</p>
-        </div>
-    </div>
-
-    <!-- QUICK STATS -->
-    <div class="grid grid-cols-2 gap-3 mb-5">
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
-            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">This Semester</p>
-            <p id="home-sem-total" class="text-4xl font-black text-status-green">--</p>
-            <p class="text-[10px] font-bold text-gray-400 mt-0.5">tours given</p>
-        </div>
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
-            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Upcoming</p>
-            <p id="home-upcoming-count" class="text-4xl font-black text-primary-gold">--</p>
-            <p class="text-[10px] font-bold text-gray-400 mt-0.5">tours scheduled</p>
-        </div>
-    </div>
-
-    <!-- TODAY'S SCHEDULE -->
-    <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] ml-1 mb-2">Today's Schedule</p>
-    <div id="home-today-container-desktop" class="mb-5">
-        <div class="bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl p-4 text-center">
-            <p class="text-gray-400 text-[10px] font-black uppercase tracking-widest">No tours today</p>
-        </div>
-    </div>
-
-    <!-- ALERTS -->
-    <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] ml-1 mb-2">Alerts</p>
-    <div class="space-y-3 mb-5">
-        <div class="grid grid-cols-2 gap-3">
-            <a href="https://www.purduetours.github.io/Main-Stage-Leaderboard" target="_blank"
-               class="bg-white border border-gray-200 rounded-2xl p-4 flex items-center gap-3 no-underline hover:border-primary-gold transition-all"
-               style="text-decoration:none;">
-                <span class="text-2xl">🎭</span>
-                <p class="font-black uppercase tracking-wide text-sm text-gray-800 m-0">Main Stage</p>
-            </a>
-            <a href="https://www.purduetours.github.io/Main-Stage-Leaderboard" target="_blank"
-               class="bg-white border border-gray-200 rounded-2xl p-4 flex items-center gap-3 no-underline hover:border-primary-gold transition-all"
-               style="text-decoration:none;">
-                <span class="text-2xl">📖</span>
-                <p class="font-black uppercase tracking-wide text-sm text-gray-800 m-0">Handbook</p>
-            </a>
-        </div>
-    </div>
-
-    <!-- ANNOUNCEMENTS -->
-    <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] ml-1 mb-2">Announcements</p>
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mb-5">
-        <div class="flex gap-3 items-start p-4 border-b border-gray-50">
-            <div class="w-2 h-2 rounded-full bg-primary-gold mt-1.5 shrink-0"></div>
-            <div>
-                <p class="font-bold text-sm">Tour Tracker</p>
-                <p class="text-xs text-gray-500">Updated every Thursday.</p>
-            </div>
-        </div>
-        <div class="flex gap-3 items-start p-4">
-            <div class="w-2 h-2 rounded-full bg-gray-200 mt-1.5 shrink-0"></div>
-            <div>
-                <p class="font-bold text-sm text-gray-400">Construction Update</p>
-                <p class="text-[10px] text-gray-400 uppercase font-black tracking-wider">Resolved</p>
-            </div>
-        </div>
-    </div>
-
-  </div>
 
 </div>
 
@@ -2254,6 +2241,31 @@ function renderMobileHome(myTours) {
             </div>`;
     }
 
+    // Your stats (desktop side column)
+    const statsEl = document.getElementById('mh-stats-desk');
+    if (statsEl) {
+        const st = cachedData.stats || {};
+        const stat = (value, color, title, sub) => `
+            <div style="flex:1;min-width:0;text-align:center;">
+                <p style="font-size:1.75rem;font-weight:900;color:${color};margin:0;line-height:1;">${value}</p>
+                <p style="font-size:0.55rem;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:#9CA3AF;margin:6px 0 0;">${title}</p>
+                <p style="font-size:0.7rem;font-weight:800;color:#374151;margin:2px 0 0;">${sub}</p>
+            </div>`;
+        const div = '<div style="width:1px;align-self:stretch;background:#F3F4F6;"></div>';
+        statsEl.innerHTML = `
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.875rem;">
+                <p style="font-size:0.6rem;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#9CA3AF;margin:0;">Your Stats</p>
+                <span style="font-size:0.7rem;font-weight:700;color:#CFB991;">Tracker →</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:0.5rem;">
+                ${stat(st.semesterTotal ?? '--', '#10B981', 'Semester', cachedData.semesterRank ? `Rank #${cachedData.semesterRank}` : '&nbsp;')}
+                ${div}
+                ${stat(st.careerTotal ?? '--', '#111827', 'Career', cachedData.rank ? `Rank #${cachedData.rank}` : '&nbsp;')}
+                ${div}
+                ${stat(upcoming.length, '#CFB991', 'Upcoming', upcoming.length === 1 ? 'tour' : 'tours')}
+            </div>`;
+    }
+
     // Pending drops
     const drops = upcoming.filter(t => (t.guide || '').includes('*'));
     const dropsEl = document.getElementById('mh-drops');
@@ -2510,7 +2522,8 @@ const todayHTML = `
     function updateClock() {
         const now = new Date();
         const str = now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-        document.getElementById('live-clock').innerText = str;
+        const dc = document.getElementById('live-clock');
+        if (dc) dc.innerText = str;
         const mc = document.getElementById('live-clock-mobile');
         if (mc) mc.innerText = str;
     }
@@ -3292,10 +3305,12 @@ async function continueInit() {
             img.className = 'w-full h-full object-cover';
             img.onload = () => { sidebarAvatar.textContent = ''; sidebarAvatar.appendChild(img); };
         }
-        document.getElementById('welcome-name').innerText = cachedData.profile.displayName;
+        const wn = document.getElementById('welcome-name');
+        if (wn) wn.innerText = cachedData.profile.displayName;
         document.getElementById('career-total').innerText = cachedData.stats.careerTotal;
         document.getElementById('sem-total').innerText = cachedData.stats.semesterTotal;
-        document.getElementById('home-sem-total').innerText = cachedData.stats.semesterTotal;
+        const hst = document.getElementById('home-sem-total');
+        if (hst) hst.innerText = cachedData.stats.semesterTotal;
         const mst = document.getElementById('mobile-sem-total');
         if (mst) mst.innerText = cachedData.stats.semesterTotal;
         document.getElementById('sem-label').innerText = cachedData.currentSemesterName;
