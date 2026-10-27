@@ -1,0 +1,4 @@
+# The app lives at / (index.html). Old links and home-screen icons used /app or /app.html,
+# sometimes with ?user=...; send them to / where Slack sign-in takes over.
+/app.html  /  301
+/app       /  301
