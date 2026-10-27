@@ -286,7 +286,6 @@
 }
 
         @media (max-width: 1023px) {
-            .view-section > header h1 { display: none; }
             /* Grey page subtitles hidden for now; headers left with no controls collapse entirely */
             .view-section > header p.text-gray-400 { display: none; }
             .view-section > header:not(:has(button:not(.hidden))) { display: none; }
@@ -296,7 +295,6 @@
             /* Gold continues above the header so the iOS bounce at the top shows gold, not white */
             #mobile-page-header::before { content: ''; position: absolute; left: 0; right: 0; bottom: 100%; height: 100vh;
                 background: linear-gradient(90deg, #b39a6d 0%, #CFB991 40%, #dcc79c 70%, #CFB991 100%); pointer-events: none; }
-            #profile-hero { margin-top: 0 !important; }
             #profile-hero > div { padding-top: 1rem !important; }
         }
         @media (max-width: 1024px) { 
@@ -305,9 +303,11 @@
             #sidebar.open { transform: translateX(0); display: block !important; }
         }
         
-        .nav-button { cursor: pointer; display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem; color: #4B5563; margin-bottom: 0.5rem; transition: 0.2s; }
-        .nav-button:hover { background-color: #F3F4F6; }
-        .nav-button.active { background-color: #CFB991; color: white; box-shadow: 0 4px 6px -1px rgba(207, 185, 145, 0.4); }
+        .nav-button { cursor: pointer; display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0.625rem; border-radius: 1rem; font-weight: 800; font-size: 0.8125rem; color: #374151; margin-bottom: 0.25rem; transition: background 0.15s; }
+        .nav-button:hover { background-color: #F5F5F5; }
+        .nav-button.active { background-color: rgba(207,185,145,0.2); color: #1a1510; }
+        .nav-icon { width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .nav-icon svg { width: 16px; height: 16px; fill: none; stroke: #fff; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
         .view-section { display: none; }
         .view-section.active { display: block; animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -389,7 +389,7 @@ html.dark [style*="background:#FFF5F5" i], html.dark [style*="background:#FEE2E2
 html.dark .bottom-nav-dedicated { background: #1c1c1e !important; border-top-color: #2c2c2e !important; box-shadow: none !important; }
 
 /* Sidebar logo has a white background; invert it so it blends into the dark sidebar */
-html.dark #sidebar-logo img { filter: invert(1) hue-rotate(180deg); }
+html.dark #sidebar-logo img { filter: invert(1) hue-rotate(180deg); mix-blend-mode: screen; }
 
 /* Keep the gold header as designed */
 html.dark #mobile-page-title { color: #1a1510 !important; }
@@ -428,6 +428,36 @@ html.dark #mh-drops [style*="color:#B91C1C" i] { color: #FCA5A5 !important; }
 @keyframes avsUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 html.dark .avs-panel { background: #0f0f10; }
 html.dark .avs-grabber { background: #3a3a3c; }
+
+/* Sidebar profile card (gold ribbon, like the mobile header) */
+.sb-profile { border-radius: 1.25rem; overflow: hidden; border: 1px solid #EFEFEF; background: white; box-shadow: 0 2px 12px rgba(0,0,0,0.05); }
+.sb-profile-top { padding: 1rem; background: linear-gradient(135deg,#b39a6d 0%,#CFB991 40%,#e8d5a3 70%,#CFB991 100%); }
+.sb-profile-top #profile-initial { border: 2px solid rgba(255,255,255,0.6); box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+.sb-profile-bottom { padding: 0.625rem 1rem; }
+.sb-profile #view-switcher-container { margin: 0 1rem 0.75rem; }
+
+/* Desktop */
+@media (min-width: 1024px) {
+    /* mobile-only UI */
+    .bottom-nav-dedicated, #available-sheet { display: none !important; }
+    /* gold header: roomier on desktop */
+    #mobile-page-header .mph-row { padding: 1.5rem 2rem 2.5rem !important; }
+    #mobile-page-title { font-size: 1.875rem !important; }
+    #mobile-page-sheet { border-radius: 2rem 2rem 0 0 !important; height: 1.5rem !important; margin-top: -1.5rem !important; }
+    /* profile hero spans the content width under the header */
+    #profile-hero { margin-left: -2rem !important; margin-right: -2rem !important; }
+    #profile-hero > div { padding-top: 1.5rem !important; }
+    /* softer card shadows, matching mobile */
+    .content-area .shadow-xl, .content-area .shadow-2xl, .content-area .shadow-lg { box-shadow: 0 2px 12px rgba(0,0,0,0.05) !important; }
+}
+/* page titles live in the gold header */
+.view-section > header h1 { display: none; }
+#profile-hero { margin-top: 0 !important; }
+html.dark .sb-profile { border-color: #2c2c2e; background: #1c1c1e; }
+html.dark .sb-profile-top #sidebar-name { color: #1a1510 !important; }
+html.dark .sb-profile-top #sidebar-status { color: rgba(26,21,16,0.6) !important; }
+html.dark .nav-icon { box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12); }
+html.dark .nav-button.active { background: rgba(207,185,145,0.18); color: #fff; }
 
 /* Toggle switch */
 .theme-switch { position: relative; width: 46px; height: 28px; border-radius: 99px; background: #E5E7EB; border: none; cursor: pointer; transition: background 0.2s; flex-shrink: 0; }
@@ -483,7 +513,7 @@ html.dark .theme-switch::after { transform: translateX(18px); }
     </div>
 </div>
 
-<nav id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white shadow-2xl border-r border-gray-100 p-6 z-40 hidden lg:block overflow-y-auto">
+<nav id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-100 p-5 z-40 hidden lg:block overflow-y-auto">
     <div class="mb-6 flex justify-between items-start">
         <!-- Logo has a white background, so it blends into the sidebar; falls back to text if the image is missing -->
         <div id="sidebar-logo" class="flex-1 text-center">
@@ -497,15 +527,16 @@ html.dark .theme-switch::after { transform: translateX(18px); }
         <button id="close-menu" class="lg:hidden text-gray-400 text-2xl">&times;</button>
     </div>
 
-    <div class="mb-8 p-4 bg-gray-50 rounded-2xl border border-gray-100">
-        <div class="flex items-center space-x-3 mb-3">
-            <div id="profile-initial" class="w-12 h-12 rounded-full bg-primary-gold flex items-center justify-center text-white font-black text-lg shadow-inner overflow-hidden flex-shrink-0">?</div>
+    <!-- Profile card: gold ribbon like the mobile header -->
+    <div class="sb-profile mb-6">
+        <div class="sb-profile-top flex items-center space-x-3">
+            <div id="profile-initial" class="w-12 h-12 rounded-xl bg-primary-gold flex items-center justify-center text-white font-black text-lg shadow-inner overflow-hidden flex-shrink-0">?</div>
             <div class="flex-1 min-w-0">
-                <p id="sidebar-name" class="font-bold leading-tight">Loading...</p>
-                <p id="sidebar-status" class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Syncing...</p>
+                <p id="sidebar-name" class="font-black leading-tight" style="color:#1a1510;">Loading...</p>
+                <p id="sidebar-status" class="text-[10px] font-bold uppercase tracking-wider" style="color:rgba(26,21,16,0.6);">Syncing...</p>
             </div>
         </div>
-        <div class="flex items-center justify-between">
+        <div class="sb-profile-bottom flex items-center justify-between">
             <div class="flex items-center text-[10px] text-status-green font-bold bg-white w-fit px-2 py-1 rounded-md border border-gray-100">
                 <span class="w-1.5 h-1.5 bg-status-green rounded-full mr-1.5 animate-pulse"></span> TGIS ONLINE
             </div>
@@ -521,14 +552,14 @@ html.dark .theme-switch::after { transform: translateX(18px); }
     </div>
 
     <div class="mb-8">
-        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 ml-2">Main Menu</p>
-        <div id="nav-home" class="nav-button active" onclick="switchView('home')">Home</div>
-        <div id="nav-schedule" class="nav-button" onclick="switchView('schedule')">Schedule</div>
-        <div id="nav-tracker" class="nav-button" onclick="switchView('tracker')">Tour Tracker</div>
-        <div id="nav-families" class="nav-button" onclick="switchView('families')">Family Points</div>
-        <div id="nav-desk" class="nav-button" onclick="switchView('desk')">Desk Schedule</div>
-        <div id="nav-forms" class="nav-button" onclick="switchView('forms')">Required Forms</div>
-        <div id="nav-desk-dashboard" class="nav-button hidden" onclick="switchView('desk-dashboard')">Desk Dashboard</div>        
+        <p style="font-size:0.6rem;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#9CA3AF;margin:0 0 0.75rem 0.5rem;">Main Menu</p>
+        <div id="nav-home" class="nav-button active" onclick="switchView('home')"><span class="nav-icon" style="background:#1a1510;"><svg viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg></span>Home</div>
+        <div id="nav-schedule" class="nav-button" onclick="switchView('schedule')"><span class="nav-icon" style="background:#3B82F6;"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>Schedule</div>
+        <div id="nav-tracker" class="nav-button" onclick="switchView('tracker')"><span class="nav-icon" style="background:#10B981;"><svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg></span>Tour Tracker</div>
+        <div id="nav-families" class="nav-button" onclick="switchView('families')"><span class="nav-icon" style="background:#CFB991;"><svg viewBox="0 0 24 24" style="stroke:#1a1510;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>Family Points</div>
+        <div id="nav-desk" class="nav-button" onclick="switchView('desk')"><span class="nav-icon" style="background:#06B6D4;"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>Desk Schedule</div>
+        <div id="nav-forms" class="nav-button" onclick="switchView('forms')"><span class="nav-icon" style="background:#F59E0B;"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/></svg></span>Required Forms</div>
+        <div id="nav-desk-dashboard" class="nav-button hidden" onclick="switchView('desk-dashboard')"><span class="nav-icon" style="background:#6366F1;"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg></span>Desk Dashboard</div>
 
     </div>
 </nav>
@@ -542,13 +573,13 @@ html.dark .theme-switch::after { transform: translateX(18px); }
 <div class="content-area p-4 sm:p-8">
 
 <!-- ── MOBILE PAGE HEADER (same gold ribbon on every view; title is "TGIS v4" on home, page name elsewhere) ── -->
-<div id="mobile-page-header" class="lg:hidden -mx-4 sm:-mx-8" style="display:none;margin-top:0;margin-bottom:1rem;">
+<div id="mobile-page-header" class="-mx-4 sm:-mx-8" style="display:none;margin-top:0;margin-bottom:1rem;">
            <div style="background:linear-gradient(135deg,#b39a6d 0%,#CFB991 40%,#e8d5a3 70%,#CFB991 100%);
                 position:relative;overflow:hidden;padding-top:env(safe-area-inset-top);">
         <div style="position:absolute;inset:0;opacity:0.08;background:repeating-linear-gradient(45deg,transparent,transparent 10px,rgba(0,0,0,0.1) 10px,rgba(0,0,0,0.1) 11px);"></div>
 
         <!-- Top row: logo + weather + profile photo -->
-<div style="display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1;padding: 0.875rem 1.25rem 2.25rem;">
+<div class="mph-row" style="display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1;padding: 0.875rem 1.25rem 2.25rem;">
     <div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1;margin-right:12px;">
                 <img id="mobile-home-logo" src="tgisv4logomobileclear.png" alt="Tour Guide Information System" style="display:none;height:auto;max-height:30px;width:100%;max-width:100%;object-fit:contain;object-position:left center;"
                      onerror="this.dataset.failed='1'; this.style.display='none'; document.getElementById('mobile-page-title').style.display='';">
@@ -1724,12 +1755,13 @@ function renderWelcomeCenter(allTours) {
 // On mobile every view starts with the same gold ribbon (#mobile-page-header) that runs
 // under the status bar; it reads "TGIS v4" on home and the page's title elsewhere.
 function applyMobileTopPadding(viewId) {
-    if (window.innerWidth >= 1024) return;
+    window._currentView = viewId;
+    const desktop = window.innerWidth >= 1024;
     const ca = document.querySelector('.content-area');
     if (ca) ca.style.paddingTop = '0';
     const header = document.getElementById('mobile-page-header');
     if (!header) return;
-    let title = 'TGIS v4';
+    let title = desktop ? 'Home' : 'TGIS v4';
     if (viewId !== 'home') {
         const h1 = viewId === 'profile' ? null : document.querySelector(`#view-${viewId} > header h1`);
         title = (h1 && h1.textContent.trim()) || viewId.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
@@ -1738,15 +1770,17 @@ function applyMobileTopPadding(viewId) {
     titleEl.textContent = title;
     // Home shows the logo image instead of the text title.
     const homeLogo = document.getElementById('mobile-home-logo');
-    const showLogo = viewId === 'home' && homeLogo && !homeLogo.dataset.failed;
+    const showLogo = !desktop && viewId === 'home' && homeLogo && !homeLogo.dataset.failed; // desktop sidebar already has the logo
     if (homeLogo) homeLogo.style.display = showLogo ? 'block' : 'none';
     titleEl.style.display = showLogo ? 'none' : '';
     // Sheet edge takes the colour of whatever the view opens with.
-    const sheetColor = { home: 'var(--home-bg)', profile: '#1a1510' }[viewId] || 'var(--page-bg)';
+    const sheetColor = { home: desktop ? 'var(--page-bg)' : 'var(--home-bg)', profile: '#1a1510' }[viewId] || 'var(--page-bg)';
     document.getElementById('mobile-page-sheet').style.background = sheetColor;
-    header.style.marginBottom = (viewId === 'home' || viewId === 'profile') ? '0' : '1rem';
+    header.style.marginBottom = viewId === 'profile' || (viewId === 'home' && !desktop) ? '0' : (desktop ? '0.5rem' : '1rem');
     header.style.display = 'block';
 }
+// Re-apply the header when crossing the mobile/desktop breakpoint.
+window.addEventListener('resize', () => { if (window._currentView) applyMobileTopPadding(window._currentView); });
 function toggleDarkMode() {
     const dark = document.documentElement.classList.toggle('dark');
     try { localStorage.setItem('tgis-theme', dark ? 'dark' : 'light'); } catch (e) {}
