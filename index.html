@@ -3418,7 +3418,12 @@ async function sbFetch(path) {
             'Content-Type':  'application/json'
         }
     });
-    if (!res.ok) throw new Error('Supabase error: ' + res.status);
+    if (!res.ok) {
+        // Name the table and PostgREST's reason so the error screen is actionable
+        let detail = '';
+        try { const body = await res.json(); detail = body.message || body.hint || ''; } catch (e) {}
+        throw new Error(`SUPABASE_${res.status} on ${path.split('?')[0]}${detail ? ': ' + detail : ''}`);
+    }
     return res.json();
 }
 
@@ -3596,7 +3601,7 @@ async function init(authUser) {
 
     } catch(e) {
         console.error(e);
-        showError(e.message.toUpperCase().replace(/\s+/g, '_'));
+        showError(e.message);
     }
 }
     
