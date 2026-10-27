@@ -6,9 +6,19 @@
 
 
 -- ───────────────────────────────────────────────────────────────────────────
--- STEP 1 — Look before changing anything (read-only). Run each query and
--- keep the results; they show who can currently do what.
+-- STEP 1 — Look before changing anything (read-only). Run each query ON ITS
+-- OWN (the SQL Editor only shows the last result when several run together).
 -- ───────────────────────────────────────────────────────────────────────────
+
+-- 1. One-shot overview: every table, whether RLS is on, and its policies
+select c.relname as table_name,
+       c.relrowsecurity as rls_on,
+       coalesce((select string_agg(p.policyname || ' [' || p.cmd || ' → ' || array_to_string(p.roles, ',') || ']', '; ')
+                 from pg_policies p
+                 where p.schemaname = 'public' and p.tablename = c.relname), '— none —') as policies
+from pg_class c join pg_namespace n on n.oid = c.relnamespace
+where n.nspname = 'public' and c.relkind = 'r'
+order by 1;
 
 -- 1a. Which tables have row-level security (RLS) turned on
 select c.relname as table_name, c.relrowsecurity as rls_on
@@ -107,13 +117,15 @@ end $$;
 -- ───────────────────────────────────────────────────────────────────────────
 -- STEP 4 — At switchover, once (a) tgis.pages.dev runs the new Slack-login app
 -- and (b) Apps Script uses the service key. This shuts the public key out:
--- after it, only signed-in guides can read, and nobody can write except Apps Script.
+-- after it, only signed-in guides can read the app's tables, the logs/config
+-- tables are reachable only by Apps Script, and nobody can write except Apps Script.
 -- ───────────────────────────────────────────────────────────────────────────
 
 do $$
 declare t text; pol record;
 begin
-  foreach t in array array['guides','tours','tracker','forms','special_requests'] loop
+  foreach t in array array['guides','tours','tracker','forms','special_requests',
+                           'access_log','admin_log','family_points','subrequest_log','tgit_config'] loop
     execute format('alter table public.%I enable row level security', t);
     execute format('revoke all on public.%I from anon', t);
     for pol in select policyname from pg_policies
