@@ -42,8 +42,9 @@ order by 1, 2;
 
 -- ───────────────────────────────────────────────────────────────────────────
 -- STEP 2 — Safe to run now. Tightens what SIGNED-IN users can do; does not
--- touch the public key, so the live site (tgis.pages.dev) and Apps Script
--- keep working exactly as before.
+-- touch the public key, so Apps Script keeps working exactly as before.
+-- (The live site on main doesn't use Supabase at all — only Apps Script and
+-- the new app do.)
 -- ───────────────────────────────────────────────────────────────────────────
 
 -- Is the signed-in Slack user an actual guide? (security definer so policies
@@ -106,17 +107,20 @@ end $$;
 -- ───────────────────────────────────────────────────────────────────────────
 -- STEP 3 — Not SQL. Move Apps Script off the public key BEFORE step 4.
 --   1. Supabase → Project Settings → API Keys → copy the service_role (secret) key.
---   2. Apps Script → Project Settings → Script Properties → add SUPABASE_SERVICE_KEY.
---   3. Wherever the script calls Supabase with SUPABASE_ANON_KEY (both the apikey
---      and Authorization headers), use SUPABASE_SERVICE_KEY instead.
+--   2. Apps Script → Project Settings → Script Properties → SUPABASE_ANON_KEY →
+--      replace its value with the service_role key and save. (If the script reads
+--      the key from that property for its Supabase calls, nothing else changes.
+--      Rename the property later if you like, updating the code to match.)
+--   3. Run whatever syncs Supabase (or wait for its trigger) and check the
+--      executions log shows no errors.
 --   The service key bypasses RLS, so it must only ever live in Script Properties —
 --   never in an HTML file.
 -- ───────────────────────────────────────────────────────────────────────────
 
 
 -- ───────────────────────────────────────────────────────────────────────────
--- STEP 4 — At switchover, once (a) tgis.pages.dev runs the new Slack-login app
--- and (b) Apps Script uses the service key. This shuts the public key out:
+-- STEP 4 — As soon as step 3 is done and Apps Script syncs fine. (The live site
+-- doesn't use Supabase, so this doesn't affect it.) This shuts the public key out:
 -- after it, only signed-in guides can read the app's tables, the logs/config
 -- tables are reachable only by Apps Script, and nobody can write except Apps Script.
 -- ───────────────────────────────────────────────────────────────────────────
