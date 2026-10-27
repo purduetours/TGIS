@@ -3654,13 +3654,20 @@ async function init(authUser) {
         showSignIn(`You're signed in to Slack as ${email}, but that email isn't linked to a TGIS guide profile. Ask a manager to add it, or sign in with a different Slack account.`, email);
     }
 
+    // Slack workspace ID (starts with T). When set, Slack skips the "which workspace?" step.
+    // Find it in Slack on the web: app.slack.com/client/T0123ABCD/...
+    const SLACK_TEAM_ID = '';
+
     async function signInWithSlack() {
         const btn = document.getElementById('signin-slack-btn');
         btn.disabled = true;
         btn.querySelector('span').textContent = 'Opening Slack…';
         const { error } = await sbClient.auth.signInWithOAuth({
             provider: 'slack_oidc',
-            options: { redirectTo: location.origin + location.pathname },
+            options: {
+                redirectTo: location.origin + location.pathname,
+                queryParams: SLACK_TEAM_ID ? { team: SLACK_TEAM_ID } : undefined,
+            },
         });
         if (error) {
             btn.disabled = false;
