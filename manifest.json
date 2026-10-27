@@ -3,8 +3,8 @@
   "short_name": "TGIS Mobile",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#0f172a",
+  "background_color": "#F5F5F5",
+  "theme_color": "#c4ad82",
   "icons": [
     {
       "src": "tgisicon.png",

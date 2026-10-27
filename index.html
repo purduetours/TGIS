@@ -553,7 +553,11 @@ html.dark .theme-switch::after { transform: translateX(18px); }
     </style>
     <meta name="apple-mobile-web-app-capable" content="yes">
 
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<!-- Solid status bar, coloured gold by theme-color. black-translucent hits an iOS 26
+     home-screen bug (WebKit 301108) that sizes the app one status-bar height short,
+     leaving a strip at the bottom that nothing can draw into. -->
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#c4ad82">
 
 <meta name="apple-mobile-web-app-title" content="TGIS Mobile">
 
