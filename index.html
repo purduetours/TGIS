@@ -3467,8 +3467,15 @@ async function init(authUser) {
     if (!email) { showSignIn('Slack didn\'t share an email address for this account.'); return; }
 
     try {
-        // 1. Get guide profile: the guides row whose email matches the Slack login
-        const matches = await sbFetch(`guides?email=ilike.${encodeURIComponent(email)}&limit=5`);
+        // 1. Get guide profile. get_my_guide() matches the email inside the verified login
+        //    token on the server (see supabase/security.sql); the email filter is only a
+        //    fallback for databases where that function hasn't been created yet.
+        let matches;
+        try {
+            matches = await sbFetch('rpc/get_my_guide');
+        } catch (e) {
+            matches = await sbFetch(`guides?email=ilike.${encodeURIComponent(email)}&limit=5`);
+        }
         const p = (matches || []).find(g => String(g.email || '').trim().toLowerCase() === email);
         if (!p) { showNotLinked(email); return; }
         userName = p.username;
@@ -3478,7 +3485,7 @@ async function init(authUser) {
         // 2. Run remaining queries in parallel
         const displayName = p.display_name;
         const [profileRows, myTours, allTracker, myTrackerRows, forms, specialRequests, allGuides, allTours] = await Promise.all([
-            sbFetch(`guides?username=eq.${encodeURIComponent(userName)}&limit=1`),
+            Promise.resolve([p]),
             sbFetch(`tours?guide=ilike.*${encodeURIComponent(displayName)}*&order=tour_date.asc`),
             sbFetch(`tracker?select=*&order=total.desc`),
             sbFetch(`tracker?display_name=eq.${encodeURIComponent(displayName)}&select=*&limit=1`),
