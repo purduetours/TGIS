@@ -462,7 +462,12 @@ html.dark .avs-grabber { background: #3a3a3c; }
 /* Desktop */
 @media (min-width: 1024px) {
     /* mobile-only UI */
-    .bottom-nav-dedicated, #available-sheet { display: none !important; }
+    .bottom-nav-dedicated { display: none !important; }
+    /* open-tours list opens as a centred dialog on desktop */
+    .avs-panel { left: 50%; right: auto; top: 50%; bottom: auto; width: 520px; max-height: 80vh; border-radius: 1.5rem;
+                 transform: translate(-50%, -50%); padding-bottom: 1rem; animation: avsFade 0.2s ease-out; }
+    .avs-grabber { display: none; }
+    .avs-panel > div:nth-child(2) { padding-top: 0.75rem !important; }
     /* gold header: roomier on desktop */
     #mobile-page-title { font-size: 1.875rem !important; }
     /* header sits on the page colour, with a heavy gold divider instead of the gold band */
@@ -544,6 +549,93 @@ html.dark .nav-button.active { background: rgba(207,185,145,0.18); color: #fff; 
 html.dark .signin-card { background: #1c1c1e; }
 html.dark .signin-title { color: #f3f4f6; }
 html.dark .signin-logo { filter: invert(1) hue-rotate(180deg); mix-blend-mode: screen; }
+
+/* Desktop home */
+.dh { display: none; }
+@media (min-width: 1024px) {
+    .dh { display: block; }
+    .mh-greet, .mh-grid { display: none !important; }
+    .dh-label { font-size: 0.6rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.15em; color: #9CA3AF; margin: 0; }
+    .dh-muted { font-size: 0.75rem; font-weight: 600; color: #9CA3AF; margin: 4px 0 0; }
+    .dh-hero { display: flex; align-items: stretch; gap: 2rem; background: white; border: 1px solid #EFEFEF; border-radius: 1.5rem;
+               padding: 1.75rem 2rem; box-shadow: 0 2px 12px rgba(0,0,0,0.05); margin-bottom: 1.25rem; }
+    .dh-hero-greet { flex: 1.2; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+    .dh-greet { font-size: 2rem; font-weight: 900; color: #1a1510; margin: 0; line-height: 1.15; }
+    .dh-date { font-size: 0.875rem; font-weight: 700; color: #6B7280; margin: 6px 0 0; }
+    .dh-summary { font-size: 0.8125rem; font-weight: 600; color: #9CA3AF; margin: 10px 0 0; }
+    .dh-hero-divider { width: 1px; background: #F0F0F0; }
+    .dh-next { flex: 1; min-width: 0; cursor: pointer; border-radius: 1rem; padding: 0.25rem; }
+    .dh-next-body { display: flex; align-items: center; gap: 1.25rem; margin-top: 0.75rem; }
+    .dh-datetile { width: 72px; height: 80px; border-radius: 16px; background: rgba(207,185,145,0.15); border: 1px solid rgba(207,185,145,0.35);
+                   display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0; }
+    .dh-datetile span { font-size: 0.6rem; font-weight: 900; letter-spacing: 0.12em; color: #9CA3AF; }
+    .dh-datetile span:first-child { color: #b39a6d; }
+    .dh-datetile strong { font-size: 1.875rem; font-weight: 900; color: #111827; line-height: 1.05; }
+    .dh-next-name { font-size: 0.875rem; font-weight: 800; color: #6B7280; margin: 0; }
+    .dh-next-time { font-size: 2.25rem; font-weight: 900; color: #111827; margin: 2px 0 8px; line-height: 1; }
+    .dh-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+    .dh-chip { font-size: 0.6rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; padding: 4px 9px; border-radius: 99px; }
+    .dh-chip.green { color: #059669; background: rgba(16,185,129,0.12); }
+    .dh-chip.gold { color: #9a7f4f; background: rgba(207,185,145,0.2); }
+    .dh-chip.red { color: #DC2626; background: rgba(239,68,68,0.12); }
+    .dh-grid { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(300px, 1fr); gap: 1.25rem; align-items: start; }
+    .dh-col { display: flex; flex-direction: column; gap: 1.25rem; min-width: 0; }
+    .dh-card { background: white; border: 1px solid #EFEFEF; border-radius: 1.25rem; box-shadow: 0 2px 12px rgba(0,0,0,0.05); overflow: hidden; }
+    .dh-card-head { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.25rem 0.5rem; }
+    .dh-count { font-size: 0.65rem; font-weight: 900; color: #9a7f4f; background: rgba(207,185,145,0.2); padding: 2px 9px; border-radius: 99px; }
+    .dh-link { border: none; background: none; font-family: inherit; font-size: 0.75rem; font-weight: 700; color: #b39a6d; cursor: pointer; padding: 0; }
+    .dh-link:hover { color: #1a1510; }
+    .dh-row { display: flex; align-items: center; gap: 0.875rem; padding: 0.75rem 1.25rem; cursor: pointer; border-top: 1px solid #F5F5F5; }
+    .dh-card-head + .dh-row { border-top: none; }
+    .dh-row:hover { background: #FAFAFA; }
+    .dh-row.dh-static { cursor: default; }
+    .dh-row.dh-static:hover { background: none; }
+    .dh-row:last-child { padding-bottom: 1rem; }
+    .dh-row-text { flex: 1; min-width: 0; }
+    .dh-row-title { font-size: 0.875rem; font-weight: 800; color: #111827; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .dh-row-meta { font-size: 0.75rem; font-weight: 600; color: #9CA3AF; margin: 2px 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .dh-row-time { font-size: 0.8125rem; font-weight: 800; color: #6B7280; white-space: nowrap; }
+    .dh-tag { font-size: 0.6rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; padding: 4px 8px; border-radius: 8px; white-space: nowrap; flex-shrink: 0; text-align: center; }
+    .dh-tag-fixed { width: 104px; box-sizing: border-box; }
+    .dh-tag.red { color: #DC2626; background: rgba(239,68,68,0.1); }
+    .dh-tag.green { color: #059669; background: rgba(16,185,129,0.1); }
+    .dh-tag.amber { color: #D97706; background: rgba(245,158,11,0.12); }
+    .dh-tag.gold { color: #9a7f4f; background: rgba(207,185,145,0.2); }
+    .dh-chev { width: 14px; height: 14px; fill: none; stroke: #D1D5DB; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    .dh-empty { display: flex; align-items: center; gap: 0.875rem; padding: 0.75rem 1.25rem 1.25rem; }
+    .dh-empty-icon { width: 36px; height: 36px; border-radius: 10px; background: rgba(16,185,129,0.12); display: flex; align-items: center; justify-content: center; }
+    .dh-empty-icon svg { width: 18px; height: 18px; fill: none; stroke: #10B981; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    .dh-minidate { width: 44px; text-align: center; flex-shrink: 0; }
+    .dh-minidate span { display: block; font-size: 0.55rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; color: #9CA3AF; }
+    .dh-minidate strong { display: block; font-size: 1.05rem; font-weight: 900; color: #111827; line-height: 1.1; }
+    .dh-stats { display: flex; align-items: center; padding: 0.5rem 1.25rem 1rem; }
+    .dh-stats > div:not(.dh-stats-divider) { flex: 1; text-align: center; }
+    .dh-stats strong { display: block; font-size: 2rem; font-weight: 900; color: #111827; line-height: 1; }
+    .dh-stats span { display: block; font-size: 0.6rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: #9CA3AF; margin-top: 6px; }
+    .dh-stats em { display: block; font-style: normal; font-size: 0.75rem; font-weight: 800; color: #374151; margin-top: 2px; }
+    .dh-stats-divider { width: 1px; align-self: stretch; background: #F0F0F0; }
+    .dh-family { display: flex; align-items: center; gap: 1rem; padding: 0.875rem 1.25rem 1rem; border-top: 1px solid #F5F5F5; cursor: pointer; }
+    .dh-family:hover { background: #FAFAFA; }
+    .dh-family-place { text-align: right; }
+    .dh-family-place strong { display: block; font-size: 1.5rem; font-weight: 900; color: #b39a6d; line-height: 1; }
+    .dh-family-place span { display: block; font-size: 0.65rem; font-weight: 800; color: #9CA3AF; margin-top: 3px; }
+    .dh-shortcuts { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; padding: 0.25rem 1rem 1rem; }
+    .dh-sc { display: flex; align-items: center; gap: 0.625rem; padding: 0.5rem 0.625rem; border-radius: 0.875rem; border: 1px solid #F0F0F0;
+             background: white; font-family: inherit; font-size: 0.8125rem; font-weight: 800; color: #1a1510; cursor: pointer; text-decoration: none; text-align: left; }
+    .dh-sc:hover { border-color: #CFB991; }
+    .dh-sc-icon { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .dh-sc-icon svg { width: 15px; height: 15px; fill: none; stroke: #fff; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+    .dh-dot { width: 7px; height: 7px; border-radius: 99px; background: #D1D5DB; flex-shrink: 0; }
+    /* dark mode */
+    html.dark .dh-hero, html.dark .dh-card, html.dark .dh-sc { background: #1c1c1e; border-color: #2c2c2e; box-shadow: none; }
+    html.dark .dh-greet, html.dark .dh-next-time, html.dark .dh-datetile strong, html.dark .dh-row-title,
+    html.dark .dh-minidate strong, html.dark .dh-stats strong, html.dark .dh-sc { color: #f3f4f6; }
+    html.dark .dh-stats em, html.dark .dh-row-time, html.dark .dh-next-name, html.dark .dh-date { color: #a1a1aa; }
+    html.dark .dh-hero-divider, html.dark .dh-stats-divider { background: #2c2c2e; }
+    html.dark .dh-row, html.dark .dh-family { border-top-color: #2c2c2e; }
+    html.dark .dh-row:hover, html.dark .dh-family:hover { background: #242426; }
+    html.dark .dh-row.dh-static:hover { background: none; }
+}
 
 /* Toggle switch */
 .theme-switch { position: relative; width: 46px; height: 28px; border-radius: 99px; background: #E5E7EB; border: none; cursor: pointer; transition: background 0.2s; flex-shrink: 0; }
@@ -747,6 +839,9 @@ html.dark .theme-switch::after { transform: translateX(18px); }
             <p id="home-greeting" style="font-size:1.375rem;font-weight:900;color:#1a1510;margin:0;line-height:1.2;"></p>
             <p id="live-clock-mobile" style="font-size:0.7rem;font-weight:600;color:#9CA3AF;margin:3px 0 0;letter-spacing:0.05em;"></p>
         </div>
+
+        <!-- Desktop home (built by renderDesktopHome; the mobile sections above/below are hidden on desktop) -->
+        <div id="dh" class="dh"></div>
 
         <div class="mh-grid">
           <div class="mh-col-main">
@@ -2151,6 +2246,7 @@ async function loadAvailableTours() {
 }
 
 function renderAvailableCard() {
+    renderDesktopHome();
     const el = document.getElementById('mh-available');
     const n = availableTours.length;
     if (!n) { el.hidden = true; return; }
@@ -2228,7 +2324,193 @@ function closeAvailableSheet() {
     document.getElementById('available-sheet').hidden = true;
 }
 
+// ── DESKTOP HOME ─────────────────────────────────────────────────────────
+// Organised around what a guide opens Home to answer: what's next (hero),
+// does anything need me (one attention list), what's coming up, how am I doing.
+function renderDesktopHome() {
+    const root = document.getElementById('dh');
+    if (!root || !cachedData) return;
+    const myTours = window._homeTours || [];
+    const esc = v => String(v ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const dayDiff = d => { const x = new Date(d); x.setHours(0, 0, 0, 0); return Math.round((x - today) / 86400000); };
+    const tourMinutes = t => { const info = TOUR_MAP[t.type]; if (!info) return 9999; const p = parse12Hour(t.time || info.time); return p.hours * 60 + p.minutes; };
+    const infoOf = t => TOUR_MAP[t.type] || { name: t.type, time: '--' };
+    const upcoming = myTours.filter(t => dayDiff(t.date) >= 0)
+        .sort((a, b) => (new Date(a.date) - new Date(b.date)) || (tourMinutes(a) - tourMinutes(b)));
+    const thisWeek = upcoming.filter(t => dayDiff(t.date) < 7).length;
+    const whenLabel = diff => diff === 0 ? 'Today' : diff === 1 ? 'Tomorrow' : `In ${diff} days`;
+
+    // Hero: greeting + next tour
+    const prof = cachedData.profile || {};
+    const first = String(prof.fullName || prof.displayName || '').split(' ')[0];
+    const hr = new Date().getHours();
+    const greeting = `${hr < 12 ? 'Good morning' : hr < 17 ? 'Good afternoon' : 'Good evening'}${first ? ', ' + esc(first) : ''}.`;
+    const dateLine = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+    const summary = thisWeek ? `You have ${thisWeek} tour${thisWeek === 1 ? '' : 's'} in the next 7 days.` : 'No tours in the next 7 days.';
+    const next = upcoming[0];
+    let nextHtml;
+    if (next) {
+        const info = infoOf(next), d = new Date(next.date), diff = dayDiff(next.date);
+        nextHtml = `
+            <div class="dh-next" onclick="switchView('schedule')">
+                <p class="dh-label">Next Tour</p>
+                <div class="dh-next-body">
+                    <div class="dh-datetile">
+                        <span>${d.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}</span>
+                        <strong>${d.getDate()}</strong>
+                        <span>${d.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase()}</span>
+                    </div>
+                    <div class="dh-next-text">
+                        <p class="dh-next-name">${esc(info.name)}</p>
+                        <p class="dh-next-time">${esc(next.time || info.time)}</p>
+                        <div class="dh-chips">
+                            <span class="dh-chip ${diff === 0 ? 'green' : 'gold'}">${whenLabel(diff)}</span>
+                            ${(next.guide || '').includes('*') ? '<span class="dh-chip red">Pending drop</span>' : ''}
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+    } else {
+        nextHtml = `
+            <div class="dh-next" onclick="switchView('schedule')">
+                <p class="dh-label">Next Tour</p>
+                <p class="dh-next-name" style="margin-top:0.75rem;">No upcoming tours</p>
+                <p class="dh-muted">Open tours from other guides show up under Needs your attention.</p>
+            </div>`;
+    }
+
+    // Needs your attention: drops, open tours, forms — one list
+    const items = [];
+    upcoming.filter(t => (t.guide || '').includes('*')).forEach(t => {
+        const info = infoOf(t), diff = dayDiff(t.date);
+        const day = diff <= 1 ? whenLabel(diff) : new Date(t.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+        items.push({ tone: 'red', tag: 'Pending drop', title: info.name, meta: `${day} · ${t.time || info.time} · you're on it until someone picks it up`, onclick: "switchView('schedule')" });
+    });
+    const open = (typeof availableTours !== 'undefined' && availableTours) || [];
+    if (open.length) {
+        const first = open[0];
+        const meta = first.source === 'slack' ? first.text.split('\n')[0]
+            : `Next: ${new Date(first.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} · ${infoOf(first).name}`;
+        items.push({ tone: 'green', tag: 'Open tours', title: `${open.length} tour${open.length === 1 ? '' : 's'} available to pick up`, meta, onclick: 'openAvailableSheet()' });
+    }
+    const now = new Date();
+    (cachedData.forms || []).filter(f => f.active && !f.submitted)
+        .sort((a, b) => (a.dueDate ? new Date(a.dueDate) : Infinity) - (b.dueDate ? new Date(b.dueDate) : Infinity))
+        .slice(0, 3).forEach(f => {
+            const due = f.dueDate ? new Date(f.dueDate) : null;
+            const days = due ? Math.ceil((due - now) / 86400000) : null;
+            const overdue = days !== null && days < 0;
+            items.push({
+                tone: overdue ? 'red' : (days !== null && days <= 2 ? 'amber' : 'gold'),
+                tag: overdue ? 'Overdue' : 'Form',
+                title: f.formName || f.formId,
+                meta: days === null ? 'No due date' : overdue ? 'Past due' : days === 0 ? 'Due today' : `Due ${due.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}`,
+                onclick: "switchView('forms')",
+            });
+        });
+    const attentionHtml = items.length ? items.map(it => `
+            <div class="dh-row" onclick="${it.onclick}">
+                <span class="dh-tag dh-tag-fixed ${it.tone}">${esc(it.tag)}</span>
+                <div class="dh-row-text">
+                    <p class="dh-row-title">${esc(it.title)}</p>
+                    <p class="dh-row-meta">${esc(it.meta)}</p>
+                </div>
+                <svg class="dh-chev" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+            </div>`).join('') : `
+            <div class="dh-empty">
+                <span class="dh-empty-icon"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></span>
+                <div><p class="dh-row-title">You're all caught up</p><p class="dh-row-meta">No drops, open tours or forms need you right now.</p></div>
+            </div>`;
+
+    // Coming up (after the next tour)
+    const later = upcoming.slice(1, 6);
+    const comingHtml = later.length ? later.map(t => {
+        const info = infoOf(t), d = new Date(t.date), diff = dayDiff(t.date);
+        return `
+            <div class="dh-row" onclick="switchView('schedule')">
+                <div class="dh-minidate"><span>${diff === 0 ? 'Today' : diff === 1 ? 'Tmrw' : d.toLocaleDateString('en-US', { weekday: 'short' })}</span><strong>${d.getDate()}</strong></div>
+                <div class="dh-row-text"><p class="dh-row-title">${esc(info.name)}</p></div>
+                ${(t.guide || '').includes('*') ? '<span class="dh-tag red">Drop?</span>' : ''}
+                <span class="dh-row-time">${esc(t.time || info.time)}</span>
+            </div>`;
+    }).join('') : `<p class="dh-muted" style="padding:1rem 1.25rem;">Nothing else scheduled yet.</p>`;
+
+    // Your progress: tours + ranks + family cup
+    const st = cachedData.stats || {};
+    const standings = [...(cachedData.familyStandings || [])].sort((a, b) => b.points - a.points);
+    const famIdx = standings.findIndex(f => f.name === prof.family);
+    const ord = n => n + (['th', 'st', 'nd', 'rd'][(n % 100 - 20) % 10] || ['th', 'st', 'nd', 'rd'][n % 100] || 'th');
+    const famHtml = famIdx >= 0 ? `
+            <div class="dh-family" onclick="switchView('families')">
+                <div class="dh-row-text">
+                    <p class="dh-label">Family Cup</p>
+                    <p class="dh-row-title" style="margin-top:4px;">${esc(standings[famIdx].name)}</p>
+                    <p class="dh-row-meta">${famIdx === 0 ? 'Leading the cup' : `${standings[0].points - standings[famIdx].points} pts behind 1st`}</p>
+                </div>
+                <div class="dh-family-place"><strong>${ord(famIdx + 1)}</strong><span>${standings[famIdx].points} pts</span></div>
+            </div>` : '';
+
+    const shortcuts = [
+        { label: 'WebClock', bg: '#6366F1', href: 'https://webclock.purdue.edu', icon: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>' },
+        { label: 'Search', bg: '#1a1510', view: 'search', icon: '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>' },
+        { label: 'Handbook', bg: '#EF4444', view: 'handbook', icon: '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>' },
+        { label: 'Main Stage', bg: '#CFB991', href: 'https://www.purduetours.github.io/Main-Stage-Leaderboard', icon: '<path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/>' },
+    ];
+    const shortcutHtml = shortcuts.map(c => {
+        const inner = `<span class="dh-sc-icon" style="background:${c.bg};"><svg viewBox="0 0 24 24">${c.icon}</svg></span><span>${c.label}</span>`;
+        return c.href ? `<a class="dh-sc" href="${c.href}" target="_blank" rel="noopener">${inner}</a>`
+                      : `<button class="dh-sc" onclick="switchView('${c.view}')">${inner}</button>`;
+    }).join('');
+
+    root.innerHTML = `
+        <section class="dh-hero">
+            <div class="dh-hero-greet">
+                <p class="dh-greet">${greeting}</p>
+                <p class="dh-date">${dateLine}</p>
+                <p class="dh-summary">${summary}</p>
+            </div>
+            <div class="dh-hero-divider"></div>
+            ${nextHtml}
+        </section>
+
+        <div class="dh-grid">
+            <div class="dh-col">
+                <section class="dh-card">
+                    <div class="dh-card-head"><p class="dh-label">Needs your attention</p>${items.length ? `<span class="dh-count">${items.length}</span>` : ''}</div>
+                    ${attentionHtml}
+                </section>
+                <section class="dh-card">
+                    <div class="dh-card-head"><p class="dh-label">Coming up</p><button class="dh-link" onclick="switchView('schedule')">Full schedule →</button></div>
+                    ${comingHtml}
+                </section>
+            </div>
+            <div class="dh-col">
+                <section class="dh-card">
+                    <div class="dh-card-head"><p class="dh-label">Your progress</p><button class="dh-link" onclick="switchView('tracker')">Tracker →</button></div>
+                    <div class="dh-stats">
+                        <div><strong style="color:#10B981;">${st.semesterTotal ?? '--'}</strong><span>This semester</span><em>${cachedData.semesterRank ? 'Rank #' + cachedData.semesterRank : '&nbsp;'}</em></div>
+                        <div class="dh-stats-divider"></div>
+                        <div><strong>${st.careerTotal ?? '--'}</strong><span>Career</span><em>${cachedData.rank ? 'Rank #' + cachedData.rank : '&nbsp;'}</em></div>
+                    </div>
+                    ${famHtml}
+                </section>
+                <section class="dh-card">
+                    <div class="dh-card-head"><p class="dh-label">Shortcuts</p></div>
+                    <div class="dh-shortcuts">${shortcutHtml}</div>
+                </section>
+                <section class="dh-card">
+                    <div class="dh-card-head"><p class="dh-label">Announcements</p></div>
+                    <div class="dh-row dh-static"><span class="dh-dot" style="background:#CFB991;"></span><div class="dh-row-text"><p class="dh-row-title">Tour Tracker</p><p class="dh-row-meta">Updated every Thursday.</p></div></div>
+                    <div class="dh-row dh-static"><span class="dh-dot"></span><div class="dh-row-text"><p class="dh-row-title" style="color:#9CA3AF;">Construction Update</p><p class="dh-row-meta">Resolved</p></div></div>
+                </section>
+            </div>
+        </div>`;
+}
+
 function renderMobileHome(myTours) {
+    window._homeTours = myTours;
+    renderDesktopHome();
     if (!document.getElementById('mh-next') || !cachedData) return;
     const label = (t, extra = '') => `<p style="font-size:0.6rem;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#9CA3AF;margin:0;${extra}">${t}</p>`;
     const today = new Date(); today.setHours(0, 0, 0, 0);
@@ -3789,7 +4071,7 @@ drawConfetti();
     else bootAuth();
 </script>
 <!-- Available tours sheet (mobile) -->
-<div id="available-sheet" class="lg:hidden" hidden>
+<div id="available-sheet" hidden>
     <div class="avs-backdrop" onclick="closeAvailableSheet()"></div>
     <div class="avs-panel" role="dialog" aria-label="Tours available to pick up">
         <div class="avs-grabber"></div>
