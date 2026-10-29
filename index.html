@@ -715,6 +715,48 @@ html.dark .rs-chip { background: #2c2c2e; color: #d1d5db; } html.dark .rs-chip b
 html.dark .rs-tabs { background: #1c1c1e; } html.dark .rs-tab.is-on { background: #2c2c2e; color: #fff; }
 html.dark .rs-bar div { background: #2c2c2e; }
 
+/* Import new accounts (roster header button + dialog) */
+.hdr-import-btn { display: flex; align-items: center; gap: 0.5rem; height: 36px; padding: 0 0.875rem; border-radius: 10px; border: none;
+                  background: #1a1510; color: #fff; font-family: inherit; font-size: 0.75rem; font-weight: 800; cursor: pointer; white-space: nowrap; }
+.hdr-import-btn[hidden] { display: none; }
+.hdr-import-btn svg { width: 16px; height: 16px; fill: none; stroke: #CFB991; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+@media (max-width: 1023px) { .hdr-import-btn span { display: none; } .hdr-import-btn { padding: 0 0.625rem; } }
+@media (min-width: 1024px) { .hdr-import-btn { height: 52px; padding: 0 1.125rem; border-radius: 1rem; margin-right: 0.625rem; } }
+.imp-modal { position: fixed; inset: 0; z-index: 210; }
+.imp-modal[hidden] { display: none; }
+.imp-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.45); }
+.imp-panel { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(1000px, calc(100vw - 2rem)); max-height: 86vh;
+             display: flex; flex-direction: column; background: #F5F5F4; border-radius: 1.5rem; overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,0.25); }
+.imp-head { display: flex; align-items: flex-start; justify-content: space-between; padding: 1.25rem 1.5rem 0.75rem; }
+.imp-head h3 { margin: 2px 0 0; font-size: 1.25rem; font-weight: 900; color: #111827; }
+.imp-x { width: 32px; height: 32px; border-radius: 10px; border: none; background: #E7E5E4; color: #57534E; cursor: pointer; font-size: 0.9rem; }
+.imp-body { overflow-y: auto; padding: 0 1.5rem 1rem; }
+.imp-note { font-size: 0.8125rem; font-weight: 600; color: #374151; margin: 0 0 0.75rem; }
+.imp-note span { display: block; margin-top: 2px; font-size: 0.7rem; color: #9CA3AF; }
+.imp-row { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; background: white; border: 1px solid #ECECEC; border-radius: 1rem; padding: 0.75rem 1rem; margin-bottom: 0.5rem; }
+.imp-check { width: 18px; height: 18px; accent-color: #1a1510; flex-shrink: 0; }
+.imp-who { flex: 1 1 170px; min-width: 0; }
+.imp-who b { display: block; font-size: 0.875rem; font-weight: 800; color: #111827; }
+.imp-who small { display: block; font-size: 0.7rem; font-weight: 600; color: #9CA3AF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.imp-field { display: flex; flex-direction: column; gap: 2px; flex: 0 0 128px; min-width: 0; }
+.imp-field span { font-size: 0.55rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: #9CA3AF; }
+.imp-field input, .imp-field select { padding: 0.4rem 0.5rem; border-radius: 0.5rem; border: 1px solid #E5E7EB; font-family: inherit; font-size: 0.8125rem; font-weight: 600; background: white; color: #111827; min-width: 0; width: 100%; box-sizing: border-box; }
+.imp-foot { display: flex; align-items: center; justify-content: space-between; padding: 0.875rem 1.5rem; border-top: 1px solid #E7E5E4; background: white; }
+.imp-foot[hidden] { display: none; }
+.imp-all { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8125rem; font-weight: 700; color: #374151; cursor: pointer; }
+.imp-create { border: none; background: #1a1510; color: #fff; border-radius: 0.875rem; padding: 0.75rem 1.25rem; font-family: inherit; font-size: 0.8125rem; font-weight: 800; cursor: pointer; }
+.imp-create:disabled { opacity: 0.45; cursor: default; }
+.imp-error { margin: 0 0 1rem; padding: 0.875rem 1rem; border-radius: 0.875rem; background: #FFF5F5; border: 1px solid #FEE2E2; color: #B91C1C; font-size: 0.8125rem; font-weight: 600; }
+.imp-done { text-align: center; padding: 2rem 1rem; }
+.imp-done b { display: block; font-size: 1rem; font-weight: 900; color: #111827; }
+.imp-done small { display: block; margin-top: 0.375rem; font-size: 0.8125rem; font-weight: 600; color: #6B7280; }
+html.dark .imp-panel { background: #0f0f10; }
+html.dark .imp-row, html.dark .imp-foot { background: #1c1c1e; border-color: #2c2c2e; }
+html.dark .imp-head h3, html.dark .imp-who b, html.dark .imp-done b { color: #f3f4f6; }
+html.dark .imp-field input, html.dark .imp-field select { background: #2c2c2e; border-color: #3a3a3c; color: #f3f4f6; }
+html.dark .imp-note, html.dark .imp-all { color: #d1d5db; }
+html.dark .imp-x { background: #2c2c2e; color: #d1d5db; }
+
 /* Toggle switch */
 .theme-switch { position: relative; width: 46px; height: 28px; border-radius: 99px; background: #E5E7EB; border: none; cursor: pointer; transition: background 0.2s; flex-shrink: 0; }
 .theme-switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.25); transition: transform 0.2s; }
@@ -861,6 +903,11 @@ html.dark .theme-switch::after { transform: translateX(18px); }
             <!-- Weather + Profile -->
             <div style="display:flex;align-items:center;gap:0.625rem;">
                 <!-- Weather chip -->
+                <!-- Roster only (Codirector / Admin): find Slack members without a TGIS account -->
+                <button id="hdr-import-btn" class="hdr-import-btn" onclick="openImportModal()" hidden>
+                    <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>
+                    <span>Import new accounts</span>
+                </button>
                 <div id="home-weather-chip"
                      style="display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.22);
                             border:2px solid rgba(255,255,255,0.6);border-radius:10px;box-sizing:border-box;
@@ -1050,6 +1097,25 @@ html.dark .theme-switch::after { transform: translateX(18px); }
         </div>
         <p id="rs-count" class="rs-count"></p>
         <div id="rs-list" class="rs-list"></div>
+    </div>
+
+    <!-- Import Slack members as TGIS accounts (roster) -->
+    <div id="imp-modal" class="imp-modal" hidden>
+        <div class="imp-backdrop" onclick="closeImportModal()"></div>
+        <div class="imp-panel" role="dialog" aria-label="Import new accounts">
+            <div class="imp-head">
+                <div>
+                    <p class="rs-label">Slack workspace</p>
+                    <h3>Import new accounts</h3>
+                </div>
+                <button class="imp-x" onclick="closeImportModal()" aria-label="Close">✕</button>
+            </div>
+            <div id="imp-body" class="imp-body"></div>
+            <div id="imp-foot" class="imp-foot" hidden>
+                <label class="imp-all"><input id="imp-all" type="checkbox" onchange="impToggleAll(this.checked)"> Select all</label>
+                <button id="imp-create" class="imp-create" onclick="impCreate()">Create accounts</button>
+            </div>
+        </div>
     </div>
 
     <!-- Full-screen guide profile (roster) -->
@@ -2041,6 +2107,8 @@ function applyMobileTopPadding(viewId) {
     document.getElementById('mobile-page-sheet').style.background = sheetColor;
     header.style.marginBottom = viewId === 'profile' || (viewId === 'home' && !desktop) ? '0' : (desktop ? '1.5rem' : '1rem');
     header.style.display = 'block';
+    const importBtn = document.getElementById('hdr-import-btn');
+    if (importBtn) importBtn.hidden = !(viewId === 'roster' && canSeeRoster());
 }
 // Re-apply the header when crossing the mobile/desktop breakpoint.
 window.addEventListener('resize', () => { if (window._currentView) applyMobileTopPadding(window._currentView); });
@@ -2688,6 +2756,112 @@ function closeRosterGuide() {
     document.getElementById('rs-profile').hidden = true;
 }
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && rosterProfileIndex !== null) closeRosterGuide(); });
+
+// ── IMPORT FROM SLACK (roster) ───────────────────────────────────────────
+// Talks to the slack-import Edge Function (supabase/functions/slack-import).
+let impMembers = [];
+
+async function impCall(body) {
+    const { data, error } = await sbClient.functions.invoke('slack-import', { body });
+    if (error) {
+        let msg = error.message || 'Request failed';
+        try { const j = await error.context.json(); if (j && j.error) msg = j.error; } catch (e) {}
+        if (/not found|404|Failed to send/i.test(msg)) msg = 'The slack-import function isn\'t deployed yet (see supabase/functions/slack-import/README.md).';
+        throw new Error(msg);
+    }
+    return data;
+}
+
+function openImportModal() {
+    document.getElementById('imp-modal').hidden = false;
+    impScan();
+}
+
+function closeImportModal() {
+    document.getElementById('imp-modal').hidden = true;
+}
+
+async function impScan() {
+    const body = document.getElementById('imp-body');
+    document.getElementById('imp-foot').hidden = true;
+    body.innerHTML = '<p class="rs-empty">Scanning the Slack workspace…</p>';
+    let res;
+    try { res = await impCall({ action: 'scan' }); }
+    catch (e) { body.innerHTML = `<p class="imp-error">${rosterEsc(e.message)}</p>`; return; }
+    impMembers = res.members || [];
+    const sk = res.skipped || {};
+    const note = `Skipped ${sk.alreadyInTgis || 0} already in TGIS, ${sk.guests || 0} guests, ${sk.bots || 0} bots, ${sk.deactivated || 0} deactivated${sk.noEmail ? `, ${sk.noEmail} with no email` : ''}.`;
+    if (!impMembers.length) {
+        body.innerHTML = `<div class="imp-done"><b>Everyone in Slack already has a TGIS account.</b><small>${note}</small></div>`;
+        return;
+    }
+    const families = [...new Set((rosterRows || []).map(r => r.family).filter(Boolean))].sort();
+    const famOptions = '<option value="">No family</option>' + families.map(f => `<option>${rosterEsc(f)}</option>`).join('');
+    const roles = ['Tour Guide', 'Manager', 'Codirector', 'Admin'];
+    body.innerHTML = `
+        <p class="imp-note">${impMembers.length} Slack member${impMembers.length === 1 ? '' : 's'} without a TGIS account. Check the ones to add and set how they'll appear. <span>${note}</span></p>
+        ${impMembers.map((m, i) => {
+            const first = String(m.full_name || '').split(' ')[0];
+            return `
+            <div class="imp-row">
+                <input type="checkbox" class="imp-check" data-i="${i}" onchange="impUpdateCount()">
+                ${m.photo ? `<img src="${rosterEsc(m.photo)}" alt="" class="rs-av" style="width:40px;height:40px;">` : `<span class="rs-av rs-av-initial" style="width:40px;height:40px;">${rosterEsc(first.charAt(0) || '?')}</span>`}
+                <div class="imp-who"><b>${rosterEsc(m.full_name)}</b><small>${rosterEsc(m.email)}${m.title ? ' · ' + rosterEsc(m.title) : ''}</small></div>
+                <label class="imp-field"><span>Display name</span><input id="imp-dn-${i}" value="${rosterEsc(m.display_name || first)}"></label>
+                <label class="imp-field"><span>Username</span><input id="imp-un-${i}" value="${rosterEsc(m.email.split('@')[0])}"></label>
+                <label class="imp-field"><span>Role</span><select id="imp-role-${i}">${roles.map(r => `<option>${r}</option>`).join('')}</select></label>
+                <label class="imp-field"><span>Family</span><select id="imp-fam-${i}">${famOptions}</select></label>
+            </div>`;
+        }).join('')}`;
+    document.getElementById('imp-all').checked = false;
+    document.getElementById('imp-foot').hidden = false;
+    impUpdateCount();
+}
+
+function impToggleAll(on) {
+    document.querySelectorAll('.imp-check').forEach(c => { c.checked = on; });
+    impUpdateCount();
+}
+
+function impUpdateCount() {
+    const n = document.querySelectorAll('.imp-check:checked').length;
+    const btn = document.getElementById('imp-create');
+    btn.disabled = !n;
+    btn.textContent = n ? `Create ${n} account${n === 1 ? '' : 's'}` : 'Create accounts';
+}
+
+async function impCreate() {
+    const picked = [...document.querySelectorAll('.imp-check:checked')].map(c => Number(c.dataset.i));
+    if (!picked.length) return;
+    const accounts = picked.map(i => ({
+        email: impMembers[i].email,
+        full_name: impMembers[i].full_name,
+        display_name: document.getElementById(`imp-dn-${i}`).value.trim(),
+        username: document.getElementById(`imp-un-${i}`).value.trim(),
+        status: document.getElementById(`imp-role-${i}`).value,
+        family: document.getElementById(`imp-fam-${i}`).value,
+        photo: impMembers[i].photo,
+    }));
+    const blank = accounts.find(a => !a.display_name || !a.username);
+    if (blank) { alert(`Display name and username are required (${blank.email}).`); return; }
+    if (!confirm(`Create ${accounts.length} TGIS account${accounts.length === 1 ? '' : 's'}?`)) return;
+    const btn = document.getElementById('imp-create');
+    btn.disabled = true; btn.textContent = 'Creating…';
+    try {
+        const res = await impCall({ action: 'create', accounts });
+        const made = res.created || [];
+        document.getElementById('imp-foot').hidden = true;
+        document.getElementById('imp-body').innerHTML = `
+            <div class="imp-done"><b>Created ${made.length} account${made.length === 1 ? '' : 's'}.</b>
+            <small>${made.map(m => rosterEsc(m.display_name)).join(', ')}. They can now sign in with Slack.</small>
+            <button class="imp-create" style="margin-top:1rem;" onclick="impScan()">Scan again</button></div>`;
+        rosterRows = null;   // refresh the roster with the new people
+        loadRoster();
+    } catch (e) {
+        alert(e.message);
+        impUpdateCount();
+    }
+}
 
 // ── DESKTOP HOME ─────────────────────────────────────────────────────────
 // "Spotlight": one dark hero (greeting + next tour), three counters for what
