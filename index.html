@@ -610,66 +610,110 @@ html.dark .signin-logo { filter: invert(1) hue-rotate(180deg); mix-blend-mode: s
 }
 
 /* Roster */
-.rs-layout { display: grid; grid-template-columns: 1fr; gap: 1.25rem; align-items: start; }
+.rs-summary { margin-bottom: 1.25rem; }
+.rs-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem; }
+.rs-stat { background: white; border: 1px solid #ECECEC; border-radius: 1.125rem; padding: 1rem 1.125rem; }
+.rs-stat strong { display: block; font-size: 1.875rem; font-weight: 900; color: #111827; line-height: 1; }
+.rs-stat strong.green { color: #059669; } .rs-stat strong.amber { color: #D97706; } .rs-stat strong.muted { color: #9CA3AF; }
+.rs-stat span { display: block; margin-top: 0.5rem; font-size: 0.6rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.12em; color: #6B7280; }
+.rs-stat small { display: block; margin-top: 2px; font-size: 0.7rem; font-weight: 600; color: #9CA3AF; }
+.rs-breakdown { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 0.75rem; }
+.rs-breakdown > div { background: white; border: 1px solid #ECECEC; border-radius: 1.125rem; padding: 0.875rem 1.125rem; }
+.rs-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 0.5rem; }
+.rs-chip { font-size: 0.75rem; font-weight: 700; color: #374151; background: #F5F5F4; border-radius: 99px; padding: 4px 10px; }
+.rs-chip b { color: #111827; margin-left: 2px; }
+.rs-label { font-size: 0.6rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.15em; color: #9CA3AF; margin: 0 0 0.25rem; }
 .rs-toolbar { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
 .rs-search { flex: 1; min-width: 200px; position: relative; }
 .rs-search svg { position: absolute; left: 0.875rem; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; fill: none; stroke: #9CA3AF; stroke-width: 2.2; stroke-linecap: round; }
-.rs-search input { width: 100%; box-sizing: border-box; padding: 0.75rem 0.875rem 0.75rem 2.5rem; border-radius: 0.875rem; border: 1px solid #ECECEC; background: white;
+.rs-search input, .rs-select { width: 100%; box-sizing: border-box; padding: 0.75rem 0.875rem 0.75rem 2.5rem; border-radius: 0.875rem; border: 1px solid #ECECEC; background: white;
                    font-family: inherit; font-size: 16px; font-weight: 600; color: #111827; outline: none; }
-.rs-search input:focus { border-color: #CFB991; }
-.rs-toggle { display: flex; align-items: center; gap: 0.375rem; font-size: 0.75rem; font-weight: 700; color: #6B7280; cursor: pointer; }
+.rs-select { width: auto; padding: 0.75rem 1rem; font-size: 0.875rem; cursor: pointer; }
+.rs-search input:focus, .rs-select:focus { border-color: #CFB991; }
 .rs-count { font-size: 0.7rem; font-weight: 700; color: #9CA3AF; margin: 0.75rem 0 0.5rem 0.25rem; }
 .rs-list { background: white; border: 1px solid #ECECEC; border-radius: 1.25rem; overflow: hidden; }
 .rs-row { display: flex; align-items: center; gap: 0.875rem; width: 100%; padding: 0.75rem 1rem; border: none; border-top: 1px solid #F5F5F5;
           background: none; font-family: inherit; text-align: left; cursor: pointer; }
 .rs-row:first-child { border-top: none; }
 .rs-row:hover { background: #FAFAFA; }
-.rs-row.is-active { background: rgba(207,185,145,0.16); }
 .rs-row-text { flex: 1; min-width: 0; }
 .rs-row-text b { display: block; font-size: 0.875rem; font-weight: 800; color: #111827; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .rs-row-text small { display: block; font-size: 0.7rem; font-weight: 600; color: #9CA3AF; }
+.rs-row-num { width: 64px; text-align: right; flex-shrink: 0; }
+.rs-row-num b { display: block; font-size: 0.9375rem; font-weight: 900; color: #111827; }
+.rs-row-num small { display: block; font-size: 0.6rem; font-weight: 700; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.06em; }
+.rs-badge { font-size: 0.6rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; padding: 4px 8px; border-radius: 8px; white-space: nowrap; flex-shrink: 0; }
+.rs-badge.green { color: #059669; background: rgba(16,185,129,0.12); } .rs-badge.muted { color: #6B7280; background: #F3F4F6; }
+.rs-badge.amber { color: #B45309; background: rgba(245,158,11,0.14); } .rs-badge.red { color: #DC2626; background: rgba(239,68,68,0.1); }
+.rs-badge.blue { color: #2563EB; background: rgba(59,130,246,0.1); }
 .rs-chev { width: 14px; height: 14px; fill: none; stroke: #D1D5DB; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
 .rs-av { border-radius: 12px; object-fit: cover; flex-shrink: 0; }
 .rs-av-initial { display: inline-flex; align-items: center; justify-content: center; background: #CFB991; color: #1a1510; font-weight: 900; }
-.rs-empty { padding: 1.5rem; text-align: center; font-size: 0.8125rem; font-weight: 600; color: #9CA3AF; margin: 0; }
-.rs-detail { background: white; border: 1px solid #ECECEC; border-radius: 1.25rem; padding: 1.25rem; }
-.rs-detail[hidden] { display: none; }
-.rs-placeholder { display: none; }
-.rs-back { border: none; background: none; font-family: inherit; font-size: 0.8125rem; font-weight: 800; color: #b39a6d; cursor: pointer; padding: 0; margin-bottom: 1rem; }
-.rs-head { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
-.rs-head h3 { margin: 0; font-size: 1.25rem; font-weight: 900; color: #111827; }
-.rs-head p { margin: 2px 0 0; font-size: 0.8125rem; font-weight: 700; color: #9CA3AF; }
-.rs-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 0.625rem; margin-bottom: 0.5rem; }
-.rs-stats div { background: #FAFAF9; border-radius: 0.875rem; padding: 0.75rem; text-align: center; }
-.rs-stats strong { display: block; font-size: 1.5rem; font-weight: 900; color: #111827; }
-.rs-stats span { font-size: 0.6rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: #9CA3AF; }
-.rs-section { padding-top: 1rem; }
-.rs-label { font-size: 0.6rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.15em; color: #9CA3AF; margin: 0 0 0.25rem; }
+.rs-empty { padding: 1rem; text-align: center; font-size: 0.8125rem; font-weight: 600; color: #9CA3AF; margin: 0; }
+/* full-screen profile */
+.rs-profile { position: fixed; inset: 0; z-index: 150; background: #F5F5F4; overflow-y: auto; }
+.rs-profile[hidden] { display: none; }
+.rs-profile-inner { max-width: 1000px; margin: 0 auto; padding: calc(env(safe-area-inset-top) + 1.25rem) 1.25rem 3rem; }
+.rs-back { border: none; background: white; border: 1px solid #ECECEC; border-radius: 0.875rem; padding: 0.5rem 0.875rem; font-family: inherit; font-size: 0.8125rem; font-weight: 800; color: #1a1510; cursor: pointer; }
+.rs-profile-head { display: flex; align-items: center; gap: 1.25rem; margin: 1.25rem 0; }
+.rs-profile-head .rs-av { border-radius: 22px; }
+.rs-profile-head h2 { margin: 0; font-size: 1.75rem; font-weight: 900; color: #111827; }
+.rs-profile-head p { margin: 2px 0 4px; font-size: 0.875rem; font-weight: 700; color: #6B7280; }
+.rs-profile-head a { font-size: 0.8125rem; font-weight: 700; color: #b39a6d; }
+.rs-scards { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0.75rem; }
+.rs-scard { background: white; border: 1px solid #ECECEC; border-radius: 1.125rem; padding: 1rem 1.125rem; }
+.rs-scard span { display: block; font-size: 0.6rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.12em; color: #9CA3AF; }
+.rs-scard strong { display: block; margin-top: 0.375rem; font-size: 1.75rem; font-weight: 900; color: #111827; line-height: 1.1; }
+.rs-scard small { display: block; margin-top: 2px; font-size: 0.7rem; font-weight: 700; color: #9CA3AF; }
+.rs-scard.green { border-color: rgba(16,185,129,0.35); background: rgba(16,185,129,0.06); } .rs-scard.green strong { color: #059669; }
+.rs-scard.amber { border-color: rgba(245,158,11,0.35); background: rgba(245,158,11,0.06); } .rs-scard.amber strong { color: #B45309; }
+.rs-scard.muted strong { color: #9CA3AF; }
+.rs-tabs { display: flex; gap: 0.375rem; margin: 1.5rem 0 1rem; background: #EAEAE8; padding: 4px; border-radius: 0.875rem; width: fit-content; }
+.rs-tab { border: none; background: none; padding: 0.5rem 1rem; border-radius: 0.625rem; font-family: inherit; font-size: 0.8125rem; font-weight: 800; color: #6B7280; cursor: pointer; }
+.rs-tab.is-on { background: white; color: #1a1510; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+.rs-panels { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 0.875rem; align-items: start; }
+.rs-panel { background: white; border: 1px solid #ECECEC; border-radius: 1.125rem; padding: 1rem 1.125rem; margin-bottom: 0.875rem; }
+.rs-panels .rs-panel { margin-bottom: 0; }
 .rs-field { display: flex; gap: 1rem; padding: 0.5rem 0; border-bottom: 1px solid #F5F5F5; font-size: 0.8125rem; }
-.rs-field span { width: 110px; flex-shrink: 0; font-weight: 700; color: #9CA3AF; }
+.rs-field:last-child { border-bottom: none; }
+.rs-field span { width: 140px; flex-shrink: 0; font-weight: 700; color: #9CA3AF; }
 .rs-field b { font-weight: 700; color: #111827; overflow-wrap: anywhere; }
 .rs-field a { color: inherit; text-decoration: underline; text-decoration-color: #CFB991; }
-@media (max-width: 1023px) {
-    /* detail opens as its own full screen on phones */
-    .rs-detail { position: fixed; inset: 0; z-index: 150; border-radius: 0; overflow-y: auto; padding: calc(env(safe-area-inset-top) + 1rem) 1.25rem 2rem; }
+.rs-tour { display: flex; align-items: center; gap: 0.875rem; padding: 0.5rem 0; border-bottom: 1px solid #F5F5F5; }
+.rs-tour:last-child { border-bottom: none; }
+.rs-tour-date { width: 44px; text-align: center; flex-shrink: 0; }
+.rs-tour-date span { display: block; font-size: 0.55rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; color: #9CA3AF; }
+.rs-tour-date b { display: block; font-size: 1.05rem; font-weight: 900; color: #111827; line-height: 1.1; }
+.rs-tour-text { flex: 1; min-width: 0; }
+.rs-tour-text b { display: block; font-size: 0.8125rem; font-weight: 800; color: #111827; }
+.rs-tour-text small { font-size: 0.7rem; font-weight: 600; color: #9CA3AF; }
+.rs-bar { display: flex; align-items: center; gap: 0.75rem; padding: 0.375rem 0; font-size: 0.75rem; }
+.rs-bar span { width: 100px; flex-shrink: 0; font-weight: 700; color: #6B7280; }
+.rs-bar div { flex: 1; height: 8px; border-radius: 99px; background: #F3F4F6; overflow: hidden; }
+.rs-bar i { display: block; height: 100%; background: #CFB991; border-radius: 99px; }
+.rs-bar b { width: 32px; text-align: right; font-weight: 900; color: #111827; }
+.rs-sem { background: white; border: 1px solid #ECECEC; border-radius: 1.125rem; padding: 0.25rem 1.125rem; margin-bottom: 0.625rem; }
+.rs-sem summary { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 0; cursor: pointer; list-style: none; font-size: 0.875rem; }
+.rs-sem summary::-webkit-details-marker { display: none; }
+.rs-sem summary b { font-weight: 900; color: #111827; }
+.rs-sem summary span { font-size: 0.75rem; font-weight: 700; color: #9CA3AF; }
+.rs-sem[open] summary { border-bottom: 1px solid #F5F5F5; }
+@media (max-width: 700px) {
+    .rs-breakdown { grid-template-columns: 1fr; }
+    .rs-row-num:last-of-type { display: none; }
+    .rs-row .rs-badge { display: none; }
 }
-@media (min-width: 1024px) {
-    .rs-layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); }
-    .rs-detail { position: sticky; top: 120px; max-height: calc(100vh - 160px); overflow-y: auto; }
-    .rs-back { display: none; }
-    .rs-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.75rem; min-height: 320px;
-                      border: 2px dashed #E7E5E4; border-radius: 1.25rem; color: #9CA3AF; font-size: 0.8125rem; font-weight: 700; }
-    .rs-placeholder[hidden] { display: none; }
-    .rs-placeholder svg { width: 32px; height: 32px; fill: none; stroke: #D6D3D1; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-    .rs-placeholder p { margin: 0; }
-    html.dark .rs-placeholder { border-color: #2c2c2e; }
-}
-html.dark .rs-list, html.dark .rs-detail, html.dark .rs-search input { background: #1c1c1e; border-color: #2c2c2e; color: #f3f4f6; }
+html.dark .rs-stat, html.dark .rs-breakdown > div, html.dark .rs-list, html.dark .rs-search input, html.dark .rs-select,
+html.dark .rs-scard, html.dark .rs-panel, html.dark .rs-sem, html.dark .rs-back { background: #1c1c1e; border-color: #2c2c2e; color: #f3f4f6; }
+html.dark .rs-profile { background: #0f0f10; }
 html.dark .rs-row { border-top-color: #2c2c2e; }
 html.dark .rs-row:hover { background: #242426; }
-html.dark .rs-row-text b, html.dark .rs-head h3, html.dark .rs-field b, html.dark .rs-stats strong { color: #f3f4f6; }
-html.dark .rs-field { border-bottom-color: #2c2c2e; }
-html.dark .rs-stats div { background: #242426; }
+html.dark .rs-row-text b, html.dark .rs-row-num b, html.dark .rs-stat strong:not(.green):not(.amber):not(.muted), html.dark .rs-profile-head h2,
+html.dark .rs-scard strong, html.dark .rs-field b, html.dark .rs-tour-text b, html.dark .rs-tour-date b, html.dark .rs-sem summary b, html.dark .rs-bar b { color: #f3f4f6; }
+html.dark .rs-field, html.dark .rs-tour, html.dark .rs-sem[open] summary { border-bottom-color: #2c2c2e; }
+html.dark .rs-chip { background: #2c2c2e; color: #d1d5db; } html.dark .rs-chip b { color: #fff; }
+html.dark .rs-tabs { background: #1c1c1e; } html.dark .rs-tab.is-on { background: #2c2c2e; color: #fff; }
+html.dark .rs-bar div { background: #2c2c2e; }
 
 /* Toggle switch */
 .theme-switch { position: relative; width: 46px; height: 28px; border-radius: 99px; background: #E5E7EB; border: none; cursor: pointer; transition: background 0.2s; flex-shrink: 0; }
@@ -991,25 +1035,25 @@ html.dark .theme-switch::after { transform: translateX(18px); }
     <!-- ROSTER (Codirector / Admin): every guide's full record via get_roster() -->
     <div id="view-roster" class="view-section">
         <header class="mb-6"><h1 class="text-3xl font-black">Roster</h1></header>
-        <div class="rs-layout">
-            <div class="rs-list-col">
-                <div class="rs-toolbar">
-                    <div class="rs-search">
-                        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-                        <input id="rs-search" type="search" placeholder="Search name, family, major…" autocomplete="off" oninput="renderRosterList()">
-                    </div>
-                    <label class="rs-toggle"><input id="rs-show-retired" type="checkbox" onchange="renderRosterList()"> Show retired</label>
-                </div>
-                <p id="rs-count" class="rs-count"></p>
-                <div id="rs-list" class="rs-list"></div>
+        <div id="rs-summary" class="rs-summary"></div>
+        <div class="rs-toolbar">
+            <div class="rs-search">
+                <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+                <input id="rs-search" type="search" placeholder="Search name, family, major…" autocomplete="off" oninput="renderRosterList()">
             </div>
-            <div id="rs-detail" class="rs-detail" hidden></div>
-            <div id="rs-placeholder" class="rs-placeholder">
-                <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                <p>Select a guide to see their details</p>
-            </div>
+            <select id="rs-filter" class="rs-select" onchange="renderRosterList()">
+                <option value="current">Current guides</option>
+                <option value="active">Active this semester</option>
+                <option value="inactive">Not active</option>
+                <option value="all">Everyone (incl. retired)</option>
+            </select>
         </div>
+        <p id="rs-count" class="rs-count"></p>
+        <div id="rs-list" class="rs-list"></div>
     </div>
+
+    <!-- Full-screen guide profile (roster) -->
+    <div id="rs-profile" class="rs-profile" hidden></div>
 
     <div id="view-handbook" class="view-section">
         <header class="mb-6"><h1 class="text-3xl font-black">Handbook</h1></header>
@@ -2391,17 +2435,43 @@ function closeAvailableSheet() {
 // ── ROSTER (Codirector / Admin) ──────────────────────────────────────────
 // Keep in sync with the role list inside get_roster() in supabase/security.sql.
 const ROSTER_ROLES = ['Codirector', 'Admin'];
+const TRACKER_META_COLS = new Set(['id', 'display_name', 'first_name', 'last_name', 'total', 'updated_at']);
 let rosterRows = null;
-let rosterSelected = null;
 
 function canSeeRoster() {
     return !!(cachedData && cachedData.profile && ROSTER_ROLES.includes(cachedData.profile.status));
 }
 
+function rosterEsc(v) {
+    return String(v ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+}
+
+// Census answer → true / false / null (unknown)
+function rosterActive(r) {
+    const v = r.giving_tours;
+    if (v === true || /^(y|yes|true)$/i.test(String(v ?? '').trim())) return true;
+    if (v === false || /^(n|no|false)$/i.test(String(v ?? '').trim())) return false;
+    return null;
+}
+
+function rosterAvatar(r, size) {
+    const initial = rosterEsc(String(r.full_name || r.display_name || '?').charAt(0).toUpperCase());
+    return r.slack_photo
+        ? `<img src="${rosterEsc(r.slack_photo)}" alt="" class="rs-av" style="width:${size}px;height:${size}px;">`
+        : `<span class="rs-av rs-av-initial" style="width:${size}px;height:${size}px;font-size:${Math.round(size / 2.6)}px;">${initial}</span>`;
+}
+
+// Semester a date falls in, matching tracker column names (spring_2026, summer_2026, fall_2026)
+function rosterSemesterOf(date) {
+    const d = new Date(date), m = d.getMonth();
+    return `${m <= 4 ? 'spring' : m <= 6 ? 'summer' : 'fall'}_${d.getFullYear()}`;
+}
+const rosterSemLabel = col => col.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+
 async function loadRoster() {
     const list = document.getElementById('rs-list');
     if (!canSeeRoster()) { list.innerHTML = '<p class="rs-empty">The roster is only available to codirectors and admins.</p>'; return; }
-    if (rosterRows) { renderRosterList(); return; }
+    if (rosterRows) { renderRosterSummary(); renderRosterList(); return; }
     list.innerHTML = '<p class="rs-empty">Loading roster…</p>';
     try {
         rosterRows = await sbFetch('rpc/get_roster');
@@ -2417,35 +2487,76 @@ async function loadRoster() {
         rosterRows = null;
         return;
     }
-    const tours = {};
-    ((cachedData && cachedData.fullList) || []).forEach(g => { tours[g.displayName] = g; });
-    rosterRows.forEach(r => { r._tracker = tours[r.display_name] || null; });
+    // Attach tracker numbers + ranks
+    const board = (cachedData && cachedData.fullList) || [];
+    const bySem = [...board].sort((a, b) => b.semesterTotal - a.semesterTotal);
+    const byCareer = [...board].sort((a, b) => b.careerTotal - a.careerTotal);
+    const trackerRows = {};
+    ((cachedData && cachedData.allTracker) || []).forEach(t => { trackerRows[t.display_name] = t; });
+    rosterRows.forEach(r => {
+        const b = board.find(g => g.displayName === r.display_name);
+        r._sem = b ? b.semesterTotal : 0;
+        r._career = b ? b.careerTotal : 0;
+        r._semRank = b ? bySem.indexOf(b) + 1 : null;
+        r._careerRank = b ? byCareer.indexOf(b) + 1 : null;
+        r._tracker = trackerRows[r.display_name] || null;
+        r._active = rosterActive(r);
+    });
     rosterRows.sort((a, b) => String(a.full_name || a.display_name).localeCompare(String(b.full_name || b.display_name)));
+    renderRosterSummary();
     renderRosterList();
 }
 
-function rosterEsc(v) {
-    return String(v ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
-}
-
-function rosterAvatar(r, size) {
-    const initial = rosterEsc(String(r.full_name || r.display_name || '?').charAt(0).toUpperCase());
-    return r.slack_photo
-        ? `<img src="${rosterEsc(r.slack_photo)}" alt="" class="rs-av" style="width:${size}px;height:${size}px;">`
-        : `<span class="rs-av rs-av-initial" style="width:${size}px;height:${size}px;">${initial}</span>`;
+function renderRosterSummary() {
+    const current = rosterRows.filter(r => r.status !== 'Retired');
+    const active = current.filter(r => r._active === true);
+    const inactive = current.filter(r => r._active === false);
+    const unknown = current.length - active.length - inactive.length;
+    const semTours = current.reduce((n, r) => n + (r._sem || 0), 0);
+    const avg = active.length ? (active.reduce((n, r) => n + (r._sem || 0), 0) / active.length) : 0;
+    const zero = active.filter(r => !r._sem).length;
+    const count = (arr, key) => arr.reduce((m, r) => { const k = r[key] || '—'; m[k] = (m[k] || 0) + 1; return m; }, {});
+    const chips = obj => Object.entries(obj).sort((a, b) => b[1] - a[1])
+        .map(([k, n]) => `<span class="rs-chip">${rosterEsc(k)} <b>${n}</b></span>`).join('');
+    const semName = rosterSemLabel(rosterSemesterOf(new Date()));
+    const card = (value, label, sub, tone) => `
+        <div class="rs-stat"><strong class="${tone || ''}">${value}</strong><span>${label}</span>${sub ? `<small>${sub}</small>` : ''}</div>`;
+    document.getElementById('rs-summary').innerHTML = `
+        <div class="rs-stats-grid">
+            ${card(current.length, 'Current guides', unknown ? `${unknown} without a census answer` : '')}
+            ${card(active.length, `Active · ${semName}`, current.length ? `${Math.round(active.length / current.length * 100)}% of current` : '', 'green')}
+            ${card(inactive.length, 'Not active', '', 'muted')}
+            ${card(semTours, 'Tours this semester', `${avg.toFixed(1)} per active guide`)}
+            ${card(zero, 'Active, no tours yet', zero ? 'Worth a check-in' : 'Everyone has given a tour', zero ? 'amber' : '')}
+        </div>
+        <div class="rs-breakdown">
+            <div><p class="rs-label">By role</p><div class="rs-chips">${chips(count(current, 'status'))}</div></div>
+            <div><p class="rs-label">By family</p><div class="rs-chips">${chips(count(current, 'family'))}</div></div>
+        </div>`;
 }
 
 function renderRosterList() {
     if (!rosterRows) return;
     const q = document.getElementById('rs-search').value.trim().toLowerCase();
-    const showRetired = document.getElementById('rs-show-retired').checked;
-    const rows = rosterRows.filter(r => (showRetired || r.status !== 'Retired') &&
-        (!q || [r.full_name, r.display_name, r.family, r.major, r.status, r.hometown, r.email].some(v => String(v || '').toLowerCase().includes(q))));
+    const f = document.getElementById('rs-filter').value;
+    const rows = rosterRows.filter(r => {
+        if (f !== 'all' && r.status === 'Retired') return false;
+        if (f === 'active' && r._active !== true) return false;
+        if (f === 'inactive' && r._active !== false) return false;
+        return !q || [r.full_name, r.display_name, r.family, r.major, r.status, r.hometown, r.email].some(v => String(v || '').toLowerCase().includes(q));
+    });
     document.getElementById('rs-count').innerText = `${rows.length} guide${rows.length === 1 ? '' : 's'}`;
+    const badge = r => r.status === 'Retired' ? '<span class="rs-badge muted">Retired</span>'
+        : r._active === true ? '<span class="rs-badge green">Active</span>'
+        : r._active === false ? '<span class="rs-badge muted">Not active</span>'
+        : '<span class="rs-badge amber">No census</span>';
     document.getElementById('rs-list').innerHTML = rows.length ? rows.map(r => `
-        <button class="rs-row${rosterSelected === r ? ' is-active' : ''}" onclick="openRosterGuide(${rosterRows.indexOf(r)})">
+        <button class="rs-row" onclick="openRosterGuide(${rosterRows.indexOf(r)})">
             ${rosterAvatar(r, 40)}
             <span class="rs-row-text"><b>${rosterEsc(r.full_name || r.display_name)}</b><small>${rosterEsc([r.status, r.family].filter(Boolean).join(' · '))}</small></span>
+            ${badge(r)}
+            <span class="rs-row-num"><b>${r._sem}</b><small>this sem</small></span>
+            <span class="rs-row-num"><b>${r._career}</b><small>career</small></span>
             <svg class="rs-chev" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
         </button>`).join('') : '<p class="rs-empty">No guides match.</p>';
 }
@@ -2453,49 +2564,130 @@ function renderRosterList() {
 // Field labels in display order; any other columns are listed after these.
 const ROSTER_FIELDS = [
     ['Contact', [['email', 'Email'], ['username', 'Username'], ['display_name', 'Display name']]],
-    ['Program', [['status', 'Role'], ['family', 'Family'], ['giving_tours', 'Giving tours'], ['year', 'Year']]],
+    ['Program', [['status', 'Role'], ['family', 'Family'], ['giving_tours', 'Giving tours (census)'], ['year', 'Year']]],
     ['Academic', [['major', 'Major'], ['minor', 'Minor'], ['certificate', 'Certificate'], ['college', 'College'], ['grad_date', 'Grad date']]],
     ['Personal', [['hometown', 'Hometown'], ['dietary', 'Dietary']]],
 ];
-const ROSTER_HIDDEN = new Set(['id', 'full_name', 'slack_photo', '_tracker', 'created_at', 'updated_at']);
+const ROSTER_HIDDEN = new Set(['id', 'full_name', 'slack_photo', 'created_at', 'updated_at']);
 
-function openRosterGuide(i) {
+// Tours whose guide field names this guide (markers: * pending drop, + picked up, ` not given)
+function rosterToursFor(r) {
+    const name = String(r.display_name || '').trim().toLowerCase();
+    return ((cachedData && cachedData.allToursRaw) || [])
+        .filter(t => String(t.guide || '').replace(/[*+`]/g, '').trim().toLowerCase() === name)
+        .map(t => ({ ...t, date: new Date(t.tour_date + 'T12:00:00') }))
+        .sort((a, b) => a.date - b.date);
+}
+
+function rosterTourRow(t) {
+    const info = TOUR_MAP[t.type] || { name: t.type, time: '' };
+    const g = String(t.guide || '');
+    const flag = g.includes('*') ? '<span class="rs-badge red">Pending drop</span>'
+        : g.includes('+') ? '<span class="rs-badge blue">Picked up</span>'
+        : g.includes('`') ? '<span class="rs-badge muted">Not given</span>' : '';
+    return `
+        <div class="rs-tour">
+            <div class="rs-tour-date"><span>${t.date.toLocaleDateString('en-US', { weekday: 'short' })}</span><b>${t.date.getDate()}</b><span>${t.date.toLocaleDateString('en-US', { month: 'short' })}</span></div>
+            <div class="rs-tour-text"><b>${rosterEsc(info.name)}</b><small>${rosterEsc(info.time)}${t.date.getFullYear() !== new Date().getFullYear() ? ' · ' + t.date.getFullYear() : ''}</small></div>
+            ${flag}
+        </div>`;
+}
+
+let rosterProfileIndex = null;
+
+function openRosterGuide(i, tab) {
     const r = rosterRows[i];
-    rosterSelected = r;
-    renderRosterList();
-    const shown = new Set();
-    const val = (k) => { const v = r[k]; return v === null || v === undefined || String(v).trim() === '' ? null : v; };
-    const fmt = (k, v) => k === 'email'
-        ? `<a href="mailto:${rosterEsc(v)}">${rosterEsc(v)}</a>`
-        : rosterEsc(typeof v === 'boolean' ? (v ? 'Yes' : 'No') : v);
-    const section = (title, fields) => {
-        const rows = fields.map(([k, label]) => { shown.add(k); const v = val(k); return v === null ? '' : `<div class="rs-field"><span>${label}</span><b>${fmt(k, v)}</b></div>`; }).join('');
-        return rows ? `<div class="rs-section"><p class="rs-label">${title}</p>${rows}</div>` : '';
-    };
-    let html = ROSTER_FIELDS.map(([t, f]) => section(t, f)).join('');
-    const extra = Object.keys(r).filter(k => !shown.has(k) && !ROSTER_HIDDEN.has(k) && val(k) !== null);
-    if (extra.length) html += section('Other', extra.map(k => [k, k.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())]));
-    const t = r._tracker;
-    const detail = document.getElementById('rs-detail');
-    detail.innerHTML = `
-        <button class="rs-back" onclick="closeRosterGuide()">← All guides</button>
-        <div class="rs-head">
-            ${rosterAvatar(r, 64)}
-            <div><h3>${rosterEsc(r.full_name || r.display_name)}</h3><p>${rosterEsc([r.status, r.family].filter(Boolean).join(' · '))}</p></div>
-        </div>
-        ${t ? `<div class="rs-stats"><div><strong>${t.semesterTotal ?? 0}</strong><span>This semester</span></div><div><strong>${t.careerTotal ?? 0}</strong><span>Career tours</span></div></div>` : ''}
-        ${html || '<p class="rs-empty">No details on file.</p>'}`;
-    detail.hidden = false;
-    document.getElementById('rs-placeholder').hidden = true;
-    detail.scrollTop = 0;
+    rosterProfileIndex = i;
+    tab = tab || 'overview';
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const tours = rosterToursFor(r);
+    const upcoming = tours.filter(t => t.date >= today);
+    const past = tours.filter(t => t.date < today).reverse();
+
+    const statusCard = (label, value, tone, sub) => `
+        <div class="rs-scard ${tone || ''}"><span>${label}</span><strong>${value}</strong>${sub ? `<small>${sub}</small>` : ''}</div>`;
+    const activeVal = r.status === 'Retired' ? 'Retired' : r._active === true ? 'Yes' : r._active === false ? 'No' : 'Unknown';
+    const activeTone = r.status === 'Retired' ? 'muted' : r._active === true ? 'green' : r._active === false ? 'muted' : 'amber';
+
+    let body = '';
+    if (tab === 'overview') {
+        const shown = new Set();
+        const val = k => { const v = r[k]; return v === null || v === undefined || String(v).trim() === '' ? null : v; };
+        const fmt = (k, v) => k === 'email' ? `<a href="mailto:${rosterEsc(v)}">${rosterEsc(v)}</a>`
+            : rosterEsc(typeof v === 'boolean' ? (v ? 'Yes' : 'No') : v);
+        const section = (title, fields) => {
+            const rows = fields.map(([k, label]) => { shown.add(k); const v = val(k); return v === null ? '' : `<div class="rs-field"><span>${label}</span><b>${fmt(k, v)}</b></div>`; }).join('');
+            return rows ? `<div class="rs-panel"><p class="rs-label">${title}</p>${rows}</div>` : '';
+        };
+        body = ROSTER_FIELDS.map(([t, f]) => section(t, f)).join('');
+        const extra = Object.keys(r).filter(k => !k.startsWith('_') && !shown.has(k) && !ROSTER_HIDDEN.has(k) && val(k) !== null);
+        if (extra.length) body += section('Other', extra.map(k => [k, k.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())]));
+        body = `<div class="rs-panels">${body || '<p class="rs-empty">No details on file.</p>'}</div>`;
+    } else if (tab === 'schedule') {
+        body = `
+            <div class="rs-panels">
+                <div class="rs-panel"><p class="rs-label">Upcoming · ${upcoming.length}</p>${upcoming.length ? upcoming.map(rosterTourRow).join('') : '<p class="rs-empty">Nothing scheduled.</p>'}</div>
+                <div class="rs-panel"><p class="rs-label">Recent · last ${Math.min(past.length, 10)}</p>${past.length ? past.slice(0, 10).map(rosterTourRow).join('') : '<p class="rs-empty">No past tours on record.</p>'}</div>
+            </div>`;
+    } else {
+        // Tracker counts per semester, newest first, with the logged tours for each semester
+        const tr = r._tracker || {};
+        const cols = Object.keys(tr).filter(k => !TRACKER_META_COLS.has(k));
+        const counts = cols.map(c => ({ col: c, n: Number(tr[c]) || 0 }));
+        const logged = {};
+        past.forEach(t => { const c = rosterSemesterOf(t.date); (logged[c] = logged[c] || []).push(t); });
+        const allCols = [...new Set([...cols, ...Object.keys(logged)])]
+            .sort((a, b) => { const k = c => { const [s, y] = c.split('_'); return Number(y) * 3 + ({ spring: 0, summer: 1, fall: 2 }[s] ?? 0); }; return k(b) - k(a); });
+        const max = Math.max(1, ...counts.map(c => c.n));
+        body = `
+            <div class="rs-panel">
+                <p class="rs-label">Tracker by semester · ${r._career} career</p>
+                ${counts.length ? [...counts].reverse().map(c => `
+                    <div class="rs-bar"><span>${rosterSemLabel(c.col)}</span><div><i style="width:${c.n / max * 100}%"></i></div><b>${c.n}</b></div>`).join('') : '<p class="rs-empty">No tracker row for this guide.</p>'}
+            </div>
+            ${allCols.map(c => {
+                const list = logged[c] || [];
+                const tracked = cols.includes(c) ? Number(tr[c]) || 0 : null;
+                return `
+                <details class="rs-sem"${c === allCols[0] ? ' open' : ''}>
+                    <summary><b>${rosterSemLabel(c)}</b><span>${tracked !== null ? tracked + ' on tracker' : ''}${list.length ? ` · ${list.length} logged` : ''}</span></summary>
+                    ${list.length ? list.map(rosterTourRow).join('') : '<p class="rs-empty">No tours logged in the schedule for this semester.</p>'}
+                </details>`;
+            }).join('')}`;
+    }
+
+    const tabBtn = (id, label) => `<button class="rs-tab${tab === id ? ' is-on' : ''}" onclick="openRosterGuide(${i}, '${id}')">${label}</button>`;
+    const el = document.getElementById('rs-profile');
+    el.innerHTML = `
+        <div class="rs-profile-inner">
+            <div class="rs-profile-bar">
+                <button class="rs-back" onclick="closeRosterGuide()">← Roster</button>
+            </div>
+            <div class="rs-profile-head">
+                ${rosterAvatar(r, 88)}
+                <div>
+                    <h2>${rosterEsc(r.full_name || r.display_name)}</h2>
+                    <p>${rosterEsc([r.status, r.family].filter(Boolean).join(' · '))}</p>
+                    ${r.email ? `<a href="mailto:${rosterEsc(r.email)}">${rosterEsc(r.email)}</a>` : ''}
+                </div>
+            </div>
+            <div class="rs-scards">
+                ${statusCard('Active this semester', activeVal, activeTone, 'From the census')}
+                ${statusCard('Tours this semester', r._sem, '', r._semRank ? `Rank #${r._semRank}` : '')}
+                ${statusCard('Career tours', r._career, '', r._careerRank ? `Rank #${r._careerRank}` : '')}
+                ${statusCard('Upcoming tours', upcoming.length, '', upcoming[0] ? 'Next: ' + upcoming[0].date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'None scheduled')}
+            </div>
+            <div class="rs-tabs">${tabBtn('overview', 'Overview')}${tabBtn('schedule', 'Schedule')}${tabBtn('history', 'Tour history')}</div>
+            ${body}
+        </div>`;
+    if (el.hidden) { el.hidden = false; el.scrollTop = 0; }
 }
 
 function closeRosterGuide() {
-    rosterSelected = null;
-    document.getElementById('rs-detail').hidden = true;
-    document.getElementById('rs-placeholder').hidden = false;
-    renderRosterList();
+    rosterProfileIndex = null;
+    document.getElementById('rs-profile').hidden = true;
 }
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && rosterProfileIndex !== null) closeRosterGuide(); });
 
 // ── DESKTOP HOME ─────────────────────────────────────────────────────────
 // "Spotlight": one dark hero (greeting + next tour), three counters for what
@@ -3968,6 +4160,8 @@ async function init(authUser) {
                 submitted: false // TODO: track per-guide form submission
             })),
             familyStandings: buildFamilyStandings(allGuides, specialRequests, allTours),
+            allTracker,                 // every tracker row (roster tour history)
+            allToursRaw: allTours,      // every tour row (roster schedules)
             myFamilyPoints:  calcMyFamilyPoints(myTours, specialRequests, displayName),
             tgitData:        null,
             lastUpdated:     new Date().toLocaleString()
