@@ -35,7 +35,11 @@ function syncTrackerToSupabase() {
   const values = sheet.getDataRange().getValues();
 
   // Header row = first row with a "display name" cell
-  const norm = h => String(h).trim().toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+  const ALIASES = { displayname: 'display_name', firstname: 'first_name', lastname: 'last_name' };
+  const norm = h => {
+    const n = String(h).trim().toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+    return ALIASES[n] || n;
+  };
   const headerIdx = values.findIndex(r => r.some(c => norm(c) === 'display_name'));
   if (headerIdx < 0) throw new Error('No "Display Name" header found in ' + TRACKER_SHEET_NAME);
   const headers = values[headerIdx].map(norm);
