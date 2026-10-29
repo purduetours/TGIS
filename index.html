@@ -2404,13 +2404,17 @@ async function loadRoster() {
     if (rosterRows) { renderRosterList(); return; }
     list.innerHTML = '<p class="rs-empty">Loading roster…</p>';
     try {
-        try {
-            rosterRows = await sbFetch('rpc/get_roster');
-        } catch (e) {
-            rosterRows = await sbFetch('guides?select=*&order=display_name.asc'); // until get_roster() exists
-        }
+        rosterRows = await sbFetch('rpc/get_roster');
     } catch (e) {
-        list.innerHTML = `<p class="rs-empty">Couldn't load the roster (${e.message}).</p>`;
+        const missing = /SUPABASE_404/.test(e.message);
+        list.innerHTML = `<p class="rs-empty">${missing
+            ? 'The roster isn\'t set up in the database yet: run step 2b of supabase/security.sql in the Supabase SQL Editor.'
+            : `Couldn't load the roster (${rosterEsc(e.message)}).`}</p>`;
+        return;
+    }
+    if (!rosterRows.length) {
+        list.innerHTML = '<p class="rs-empty">No guides returned. Check that your guides row has status Codirector or Admin.</p>';
+        rosterRows = null;
         return;
     }
     const tours = {};
