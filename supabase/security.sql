@@ -129,6 +129,21 @@ grant execute on function public.get_roster() to authenticated;
 
 
 -- ───────────────────────────────────────────────────────────────────────────
+-- STEP 2c — Make sure the server-only service_role key has full access. This
+-- project's default grants were changed at some point, so service_role (used by
+-- the slack-import Edge Function, and by Apps Script after step 3) can get
+-- "permission denied". It never reaches the browser, so this is safe.
+-- ───────────────────────────────────────────────────────────────────────────
+
+grant usage on schema public to service_role;
+grant all on all tables in schema public to service_role;
+grant all on all sequences in schema public to service_role;
+grant execute on all functions in schema public to service_role;
+alter default privileges in schema public grant all on tables to service_role;
+alter default privileges in schema public grant all on sequences to service_role;
+
+
+-- ───────────────────────────────────────────────────────────────────────────
 -- STEP 3 — Not SQL. Move Apps Script off the public key BEFORE step 4.
 --   1. Supabase → Project Settings → API Keys → copy the service_role (secret) key.
 --   2. Apps Script → Project Settings → Script Properties → SUPABASE_ANON_KEY →
