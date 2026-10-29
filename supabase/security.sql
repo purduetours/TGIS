@@ -105,6 +105,30 @@ end $$;
 
 
 -- ───────────────────────────────────────────────────────────────────────────
+-- STEP 2b — Roster for codirectors and admins (safe to run any time after
+-- step 2). Returns every guide's full row, dietary included, but only when the
+-- caller's own guides row has one of these statuses. Keep this list in sync
+-- with ROSTER_ROLES in index.html.
+-- ───────────────────────────────────────────────────────────────────────────
+
+create or replace function public.get_roster()
+returns setof public.guides
+language sql stable security definer set search_path = public
+as $$
+  select g.* from public.guides g
+  where exists (
+    select 1 from public.guides me
+    where lower(trim(me.email)) = lower(auth.jwt() ->> 'email')
+      and me.status in ('Codirector', 'Admin')
+  )
+  order by g.display_name;
+$$;
+
+revoke all on function public.get_roster() from public, anon;
+grant execute on function public.get_roster() to authenticated;
+
+
+-- ───────────────────────────────────────────────────────────────────────────
 -- STEP 3 — Not SQL. Move Apps Script off the public key BEFORE step 4.
 --   1. Supabase → Project Settings → API Keys → copy the service_role (secret) key.
 --   2. Apps Script → Project Settings → Script Properties → SUPABASE_ANON_KEY →

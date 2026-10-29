@@ -593,6 +593,7 @@ html.dark .signin-logo { filter: invert(1) hue-rotate(180deg); mix-blend-mode: s
     .dh-day { border-radius: 0.875rem; background: #FAFAF9; padding: 0.625rem; min-height: 150px; cursor: pointer; border: 2px solid transparent; }
     .dh-day:hover { border-color: rgba(207,185,145,0.5); }
     .dh-day.is-today { background: rgba(207,185,145,0.16); border-color: #CFB991; }
+    .dh-day.is-past { opacity: 0.5; }
     .dh-day p { margin: 0; font-size: 0.625rem; font-weight: 900; letter-spacing: 0.1em; color: #9CA3AF; }
     .dh-day h4 { margin: 2px 0 0.5rem; font-size: 1.25rem; font-weight: 900; color: #1a1510; }
     .dh-ev { border-radius: 0.625rem; padding: 0.4375rem 0.5rem; margin-bottom: 0.375rem; background: white; border-left: 4px solid #10B981;
@@ -607,6 +608,68 @@ html.dark .signin-logo { filter: invert(1) hue-rotate(180deg); mix-blend-mode: s
     html.dark .dh-day.is-today { background: rgba(207,185,145,0.12); }
     html.dark .dh-ev { background: #1c1c1e; }
 }
+
+/* Roster */
+.rs-layout { display: grid; grid-template-columns: 1fr; gap: 1.25rem; align-items: start; }
+.rs-toolbar { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+.rs-search { flex: 1; min-width: 200px; position: relative; }
+.rs-search svg { position: absolute; left: 0.875rem; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; fill: none; stroke: #9CA3AF; stroke-width: 2.2; stroke-linecap: round; }
+.rs-search input { width: 100%; box-sizing: border-box; padding: 0.75rem 0.875rem 0.75rem 2.5rem; border-radius: 0.875rem; border: 1px solid #ECECEC; background: white;
+                   font-family: inherit; font-size: 16px; font-weight: 600; color: #111827; outline: none; }
+.rs-search input:focus { border-color: #CFB991; }
+.rs-toggle { display: flex; align-items: center; gap: 0.375rem; font-size: 0.75rem; font-weight: 700; color: #6B7280; cursor: pointer; }
+.rs-count { font-size: 0.7rem; font-weight: 700; color: #9CA3AF; margin: 0.75rem 0 0.5rem 0.25rem; }
+.rs-list { background: white; border: 1px solid #ECECEC; border-radius: 1.25rem; overflow: hidden; }
+.rs-row { display: flex; align-items: center; gap: 0.875rem; width: 100%; padding: 0.75rem 1rem; border: none; border-top: 1px solid #F5F5F5;
+          background: none; font-family: inherit; text-align: left; cursor: pointer; }
+.rs-row:first-child { border-top: none; }
+.rs-row:hover { background: #FAFAFA; }
+.rs-row.is-active { background: rgba(207,185,145,0.16); }
+.rs-row-text { flex: 1; min-width: 0; }
+.rs-row-text b { display: block; font-size: 0.875rem; font-weight: 800; color: #111827; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rs-row-text small { display: block; font-size: 0.7rem; font-weight: 600; color: #9CA3AF; }
+.rs-chev { width: 14px; height: 14px; fill: none; stroke: #D1D5DB; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+.rs-av { border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+.rs-av-initial { display: inline-flex; align-items: center; justify-content: center; background: #CFB991; color: #1a1510; font-weight: 900; }
+.rs-empty { padding: 1.5rem; text-align: center; font-size: 0.8125rem; font-weight: 600; color: #9CA3AF; margin: 0; }
+.rs-detail { background: white; border: 1px solid #ECECEC; border-radius: 1.25rem; padding: 1.25rem; }
+.rs-detail[hidden] { display: none; }
+.rs-placeholder { display: none; }
+.rs-back { border: none; background: none; font-family: inherit; font-size: 0.8125rem; font-weight: 800; color: #b39a6d; cursor: pointer; padding: 0; margin-bottom: 1rem; }
+.rs-head { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+.rs-head h3 { margin: 0; font-size: 1.25rem; font-weight: 900; color: #111827; }
+.rs-head p { margin: 2px 0 0; font-size: 0.8125rem; font-weight: 700; color: #9CA3AF; }
+.rs-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 0.625rem; margin-bottom: 0.5rem; }
+.rs-stats div { background: #FAFAF9; border-radius: 0.875rem; padding: 0.75rem; text-align: center; }
+.rs-stats strong { display: block; font-size: 1.5rem; font-weight: 900; color: #111827; }
+.rs-stats span { font-size: 0.6rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: #9CA3AF; }
+.rs-section { padding-top: 1rem; }
+.rs-label { font-size: 0.6rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.15em; color: #9CA3AF; margin: 0 0 0.25rem; }
+.rs-field { display: flex; gap: 1rem; padding: 0.5rem 0; border-bottom: 1px solid #F5F5F5; font-size: 0.8125rem; }
+.rs-field span { width: 110px; flex-shrink: 0; font-weight: 700; color: #9CA3AF; }
+.rs-field b { font-weight: 700; color: #111827; overflow-wrap: anywhere; }
+.rs-field a { color: inherit; text-decoration: underline; text-decoration-color: #CFB991; }
+@media (max-width: 1023px) {
+    /* detail opens as its own full screen on phones */
+    .rs-detail { position: fixed; inset: 0; z-index: 150; border-radius: 0; overflow-y: auto; padding: calc(env(safe-area-inset-top) + 1rem) 1.25rem 2rem; }
+}
+@media (min-width: 1024px) {
+    .rs-layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); }
+    .rs-detail { position: sticky; top: 120px; max-height: calc(100vh - 160px); overflow-y: auto; }
+    .rs-back { display: none; }
+    .rs-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.75rem; min-height: 320px;
+                      border: 2px dashed #E7E5E4; border-radius: 1.25rem; color: #9CA3AF; font-size: 0.8125rem; font-weight: 700; }
+    .rs-placeholder[hidden] { display: none; }
+    .rs-placeholder svg { width: 32px; height: 32px; fill: none; stroke: #D6D3D1; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .rs-placeholder p { margin: 0; }
+    html.dark .rs-placeholder { border-color: #2c2c2e; }
+}
+html.dark .rs-list, html.dark .rs-detail, html.dark .rs-search input { background: #1c1c1e; border-color: #2c2c2e; color: #f3f4f6; }
+html.dark .rs-row { border-top-color: #2c2c2e; }
+html.dark .rs-row:hover { background: #242426; }
+html.dark .rs-row-text b, html.dark .rs-head h3, html.dark .rs-field b, html.dark .rs-stats strong { color: #f3f4f6; }
+html.dark .rs-field { border-bottom-color: #2c2c2e; }
+html.dark .rs-stats div { background: #242426; }
 
 /* Toggle switch */
 .theme-switch { position: relative; width: 46px; height: 28px; border-radius: 99px; background: #E5E7EB; border: none; cursor: pointer; transition: background 0.2s; flex-shrink: 0; }
@@ -714,6 +777,12 @@ html.dark .theme-switch::after { transform: translateX(18px); }
                 <option value="manager">Manager View</option>
             </select>
         </div>
+    </div>
+
+    <!-- Admin section (Codirector / Admin only; see ROSTER_ROLES) -->
+    <div id="sb-admin-section" class="mb-6" hidden>
+        <p class="sb-label">Admin</p>
+        <div id="nav-roster" class="nav-button" onclick="switchView('roster')"><span class="nav-icon" style="background:#1a1510;"><svg viewBox="0 0 24 24" style="stroke:#CFB991;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>Roster</div>
     </div>
 
     <!-- Bottom links -->
@@ -919,6 +988,29 @@ html.dark .theme-switch::after { transform: translateX(18px); }
         <div id="omni-suggest" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:1rem;"></div>
         <div id="omni-results" style="display:flex;flex-direction:column;gap:0.625rem;"></div>
     </div>
+    <!-- ROSTER (Codirector / Admin): every guide's full record via get_roster() -->
+    <div id="view-roster" class="view-section">
+        <header class="mb-6"><h1 class="text-3xl font-black">Roster</h1></header>
+        <div class="rs-layout">
+            <div class="rs-list-col">
+                <div class="rs-toolbar">
+                    <div class="rs-search">
+                        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+                        <input id="rs-search" type="search" placeholder="Search name, family, major…" autocomplete="off" oninput="renderRosterList()">
+                    </div>
+                    <label class="rs-toggle"><input id="rs-show-retired" type="checkbox" onchange="renderRosterList()"> Show retired</label>
+                </div>
+                <p id="rs-count" class="rs-count"></p>
+                <div id="rs-list" class="rs-list"></div>
+            </div>
+            <div id="rs-detail" class="rs-detail" hidden></div>
+            <div id="rs-placeholder" class="rs-placeholder">
+                <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <p>Select a guide to see their details</p>
+            </div>
+        </div>
+    </div>
+
     <div id="view-handbook" class="view-section">
         <header class="mb-6"><h1 class="text-3xl font-black">Handbook</h1></header>
         <p style="font-size:0.8125rem;font-weight:600;color:#9CA3AF;text-align:center;padding:3rem 1rem;">Coming soon</p>
@@ -2047,6 +2139,7 @@ function switchView(viewId) {
     // Lazy-load desk schedule on first visit to that tab
     if (viewId === 'desk') loadDeskSchedule();
     if (viewId === 'search') initOmniSearch();
+    if (viewId === 'roster') loadRoster();
 
     // 2. Update desktop sidebar active state
     document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
@@ -2295,6 +2388,111 @@ function closeAvailableSheet() {
     document.getElementById('available-sheet').hidden = true;
 }
 
+// ── ROSTER (Codirector / Admin) ──────────────────────────────────────────
+// Keep in sync with the role list inside get_roster() in supabase/security.sql.
+const ROSTER_ROLES = ['Codirector', 'Admin'];
+let rosterRows = null;
+let rosterSelected = null;
+
+function canSeeRoster() {
+    return !!(cachedData && cachedData.profile && ROSTER_ROLES.includes(cachedData.profile.status));
+}
+
+async function loadRoster() {
+    const list = document.getElementById('rs-list');
+    if (!canSeeRoster()) { list.innerHTML = '<p class="rs-empty">The roster is only available to codirectors and admins.</p>'; return; }
+    if (rosterRows) { renderRosterList(); return; }
+    list.innerHTML = '<p class="rs-empty">Loading roster…</p>';
+    try {
+        try {
+            rosterRows = await sbFetch('rpc/get_roster');
+        } catch (e) {
+            rosterRows = await sbFetch('guides?select=*&order=display_name.asc'); // until get_roster() exists
+        }
+    } catch (e) {
+        list.innerHTML = `<p class="rs-empty">Couldn't load the roster (${e.message}).</p>`;
+        return;
+    }
+    const tours = {};
+    ((cachedData && cachedData.fullList) || []).forEach(g => { tours[g.displayName] = g; });
+    rosterRows.forEach(r => { r._tracker = tours[r.display_name] || null; });
+    rosterRows.sort((a, b) => String(a.full_name || a.display_name).localeCompare(String(b.full_name || b.display_name)));
+    renderRosterList();
+}
+
+function rosterEsc(v) {
+    return String(v ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+}
+
+function rosterAvatar(r, size) {
+    const initial = rosterEsc(String(r.full_name || r.display_name || '?').charAt(0).toUpperCase());
+    return r.slack_photo
+        ? `<img src="${rosterEsc(r.slack_photo)}" alt="" class="rs-av" style="width:${size}px;height:${size}px;">`
+        : `<span class="rs-av rs-av-initial" style="width:${size}px;height:${size}px;">${initial}</span>`;
+}
+
+function renderRosterList() {
+    if (!rosterRows) return;
+    const q = document.getElementById('rs-search').value.trim().toLowerCase();
+    const showRetired = document.getElementById('rs-show-retired').checked;
+    const rows = rosterRows.filter(r => (showRetired || r.status !== 'Retired') &&
+        (!q || [r.full_name, r.display_name, r.family, r.major, r.status, r.hometown, r.email].some(v => String(v || '').toLowerCase().includes(q))));
+    document.getElementById('rs-count').innerText = `${rows.length} guide${rows.length === 1 ? '' : 's'}`;
+    document.getElementById('rs-list').innerHTML = rows.length ? rows.map(r => `
+        <button class="rs-row${rosterSelected === r ? ' is-active' : ''}" onclick="openRosterGuide(${rosterRows.indexOf(r)})">
+            ${rosterAvatar(r, 40)}
+            <span class="rs-row-text"><b>${rosterEsc(r.full_name || r.display_name)}</b><small>${rosterEsc([r.status, r.family].filter(Boolean).join(' · '))}</small></span>
+            <svg class="rs-chev" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+        </button>`).join('') : '<p class="rs-empty">No guides match.</p>';
+}
+
+// Field labels in display order; any other columns are listed after these.
+const ROSTER_FIELDS = [
+    ['Contact', [['email', 'Email'], ['username', 'Username'], ['display_name', 'Display name']]],
+    ['Program', [['status', 'Role'], ['family', 'Family'], ['giving_tours', 'Giving tours'], ['year', 'Year']]],
+    ['Academic', [['major', 'Major'], ['minor', 'Minor'], ['certificate', 'Certificate'], ['college', 'College'], ['grad_date', 'Grad date']]],
+    ['Personal', [['hometown', 'Hometown'], ['dietary', 'Dietary']]],
+];
+const ROSTER_HIDDEN = new Set(['id', 'full_name', 'slack_photo', '_tracker', 'created_at', 'updated_at']);
+
+function openRosterGuide(i) {
+    const r = rosterRows[i];
+    rosterSelected = r;
+    renderRosterList();
+    const shown = new Set();
+    const val = (k) => { const v = r[k]; return v === null || v === undefined || String(v).trim() === '' ? null : v; };
+    const fmt = (k, v) => k === 'email'
+        ? `<a href="mailto:${rosterEsc(v)}">${rosterEsc(v)}</a>`
+        : rosterEsc(typeof v === 'boolean' ? (v ? 'Yes' : 'No') : v);
+    const section = (title, fields) => {
+        const rows = fields.map(([k, label]) => { shown.add(k); const v = val(k); return v === null ? '' : `<div class="rs-field"><span>${label}</span><b>${fmt(k, v)}</b></div>`; }).join('');
+        return rows ? `<div class="rs-section"><p class="rs-label">${title}</p>${rows}</div>` : '';
+    };
+    let html = ROSTER_FIELDS.map(([t, f]) => section(t, f)).join('');
+    const extra = Object.keys(r).filter(k => !shown.has(k) && !ROSTER_HIDDEN.has(k) && val(k) !== null);
+    if (extra.length) html += section('Other', extra.map(k => [k, k.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())]));
+    const t = r._tracker;
+    const detail = document.getElementById('rs-detail');
+    detail.innerHTML = `
+        <button class="rs-back" onclick="closeRosterGuide()">← All guides</button>
+        <div class="rs-head">
+            ${rosterAvatar(r, 64)}
+            <div><h3>${rosterEsc(r.full_name || r.display_name)}</h3><p>${rosterEsc([r.status, r.family].filter(Boolean).join(' · '))}</p></div>
+        </div>
+        ${t ? `<div class="rs-stats"><div><strong>${t.semesterTotal ?? 0}</strong><span>This semester</span></div><div><strong>${t.careerTotal ?? 0}</strong><span>Career tours</span></div></div>` : ''}
+        ${html || '<p class="rs-empty">No details on file.</p>'}`;
+    detail.hidden = false;
+    document.getElementById('rs-placeholder').hidden = true;
+    detail.scrollTop = 0;
+}
+
+function closeRosterGuide() {
+    rosterSelected = null;
+    document.getElementById('rs-detail').hidden = true;
+    document.getElementById('rs-placeholder').hidden = false;
+    renderRosterList();
+}
+
 // ── DESKTOP HOME ─────────────────────────────────────────────────────────
 // "Spotlight": one dark hero (greeting + next tour), three counters for what
 // needs attention, and the next seven days as a strip.
@@ -2311,7 +2509,12 @@ function renderDesktopHome() {
     const shortDay = d => d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
     const upcoming = myTours.filter(t => dayDiff(t.date) >= 0)
         .sort((a, b) => (new Date(a.date) - new Date(b.date)) || (tourMinutes(a) - tourMinutes(b)));
-    const weekTours = upcoming.filter(t => dayDiff(t.date) < 7);
+    // Current calendar week, Sunday through Saturday (past days included)
+    const weekStart = new Date(today); weekStart.setDate(today.getDate() - today.getDay());
+    const offset = d => Math.round((new Date(new Date(d).setHours(0, 0, 0, 0)) - weekStart) / 86400000);
+    const weekTours = myTours.filter(t => { const o = offset(t.date); return o >= 0 && o < 7; })
+        .sort((a, b) => (new Date(a.date) - new Date(b.date)) || (tourMinutes(a) - tourMinutes(b)));
+    const weekLeft = weekTours.filter(t => dayDiff(t.date) >= 0).length;
 
     // Hero
     const prof = cachedData.profile || {};
@@ -2319,7 +2522,7 @@ function renderDesktopHome() {
     const hr = new Date().getHours();
     const greeting = `${hr < 12 ? 'Good morning' : hr < 17 ? 'Good afternoon' : 'Good evening'}${first ? ', ' + esc(first) : ''}.`;
     const dateLine = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-    const weekLine = weekTours.length ? `${weekTours.length} tour${weekTours.length === 1 ? '' : 's'} in the next 7 days` : 'No tours in the next 7 days';
+    const weekLine = weekLeft ? `${weekLeft} tour${weekLeft === 1 ? '' : 's'} left this week` : 'No more tours this week';
     const next = upcoming[0];
     let nextHtml;
     if (next) {
@@ -2364,11 +2567,12 @@ function renderDesktopHome() {
         </button>`;
 
     // Week strip
-    const days = Array.from({ length: 7 }, (_, i) => { const d = new Date(today); d.setDate(d.getDate() + i); return d; });
+    const days = Array.from({ length: 7 }, (_, i) => { const d = new Date(weekStart); d.setDate(d.getDate() + i); return d; });
     const weekHtml = days.map((d, i) => {
-        const tours = weekTours.filter(t => dayDiff(t.date) === i);
+        const tours = weekTours.filter(t => offset(t.date) === i);
+        const rel = Math.round((d - today) / 86400000);
         return `
-            <div class="dh-day${i === 0 ? ' is-today' : ''}" onclick="switchView('schedule')">
+            <div class="dh-day${rel === 0 ? ' is-today' : rel < 0 ? ' is-past' : ''}" onclick="switchView('schedule')">
                 <p>${d.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase()}</p>
                 <h4>${d.getDate()}</h4>
                 ${tours.map(t => {
@@ -3766,6 +3970,15 @@ async function init(authUser) {
         };
 
         _cachedInitData = cachedData;
+
+        // Roster access (must match the role list in get_roster(), supabase/security.sql)
+        if (canSeeRoster()) {
+            document.getElementById('sb-admin-section').hidden = false;
+            if (!QUICK_ACTIONS.some(a => a.view === 'roster')) {
+                QUICK_ACTIONS.splice(2, 0, { view: 'roster', label: 'Roster', bg: '#78350F', icon: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>' });
+                renderQuickActions();
+            }
+        }
 
         // 7. Check for dual-portal accounts
         const ADMIN_ROLES = ['Codirector', 'Manager', 'Admin', 'Boss'];
