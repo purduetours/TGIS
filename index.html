@@ -555,6 +555,55 @@ html.dark .sn-empty { border-color: #2c2c2e; }
 html.dark .sn-tgit { color: #C4B5FD; }
 html.dark .sn-badge.done { background: #2c2c2e; }
 
+/* Master Schedule (reuses the Schedule New toolbar / calendar styles) */
+.ms-jump { margin-left: auto; position: relative; display: inline-flex; align-items: center; gap: 0.375rem; border: 1px solid #E5E7EB; background: white;
+           color: #4B5563; border-radius: 0.875rem; padding: 0.375rem 0.625rem; cursor: pointer; }
+.ms-jump input { border: none; background: transparent; font-family: inherit; font-size: 0.75rem; font-weight: 800; color: inherit; outline: none; }
+.ms-slots { display: grid; grid-template-columns: 1fr; gap: 0.875rem; }
+.ms-slot { background: white; border: 1px solid #ECECEC; border-radius: 1.25rem; overflow: hidden; }
+.ms-slot-head { display: flex; align-items: center; gap: 0.75rem; padding: 0.875rem 1rem; border-bottom: 1px solid #F3F4F6; }
+.ms-slot-bar { width: 5px; align-self: stretch; border-radius: 99px; flex-shrink: 0; }
+.ms-slot-head h3 { margin: 0; font-size: 1.125rem; font-weight: 900; color: #1a1510; line-height: 1.1; }
+.ms-slot-head p { margin: 2px 0 0; font-size: 0.75rem; font-weight: 700; color: #6B7280; }
+.ms-slot-count { margin-left: auto; text-align: right; flex-shrink: 0; }
+.ms-slot-count b { display: block; font-size: 1.25rem; font-weight: 900; color: #1a1510; line-height: 1; }
+.ms-slot-count small { font-size: 0.5625rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; color: #9CA3AF; }
+.ms-slot-count .ms-flag { display: inline-block; margin-top: 4px; font-size: 0.5625rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em;
+                          color: #B91C1C; background: #FEE2E2; padding: 2px 6px; border-radius: 99px; }
+.ms-guides { padding: 0.375rem 0.5rem 0.5rem; }
+.ms-guide { display: flex; align-items: center; gap: 0.625rem; padding: 0.4375rem 0.5rem; border-radius: 0.75rem; }
+.ms-guide.drop { background: #FEF2F2; }
+.ms-guide.ng { opacity: 0.55; }
+.ms-av { width: 30px; height: 30px; border-radius: 9px; flex-shrink: 0; background: #E9DFC9 center/cover no-repeat; display: flex; align-items: center;
+         justify-content: center; font-size: 0.75rem; font-weight: 900; color: #6B5A3A; }
+.ms-guide-text { flex: 1; min-width: 0; }
+.ms-guide-text b { display: block; font-size: 0.8125rem; font-weight: 800; color: #1a1510; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ms-guide-text small { display: block; font-size: 0.6875rem; font-weight: 600; color: #9CA3AF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ms-guide-text small i { font-style: normal; color: #7C3AED; font-weight: 800; }
+.ms-guide .sn-badge.ng { color: #6B7280; background: #F3F4F6; }
+.ms-none { padding: 0.75rem 1rem; font-size: 0.75rem; font-weight: 700; color: #9CA3AF; }
+.ms-loading { padding: 3rem 1rem; text-align: center; font-size: 0.75rem; font-weight: 800; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.1em; }
+.ms-cell-line { display: none; }
+.ms-cell-total { font-size: 0.625rem; font-weight: 900; color: #6B7280; }
+.ms-cell-drop { display: inline-block; width: 7px; height: 7px; border-radius: 99px; background: #EF4444; margin-left: 3px; vertical-align: middle; }
+@media (min-width: 768px) { .ms-slots { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); } }
+@media (min-width: 1024px) {
+    #view-master .sn-cell { min-height: 118px; }
+    .ms-cell-total { display: none; }
+    .ms-cell-line { display: flex; align-items: center; gap: 4px; font-size: 0.6875rem; font-weight: 800; color: #1a1510; white-space: nowrap; overflow: hidden; }
+    .ms-cell-line i { width: 6px; height: 6px; border-radius: 99px; flex-shrink: 0; }
+    .ms-cell-line span { color: #9CA3AF; font-weight: 700; }
+    .ms-cell-line em { font-style: normal; color: #DC2626; font-weight: 900; }
+}
+@media (max-width: 1023px) { .ms-jump { order: 2; } .ms-jump input { width: 7.5rem; } }
+html.dark .ms-jump, html.dark .ms-slot { background: #1c1c1e; border-color: #2c2c2e; }
+html.dark .ms-slot-head { border-bottom-color: #2c2c2e; }
+html.dark .ms-slot-head h3, html.dark .ms-slot-count b, html.dark .ms-guide-text b, html.dark .ms-cell-line { color: #f3f4f6; }
+html.dark .ms-guide.drop { background: rgba(239,68,68,0.12); }
+html.dark .ms-slot-count .ms-flag { background: rgba(239,68,68,0.2); color: #FCA5A5; }
+html.dark .ms-guide .sn-badge.ng { background: #2c2c2e; color: #a1a1aa; }
+html.dark .ms-guide-text small i { color: #C4B5FD; }
+
 /* Available tours bottom sheet */
 #available-sheet { position: fixed; inset: 0; z-index: 200; }
 .avs-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.4); animation: avsFade 0.2s ease-out; }
@@ -1008,6 +1057,7 @@ html.dark .theme-switch::after { transform: translateX(18px); }
     <div id="sb-admin-section" class="mb-6" hidden>
         <p class="sb-label">Admin</p>
         <div id="nav-roster" class="nav-button" onclick="switchView('roster')"><span class="nav-icon" style="background:#1a1510;"><svg viewBox="0 0 24 24" style="stroke:#CFB991;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>Roster</div>
+        <div id="nav-master" class="nav-button" onclick="switchView('master')"><span class="nav-icon" style="background:#1a1510;"><svg viewBox="0 0 24 24" style="stroke:#CFB991;"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M7 14h4M7 18h4M14 14h3M14 18h3"/></svg></span>Master Schedule</div>
     </div>
 
     <!-- Bottom links -->
@@ -1201,6 +1251,29 @@ html.dark .theme-switch::after { transform: translateX(18px); }
 </div>
 
     
+
+    <!-- MASTER SCHEDULE (Codirector / Admin): every tour and guide, by day or month -->
+    <div id="view-master" class="view-section">
+        <header class="mb-6"><h1 class="text-3xl font-black">Master Schedule</h1></header>
+        <div class="sn-toolbar">
+            <div class="sn-seg" role="tablist">
+                <button id="ms-tab-day" role="tab" onclick="msSetMode('day')">Day</button>
+                <button id="ms-tab-month" role="tab" onclick="msSetMode('month')">Month</button>
+            </div>
+            <div class="sn-nav">
+                <button class="sn-arrow" onclick="msShift(-1)" aria-label="Previous">&#8249;</button>
+                <h2 id="ms-label"></h2>
+                <button class="sn-arrow" onclick="msShift(1)" aria-label="Next">&#8250;</button>
+                <button class="sn-today" onclick="msGoToday()">Today</button>
+            </div>
+            <label class="ms-jump" title="Jump to a date">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                <input id="ms-date" type="date" onchange="msJumpTo(this.value)">
+            </label>
+        </div>
+        <div id="ms-summary" class="sn-summary"></div>
+        <div id="ms-body"></div>
+    </div>
 
     <!-- SCHEDULE NEW: month calendar + agenda (trial redesign of the Schedule page) -->
     <div id="view-schedule2" class="view-section">
@@ -2423,6 +2496,7 @@ function switchView(viewId) {
     if (viewId === 'search') initOmniSearch();
     if (viewId === 'roster') loadRoster();
     if (viewId === 'schedule2') renderScheduleNew();
+    if (viewId === 'master') renderMaster();
 
     // 2. Update desktop sidebar active state
     document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
@@ -3754,6 +3828,165 @@ function renderProfileView() {
     updateScheduleView(myTours);
 }
 
+// ─── MASTER SCHEDULE (Codirector / Admin) ───────────────────────────────────
+// Every tour row (one guide per row) for a day or a month, loaded a month at a time.
+let msMode = 'day';
+let msDate = (() => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; })();
+const msMonths = {};   // 'YYYY-MM' → Promise<rows>
+const msIso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+function msLoadMonth(d) {
+    const key = msIso(d).slice(0, 7);
+    if (!msMonths[key]) {
+        const first = new Date(d.getFullYear(), d.getMonth(), 1), last = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+        msMonths[key] = (async () => {
+            const rows = [];
+            for (let offset = 0; ; offset += 1000) {   // PostgREST returns at most 1000 rows per request
+                const page = await sbFetch(`tours?tour_date=gte.${msIso(first)}&tour_date=lte.${msIso(last)}&select=tour_date,guide,type,direction,tgit_username&order=tour_date.asc&limit=1000&offset=${offset}`);
+                rows.push(...page);
+                if (page.length < 1000) break;
+            }
+            return rows;
+        })().catch(e => { delete msMonths[key]; throw e; });
+    }
+    return msMonths[key];
+}
+function msParse(row) {
+    const raw = String(row.guide || '');
+    const status = raw.includes('*') ? 'drop' : raw.includes('+') ? 'pick' : raw.includes('`') ? 'ng' : '';
+    return { name: raw.replace(/[*+`]/g, '').trim(), status, row };
+}
+// Group a day's rows into tour slots (by type code), sorted by start time.
+function msSlots(rows) {
+    const by = {};
+    rows.forEach(r => { (by[r.type] = by[r.type] || []).push(msParse(r)); });
+    return Object.entries(by).map(([type, guides]) => {
+        const info = snInfo({ type });
+        guides.sort((a, b) => (a.status === 'ng') - (b.status === 'ng') || a.name.localeCompare(b.name));
+        const active = guides.filter(g => g.status !== 'ng' && g.name);
+        return { type, info, guides, active, drops: guides.filter(g => g.status === 'drop').length };
+    }).sort((a, b) => a.info.mins - b.info.mins || a.type.localeCompare(b.type));
+}
+
+function msSetMode(mode) { msMode = mode; renderMaster(); }
+function msShift(n) {
+    msDate = msMode === 'day' ? new Date(msDate.getFullYear(), msDate.getMonth(), msDate.getDate() + n)
+                              : new Date(msDate.getFullYear(), msDate.getMonth() + n, 1);
+    renderMaster();
+}
+function msGoToday() { msDate = snDay(new Date()); renderMaster(); }
+function msJumpTo(v) { if (!v) return; const [y, m, d] = v.split('-').map(Number); msDate = new Date(y, m - 1, d); renderMaster(); }
+function msOpenDay(ts) { msDate = new Date(Number(ts)); msMode = 'day'; renderMaster(); document.querySelector('.content-area').scrollTop = 0; }
+
+async function renderMaster() {
+    if (!document.getElementById('view-master')) return;
+    const body = document.getElementById('ms-body');
+    document.getElementById('ms-tab-day').classList.toggle('on', msMode === 'day');
+    document.getElementById('ms-tab-month').classList.toggle('on', msMode === 'month');
+    document.getElementById('ms-label').textContent = msMode === 'day'
+        ? msDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: msDate.getFullYear() === new Date().getFullYear() ? undefined : 'numeric' })
+        : msDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    document.getElementById('ms-date').value = msIso(msDate);
+    if (!canSeeRoster()) { body.innerHTML = '<div class="sn-empty">The master schedule is only available to codirectors and admins.</div>'; return; }
+
+    const want = msMode + msIso(msDate);
+    body.dataset.want = want;
+    const key = msIso(msDate).slice(0, 7);
+    if (!(msMonths[key] && msMonths[key].done)) body.innerHTML = '<div class="ms-loading">Loading tours…</div>';
+    let rows;
+    try { rows = await msLoadMonth(msDate); msMonths[key].done = true; }
+    catch (e) { body.innerHTML = `<div class="sn-empty">Couldn't load tours: ${snEsc(e.message)}</div>`; return; }
+    if (body.dataset.want !== want) return;   // user moved on while loading
+
+    if (msMode === 'day') msRenderDay(rows.filter(r => r.tour_date === msIso(msDate)));
+    else msRenderMonth(rows);
+}
+
+function msRenderDay(rows) {
+    const slots = msSlots(rows);
+    const guides = slots.reduce((n, s) => n + s.active.length, 0);
+    const drops = slots.reduce((n, s) => n + s.drops, 0);
+    const picks = rows.filter(r => String(r.guide || '').includes('+')).length;
+    const ng = rows.filter(r => String(r.guide || '').includes('`')).length;
+    const chip = (n, label, cls = '') => `<span class="sn-chip ${cls}"><b>${n}</b>${label}</span>`;
+    document.getElementById('ms-summary').innerHTML = slots.length
+        ? chip(slots.length, slots.length === 1 ? 'tour' : 'tours') + chip(guides, guides === 1 ? 'guide' : 'guides')
+          + (drops ? chip(drops, drops === 1 ? 'pending drop' : 'pending drops', 'red') : '')
+          + (picks ? chip(picks, 'picked up') : '') + (ng ? chip(ng, 'not given') : '')
+        : '';
+
+    const people = (cachedData && cachedData.guidesByName) || {};
+    const avatar = name => {
+        const g = people[name];
+        return g && g.slack_photo ? `<span class="ms-av" style="background-image:url('${snEsc(g.slack_photo)}')"></span>`
+                                  : `<span class="ms-av">${snEsc((name || '?').charAt(0).toUpperCase())}</span>`;
+    };
+    const badge = st => st === 'drop' ? '<span class="sn-badge drop">Pending drop</span>'
+        : st === 'pick' ? '<span class="sn-badge pick">Picked up</span>'
+        : st === 'ng' ? '<span class="sn-badge ng">Not given</span>' : '';
+
+    document.getElementById('ms-body').innerHTML = slots.length ? `<div class="ms-slots">${slots.map(s => `
+        <section class="ms-slot">
+            <div class="ms-slot-head">
+                <span class="ms-slot-bar" style="background:${s.info.color}"></span>
+                <div><h3>${snEsc(s.info.time)}</h3><p>${snEsc(s.info.name)} · ${snEsc(s.type)}</p></div>
+                <div class="ms-slot-count"><b>${s.active.length}</b><small>${s.active.length === 1 ? 'guide' : 'guides'}</small>
+                    ${s.drops ? `<br><span class="ms-flag">${s.drops} drop${s.drops === 1 ? '' : 's'}</span>` : ''}</div>
+            </div>
+            <div class="ms-guides">${s.guides.map(g => {
+                const fam = (people[g.name] || {}).family;
+                const tgit = g.row.tgit_username ? `<i>TGIT ${snEsc(g.row.tgit_username)}${g.row.direction ? ' · ' + snEsc(g.row.direction) : ''}</i>` : '';
+                const sub = [fam ? snEsc(fam) : '', tgit].filter(Boolean).join(' · ');
+                return `
+                <div class="ms-guide${g.status === 'drop' ? ' drop' : g.status === 'ng' ? ' ng' : ''}">
+                    ${avatar(g.name)}
+                    <div class="ms-guide-text"><b>${snEsc(g.name || 'Unassigned')}</b>${sub ? `<small>${sub}</small>` : ''}</div>
+                    ${badge(g.status)}
+                </div>`; }).join('')}</div>
+        </section>`).join('')}</div>`
+        : '<div class="sn-empty">No tours on this day</div>';
+}
+
+function msRenderMonth(rows) {
+    const today = snDay(new Date());
+    const first = new Date(msDate.getFullYear(), msDate.getMonth(), 1);
+    const start = new Date(first); start.setDate(1 - first.getDay());
+    const weeks = Math.ceil((first.getDay() + new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate()) / 7);
+    const byDay = {};
+    rows.forEach(r => { (byDay[r.tour_date] = byDay[r.tour_date] || []).push(r); });
+
+    const monthDrops = rows.filter(r => String(r.guide || '').includes('*') && r.tour_date >= msIso(today)).length;
+    const tourDays = Object.keys(byDay).length;
+    const slotCount = Object.values(byDay).reduce((n, list) => n + new Set(list.map(r => r.type)).size, 0);
+    const chip = (n, label, cls = '') => `<span class="sn-chip ${cls}"><b>${n}</b>${label}</span>`;
+    document.getElementById('ms-summary').innerHTML = chip(slotCount, 'tours') + chip(tourDays, 'tour days')
+        + (monthDrops ? chip(monthDrops, monthDrops === 1 ? 'open drop' : 'open drops', 'red') : '');
+
+    const cells = [];
+    for (let i = 0; i < weeks * 7; i++) {
+        const d = new Date(start); d.setDate(start.getDate() + i);
+        const inMonth = d.getMonth() === first.getMonth();
+        const slots = inMonth ? msSlots(byDay[msIso(d)] || []) : [];
+        const cls = ['sn-cell'];
+        if (!inMonth) cls.push('out');
+        if (d < today) cls.push('past');
+        if (+d === +today) cls.push('today');
+        const drops = slots.reduce((n, s) => n + s.drops, 0);
+        const guides = slots.reduce((n, s) => n + s.active.length, 0);
+        const lines = slots.slice(0, 4).map(s => `<span class="ms-cell-line"><i style="background:${s.info.color}"></i>${snEsc(s.info.time.replace(' AM', 'a').replace(' PM', 'p'))} <span>${s.active.length}</span>${s.drops ? ` <em>· ${s.drops} drop${s.drops === 1 ? '' : 's'}</em>` : ''}</span>`).join('');
+        const more = slots.length > 4 ? `<span class="sn-more ms-cell-line">+${slots.length - 4} more</span>` : '';
+        const total = slots.length ? `<span class="ms-cell-total">${guides}${drops && d >= today ? '<span class="ms-cell-drop"></span>' : ''}</span>` : '';
+        const label = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + (slots.length ? `, ${slots.length} tours, ${guides} guides` : '');
+        cells.push(`<button class="${cls.join(' ')}" ${inMonth ? `onclick="msOpenDay(${+d})"` : 'tabindex="-1"'} aria-label="${label}"><span class="sn-num">${d.getDate()}</span>${total}${lines}${more}</button>`);
+    }
+    document.getElementById('ms-body').innerHTML = `
+        <div class="sn-cal">
+            <div class="sn-dow"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div>
+            <div class="sn-grid">${cells.join('')}</div>
+            <div class="sn-legend"><span><i style="background:#10B981"></i>Daily</span><span><i style="background:#3B82F6"></i>Group</span><span><i style="background:#8B5CF6"></i>Program</span><span><i style="background:#EF4444"></i>Pending drops</span><span style="text-transform:none;letter-spacing:0">Numbers = guides scheduled · tap a day for details</span></div>
+        </div>`;
+}
+
 // ─── SCHEDULE NEW: month calendar + agenda ──────────────────────────────────
 let snMode = (() => { try { return localStorage.getItem('tgis-sn-mode') || 'month'; } catch (e) { return 'month'; } })();
 let snMonth = (() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); })();
@@ -4697,6 +4930,7 @@ async function init(authUser) {
             semesterRank:        [...fullLeaderboard].sort((a,b) => b.semesterTotal - a.semesterTotal).findIndex(g => g.displayName === displayName) + 1,
             fullLeaderboard,
             fullList:            fullLeaderboard,
+            guidesByName:        Object.fromEntries(allGuides.map(g => [g.display_name, g])), // photo + family by display name
             tours:               myTours.map(t => ({
                                 date:  t.tour_date + 'T12:00:00',
                 guide: t.guide,
@@ -4728,6 +4962,7 @@ async function init(authUser) {
         if (canSeeRoster()) {
             document.getElementById('sb-admin-section').hidden = false;
             if (!QUICK_ACTIONS.some(a => a.view === 'roster')) {
+                QUICK_ACTIONS.splice(2, 0, { view: 'master', label: 'Master Schedule', bg: '#1a1510', icon: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M7 14h4M7 18h4M14 14h3M14 18h3"/>' });
                 QUICK_ACTIONS.splice(2, 0, { view: 'roster', label: 'Roster', bg: '#78350F', icon: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>' });
                 renderQuickActions();
             }
