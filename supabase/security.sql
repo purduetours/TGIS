@@ -144,6 +144,16 @@ alter default privileges in schema public grant all on sequences to service_role
 
 
 -- ───────────────────────────────────────────────────────────────────────────
+-- STEP 2d — Lets apps-script/tracker-sync.gs update tracker rows in place
+-- (matched on display_name). If this errors with "could not create unique
+-- index", two tracker rows share a display_name — find them with:
+--   select display_name, count(*) from tracker group by 1 having count(*) > 1;
+-- ───────────────────────────────────────────────────────────────────────────
+
+create unique index if not exists tracker_display_name_key on public.tracker (display_name);
+
+
+-- ───────────────────────────────────────────────────────────────────────────
 -- STEP 3 — Not SQL. Move Apps Script off the public key BEFORE step 4.
 --   1. Supabase → Project Settings → API Keys → copy the service_role (secret) key.
 --   2. Apps Script → Project Settings → Script Properties → SUPABASE_ANON_KEY →
