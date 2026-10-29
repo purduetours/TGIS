@@ -292,7 +292,6 @@
             .view-section > header:not(:has(button:not(.hidden))) { display: none; }
             /* Gold header stays pinned while the page scrolls underneath */
             /* translateZ gives the header its own layer so iOS doesn't repaint it while scrolling */
-            #mobile-page-header { position: -webkit-sticky; position: sticky; top: 0; z-index: 30; transform: translateZ(0); -webkit-transform: translateZ(0); }
             /* Gold continues above the header so the iOS bounce at the top shows gold, not white */
             #mobile-page-header::before { content: ''; position: absolute; left: 0; right: 0; bottom: 100%; height: 100vh;
                 background: linear-gradient(90deg, #b39a6d 0%, #CFB991 40%, #dcc79c 70%, #CFB991 100%); pointer-events: none; }
@@ -349,6 +348,9 @@
    Overrides light Tailwind classes and light inline colours, including markup
    rendered later from JS templates. The gold header keeps its colours. */
 :root { --page-bg: #F9FAFB; --home-bg: #F5F5F5; }
+/* Page header stays pinned while the page scrolls underneath (mobile and desktop).
+   translateZ gives it its own layer so iOS doesn't repaint it while scrolling. */
+#mobile-page-header { position: -webkit-sticky; position: sticky; top: 0; z-index: 30; transform: translateZ(0); -webkit-transform: translateZ(0); }
 html.dark { --page-bg: #0f0f10; --home-bg: #0f0f10; color-scheme: dark; }
 html.dark { background: #1c1c1e; }
 html.dark body { background: #0f0f10 !important; color: #f3f4f6; }
@@ -416,6 +418,142 @@ html.dark .omni-highlight { color: #f3f4f6; }
 html.dark .mh-action { box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08); }
 html.dark [style*="solid #FEE2E2" i] { border-color: rgba(239,68,68,0.3) !important; }
 html.dark #mh-drops [style*="color:#B91C1C" i] { color: #FCA5A5 !important; }
+
+/* Schedule New */
+.sn-toolbar { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
+.sn-seg { display: inline-flex; background: #ECECEC; border-radius: 0.875rem; padding: 3px; }
+.sn-seg button { border: none; background: transparent; font-family: inherit; font-size: 0.75rem; font-weight: 900; color: #6B7280;
+                 padding: 0.5rem 1rem; border-radius: 0.6875rem; cursor: pointer; }
+.sn-seg button.on { background: white; color: #1a1510; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+.sn-nav { display: flex; align-items: center; gap: 0.25rem; }
+.sn-nav[hidden] { display: none; }
+.sn-nav h2 { margin: 0 0.25rem; font-size: 1.125rem; font-weight: 900; color: #1a1510; min-width: 9.5rem; text-align: center; }
+.sn-arrow { width: 34px; height: 34px; border-radius: 99px; border: none; background: transparent; color: #b39a6d; font-size: 1.5rem;
+            font-weight: 700; line-height: 1; cursor: pointer; }
+.sn-arrow:hover { background: rgba(207,185,145,0.18); }
+.sn-today { border: 1px solid rgba(207,185,145,0.5); background: rgba(207,185,145,0.12); color: #8a7550; font-family: inherit;
+            font-size: 0.6875rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; border-radius: 99px; padding: 0.375rem 0.75rem; cursor: pointer; margin-left: 0.25rem; }
+.sn-ical { margin-left: auto; display: inline-flex; align-items: center; gap: 0.375rem; border: 1px solid #E5E7EB; background: white; color: #4B5563;
+           font-family: inherit; font-size: 0.6875rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; border-radius: 0.875rem;
+           padding: 0.5rem 0.875rem; cursor: pointer; }
+.sn-ical:hover { border-color: #CFB991; color: #8a7550; }
+.sn-summary { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.sn-chip { display: inline-flex; align-items: baseline; gap: 0.375rem; background: white; border: 1px solid #ECECEC; border-radius: 99px;
+           padding: 0.375rem 0.875rem; font-size: 0.75rem; font-weight: 700; color: #6B7280; }
+.sn-chip b { font-size: 0.9375rem; font-weight: 900; color: #1a1510; }
+.sn-chip.red { background: #FEF2F2; border-color: #FECACA; color: #B91C1C; }
+.sn-chip.red b { color: #B91C1C; }
+.sn-month-wrap { display: grid; grid-template-columns: 1fr; gap: 1rem; align-items: start; }
+.sn-cal { background: white; border: 1px solid #ECECEC; border-radius: 1.375rem; padding: 0.75rem; }
+.sn-dow { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 4px; }
+.sn-dow span { text-align: center; font-size: 0.625rem; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; color: #9CA3AF; padding: 0.25rem 0; }
+.sn-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; touch-action: pan-y; }
+.sn-cell { position: relative; min-height: 58px; border-radius: 0.75rem; background: #FAFAF9; border: 2px solid transparent; padding: 0.3125rem;
+           cursor: pointer; display: flex; flex-direction: column; gap: 3px; text-align: left; font-family: inherit; overflow: hidden; }
+.sn-cell:hover { border-color: rgba(207,185,145,0.45); }
+.sn-cell.out { background: transparent; }
+.sn-cell.out .sn-num { color: #D1D5DB; }
+.sn-cell.past:not(.out) { opacity: 0.55; }
+.sn-cell.today { background: rgba(207,185,145,0.16); }
+.sn-cell.today .sn-num { background: #CFB991; color: #1a1510; }
+.sn-cell.sel { border-color: #CFB991; background: white; box-shadow: 0 4px 14px rgba(179,154,109,0.25); opacity: 1; }
+.sn-num { align-self: flex-start; font-size: 0.8125rem; font-weight: 900; color: #1a1510; min-width: 1.5rem; height: 1.5rem; line-height: 1.5rem;
+          text-align: center; border-radius: 99px; }
+.sn-bars { display: flex; flex-direction: column; gap: 2px; }
+.sn-bar { height: 5px; border-radius: 99px; }
+.sn-pill { display: none; }
+.sn-more { font-size: 0.625rem; font-weight: 800; color: #9CA3AF; }
+.sn-legend { display: flex; gap: 0.875rem; flex-wrap: wrap; padding: 0.75rem 0.25rem 0.125rem; }
+.sn-legend span { display: inline-flex; align-items: center; gap: 0.375rem; font-size: 0.625rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; color: #9CA3AF; }
+.sn-legend i { width: 8px; height: 8px; border-radius: 99px; }
+.sn-day { background: white; border: 1px solid #ECECEC; border-radius: 1.375rem; padding: 1rem 1.125rem 1.125rem; }
+.sn-day-head { display: flex; align-items: baseline; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.75rem; }
+.sn-day-head h3 { margin: 0; font-size: 1.0625rem; font-weight: 900; color: #1a1510; }
+.sn-day-head small { font-size: 0.6875rem; font-weight: 800; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.08em; white-space: nowrap; }
+.sn-empty { border: 2px dashed #E5E7EB; border-radius: 1rem; padding: 1.5rem 1rem; text-align: center; font-size: 0.75rem; font-weight: 700; color: #9CA3AF; }
+.sn-empty button { display: block; margin: 0.625rem auto 0; border: none; background: none; font-family: inherit; font-size: 0.6875rem; font-weight: 900;
+                   text-transform: uppercase; letter-spacing: 0.08em; color: #b39a6d; cursor: pointer; }
+.sn-tour { display: flex; align-items: stretch; gap: 0.75rem; border-radius: 0.875rem; background: #FAFAF9; border: 1px solid #F0F0EE;
+           padding: 0.6875rem 0.75rem; margin-bottom: 0.5rem; }
+.sn-tour:last-child { margin-bottom: 0; }
+.sn-tour-bar { width: 4px; border-radius: 99px; flex-shrink: 0; }
+.sn-tour-body { flex: 1; min-width: 0; }
+.sn-tour-time { margin: 0; font-size: 0.9375rem; font-weight: 900; color: #1a1510; line-height: 1.15; }
+.sn-tour-name { margin: 2px 0 0; font-size: 0.75rem; font-weight: 700; color: #6B7280; }
+.sn-tgit { margin-top: 0.4375rem; display: flex; align-items: center; gap: 0.4375rem; flex-wrap: wrap; font-size: 0.75rem; font-weight: 800; color: #5B21B6; }
+.sn-tgit span { font-size: 0.5625rem; font-weight: 900; letter-spacing: 0.08em; color: #7C3AED; background: #EDE9FE; padding: 2px 6px; border-radius: 99px; }
+.sn-badge { align-self: center; flex-shrink: 0; font-size: 0.5625rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em;
+            padding: 0.25rem 0.5rem; border-radius: 99px; }
+.sn-badge.drop { color: #B91C1C; background: #FEE2E2; }
+.sn-badge.pick { color: #6D28D9; background: #EDE9FE; }
+.sn-badge.done { color: #9CA3AF; background: #F3F4F6; }
+.sn-tour.is-drop { background: #FEF2F2; border-color: #FECACA; }
+.sn-tour.is-past { opacity: 0.6; }
+/* Agenda */
+.sn-ag-tools { display: flex; justify-content: flex-end; margin: -0.25rem 0 0.75rem; }
+.sn-ag-tools button { border: none; background: none; font-family: inherit; font-size: 0.6875rem; font-weight: 900; text-transform: uppercase;
+                      letter-spacing: 0.08em; color: #b39a6d; cursor: pointer; padding: 0.25rem 0; }
+.sn-week { margin-bottom: 1.25rem; }
+.sn-week-head { display: flex; align-items: baseline; gap: 0.5rem; margin: 0 0 0.5rem 0.125rem; }
+.sn-week-head b { font-size: 0.6875rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.12em; color: #1a1510; }
+.sn-week-head small { font-size: 0.6875rem; font-weight: 700; color: #9CA3AF; }
+.sn-week-body { background: white; border: 1px solid #ECECEC; border-radius: 1.25rem; padding: 0.375rem 0.875rem; }
+.sn-row { display: flex; gap: 0.875rem; padding: 0.75rem 0; }
+.sn-row + .sn-row { border-top: 1px solid #F3F4F6; }
+.sn-date { width: 46px; flex-shrink: 0; text-align: center; padding-top: 0.125rem; }
+.sn-date small { display: block; font-size: 0.5625rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; color: #9CA3AF; }
+.sn-date b { display: block; font-size: 1.375rem; font-weight: 900; color: #1a1510; line-height: 1.1; }
+.sn-date.today b { color: #b39a6d; }
+.sn-date.today small { color: #b39a6d; }
+.sn-row-tours { flex: 1; min-width: 0; }
+.sn-row.is-past { opacity: 0.6; }
+@media (min-width: 1024px) {
+    .sn-month-wrap { grid-template-columns: minmax(0, 1fr) 300px; }
+    .sn-day { position: sticky; top: 7rem; }
+    .sn-cal { padding: 1rem; }
+    .sn-grid { gap: 6px; }
+    .sn-cell { min-height: 112px; padding: 0.4375rem; }
+    .sn-bars { display: none; }
+    .sn-pill { display: block; border-radius: 0.5rem; padding: 0.25rem 0.375rem; line-height: 1.2; background: white; border-left: 3px solid; font-size: 0.6875rem; font-weight: 800;
+               color: #1a1510; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+    .sn-pill small { display: block; font-size: 0.625rem; font-weight: 700; color: #6B7280; }
+    .sn-pill.drop { background: #FEF2F2; }
+    #view-schedule2 .sn-agenda-inner { max-width: 760px; }
+}
+@media (max-width: 1023px) {
+    .sn-toolbar { gap: 0.5rem; }
+    .sn-seg { flex: 1; }
+    .sn-seg button { flex: 1; }
+    .sn-ical span { display: none; }
+    .sn-ical { padding: 0.5rem 0.625rem; }
+    .sn-summary { flex-wrap: nowrap; overflow-x: auto; margin: 0 -1rem 1rem; padding: 0 1rem; scrollbar-width: none; }
+    .sn-summary::-webkit-scrollbar { display: none; }
+    .sn-chip { flex-shrink: 0; white-space: nowrap; }
+    .sn-nav { order: 3; width: 100%; justify-content: space-between; }
+    .sn-nav h2 { flex: 1; }
+}
+html.dark .sn-seg { background: #1c1c1e; }
+html.dark .sn-seg button.on { background: #3a3a3c; color: #f3f4f6; }
+html.dark .sn-pill small { color: #a1a1aa; }
+html.dark .sn-badge.drop { background: rgba(239,68,68,0.2); color: #FCA5A5; }
+html.dark .sn-badge.pick { background: rgba(139,92,246,0.2); color: #C4B5FD; }
+html.dark .sn-nav h2, html.dark .sn-num, html.dark .sn-day-head h3, html.dark .sn-tour-time, html.dark .sn-chip b,
+html.dark .sn-week-head b, html.dark .sn-date b, html.dark .sn-pill { color: #f3f4f6; }
+html.dark .sn-ical, html.dark .sn-chip, html.dark .sn-cal, html.dark .sn-day, html.dark .sn-week-body { background: #1c1c1e; border-color: #2c2c2e; }
+html.dark .sn-cell { background: #242426; }
+html.dark .sn-cell.out { background: transparent; }
+html.dark .sn-cell.out .sn-num { color: #4B5563; }
+html.dark .sn-cell.today { background: rgba(207,185,145,0.14); }
+html.dark .sn-cell.today .sn-num { color: #1a1510; }
+html.dark .sn-cell.sel { background: #1c1c1e; }
+html.dark .sn-pill { background: #1c1c1e; }
+html.dark .sn-tour { background: #242426; border-color: #2c2c2e; }
+html.dark .sn-tour.is-drop, html.dark .sn-pill.drop, html.dark .sn-chip.red { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.3); }
+html.dark .sn-chip.red b, html.dark .sn-chip.red { color: #FCA5A5; }
+html.dark .sn-row + .sn-row { border-top-color: #2c2c2e; }
+html.dark .sn-empty { border-color: #2c2c2e; }
+html.dark .sn-tgit { color: #C4B5FD; }
+html.dark .sn-badge.done { background: #2c2c2e; }
 
 /* Available tours bottom sheet */
 #available-sheet { position: fixed; inset: 0; z-index: 200; }
@@ -851,6 +989,7 @@ html.dark .theme-switch::after { transform: translateX(18px); }
         <p class="sb-label">Main Menu</p>
         <div id="nav-home" class="nav-button active" onclick="switchView('home')"><span class="nav-icon" style="background:#1a1510;"><svg viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg></span>Home</div>
         <div id="nav-schedule" class="nav-button" onclick="switchView('schedule')"><span class="nav-icon" style="background:#3B82F6;"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>Schedule</div>
+        <div id="nav-schedule2" class="nav-button" onclick="switchView('schedule2')"><span class="nav-icon" style="background:#2563EB;"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h2M14 14h2M8 18h2"/></svg></span>Schedule New</div>
         <div id="nav-tracker" class="nav-button" onclick="switchView('tracker')"><span class="nav-icon" style="background:#10B981;"><svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg></span>Tour Tracker</div>
         <div id="nav-families" class="nav-button" onclick="switchView('families')"><span class="nav-icon" style="background:#fff;"><svg viewBox="0 0 24 24" style="stroke:#b39a6d;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>Family Points</div>
         <div id="nav-desk" class="nav-button" onclick="switchView('desk')"><span class="nav-icon" style="background:#06B6D4;"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>Desk Schedule</div>
@@ -1062,6 +1201,37 @@ html.dark .theme-switch::after { transform: translateX(18px); }
 </div>
 
     
+
+    <!-- SCHEDULE NEW: month calendar + agenda (trial redesign of the Schedule page) -->
+    <div id="view-schedule2" class="view-section">
+        <header class="mb-6"><h1 class="text-3xl font-black">Schedule</h1></header>
+        <div class="sn-toolbar">
+            <div class="sn-seg" role="tablist">
+                <button id="sn-tab-month" role="tab" onclick="snSetMode('month')">Month</button>
+                <button id="sn-tab-agenda" role="tab" onclick="snSetMode('agenda')">Agenda</button>
+            </div>
+            <div class="sn-nav" id="sn-month-nav">
+                <button class="sn-arrow" onclick="snShiftMonth(-1)" aria-label="Previous month">&#8249;</button>
+                <h2 id="sn-month-label"></h2>
+                <button class="sn-arrow" onclick="snShiftMonth(1)" aria-label="Next month">&#8250;</button>
+                <button class="sn-today" onclick="snGoToday()">Today</button>
+            </div>
+            <button class="sn-ical" onclick="downloadICalendar()" title="Add your tours to your calendar">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M12 14v4M10 16h4"/></svg>
+                <span>Add to Calendar</span>
+            </button>
+        </div>
+        <div id="sn-summary" class="sn-summary"></div>
+        <div id="sn-month" class="sn-month-wrap">
+            <div class="sn-cal">
+                <div class="sn-dow"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div>
+                <div id="sn-grid" class="sn-grid"></div>
+                <div class="sn-legend"><span><i style="background:#10B981"></i>Daily</span><span><i style="background:#3B82F6"></i>Group</span><span><i style="background:#8B5CF6"></i>Program</span><span><i style="background:#EF4444"></i>Pending drop</span></div>
+            </div>
+            <aside id="sn-day" class="sn-day"></aside>
+        </div>
+        <div id="sn-agenda" hidden></div>
+    </div>
 
     <!-- Placeholder pages opened from the mobile home quick actions -->
     <!-- SEARCH: OmniSearch from adminportal.html, over guide-visible fields only -->
@@ -2252,6 +2422,7 @@ function switchView(viewId) {
     if (viewId === 'desk') loadDeskSchedule();
     if (viewId === 'search') initOmniSearch();
     if (viewId === 'roster') loadRoster();
+    if (viewId === 'schedule2') renderScheduleNew();
 
     // 2. Update desktop sidebar active state
     document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
@@ -2323,6 +2494,7 @@ const QUICK_ACTIONS = [
     { href: 'https://webclock.purdue.edu', label: 'WebClock', bg: '#6366F1', icon: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>' },
     { view: 'search',   label: 'Search',        bg: '#1a1510', icon: '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>' },
     { view: 'schedule', label: 'Schedule',      bg: '#3B82F6', icon: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>' },
+    { view: 'schedule2', label: 'Schedule New', bg: '#2563EB', icon: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h2M14 14h2M8 18h2"/>' },
     { view: 'tracker',  label: 'Tracker',       bg: '#10B981', icon: '<path d="M18 20V10M12 20V4M6 20v-6"/>' },
     { view: 'families', label: 'Points',        bg: '#CFB991', fg: '#1a1510', icon: '<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>' },
     { view: 'forms',    label: 'Forms',         bg: '#F59E0B', icon: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/>' },
@@ -3582,6 +3754,214 @@ function renderProfileView() {
     updateScheduleView(myTours);
 }
 
+// ─── SCHEDULE NEW: month calendar + agenda ──────────────────────────────────
+let snMode = (() => { try { return localStorage.getItem('tgis-sn-mode') || 'month'; } catch (e) { return 'month'; } })();
+let snMonth = (() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); })();
+let snSelected = (() => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; })();
+let snShowPast = false;
+
+const snEsc = v => String(v ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+const snDay = d => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; };
+const snKey = d => snDay(d).toDateString();
+function snInfo(t) {
+    const info = TOUR_MAP[t.type] || { name: t.type || 'Tour', time: '--' };
+    const color = /program/i.test(info.name) ? '#8B5CF6' : /group/i.test(info.name) ? '#3B82F6' : '#10B981';
+    const short = /program/i.test(info.name) ? 'Program' : /group/i.test(info.name) ? 'Group' : 'Daily';
+    const time = t.time || info.time;
+    const p = time && time !== '--' ? parse12Hour(time) : null;
+    return { ...info, color, short, time, mins: p ? p.hours * 60 + p.minutes : 9999 };
+}
+function snTours() {
+    const list = (window.currentMyTours || (cachedData && cachedData.tours) || []).slice();
+    return list.sort((a, b) => (snDay(a.date) - snDay(b.date)) || (snInfo(a).mins - snInfo(b).mins));
+}
+function snByDay(tours) {
+    const m = {};
+    tours.forEach(t => { (m[snKey(t.date)] = m[snKey(t.date)] || []).push(t); });
+    return m;
+}
+function snTourCard(t) {
+    const info = snInfo(t), g = String(t.guide || '');
+    const past = snDay(t.date) < snDay(new Date());
+    const drop = !past && g.includes('*');
+    const badge = past ? '<span class="sn-badge done">Done</span>'
+        : drop ? '<span class="sn-badge drop">Pending drop</span>'
+        : g.includes('+') ? '<span class="sn-badge pick">Picked up</span>' : '';
+    const tgit = t.direction && t.tgitName
+        ? `<div class="sn-tgit"><span>TGIT</span>${snEsc(t.tgitName)}${t.direction ? ' · ' + snEsc(t.direction) : ''}</div>` : '';
+    return `
+        <div class="sn-tour${drop ? ' is-drop' : ''}${past ? ' is-past' : ''}">
+            <div class="sn-tour-bar" style="background:${drop ? '#EF4444' : past ? '#D1D5DB' : info.color}"></div>
+            <div class="sn-tour-body">
+                <p class="sn-tour-time">${snEsc(info.time)}</p>
+                <p class="sn-tour-name">${snEsc(info.name)}</p>
+                ${tgit}
+            </div>
+            ${badge}
+        </div>`;
+}
+
+function snSetMode(mode) {
+    snMode = mode;
+    try { localStorage.setItem('tgis-sn-mode', mode); } catch (e) {}
+    renderScheduleNew();
+}
+function snShiftMonth(n) {
+    snMonth = new Date(snMonth.getFullYear(), snMonth.getMonth() + n, 1);
+    // keep a selection inside the visible month
+    if (snSelected.getMonth() !== snMonth.getMonth() || snSelected.getFullYear() !== snMonth.getFullYear()) {
+        const today = snDay(new Date());
+        snSelected = today.getMonth() === snMonth.getMonth() && today.getFullYear() === snMonth.getFullYear() ? today : new Date(snMonth);
+    }
+    renderScheduleNew();
+}
+function snGoToday() {
+    const today = snDay(new Date());
+    snMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    snSelected = today;
+    if (snMode === 'agenda') snShowPast = false;
+    renderScheduleNew();
+}
+function snPick(ts) {
+    snSelected = new Date(Number(ts));
+    renderScheduleNew();
+    if (window.innerWidth < 1024) document.getElementById('sn-day').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function renderScheduleNew() {
+    if (!document.getElementById('view-schedule2')) return;
+    const tours = snTours();
+    const byDay = snByDay(tours);
+    const today = snDay(new Date());
+    const upcoming = tours.filter(t => snDay(t.date) >= today);
+
+    document.getElementById('sn-tab-month').classList.toggle('on', snMode === 'month');
+    document.getElementById('sn-tab-agenda').classList.toggle('on', snMode === 'agenda');
+    document.getElementById('sn-month').hidden = snMode !== 'month';
+    document.getElementById('sn-agenda').hidden = snMode !== 'agenda';
+    document.getElementById('sn-month-nav').hidden = snMode !== 'month';
+    document.getElementById('sn-month-label').textContent = snMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+    // Summary chips
+    const inMonth = upcoming.filter(t => { const d = new Date(t.date); return d.getMonth() === snMonth.getMonth() && d.getFullYear() === snMonth.getFullYear(); });
+    const drops = upcoming.filter(t => String(t.guide || '').includes('*'));
+    const nextIn = upcoming.length ? Math.round((snDay(upcoming[0].date) - today) / 86400000) : null;
+    const chip = (n, label, cls = '') => `<span class="sn-chip ${cls}"><b>${n}</b>${label}</span>`;
+    document.getElementById('sn-summary').innerHTML =
+        chip(upcoming.length, 'upcoming') +
+        (snMode === 'month' ? chip(inMonth.length, 'left in ' + snMonth.toLocaleDateString('en-US', { month: 'short' })) : '') +
+        (nextIn !== null ? chip(nextIn === 0 ? 'Today' : nextIn === 1 ? 'Tomorrow' : nextIn + ' days', nextIn > 1 ? 'until next tour' : '· next tour') : '') +
+        (drops.length ? chip(drops.length, drops.length === 1 ? 'pending drop' : 'pending drops', 'red') : '');
+
+    if (snMode === 'month') snRenderMonth(byDay, today);
+    else snRenderAgenda(tours, byDay, today);
+}
+
+function snRenderMonth(byDay, today) {
+    const first = new Date(snMonth);
+    const start = new Date(first); start.setDate(1 - first.getDay());
+    const weeks = Math.ceil((first.getDay() + new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate()) / 7);
+    const cells = [];
+    for (let i = 0; i < weeks * 7; i++) {
+        const d = new Date(start); d.setDate(start.getDate() + i);
+        const list = byDay[d.toDateString()] || [];
+        const cls = ['sn-cell'];
+        if (d.getMonth() !== first.getMonth()) cls.push('out');
+        if (d < today) cls.push('past');
+        if (+d === +today) cls.push('today');
+        if (+d === +snSelected) cls.push('sel');
+        const bars = list.slice(0, 3).map(t => `<span class="sn-bar" style="background:${String(t.guide || '').includes('*') && d >= today ? '#EF4444' : snInfo(t).color}"></span>`).join('');
+        const pills = list.slice(0, 2).map(t => {
+            const info = snInfo(t), drop = String(t.guide || '').includes('*') && d >= today;
+            return `<span class="sn-pill${drop ? ' drop' : ''}" style="border-left-color:${drop ? '#EF4444' : info.color}" title="${snEsc(info.time + ' · ' + info.name)}">${snEsc(info.time.replace(' AM', 'a').replace(' PM', 'p'))}<small>${info.short}</small></span>`;
+        }).join('');
+        const more = list.length > 2 ? `<span class="sn-more">+${list.length - 2} more</span>` : '';
+        const label = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + (list.length ? `, ${list.length} tour${list.length === 1 ? '' : 's'}` : '');
+        cells.push(`<button class="${cls.join(' ')}" onclick="snPick(${+d})" aria-label="${label}"><span class="sn-num">${d.getDate()}</span><span class="sn-bars">${bars}</span>${pills}${more}</button>`);
+    }
+    const grid = document.getElementById('sn-grid');
+    grid.innerHTML = cells.join('');
+
+    // Swipe left/right on the calendar to change month (mobile)
+    if (!grid.dataset.swipe) {
+        grid.dataset.swipe = '1';
+        let x0 = null, y0 = null;
+        grid.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
+        grid.addEventListener('touchend', e => {
+            if (x0 === null) return;
+            const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
+            x0 = null;
+            if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) snShiftMonth(dx < 0 ? 1 : -1);
+        }, { passive: true });
+    }
+
+    // Selected day panel
+    const list = byDay[snSelected.toDateString()] || [];
+    const rel = Math.round((snSelected - today) / 86400000);
+    const relLabel = rel === 0 ? 'Today' : rel === 1 ? 'Tomorrow' : rel === -1 ? 'Yesterday' : rel > 0 ? `In ${rel} days` : `${-rel} days ago`;
+    const nextAfter = snTours().find(t => snDay(t.date) > snSelected);
+    document.getElementById('sn-day').innerHTML = `
+        <div class="sn-day-head">
+            <h3>${snSelected.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</h3>
+            <small>${relLabel}</small>
+        </div>
+        ${list.length ? list.map(snTourCard).join('') : `
+            <div class="sn-empty">No tours this day
+                ${nextAfter ? `<button onclick="snJump(${+snDay(nextAfter.date)})">Next tour: ${snDay(nextAfter.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} →</button>` : ''}
+            </div>`}`;
+}
+function snJump(ts) {
+    snSelected = new Date(Number(ts));
+    snMonth = new Date(snSelected.getFullYear(), snSelected.getMonth(), 1);
+    renderScheduleNew();
+}
+
+function snRenderAgenda(tours, byDay, today) {
+    const root = document.getElementById('sn-agenda');
+    const thisWeek = new Date(today); thisWeek.setDate(today.getDate() - today.getDay());
+    const days = Object.keys(byDay).map(k => new Date(k)).filter(d => snShowPast || d >= today).sort((a, b) => a - b);
+    const pastCount = tours.filter(t => snDay(t.date) < today).length;
+
+    const weeks = [];
+    days.forEach(d => {
+        const ws = new Date(d); ws.setDate(d.getDate() - d.getDay());
+        let w = weeks[weeks.length - 1];
+        if (!w || +w.start !== +ws) weeks.push(w = { start: ws, days: [] });
+        w.days.push(d);
+    });
+    const fmt = d => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const weekTitle = ws => {
+        const n = Math.round((ws - thisWeek) / (7 * 86400000));
+        return n === 0 ? 'This week' : n === 1 ? 'Next week' : n === -1 ? 'Last week' : `Week of ${fmt(ws)}`;
+    };
+
+    const body = weeks.map(w => {
+        const we = new Date(w.start); we.setDate(we.getDate() + 6);
+        const count = w.days.reduce((n, d) => n + byDay[d.toDateString()].length, 0);
+        return `
+            <section class="sn-week">
+                <div class="sn-week-head"><b>${weekTitle(w.start)}</b><small>${fmt(w.start)} – ${fmt(we)} · ${count} tour${count === 1 ? '' : 's'}</small></div>
+                <div class="sn-week-body">
+                    ${w.days.map(d => `
+                        <div class="sn-row${d < today ? ' is-past' : ''}">
+                            <div class="sn-date${+d === +today ? ' today' : ''}">
+                                <small>${+d === +today ? 'Today' : d.toLocaleDateString('en-US', { weekday: 'short' })}</small>
+                                <b>${d.getDate()}</b>
+                                <small>${d.toLocaleDateString('en-US', { month: 'short' })}</small>
+                            </div>
+                            <div class="sn-row-tours">${byDay[d.toDateString()].map(snTourCard).join('')}</div>
+                        </div>`).join('')}
+                </div>
+            </section>`;
+    }).join('');
+
+    root.innerHTML = `
+        <div class="sn-agenda-inner">
+            ${pastCount ? `<div class="sn-ag-tools"><button onclick="snShowPast = !snShowPast; renderScheduleNew();">${snShowPast ? 'Hide past tours' : `Show past tours (${pastCount})`}</button></div>` : ''}
+            ${body || '<div class="sn-empty">No upcoming tours scheduled</div>'}
+        </div>`;
+}
+
 function selectDate(dateString, myTours) {
     // Toggle filter: if clicking the same date, clear it. Otherwise, set it.
     selectedCalendarDate = (selectedCalendarDate === dateString) ? null : dateString;
@@ -3703,6 +4083,7 @@ function buildTypeDots(toursOnDay, isPast) {
 
 function updateScheduleView(myTours, displayName) {
     window.currentMyTours = myTours;
+    if (window._currentView === 'schedule2') renderScheduleNew();
 
     // Stat cards
     if (myTours) {
@@ -3947,7 +4328,7 @@ function updateNavigation(profile) {
     
     // 1. Define which buttons belong to which view
     const managerButtons = ['nav-desk-dashboard'];
-    const studentButtons = ['nav-home', 'nav-schedule', 'nav-tracker', 'nav-families', 'nav-desk', 'nav-forms'];
+    const studentButtons = ['nav-home', 'nav-schedule', 'nav-schedule2', 'nav-tracker', 'nav-families', 'nav-desk', 'nav-forms'];
 
     // 2. Toggle visibility
     managerButtons.forEach(id => {
