@@ -614,6 +614,73 @@ html.dark .ms-slot-count .ms-flag { background: rgba(239,68,68,0.2); color: #FCA
 html.dark .ms-guide .sn-badge.ng { background: #2c2c2e; color: #a1a1aa; }
 html.dark .ms-guide-text small i { color: #C4B5FD; }
 
+/* On Tour home */
+.ot-home { padding: 0.5rem 0 6rem; }
+.ot-home[hidden], .mh-wrap[hidden] { display: none !important; }
+.ot-hero { background: #1a1510; color: #fff; border-radius: 1.5rem; padding: 1.25rem 1.25rem 1.125rem; position: relative; overflow: hidden;
+           background-image: radial-gradient(circle at 100% 0%, rgba(16,185,129,0.25), transparent 55%); }
+.ot-hero-top { display: flex; justify-content: space-between; align-items: center; }
+.ot-live { display: inline-flex; align-items: center; gap: 0.4375rem; font-size: 0.625rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.14em; color: #6EE7B7; }
+.ot-live i { width: 8px; height: 8px; border-radius: 99px; background: #10B981; box-shadow: 0 0 0 0 rgba(16,185,129,0.6); animation: otPulse 1.6s infinite; }
+@keyframes otPulse { 70% { box-shadow: 0 0 0 8px rgba(16,185,129,0); } 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); } }
+.ot-hero-left { font-size: 0.75rem; font-weight: 800; color: #CFB991; }
+.ot-hero h2 { margin: 0.625rem 0 0; font-size: 1.75rem; font-weight: 900; letter-spacing: -0.01em; line-height: 1.1; }
+.ot-hero > p { margin: 0.25rem 0 0; font-size: 0.875rem; font-weight: 700; color: #a8a29e; }
+.ot-progress { height: 8px; border-radius: 99px; background: rgba(255,255,255,0.12); margin-top: 1rem; overflow: hidden; }
+.ot-progress i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, #10B981, #6EE7B7); }
+.ot-hero-foot { display: flex; justify-content: space-between; margin-top: 0.5rem; font-size: 0.6875rem; font-weight: 700; color: #78716c; }
+.ot-911 { display: flex; align-items: center; gap: 0.875rem; margin-top: 0.875rem; padding: 0.9375rem 1.125rem; border-radius: 1.25rem; background: #DC2626;
+          color: #fff; text-decoration: none; box-shadow: 0 6px 18px -6px rgba(220,38,38,0.55); }
+.ot-911 svg { width: 26px; height: 26px; flex-shrink: 0; fill: none; stroke: #fff; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.ot-911 b { display: block; font-size: 1rem; font-weight: 900; }
+.ot-911 small { display: block; font-size: 0.75rem; font-weight: 600; color: #FECACA; }
+.ot-grid { display: grid; grid-template-columns: 1fr; gap: 0.875rem; margin-top: 0.875rem; }
+.ot-card { background: white; border: 1px solid #ECECEC; border-radius: 1.25rem; padding: 0.875rem 1rem; }
+.ot-label { margin: 0 0 0.375rem; font-size: 0.625rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.14em; color: #9CA3AF; }
+.ot-contact { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.5625rem 0; }
+.ot-contact + .ot-contact { border-top: 1px solid #F3F4F6; }
+.ot-contact b { display: block; font-size: 0.875rem; font-weight: 800; color: #1a1510; }
+.ot-contact small { display: block; font-size: 0.6875rem; font-weight: 600; color: #9CA3AF; }
+.ot-call { display: inline-flex; align-items: center; gap: 0.375rem; flex-shrink: 0; padding: 0.4375rem 0.75rem; border-radius: 0.75rem; background: rgba(16,185,129,0.12);
+           color: #047857; font-size: 0.75rem; font-weight: 900; text-decoration: none; white-space: nowrap; }
+.ot-call svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.ot-nonum { flex-shrink: 0; font-size: 0.6875rem; font-weight: 700; color: #D1D5DB; }
+.ot-crew-row { display: flex; align-items: center; gap: 0.625rem; padding: 0.4375rem 0; }
+.ot-crew-row b { display: block; font-size: 0.875rem; font-weight: 800; color: #1a1510; }
+.ot-crew-row small { display: block; font-size: 0.6875rem; font-weight: 600; color: #9CA3AF; }
+.ot-av { width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0; background: #E9DFC9 center/cover no-repeat; display: flex; align-items: center;
+         justify-content: center; font-size: 0.8125rem; font-weight: 900; color: #6B5A3A; }
+.ot-muted { margin: 0.25rem 0; font-size: 0.8125rem; font-weight: 600; color: #9CA3AF; }
+.ot-search { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.875rem; background: white; border: 1px solid #ECECEC; border-radius: 1.125rem; padding: 0.375rem 0.375rem 0.375rem 0.875rem; }
+.ot-search svg { width: 18px; height: 18px; flex-shrink: 0; fill: none; stroke: #9CA3AF; stroke-width: 2.2; stroke-linecap: round; }
+.ot-search input { flex: 1; min-width: 0; border: none; background: transparent; font-family: inherit; font-size: 16px; font-weight: 600; color: #111827; outline: none; }
+.ot-search button { border: none; background: #1a1510; color: #CFB991; font-family: inherit; font-size: 0.75rem; font-weight: 900; padding: 0.625rem 0.875rem; border-radius: 0.875rem; cursor: pointer; }
+.ot-links { display: grid; grid-template-columns: 1fr 1fr; gap: 0.625rem; margin-top: 0.875rem; }
+.ot-link { display: flex; align-items: center; gap: 0.625rem; text-align: left; background: white; border: 1px solid #ECECEC; border-radius: 1.125rem; padding: 0.75rem;
+           font-family: inherit; cursor: pointer; }
+.ot-link-icon { width: 36px; height: 36px; border-radius: 11px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+.ot-link-icon svg { width: 18px; height: 18px; fill: none; stroke: #fff; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.ot-link b { display: block; font-size: 0.8125rem; font-weight: 800; color: #1a1510; }
+.ot-link small { display: block; font-size: 0.6875rem; font-weight: 600; color: #9CA3AF; }
+.ot-usual { display: block; margin: 1.25rem auto 0; border: none; background: none; font-family: inherit; font-size: 0.6875rem; font-weight: 900;
+            text-transform: uppercase; letter-spacing: 0.1em; color: #b39a6d; cursor: pointer; }
+.ot-back { display: block; width: calc(100% - 2rem); margin: 0 1rem 0.75rem; border: none; border-radius: 0.875rem; background: #1a1510; color: #6EE7B7; font-family: inherit;
+           font-size: 0.75rem; font-weight: 800; padding: 0.625rem; cursor: pointer; position: relative; z-index: 3; }
+@media (min-width: 1024px) {
+    .ot-home { max-width: 1100px; padding-bottom: 2rem; }
+    .ot-hero { padding: 1.75rem 2rem 1.5rem; }
+    .ot-hero h2 { font-size: 2.25rem; }
+    .ot-grid { grid-template-columns: 1.2fr 1fr; }
+    .ot-links { grid-template-columns: repeat(4, 1fr); }
+    .ot-back { width: 100%; margin: 0 0 1rem; }
+}
+html.dark .ot-card, html.dark .ot-search, html.dark .ot-link { background: #1c1c1e; border-color: #2c2c2e; }
+html.dark .ot-contact + .ot-contact { border-top-color: #2c2c2e; }
+html.dark .ot-contact b, html.dark .ot-crew-row b, html.dark .ot-link b, html.dark .ot-search input { color: #f3f4f6; }
+html.dark .ot-hero { border: 1px solid rgba(207,185,145,0.2); }
+html.dark .ot-call { color: #6EE7B7; }
+html.dark .ot-nonum { color: #52525b; }
+
 /* View-as banner */
 .viewas-banner { display: flex; align-items: center; gap: 0.5rem; margin: 0 1rem 0.5rem; padding: 0.5rem 0.5rem 0.5rem 0.875rem; border-radius: 0.875rem;
                  background: #1a1510; color: #CFB991; font-size: 0.75rem; font-weight: 700; box-shadow: 0 6px 16px -6px rgba(0,0,0,0.35); position: relative; z-index: 3; }
@@ -1198,6 +1265,8 @@ html.dark .theme-switch::after { transform: translateX(18px); }
     
 
 <div id="view-home" class="view-section active">
+<!-- ON TOUR: replaces the home content while one of your tours is in progress (renderOnTour) -->
+<div id="ot-home" class="ot-home" hidden></div>
 
   <!-- ── HOME ── -->
 <!-- One home layout for both sizes: a single column on mobile, a two-column dashboard on desktop.
@@ -2577,41 +2646,138 @@ function parse12Hour(timeStr) {
     return { hours, minutes: parseInt(minutes) };
 }
 
+// ─── ON TOUR HOME ───────────────────────────────────────────────────────────
+// While one of your tours is running, Home shows tour resources instead of the
+// usual dashboard. The rest of the app (nav, sidebar) stays available.
+// TODO: fill in the Front Desk and Welcome Center numbers (digits only for `tel`).
+const ON_TOUR_CONTACTS = [
+    { name: 'Front Desk',                   sub: 'Tour operations',          tel: '' },
+    { name: 'Welcome Center',               sub: 'Visitor check-in',         tel: '' },
+    { name: 'Office of Admissions',         sub: 'Main line',                tel: '7654941776' },
+    { name: 'Purdue Police (non-emergency)', sub: 'PUPD',                    tel: '7654948221' },
+];
+const ON_TOUR_LINKS = [
+    { label: 'My schedule',    sub: 'Your upcoming tours', bg: '#3B82F6', view: 'schedule', icon: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>' },
+    { label: 'Desk schedule',  sub: "Who's on the desk", bg: '#06B6D4', view: 'desk',    icon: '<rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/>' },
+    { label: 'Campus map',     sub: 'purdue.edu',        bg: '#10B981', href: 'https://www.purdue.edu/campus-map/', icon: '<path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/>' },
+    { label: 'Handbook',       sub: 'Policies & facts',  bg: '#EF4444', view: 'handbook', icon: '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>' },
+];
+let onTourActive = null;     // the running tour, or null
+let onTourShowUsual = false; // "Show my usual home" for the rest of this tour
+const otCrew = {};           // 'date|type' → tour rows for that slot
+
+function tourWindow(tour) {
+    const info = TOUR_MAP[tour.type];
+    if (!info) return null;
+    const p = parse12Hour(tour.time || info.time);
+    const start = new Date(tour.date); start.setHours(p.hours, p.minutes, 0, 0);
+    return { info, start, end: new Date(start.getTime() + info.duration * 60000) };
+}
+
 function checkTourLock(myTours) {
-    const lockScreen = document.getElementById('tour-lock-screen');
-    if (!lockScreen || !myTours) return;
-
+    if (!myTours) return;
     const now = new Date();
+    const active = myTours.find(t => { const w = tourWindow(t); return w && now >= w.start && now <= w.end && !String(t.guide || '').includes('`'); }) || null;
+    const started = active && (!onTourActive || onTourActive.date !== active.date || onTourActive.type !== active.type);
+    if (!active && onTourActive) onTourShowUsual = false;
+    onTourActive = active;
+    if (started) { onTourShowUsual = false; if (window._currentView !== 'home') switchView('home'); }
+    renderOnTour();
+}
 
-    const activeTour = myTours.find(tour => {
-        const info = TOUR_MAP[tour.type];
-        if (!info) return false;
-
-        const startParsed = parse12Hour(info.time);
-        const startTime = new Date(tour.date);
-        startTime.setHours(startParsed.hours, startParsed.minutes, 0);
-
-        // Calculate end by adding duration minutes
-        const endTime = new Date(startTime.getTime() + info.duration * 60000);
-
-        return now >= startTime && now <= endTime;
-    });
-
-    if (activeTour) {
-        const info = TOUR_MAP[activeTour.type];
-        const startParsed = parse12Hour(info.time);
-        
-        // Create end time for display
-        const displayEnd = new Date();
-        displayEnd.setHours(startParsed.hours, startParsed.minutes);
-        const finalEnd = new Date(displayEnd.getTime() + info.duration * 60000);
-
-        document.getElementById('lock-tour-name').innerText = info.name;
-        document.getElementById('lock-tour-end').innerText = finalEnd.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-        lockScreen.classList.remove('hidden');
-    } else {
-        lockScreen.classList.add('hidden');
+function renderOnTour() {
+    const el = document.getElementById('ot-home');
+    const usual = document.querySelector('#view-home > .mh-wrap');
+    if (!el) return;
+    const show = !!onTourActive && !onTourShowUsual;
+    el.hidden = !show;
+    if (usual) usual.hidden = show;
+    document.body.classList.toggle('on-tour', !!onTourActive);
+    if (!show) {
+        // Small "back to tour mode" bar on the usual home while a tour is still running
+        const back = document.getElementById('ot-back');
+        if (onTourActive && !back && usual) usual.insertAdjacentHTML('afterbegin', '<button id="ot-back" class="ot-back" onclick="onTourShowUsual=false;renderOnTour();">● On tour now · Show tour resources</button>');
+        if (!onTourActive && back) back.remove();
+        return;
     }
+    const oldBack = document.getElementById('ot-back'); if (oldBack) oldBack.remove();
+
+    const w = tourWindow(onTourActive);
+    const now = new Date();
+    const pct = Math.max(0, Math.min(100, (now - w.start) / (w.end - w.start) * 100));
+    const left = Math.max(0, Math.round((w.end - now) / 60000));
+    const fmt = d => d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    const esc = v => String(v ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+
+    // Everyone else on this tour slot today
+    const me = cachedData && cachedData.profile ? cachedData.profile.displayName : '';
+    const day = String(onTourActive.date).slice(0, 10);
+    const people = (cachedData && cachedData.guidesByName) || {};
+    // Fetched per tour slot (the cached all-tours list can be cut off at 1000 rows)
+    const crewKey = day + '|' + onTourActive.type;
+    if (!otCrew[crewKey]) {
+        otCrew[crewKey] = 'loading';
+        sbFetch(`tours?tour_date=eq.${day}&type=eq.${encodeURIComponent(onTourActive.type)}&select=guide`)
+            .then(rows => { otCrew[crewKey] = rows; })
+            .catch(() => { otCrew[crewKey] = []; })
+            .then(renderOnTour);
+    }
+    const crewRows = Array.isArray(otCrew[crewKey]) ? otCrew[crewKey] : null;
+    const crew = (crewRows || [])
+        .filter(r => !String(r.guide || '').includes('`'))
+        .map(r => String(r.guide || '').replace(/[*+`]/g, '').trim())
+        .filter(n => n && n !== me);
+    const crewHtml = !crewRows ? '<p class="ot-muted">Loading…</p>' : crew.length ? crew.map(n => {
+        const g = people[n] || {};
+        const av = g.slack_photo ? `<span class="ot-av" style="background-image:url('${esc(g.slack_photo)}')"></span>` : `<span class="ot-av">${esc(n.charAt(0))}</span>`;
+        return `<div class="ot-crew-row">${av}<div><b>${esc(n)}</b>${g.family ? `<small>${esc(g.family)}</small>` : ''}</div></div>`;
+    }).join('') : '<p class="ot-muted">No other guides on this tour.</p>';
+
+    const phone = t => `(${t.slice(0, 3)}) ${t.slice(3, 6)}-${t.slice(6)}`;
+    const contacts = ON_TOUR_CONTACTS.map(c => `
+        <div class="ot-contact">
+            <div><b>${esc(c.name)}</b><small>${esc(c.sub)}</small></div>
+            ${c.tel ? `<a class="ot-call" href="tel:${c.tel}"><svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>${phone(c.tel)}</a>`
+                    : '<span class="ot-nonum">Number not set</span>'}
+        </div>`).join('');
+    const links = ON_TOUR_LINKS.map(l => `
+        <button class="ot-link" onclick="${l.href ? `window.open('${l.href}','_blank')` : `switchView('${l.view}')`}">
+            <span class="ot-link-icon" style="background:${l.bg}"><svg viewBox="0 0 24 24">${l.icon}</svg></span>
+            <span><b>${l.label}</b><small>${l.sub}</small></span>
+        </button>`).join('');
+
+    el.innerHTML = `
+        <section class="ot-hero">
+            <div class="ot-hero-top"><span class="ot-live"><i></i>On tour</span><span class="ot-hero-left">${left} min left</span></div>
+            <h2>${esc(w.info.name)}</h2>
+            <p>${fmt(w.start)} – ${fmt(w.end)}</p>
+            <div class="ot-progress"><i style="width:${pct}%"></i></div>
+            <div class="ot-hero-foot"><span>Started ${fmt(w.start)}</span><span>Ends ~${fmt(w.end)}</span></div>
+        </section>
+        <a class="ot-911" href="tel:911">
+            <svg viewBox="0 0 24 24"><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>
+            <span><b>Emergency · Call 911</b><small>Medical, fire or safety emergency</small></span>
+        </a>
+        <form class="ot-search" onsubmit="event.preventDefault(); otSearch(this.q.value);">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <input name="q" type="search" placeholder="Find a tour guide…" autocomplete="off" enterkeyhint="search">
+            <button type="submit">Search</button>
+        </form>
+        <div class="ot-grid">
+            <section class="ot-card"><p class="ot-label">Contacts</p>${contacts}</section>
+            <section class="ot-card"><p class="ot-label">On this tour with you</p>${crewHtml}</section>
+        </div>
+        <div class="ot-links">${links}</div>
+        <button class="ot-usual" onclick="onTourShowUsual=true;renderOnTour();">Show my usual home</button>`;
+}
+
+async function otSearch(q) {
+    switchView('search');
+    const input = document.getElementById('omni-input');
+    input.value = q || '';
+    await initOmniSearch();
+    runOmniSearch();
+    if (!q) input.focus();
 }
 
 // ── MOBILE HOME ──────────────────────────────────────────────────────────
@@ -5441,29 +5607,6 @@ drawConfetti();
   </p>
 </div>
     
-<div id="tour-lock-screen" class="hidden fixed inset-0 z-[9999] bg-[#000000] flex flex-col items-center justify-center p-8 text-center">
-    <div class="absolute inset-0 opacity-5 font-black text-[15rem] overflow-hidden pointer-events-none text-white flex items-center justify-center">
-        TOUR
-    </div>
-    
-    <div class="relative z-10 w-full max-w-sm">
-        <div class="w-20 h-20 bg-status-green rounded-full flex items-center justify-center text-3xl mb-6 mx-auto animate-pulse shadow-[0_0_40px_rgba(16,185,129,0.3)]">
-            🚶‍♂️
-        </div>
-        <h1 class="text-white text-5xl font-black tracking-tighter mb-2">On Tour</h1>
-        <p id="lock-tour-name" class="text-primary-gold font-bold uppercase tracking-[0.2em] mb-10 text-sm">Daily Visit</p>
-        
-        <div class="bg-white/5 border border-white/10 rounded-[2.5rem] p-8 backdrop-blur-xl">
-            <p class="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em] mb-2">Estimated Finish</p>
-            <p id="lock-tour-end" class="text-white text-4xl font-black tracking-tight">--:-- --</p>
-        </div>
-        
-        <p class="mt-12 text-gray-600 text-[10px] font-bold uppercase tracking-[0.2em] leading-relaxed">
-            TGIS Navigation Disabled<br>Until Tour Conclusion
-        </p>
-    </div>
-</div>
-
 <div id="retirement-screen" class="hidden fixed inset-0 z-[99999] flex flex-col items-center justify-center p-8 text-center" style="background: linear-gradient(135deg, #0a0a0a 0%, #1a1408 50%, #0a0a0a 100%);">
     <canvas id="confetti-canvas" class="absolute inset-0 w-full h-full pointer-events-none"></canvas>
     <!-- Background watermark -->
