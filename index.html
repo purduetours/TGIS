@@ -613,7 +613,21 @@ html.dark .ms-guide-text small i { color: #C4B5FD; }
 .viewas-banner button { flex-shrink: 0; border: none; background: #CFB991; color: #1a1510; font-family: inherit; font-size: 0.6875rem; font-weight: 900;
                         text-transform: uppercase; letter-spacing: 0.08em; padding: 0.375rem 0.75rem; border-radius: 0.625rem; cursor: pointer; }
 #mobile-page-header .viewas-banner { margin-top: -0.5rem; }
-@media (min-width: 1024px) { #mobile-page-header .viewas-banner { margin: 0.75rem 2rem 0; } }
+/* Desktop: the header pill replaces the banner */
+.hdr-viewas { display: none; }
+@media (min-width: 1024px) {
+    #mobile-page-header .viewas-banner { display: none; }
+    .hdr-viewas:not([hidden]) { display: flex; align-items: center; gap: 0.625rem; height: 52px; padding: 0 0.5rem 0 1rem; margin-right: 0.625rem;
+                                border-radius: 1rem; background: #1a1510; box-shadow: 0 2px 12px rgba(0,0,0,0.12); white-space: nowrap; }
+    .hdr-viewas svg { width: 18px; height: 18px; flex-shrink: 0; fill: none; stroke: #CFB991; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+    .hdr-viewas span { display: flex; flex-direction: column; line-height: 1.15; }
+    .hdr-viewas small { font-size: 0.5625rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: #CFB991; }
+    .hdr-viewas b { font-size: 0.875rem; font-weight: 900; color: #fff; max-width: 12rem; overflow: hidden; text-overflow: ellipsis; }
+    .hdr-viewas button { border: none; background: #CFB991; color: #1a1510; font-family: inherit; font-size: 0.6875rem; font-weight: 900;
+                         text-transform: uppercase; letter-spacing: 0.08em; padding: 0 0.875rem; height: 36px; border-radius: 0.75rem; cursor: pointer; }
+    .hdr-viewas button:hover { background: #dcc79c; }
+}
+@media (min-width: 1024px) { html.dark .hdr-viewas:not([hidden]) { border: 1px solid rgba(207,185,145,0.45); } }
 .rs-viewas { margin-left: auto; display: inline-flex; align-items: center; gap: 0.375rem; border: none; background: #1a1510; color: #CFB991; border-radius: 0.875rem;
              padding: 0.5rem 0.875rem; font-family: inherit; font-size: 0.8125rem; font-weight: 800; cursor: pointer; }
 .rs-viewas:hover { background: #2a2218; }
@@ -1111,6 +1125,12 @@ html.dark .theme-switch::after { transform: translateX(18px); }
                     <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>
                     <span>Import new accounts</span>
                 </button>
+                <!-- Desktop: view-as status lives in the header (mobile uses #viewas-banner) -->
+                <div id="hdr-viewas" class="hdr-viewas" hidden>
+                    <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    <span><small>Viewing as · read-only</small><b id="hdr-viewas-name"></b></span>
+                    <button onclick="exitViewAs()">Exit</button>
+                </div>
                 <div id="home-weather-chip"
                      style="display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.22);
                             border:2px solid rgba(255,255,255,0.6);border-radius:10px;box-sizing:border-box;
@@ -4897,6 +4917,8 @@ async function init(authUser) {
                 p = target;
                 document.getElementById('viewas-name').textContent = target.full_name || target.display_name;
                 document.getElementById('viewas-banner').hidden = false;
+                document.getElementById('hdr-viewas-name').textContent = target.full_name || target.display_name;
+                document.getElementById('hdr-viewas').hidden = false;
             } else {
                 try { sessionStorage.removeItem('tgis-view-as'); } catch (e) {}
             }
