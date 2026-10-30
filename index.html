@@ -51,6 +51,8 @@
            in the buggy state lvh is the short height too, which cancelled the fix. The
            extra height never shows, because everything lives in the fixed body. */
         html.ios-standalone { min-height: calc(100% + env(safe-area-inset-top)); }
+        /* No double-tap-to-zoom (and no tap delay) anywhere; pinch zoom still works. */
+        html, body, button, a, input, select, textarea, label, [onclick] { touch-action: manipulation; }
         body { 
     display: flex; 
     flex-direction: column; 
