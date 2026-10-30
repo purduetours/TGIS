@@ -47,9 +47,10 @@
     background: #fff;
 }
         /* iOS 26 home-screen app: keep the document taller than the shortened viewport so
-           iOS gives the app the full screen (see the status-bar meta tag). The 100lvh cap
-           means nothing scrolls once it does. */
-        html.ios-standalone { min-height: min(100lvh, calc(100% + env(safe-area-inset-top))); }
+           iOS gives the app the full screen (see the status-bar meta tag). No 100lvh cap:
+           in the buggy state lvh is the short height too, which cancelled the fix. The
+           extra height never shows, because everything lives in the fixed body. */
+        html.ios-standalone { min-height: calc(100% + env(safe-area-inset-top)); }
         body { 
     display: flex; 
     flex-direction: column; 
