@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">    <title>TGIS v4 [Beta]</title>
     <script>
         try { if (localStorage.getItem('tgis-theme') === 'dark') document.documentElement.classList.add('dark'); } catch (e) {}
+        // iOS home-screen app: flag it before first layout (see html.ios-standalone below)
+        if (window.navigator.standalone === true) document.documentElement.classList.add('ios-standalone');
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -44,6 +46,10 @@
     overscroll-behavior: none;
     background: #fff;
 }
+        /* iOS 26 home-screen app: keep the document taller than the shortened viewport so
+           iOS gives the app the full screen (see the status-bar meta tag). The 100lvh cap
+           means nothing scrolls once it does. */
+        html.ios-standalone { min-height: min(100lvh, calc(100% + env(safe-area-inset-top))); }
         body { 
     display: flex; 
     flex-direction: column; 
@@ -222,7 +228,7 @@
     flex: 1; 
     overflow-y: auto; 
     -webkit-overflow-scrolling: touch; 
-    padding-bottom: 72px;
+    padding-bottom: calc(72px + min(env(safe-area-inset-bottom, 0px), 14px));
     margin-left: 18rem; 
     transition: margin 0.3s ease; 
     padding-top: 1.5rem;
@@ -246,9 +252,10 @@
     left: 0;
     right: 0;
     width: 100%;
-    /* No home-indicator inset: buttons sit on the literal bottom edge in home-screen mode. */
-    height: 60px;
-    padding-bottom: 0;
+    /* Lifted a little off the bottom edge so the screen's rounded corners don't clip the
+       outer buttons (capped well below the full home-indicator inset). */
+    height: calc(60px + min(env(safe-area-inset-bottom, 0px), 14px));
+    padding-bottom: min(env(safe-area-inset-bottom, 0px), 14px);
     border-radius: 0;
     background: white;
     backdrop-filter: none;
@@ -259,8 +266,8 @@
     display: flex;
     justify-content: space-around;
     align-items: center;
-    padding-left: 0.25rem;
-    padding-right: 0.25rem;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
     flex-shrink: 0;
     z-index: 100;
 }
@@ -980,10 +987,13 @@ html.dark .theme-switch::after { transform: translateX(18px); }
     </style>
     <meta name="apple-mobile-web-app-capable" content="yes">
 
-<!-- Solid status bar, coloured gold by theme-color. black-translucent hits an iOS 26
-     home-screen bug (WebKit 301108) that sizes the app one status-bar height short,
-     leaving a strip at the bottom that nothing can draw into. -->
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<!-- Translucent status bar so the gold header runs up behind the notch. On iOS 26 this
+     style sizes the app one status-bar height short (WebKit 301108), leaving an unpaintable
+     strip at the bottom, but only while the document is no taller than that short
+     viewport; html.ios-standalone's min-height below avoids that. If the bottom strip
+     ever comes back, switch this to "default" (solid bar, no gold behind the notch).
+     iOS reads this only when the app is added to the Home Screen. -->
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#c4ad82">
 
 <meta name="apple-mobile-web-app-title" content="TGIS Mobile">
