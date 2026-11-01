@@ -154,6 +154,24 @@ create unique index if not exists tracker_display_name_key on public.tracker (di
 
 
 -- ───────────────────────────────────────────────────────────────────────────
+-- STEP 2e — Sign-in codes sent by Slack DM (supabase/functions/slack-code).
+-- Only the Edge Function (service_role) touches this table; RLS on with no
+-- policies, and no grants, keeps it invisible to the browser.
+-- ───────────────────────────────────────────────────────────────────────────
+
+create table if not exists public.login_codes (
+  email      text primary key,
+  code_hash  text not null,
+  expires_at timestamptz not null,
+  attempts   int not null default 0,
+  created_at timestamptz not null default now()
+);
+alter table public.login_codes enable row level security;
+revoke all on public.login_codes from anon, authenticated;
+grant all on public.login_codes to service_role;
+
+
+-- ───────────────────────────────────────────────────────────────────────────
 -- STEP 3 — Not SQL. Move Apps Script off the public key BEFORE step 4.
 --   1. Supabase → Project Settings → API Keys → copy the service_role (secret) key.
 --   2. Apps Script → Project Settings → Script Properties → SUPABASE_ANON_KEY →

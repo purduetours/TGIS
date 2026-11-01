@@ -837,6 +837,26 @@ html.dark .nav-button.active { background: rgba(207,185,145,0.18); color: #fff; 
               border: none; background: #1a1510; color: #fff; font-family: inherit; font-size: 0.875rem; font-weight: 800; cursor: pointer; }
 .signin-btn:disabled { opacity: 0.7; cursor: default; }
 .signin-btn-secondary { background: #F3F4F6; color: #374151; margin-top: 0.5rem; }
+.signin-code { text-align: left; }
+.signin-code[hidden] { display: none; }
+.signin-code label { display: block; font-size: 0.6875rem; font-weight: 800; color: #6B7280; margin: 0 0 0.375rem 0.25rem; }
+.signin-code input { width: 100%; box-sizing: border-box; padding: 0.8125rem 1rem; border-radius: 1rem; border: 1px solid #E5E7EB; background: #FAFAF9;
+                     font-family: inherit; font-size: 16px; font-weight: 600; color: #111827; outline: none; margin-bottom: 0.625rem; }
+.signin-code input:focus { border-color: #CFB991; box-shadow: 0 0 0 3px rgba(207,185,145,0.25); }
+.signin-code-input { text-align: center; font-size: 1.625rem !important; font-weight: 900 !important; letter-spacing: 0.3em; }
+.signin-code-note { font-size: 0.8125rem; font-weight: 600; color: #4B5563; margin: 0 0 0.75rem; line-height: 1.45; text-align: center; }
+.signin-code-note b { color: #1a1510; }
+.signin-code-links { display: flex; justify-content: space-between; margin-top: 0.625rem; }
+.signin-code-links button { border: none; background: none; font-family: inherit; font-size: 0.75rem; font-weight: 800; color: #b39a6d; cursor: pointer; padding: 0.25rem; }
+.signin-btn-dark { background: #1a1510 !important; color: #CFB991 !important; border: none !important; }
+.signin-or { display: flex; align-items: center; gap: 0.75rem; margin: 1rem 0; font-size: 0.6875rem; font-weight: 800; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.1em; }
+.signin-or::before, .signin-or::after { content: ''; flex: 1; height: 1px; background: #E5E7EB; }
+.signin-or[hidden] { display: none; }
+.signin-message.ok { color: #065F46; background: #ECFDF5; border-color: #A7F3D0; }
+html.dark .signin-code input { background: #2c2c2e; border-color: #3a3a3c; color: #f3f4f6; }
+html.dark .signin-code-note { color: #a1a1aa; }
+html.dark .signin-code-note b { color: #f3f4f6; }
+html.dark .signin-or::before, html.dark .signin-or::after { background: #2c2c2e; }
 .signin-privacy { display: inline-block; margin-top: 1.25rem; font-size: 0.7rem; font-weight: 700; color: #9CA3AF; text-decoration: none; }
 html.dark .signin-card { background: #1c1c1e; }
 html.dark .signin-title { color: #f3f4f6; }
@@ -1082,6 +1102,22 @@ html.dark .theme-switch::after { transform: translateX(18px); }
         <h1 class="signin-title">Welcome to TGIS</h1>
         <p class="signin-sub">Sign in with your Purdue Tour Guides Slack account.</p>
         <p id="signin-message" class="signin-message" hidden></p>
+        <!-- Code by Slack DM (supabase/functions/slack-code): no Slack password needed -->
+        <form id="code-step-email" class="signin-code" onsubmit="event.preventDefault(); sendSlackCode();">
+            <label for="code-email">Purdue email</label>
+            <input id="code-email" type="email" autocomplete="email" inputmode="email" placeholder="you@purdue.edu" required>
+            <button id="code-send-btn" type="submit" class="signin-btn signin-btn-dark">Get a code in Slack</button>
+        </form>
+        <form id="code-step-code" class="signin-code" onsubmit="event.preventDefault(); verifySlackCode();" hidden>
+            <p class="signin-code-note">We sent a 6-digit code to <b id="code-sent-to"></b> in Slack. Open Slack, then enter it here.</p>
+            <input id="code-input" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9 ]*" maxlength="7" placeholder="000 000" class="signin-code-input">
+            <button id="code-verify-btn" type="submit" class="signin-btn signin-btn-dark">Sign in</button>
+            <div class="signin-code-links">
+                <button type="button" onclick="sendSlackCode(true)">Send a new code</button>
+                <button type="button" onclick="resetSlackCode()">Use a different email</button>
+            </div>
+        </form>
+        <div id="signin-or" class="signin-or"><span>or</span></div>
         <button id="signin-slack-btn" class="signin-btn" onclick="signInWithSlack()">
             <svg width="20" height="20" viewBox="0 0 122.8 122.8" aria-hidden="true"><path d="M25.8 77.6c0 7.1-5.8 12.9-12.9 12.9S0 84.7 0 77.6s5.8-12.9 12.9-12.9h12.9v12.9zm6.5 0c0-7.1 5.8-12.9 12.9-12.9s12.9 5.8 12.9 12.9v32.3c0 7.1-5.8 12.9-12.9 12.9s-12.9-5.8-12.9-12.9V77.6z" fill="#e01e5a"/><path d="M45.2 25.8c-7.1 0-12.9-5.8-12.9-12.9S38.1 0 45.2 0s12.9 5.8 12.9 12.9v12.9H45.2zm0 6.5c7.1 0 12.9 5.8 12.9 12.9s-5.8 12.9-12.9 12.9H12.9C5.8 58.1 0 52.3 0 45.2s5.8-12.9 12.9-12.9h32.3z" fill="#36c5f0"/><path d="M97 45.2c0-7.1 5.8-12.9 12.9-12.9s12.9 5.8 12.9 12.9-5.8 12.9-12.9 12.9H97V45.2zm-6.5 0c0 7.1-5.8 12.9-12.9 12.9s-12.9-5.8-12.9-12.9V12.9C64.7 5.8 70.5 0 77.6 0s12.9 5.8 12.9 12.9v32.3z" fill="#2eb67d"/><path d="M77.6 97c7.1 0 12.9 5.8 12.9 12.9s-5.8 12.9-12.9 12.9-12.9-5.8-12.9-12.9V97h12.9zm0-6.5c-7.1 0-12.9-5.8-12.9-12.9s5.8-12.9 12.9-12.9h32.3c7.1 0 12.9 5.8 12.9 12.9s-5.8 12.9-12.9 12.9H77.6z" fill="#ecb22e"/></svg>
             <span>Sign in with Slack</span>
@@ -5289,14 +5325,94 @@ async function init(authUser) {
         const msg = document.getElementById('signin-message');
         msg.textContent = message || '';
         msg.hidden = !message;
+        msg.classList.remove('ok');
         document.getElementById('signin-slack-btn').hidden = !!signedInEmail;
         document.getElementById('signin-switch-btn').hidden = !signedInEmail;
+        // Code sign-in only makes sense when nobody is signed in yet
+        document.getElementById('code-step-email').hidden = !!signedInEmail;
+        document.getElementById('code-step-code').hidden = true;
+        document.getElementById('signin-or').hidden = !!signedInEmail;
+        try { const last = localStorage.getItem('tgis-last-email'); if (last) document.getElementById('code-email').value = last; } catch (e) {}
         document.getElementById('signin-screen').hidden = false;
     }
 
     function showNotLinked(email) {
         showSignIn(`You're signed in to Slack as ${email}, but that email isn't linked to a TGIS guide profile. Ask a manager to add it, or sign in with a different Slack account.`, email);
     }
+
+    // ── Sign in with a code DM'd by the TGIS Slack bot ──
+    function signinNote(text, ok) {
+        const msg = document.getElementById('signin-message');
+        msg.textContent = text || '';
+        msg.hidden = !text;
+        msg.classList.toggle('ok', !!ok);
+    }
+    async function slackCodeCall(body) {
+        const { data, error } = await sbClient.functions.invoke('slack-code', { body });
+        if (error) {
+            let m = 'Something went wrong. Please try again.';
+            try { const j = await error.context.json(); if (j && j.error) m = j.error; } catch (e) {
+                if (/Failed to send|not found|404/i.test(error.message || '')) m = 'Code sign-in isn\'t set up yet. Use "Sign in with Slack" for now.';
+            }
+            throw new Error(m);
+        }
+        return data;
+    }
+    async function sendSlackCode(again) {
+        const email = document.getElementById('code-email').value.trim().toLowerCase();
+        if (!email) { document.getElementById('code-email').focus(); return; }
+        const btn = document.getElementById('code-send-btn');
+        btn.disabled = true; btn.textContent = 'Sending…';
+        try {
+            await slackCodeCall({ action: 'send', email });
+            try { localStorage.setItem('tgis-last-email', email); } catch (e) {}
+            document.getElementById('code-sent-to').textContent = email;
+            document.getElementById('code-step-email').hidden = true;
+            document.getElementById('code-step-code').hidden = false;
+            signinNote(again ? 'New code sent. Check Slack.' : '', true);
+            const input = document.getElementById('code-input');
+            input.value = '';
+            input.focus();
+        } catch (e) {
+            signinNote(e.message);
+        } finally {
+            btn.disabled = false; btn.textContent = 'Get a code in Slack';
+        }
+    }
+    async function verifySlackCode() {
+        const email = document.getElementById('code-email').value.trim().toLowerCase();
+        const code = document.getElementById('code-input').value.replace(/\D/g, '');
+        if (code.length !== 6) { signinNote('Enter the 6-digit code from Slack.'); return; }
+        const btn = document.getElementById('code-verify-btn');
+        if (btn.disabled) return;   // auto-submit and the button can both fire
+        btn.disabled = true; btn.textContent = 'Signing in…';
+        try {
+            const { token_hash } = await slackCodeCall({ action: 'verify', email, code });
+            let { data, error } = await sbClient.auth.verifyOtp({ token_hash, type: 'magiclink' });
+            if (error) ({ data, error } = await sbClient.auth.verifyOtp({ token_hash, type: 'email' }));
+            if (error || !data.session) throw new Error('Couldn\'t finish signing in. Request a new code and try again.');
+            document.getElementById('signin-screen').hidden = true;
+            document.getElementById('loading-overlay').style.display = '';
+            init(data.session.user);
+        } catch (e) {
+            signinNote(e.message);
+        } finally {
+            btn.disabled = false; btn.textContent = 'Sign in';
+        }
+    }
+    function resetSlackCode() {
+        signinNote('');
+        document.getElementById('code-step-code').hidden = true;
+        document.getElementById('code-step-email').hidden = false;
+        document.getElementById('code-email').focus();
+    }
+    // Typing six digits submits on its own; also formats as "123 456"
+    document.addEventListener('input', e => {
+        if (e.target.id !== 'code-input') return;
+        const d = e.target.value.replace(/\D/g, '').slice(0, 6);
+        e.target.value = d.length > 3 ? d.slice(0, 3) + ' ' + d.slice(3) : d;
+        if (d.length === 6) verifySlackCode();
+    });
 
     // Slack workspace ID (starts with T). When set, Slack skips the "which workspace?" step.
     // Find it in Slack on the web: app.slack.com/client/T0123ABCD/...
