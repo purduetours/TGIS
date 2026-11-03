@@ -694,7 +694,7 @@ html.dark .sem-off-icon { background: rgba(99,102,241,0.15); }
 html.dark .sem-off-title { color: #d4d4d8; }
 
 /* Resources */
-.rsc { display: flex; flex-direction: column; gap: 1.5rem; max-width: 1100px; }
+.rsc { display: flex; flex-direction: column; gap: 1.5rem; }
 .rsc-label { margin: 0 0 0.625rem 0.125rem; font-size: 0.6875rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.14em; color: #9CA3AF; }
 .rsc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.625rem; }
 .rsc-tile { position: relative; display: flex; align-items: center; gap: 0.75rem; padding: 0.875rem; border-radius: 1.125rem; background: white;
@@ -746,7 +746,12 @@ html.dark .rsc-link-ic, html.dark .rsc-tools button { background: #2c2c2e; color
 html.dark .rsc-tools button.danger { background: rgba(239,68,68,0.15); color: #FCA5A5; }
 
 /* Profile page (card) */
-.pf { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 1rem; }
+.pf { display: flex; flex-direction: column; gap: 1rem; }
+/* Desktop: card across the top, About on the left, Program + Settings on the right */
+@media (min-width: 1024px) {
+    .pf { display: grid; grid-template-columns: 1fr 1fr; grid-template-areas: "card card" "about program" "about settings"; align-items: start; }
+    .pf-card { grid-area: card; } .pf-about { grid-area: about; } .pf-program { grid-area: program; } .pf-settings { grid-area: settings; }
+}
 .pf-card { background: white; border: 1px solid #ECECEC; border-radius: 1.5rem; overflow: hidden; }
 .pf-cover { position: relative; height: 104px; background: linear-gradient(120deg, #b39a6d 0%, #CFB991 45%, #e8d5a3 75%, #CFB991 100%); }
 .pf-cover::after { content: ''; position: absolute; inset: 0; opacity: 0.09;
@@ -1172,7 +1177,7 @@ html.dark .signin-logo { filter: invert(1) hue-rotate(180deg); mix-blend-mode: s
 .rs-av-initial { display: inline-flex; align-items: center; justify-content: center; background: #CFB991; color: #1a1510; font-weight: 900; }
 .rs-empty { padding: 1rem; text-align: center; font-size: 0.8125rem; font-weight: 600; color: #9CA3AF; margin: 0; }
 /* full-screen profile */
-.rs-profile { max-width: 1100px; }
+
 #rs-main[hidden] { display: none; }
 /* Roster filters */
 .rs-filter-wrap { position: relative; }
@@ -6342,18 +6347,18 @@ drawConfetti();
       </div>
     </section>
 
-    <section class="pf-section">
+    <section class="pf-section pf-about">
       <h2>About</h2>
       <div id="pv-about"></div>
     </section>
 
-    <section class="pf-section">
+    <section class="pf-section pf-program">
       <h2>Tour guide program</h2>
       <div id="pv-program"></div>
       <p class="pf-note">Name, email, family and role are managed by codirectors.</p>
     </section>
 
-    <section class="pf-section">
+    <section class="pf-section pf-settings">
       <h2>Settings</h2>
       <div class="pf-row">
         <span class="pf-ic"><svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></span>
