@@ -693,6 +693,49 @@ html.dark .sem-off-card { background: #161618 !important; border-color: #3a3a3c;
 html.dark .sem-off-icon { background: rgba(99,102,241,0.15); }
 html.dark .sem-off-title { color: #d4d4d8; }
 
+/* Profile editing */
+.pe-open { display: flex; align-items: center; justify-content: center; gap: 0.5rem; width: 100%; padding: 0.8125rem; border-radius: 1rem;
+           border: 1px solid #ECECEC; background: white; font-family: inherit; font-size: 0.8125rem; font-weight: 800; color: #1a1510; cursor: pointer; }
+.pe-open svg { width: 16px; height: 16px; fill: none; stroke: #b39a6d; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.rs-edit { display: inline-flex; align-items: center; gap: 0.375rem; margin-left: 0.5rem; }
+.pe-modal { position: fixed; inset: 0; z-index: 230; }
+.pe-modal[hidden] { display: none; }
+.pe-panel { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(640px, calc(100vw - 1.5rem)); max-height: 88vh;
+            display: flex; flex-direction: column; background: #F5F5F4; border-radius: 1.5rem; overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,0.25); }
+.pe-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; padding: 1.125rem 1.25rem 0.75rem; }
+.pe-kicker { margin: 0; font-size: 0.625rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.14em; color: #b39a6d; }
+.pe-head h3 { margin: 2px 0 0; font-size: 1.25rem; font-weight: 900; color: #111827; }
+.pe-x { border: none; background: white; width: 34px; height: 34px; border-radius: 10px; font-size: 0.875rem; color: #6B7280; cursor: pointer; flex-shrink: 0; }
+.pe-body { overflow-y: auto; padding: 0.25rem 1.25rem 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+.pe-field { display: flex; flex-direction: column; gap: 0.3125rem; min-width: 0; }
+.pe-field.wide { grid-column: 1 / -1; }
+.pe-field span { font-size: 0.6875rem; font-weight: 800; color: #6B7280; }
+.pe-field input, .pe-field select, .pe-field textarea { width: 100%; box-sizing: border-box; padding: 0.625rem 0.75rem; border-radius: 0.75rem; border: 1px solid #E5E7EB;
+      background: white; font-family: inherit; font-size: 16px; font-weight: 600; color: #111827; outline: none; resize: vertical; }
+.pe-field input:focus, .pe-field select:focus, .pe-field textarea:focus { border-color: #CFB991; box-shadow: 0 0 0 3px rgba(207,185,145,0.25); }
+.pe-field small { font-size: 0.6875rem; font-weight: 600; color: #9CA3AF; line-height: 1.35; }
+.pe-error { margin: 0 1.25rem 0.75rem; padding: 0.625rem 0.75rem; border-radius: 0.75rem; background: #FEF2F2; border: 1px solid #FECACA; color: #B91C1C;
+            font-size: 0.75rem; font-weight: 700; }
+.pe-error[hidden] { display: none; }
+.pe-foot { display: flex; align-items: center; gap: 0.5rem; padding: 0.875rem 1.25rem calc(0.875rem + env(safe-area-inset-bottom)); border-top: 1px solid #E7E5E4; background: white; }
+.pe-note { flex: 1; min-width: 0; margin: 0; font-size: 0.6875rem; font-weight: 600; color: #9CA3AF; }
+.pe-cancel, .pe-save { border: none; font-family: inherit; font-size: 0.8125rem; font-weight: 900; padding: 0.625rem 1rem; border-radius: 0.75rem; cursor: pointer; }
+.pe-cancel { background: #F3F4F6; color: #374151; }
+.pe-save { background: #1a1510; color: #CFB991; }
+.pe-save:disabled { opacity: 0.6; }
+@media (max-width: 640px) {
+    .pe-panel { left: 0; right: 0; bottom: 0; top: auto; transform: none; width: 100%; max-height: 92vh; border-radius: 1.5rem 1.5rem 0 0; }
+    .pe-body { grid-template-columns: 1fr; }
+    .pe-note { display: none; }
+    .pe-cancel, .pe-save { flex: 1; padding: 0.8125rem; }
+}
+html.dark .pe-open, html.dark .pe-x { background: #1c1c1e; border-color: #2c2c2e; color: #f3f4f6; }
+html.dark .pe-panel { background: #161618; }
+html.dark .pe-head h3 { color: #f3f4f6; }
+html.dark .pe-field input, html.dark .pe-field select, html.dark .pe-field textarea { background: #1c1c1e; border-color: #2c2c2e; color: #f3f4f6; }
+html.dark .pe-foot { background: #1c1c1e; border-top-color: #2c2c2e; }
+html.dark .pe-cancel { background: #2c2c2e; color: #e5e7eb; }
+
 /* View-as banner */
 .viewas-banner { display: flex; align-items: center; gap: 0.5rem; margin: 0 1rem 0.5rem; padding: 0.5rem 0.5rem 0.5rem 0.875rem; border-radius: 0.875rem;
                  background: #1a1510; color: #CFB991; font-size: 0.75rem; font-weight: 700; box-shadow: 0 6px 16px -6px rgba(0,0,0,0.35); position: relative; z-index: 3; }
@@ -1513,6 +1556,23 @@ html.dark .theme-switch::after { transform: translateX(18px); }
     </div>
 
     <!-- Import Slack members as TGIS accounts (roster) -->
+    <!-- Edit profile (own profile, or any guide from the Roster) -->
+    <div id="pe-modal" class="pe-modal" hidden>
+        <div class="imp-backdrop" onclick="closeProfileEdit()"></div>
+        <form class="pe-panel" onsubmit="event.preventDefault(); saveProfileEdit();">
+            <div class="pe-head">
+                <div><p class="pe-kicker" id="pe-kicker">Edit profile</p><h3 id="pe-title"></h3></div>
+                <button type="button" class="pe-x" onclick="closeProfileEdit()" aria-label="Close">✕</button>
+            </div>
+            <div class="pe-body" id="pe-body"></div>
+            <p class="pe-error" id="pe-error" hidden></p>
+            <div class="pe-foot">
+                <p class="pe-note" id="pe-note"></p>
+                <button type="button" class="pe-cancel" onclick="closeProfileEdit()">Cancel</button>
+                <button type="submit" class="pe-save" id="pe-save">Save</button>
+            </div>
+        </form>
+    </div>
     <div id="imp-modal" class="imp-modal" hidden>
         <div class="imp-backdrop" onclick="closeImportModal()"></div>
         <div class="imp-panel" role="dialog" aria-label="Import new accounts">
@@ -3250,6 +3310,9 @@ function openRosterGuide(i, tab) {
         <div class="rs-profile-inner">
             <div class="rs-profile-bar">
                 <button class="rs-back" onclick="closeRosterGuide()">← Roster</button>
+                <button class="rs-back rs-edit" onclick="openProfileEdit('roster', ${i})">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+                    Edit</button>
                 ${r.username ? `<button class="rs-viewas" onclick="startViewAs('${rosterEsc(r.username)}')" title="See the app the way ${rosterEsc(r.display_name || r.full_name)} sees it (read-only)">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                     View as ${rosterEsc(r.display_name || 'guide')}</button>` : ''}
@@ -5051,6 +5114,27 @@ const sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     auth: { flowType: 'pkce', persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
 });
 
+// POST to a database function (rpc/<name>) as the signed-in user
+async function sbRpc(name, body) {
+    const { data: { session } } = await sbClient.auth.getSession();
+    const res = await fetch(SUPABASE_URL + '/rest/v1/rpc/' + name, {
+        method: 'POST',
+        headers: {
+            'apikey':        SUPABASE_ANON_KEY,
+            'Authorization': 'Bearer ' + (session ? session.access_token : SUPABASE_ANON_KEY),
+            'Content-Type':  'application/json'
+        },
+        body: JSON.stringify(body)
+    });
+    if (!res.ok) {
+        let detail = '';
+        try { const b = await res.json(); detail = b.message || b.hint || ''; } catch (e) {}
+        if (res.status === 404) detail = 'Profile editing isn\'t set up yet (run step 2f in supabase/security.sql).';
+        throw new Error(detail || `Request failed (${res.status})`);
+    }
+    return res.json();
+}
+
 async function sbFetch(path) {
     const { data: { session } } = await sbClient.auth.getSession();
     const res = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
@@ -5103,6 +5187,128 @@ function calcMyFamilyPoints(myTours, specialRequests, displayName) {
     });
     return pts;
 }
+
+// ─── PROFILE EDITING ────────────────────────────────────────────────────────
+// Guides edit a safe set of their own fields (update_my_profile); codirectors and
+// admins edit any guide from the Roster (admin_update_guide). See security.sql 2f.
+const PROFILE_SELF_FIELDS = ['major', 'minor', 'certificate', 'college', 'grad_date', 'year', 'hometown', 'dietary'];
+const PROFILE_FIELD_META = {
+    full_name:    { label: 'Full name' },
+    display_name: { label: 'Display name', hint: 'Tours and the tracker match guides by display name. Change it here only if the schedule uses the new name too.' },
+    email:        { label: 'Email', type: 'email', hint: 'Must match their Slack email so they can sign in.' },
+    status:       { label: 'Role', options: ['Tour Guide', 'Manager', 'Codirector', 'Admin', 'Boss', 'Retired'] },
+    family:       { label: 'Family', suggest: 'family' },
+    giving_tours: { label: 'Giving tours (census)', options: ['', 'Yes', 'No'] },
+    year:         { label: 'Year', suggest: ['Freshman', 'Sophomore', 'Junior', 'Senior', 'Super Senior', 'Graduate'] },
+    major:        { label: 'Major' },
+    minor:        { label: 'Minor' },
+    certificate:  { label: 'Certificate' },
+    college:      { label: 'College' },
+    grad_date:    { label: 'Grad date', placeholder: 'e.g. May 2027' },
+    hometown:     { label: 'Hometown', placeholder: 'City, State' },
+    dietary:      { label: 'Dietary restrictions', textarea: true, placeholder: 'None' },
+};
+const PROFILE_ADMIN_SKIP = new Set(['id', 'username', 'slack_photo', 'created_at', 'updated_at']);
+let peState = null;   // { mode: 'self'|'roster', row, index }
+
+function openProfileEdit(mode, index) {
+    if (viewAs) { viewAsBlocked(); return; }
+    let row, fields;
+    if (mode === 'self') {
+        const p = cachedData.profile;
+        row = { major: p.major, minor: p.minor, certificate: p.certificate, college: p.college, grad_date: p.gradDate,
+                year: p.year, hometown: p.hometown, dietary: p.dietary };
+        fields = PROFILE_SELF_FIELDS;
+        document.getElementById('pe-kicker').textContent = 'Edit my profile';
+        document.getElementById('pe-title').textContent = p.fullName || p.displayName;
+        document.getElementById('pe-note').textContent = 'Name, email, family and role are managed by codirectors.';
+    } else {
+        row = rosterRows[index];
+        const known = Object.keys(PROFILE_FIELD_META);
+        const extra = Object.keys(row).filter(k => !k.startsWith('_') && !PROFILE_ADMIN_SKIP.has(k) && !known.includes(k));
+        fields = [...known.filter(k => k in row), ...extra];
+        document.getElementById('pe-kicker').textContent = 'Edit guide';
+        document.getElementById('pe-title').textContent = row.full_name || row.display_name;
+        document.getElementById('pe-note').textContent = `Username: ${row.username}`;
+    }
+    peState = { mode, row, index, fields };
+
+    const esc = v => String(v ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+    const families = [...new Set(((rosterRows && rosterRows.length ? rosterRows : Object.values((cachedData && cachedData.guidesByName) || {}))).map(g => g.family).filter(Boolean))].sort();
+    const asText = v => v === true ? 'Yes' : v === false ? 'No' : (v ?? '');
+    document.getElementById('pe-body').innerHTML = fields.map(k => {
+        const m = PROFILE_FIELD_META[k] || { label: k.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) };
+        const v = asText(row[k]);
+        let input;
+        if (m.options) {
+            const opts = m.options.includes(v) || v === '' ? m.options : [...m.options, v];
+            input = `<select name="${k}">${opts.map(o => `<option value="${esc(o)}"${o === v ? ' selected' : ''}>${o ? esc(o) : '—'}</option>`).join('')}</select>`;
+        } else if (m.textarea) {
+            input = `<textarea name="${k}" rows="2" placeholder="${esc(m.placeholder || '')}">${esc(v)}</textarea>`;
+        } else {
+            const list = m.suggest === 'family' ? families : m.suggest;
+            input = `<input name="${k}" type="${m.type || 'text'}" value="${esc(v)}" placeholder="${esc(m.placeholder || '')}"${list ? ` list="pe-list-${k}"` : ''} autocomplete="off">`
+                  + (list ? `<datalist id="pe-list-${k}">${list.map(o => `<option value="${esc(o)}">`).join('')}</datalist>` : '');
+        }
+        return `<label class="pe-field${m.textarea ? ' wide' : ''}"><span>${esc(m.label)}</span>${input}${m.hint ? `<small>${esc(m.hint)}</small>` : ''}</label>`;
+    }).join('');
+    document.getElementById('pe-error').hidden = true;
+    document.getElementById('pe-modal').hidden = false;
+}
+
+function closeProfileEdit() {
+    document.getElementById('pe-modal').hidden = true;
+    peState = null;
+}
+
+async function saveProfileEdit() {
+    if (!peState) return;
+    const form = document.getElementById('pe-body');
+    const asText = v => v === true ? 'Yes' : v === false ? 'No' : (v ?? '');
+    const patch = {};
+    peState.fields.forEach(k => {
+        const el = form.querySelector(`[name="${k}"]`);
+        if (!el) return;
+        const val = el.value.trim();
+        if (val !== String(asText(peState.row[k])).trim()) patch[k] = val === '' ? null : val;
+    });
+    if (!Object.keys(patch).length) { closeProfileEdit(); return; }
+    if (patch.status === null) { showPeError('Role can\'t be blank.'); return; }
+
+    const btn = document.getElementById('pe-save');
+    btn.disabled = true; btn.textContent = 'Saving…';
+    try {
+        if (peState.mode === 'self') {
+            const [g] = await sbRpc('update_my_profile', { patch });
+            const p = cachedData.profile;
+            Object.assign(p, { major: g.major, minor: g.minor, certificate: g.certificate, college: g.college, gradDate: g.grad_date,
+                               year: g.year, hometown: g.hometown, dietary: g.dietary });
+            closeProfileEdit();
+            renderProfileView();
+        } else {
+            const { index, row } = peState;
+            const [g] = await sbRpc('admin_update_guide', { target_username: row.username, patch });
+            const keep = Object.fromEntries(Object.entries(row).filter(([k]) => k.startsWith('_')));
+            rosterRows[index] = { ...g, ...keep, _active: rosterActive(g) };
+            closeProfileEdit();
+            renderRosterSummary();
+            renderRosterList();
+            openRosterGuide(index, 'overview');
+            // Editing yourself: keep your own header/profile in step
+            if (cachedData.profile.username === g.username) {
+                Object.assign(cachedData.profile, { displayName: g.display_name, fullName: g.full_name, family: g.family, status: g.status,
+                    major: g.major, minor: g.minor, certificate: g.certificate, college: g.college, gradDate: g.grad_date,
+                    year: g.year, hometown: g.hometown, dietary: g.dietary, givingTours: g.giving_tours, email: g.email });
+            }
+        }
+    } catch (e) {
+        showPeError(e.message);
+    } finally {
+        btn.disabled = false; btn.textContent = 'Save';
+    }
+}
+function showPeError(msg) { const el = document.getElementById('pe-error'); el.textContent = msg; el.hidden = false; }
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && peState) closeProfileEdit(); });
 
 // ─── VIEW AS (read-only impersonation for codirectors/admins) ────────────────
 // The target's username lives in sessionStorage, so it lasts for this tab only.
@@ -5636,6 +5842,10 @@ drawConfetti();
 
   <!-- Info sections -->
   <div style="padding:1.25rem 0;display:flex;flex-direction:column;gap:1.25rem;">
+    <button class="pe-open" onclick="openProfileEdit('self')">
+      <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+      Edit my profile
+    </button>
 
     <!-- Academic -->
     <div style="background:#fff;border-radius:1rem;overflow:hidden;border:1px solid #F3F4F6;">

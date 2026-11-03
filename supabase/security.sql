@@ -172,6 +172,72 @@ grant all on public.login_codes to service_role;
 
 
 -- ───────────────────────────────────────────────────────────────────────────
+-- STEP 2f — Profile editing. Signed-in users stay read-only on the tables; these
+-- two functions are the only way the app writes to guides.
+--   update_my_profile(patch)              a guide edits a safe set of their OWN fields
+--   admin_update_guide(username, patch)   codirectors/admins edit any guide's fields
+-- `patch` is a JSON object of column → new value; unknown or disallowed keys are
+-- ignored, values are converted to each column's type, and null clears a field.
+-- ───────────────────────────────────────────────────────────────────────────
+
+create or replace function public.update_my_profile(patch jsonb)
+returns setof public.guides
+language plpgsql security definer set search_path = public
+as $$
+declare
+  -- Keep in sync with PROFILE_SELF_FIELDS in index.html
+  allowed text[] := array['major','minor','certificate','college','grad_date','year','hometown','dietary'];
+  me text := lower(auth.jwt() ->> 'email');
+  sets text;
+begin
+  if me is null then raise exception 'Not signed in'; end if;
+  select string_agg(format('%I = r.%I', c.column_name, c.column_name), ', ') into sets
+  from information_schema.columns c
+  where c.table_schema = 'public' and c.table_name = 'guides'
+    and c.column_name = any(allowed) and patch ? c.column_name;
+  if sets is null then raise exception 'Nothing to update'; end if;
+  execute format('update public.guides g set %s from jsonb_populate_record(null::public.guides, $1) r
+                  where lower(trim(g.email)) = $2', sets) using patch, me;
+  return query select * from public.guides where lower(trim(email)) = me limit 1;
+end $$;
+
+create or replace function public.admin_update_guide(target_username text, patch jsonb)
+returns setof public.guides
+language plpgsql security definer set search_path = public
+as $$
+declare
+  blocked text[] := array['id','username','slack_photo','created_at','updated_at'];
+  roles   text[] := array['Tour Guide','Manager','Codirector','Admin','Boss','Retired'];
+  sets text;
+  n int;
+begin
+  if not exists (select 1 from public.guides me
+                 where lower(trim(me.email)) = lower(auth.jwt() ->> 'email')
+                   and me.status in ('Codirector', 'Admin')) then
+    raise exception 'Codirectors and admins only';
+  end if;
+  if patch ? 'status' and not (patch ->> 'status' = any(roles)) then
+    raise exception 'Unknown role: %', patch ->> 'status';
+  end if;
+  select string_agg(format('%I = r.%I', c.column_name, c.column_name), ', ') into sets
+  from information_schema.columns c
+  where c.table_schema = 'public' and c.table_name = 'guides'
+    and not (c.column_name = any(blocked)) and patch ? c.column_name;
+  if sets is null then raise exception 'Nothing to update'; end if;
+  execute format('update public.guides g set %s from jsonb_populate_record(null::public.guides, $1) r
+                  where g.username = $2', sets) using patch, target_username;
+  get diagnostics n = row_count;
+  if n = 0 then raise exception 'No guide with username %', target_username; end if;
+  return query select * from public.guides where username = target_username;
+end $$;
+
+revoke all on function public.update_my_profile(jsonb) from public, anon;
+revoke all on function public.admin_update_guide(text, jsonb) from public, anon;
+grant execute on function public.update_my_profile(jsonb) to authenticated;
+grant execute on function public.admin_update_guide(text, jsonb) to authenticated;
+
+
+-- ───────────────────────────────────────────────────────────────────────────
 -- STEP 3 — Not SQL. Move Apps Script off the public key BEFORE step 4.
 --   1. Supabase → Project Settings → API Keys → copy the service_role (secret) key.
 --   2. Apps Script → Project Settings → Script Properties → SUPABASE_ANON_KEY →
