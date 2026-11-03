@@ -238,6 +238,49 @@ grant execute on function public.admin_update_guide(text, jsonb) to authenticate
 
 
 -- ───────────────────────────────────────────────────────────────────────────
+-- STEP 2g — Custom links on the Resources page. Every signed-in guide can read
+-- them; only codirectors/admins can add, edit or remove them. Links must be
+-- http(s) so nobody can store a javascript: link.
+-- ───────────────────────────────────────────────────────────────────────────
+
+create table if not exists public.resource_links (
+  id          bigint generated always as identity primary key,
+  title       text not null check (length(trim(title)) between 1 and 80),
+  url         text not null check (url ~* '^https?://[^\s]+$' and length(url) <= 2000),
+  description text check (length(description) <= 200),
+  category    text not null default 'Links' check (length(trim(category)) between 1 and 40),
+  sort        int  not null default 0,
+  created_by  text default (auth.jwt() ->> 'email'),
+  created_at  timestamptz not null default now()
+);
+
+create or replace function public.is_roster_admin()
+returns boolean
+language sql stable security definer set search_path = public
+as $$
+  select exists (select 1 from public.guides
+                 where lower(trim(email)) = lower(auth.jwt() ->> 'email')
+                   and status in ('Codirector', 'Admin'));
+$$;
+revoke all on function public.is_roster_admin() from public, anon;
+grant execute on function public.is_roster_admin() to authenticated;
+
+alter table public.resource_links enable row level security;
+revoke all on public.resource_links from anon;
+grant select, insert, update, delete on public.resource_links to authenticated;
+grant all on public.resource_links to service_role;
+
+drop policy if exists "Guides read links" on public.resource_links;
+drop policy if exists "Admins add links" on public.resource_links;
+drop policy if exists "Admins edit links" on public.resource_links;
+drop policy if exists "Admins remove links" on public.resource_links;
+create policy "Guides read links"   on public.resource_links for select to authenticated using (public.is_guide());
+create policy "Admins add links"    on public.resource_links for insert to authenticated with check (public.is_roster_admin());
+create policy "Admins edit links"   on public.resource_links for update to authenticated using (public.is_roster_admin()) with check (public.is_roster_admin());
+create policy "Admins remove links" on public.resource_links for delete to authenticated using (public.is_roster_admin());
+
+
+-- ───────────────────────────────────────────────────────────────────────────
 -- STEP 3 — Not SQL. Move Apps Script off the public key BEFORE step 4.
 --   1. Supabase → Project Settings → API Keys → copy the service_role (secret) key.
 --   2. Apps Script → Project Settings → Script Properties → SUPABASE_ANON_KEY →

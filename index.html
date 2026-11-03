@@ -693,6 +693,58 @@ html.dark .sem-off-card { background: #161618 !important; border-color: #3a3a3c;
 html.dark .sem-off-icon { background: rgba(99,102,241,0.15); }
 html.dark .sem-off-title { color: #d4d4d8; }
 
+/* Resources */
+.rsc { display: flex; flex-direction: column; gap: 1.5rem; max-width: 1100px; }
+.rsc-label { margin: 0 0 0.625rem 0.125rem; font-size: 0.6875rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.14em; color: #9CA3AF; }
+.rsc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.625rem; }
+.rsc-tile { position: relative; display: flex; align-items: center; gap: 0.75rem; padding: 0.875rem; border-radius: 1.125rem; background: white;
+            border: 1px solid #ECECEC; text-decoration: none; text-align: left; font-family: inherit; cursor: pointer; min-width: 0; }
+.rsc-tile:hover { border-color: #CFB991; }
+.rsc-icon { width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+.rsc-icon svg { width: 19px; height: 19px; fill: none; stroke: #fff; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.rsc-text { min-width: 0; flex: 1; }
+.rsc-text b { display: block; font-size: 0.875rem; font-weight: 800; color: #1a1510; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rsc-text small { display: block; font-size: 0.6875rem; font-weight: 600; color: #9CA3AF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rsc-ext { position: absolute; top: 0.5rem; right: 0.5rem; width: 13px; height: 13px; fill: none; stroke: #D1D5DB; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.rsc-two { display: grid; grid-template-columns: 1fr; gap: 1.5rem; align-items: start; }
+.rsc-head { display: flex; align-items: center; justify-content: space-between; }
+.rsc-head .rsc-label { margin-bottom: 0.625rem; }
+.rsc-add { border: none; background: #1a1510; color: #CFB991; font-family: inherit; font-size: 0.75rem; font-weight: 800; padding: 0.4375rem 0.75rem;
+           border-radius: 0.75rem; cursor: pointer; margin-bottom: 0.625rem; }
+.rsc-add[hidden] { display: none; }
+.rsc-group + .rsc-group { margin-top: 1rem; }
+.rsc-cat { margin: 0 0 0.375rem 0.125rem; font-size: 0.8125rem; font-weight: 800; color: #4B5563; }
+.rsc-list { background: white; border: 1px solid #ECECEC; border-radius: 1.125rem; overflow: hidden; }
+.rsc-link { display: flex; align-items: center; }
+.rsc-link + .rsc-link, .rsc-list > .rsc-form { border-top: 1px solid #F3F4F6; }
+.rsc-link > a { flex: 1; min-width: 0; display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 0.875rem; text-decoration: none; }
+.rsc-link > a:hover b { text-decoration: underline; text-decoration-color: #CFB991; }
+.rsc-link-ic { width: 34px; height: 34px; border-radius: 10px; background: #F5F3EE; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+.rsc-link-ic svg { width: 16px; height: 16px; fill: none; stroke: #8a7550; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.rsc-tools { display: flex; gap: 0.25rem; padding-right: 0.625rem; flex-shrink: 0; }
+.rsc-tools button { border: none; background: #F3F4F6; color: #4B5563; font-family: inherit; font-size: 0.6875rem; font-weight: 800; padding: 0.3125rem 0.5rem; border-radius: 0.5rem; cursor: pointer; }
+.rsc-tools button.danger { color: #DC2626; background: #FEF2F2; }
+.rsc-muted { margin: 0; padding: 1rem; font-size: 0.8125rem; font-weight: 600; color: #9CA3AF; background: white; border: 1px dashed #E5E7EB; border-radius: 1.125rem; }
+.rsc-form { display: grid; grid-template-columns: 1fr; gap: 0.625rem; padding: 0.875rem; background: #FAFAF9; border: 1px solid #ECECEC; border-radius: 1.125rem; margin-bottom: 0.75rem; }
+.rsc-list > .rsc-form { border: none; border-radius: 0; margin: 0; }
+.rsc-form label span { display: block; font-size: 0.6875rem; font-weight: 800; color: #6B7280; margin-bottom: 0.25rem; }
+.rsc-form label em { font-style: normal; font-weight: 600; color: #9CA3AF; }
+.rsc-form-err { margin: 0; font-size: 0.75rem; font-weight: 700; color: #DC2626; }
+.rsc-form-err[hidden] { display: none; }
+.rsc-form-actions { display: flex; justify-content: flex-end; gap: 0.5rem; }
+#rsc-contacts { padding: 0.375rem 1rem; }
+@media (max-width: 767px) { .rsc-tile { align-items: flex-start; padding: 0.75rem; } .rsc-icon { width: 36px; height: 36px; }
+                            .rsc-tile .rsc-text b, .rsc-tile .rsc-text small { white-space: normal; } }
+@media (min-width: 768px) { .rsc-grid { grid-template-columns: repeat(3, 1fr); } .rsc-form { grid-template-columns: 1fr 1fr; } .rsc-form-err, .rsc-form-actions { grid-column: 1 / -1; } }
+@media (min-width: 1024px) { .rsc-grid { grid-template-columns: repeat(5, 1fr); } .rsc-two { grid-template-columns: 1.4fr 1fr; } }
+html.dark .rsc-tile, html.dark .rsc-list, html.dark .rsc-muted { background: #1c1c1e; border-color: #2c2c2e; }
+html.dark .rsc-form { background: #161618; border-color: #2c2c2e; }
+html.dark .rsc-text b { color: #f3f4f6; }
+html.dark .rsc-cat { color: #d4d4d8; }
+html.dark .rsc-link + .rsc-link, html.dark .rsc-list > .rsc-form { border-top-color: #2c2c2e; }
+html.dark .rsc-link-ic, html.dark .rsc-tools button { background: #2c2c2e; color: #d4d4d8; }
+html.dark .rsc-tools button.danger { background: rgba(239,68,68,0.15); color: #FCA5A5; }
+
 /* Profile page (card) */
 .pf { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 1rem; }
 .pf-card { background: white; border: 1px solid #ECECEC; border-radius: 1.5rem; overflow: hidden; }
@@ -1338,11 +1390,13 @@ html.dark .theme-switch::after { transform: translateX(18px); }
     <div class="mb-8">
         <p class="sb-label">Main Menu</p>
         <div id="nav-home" class="nav-button active" onclick="switchView('home')"><span class="nav-icon" style="background:#1a1510;"><svg viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg></span>Home</div>
-        <div id="nav-schedule" class="nav-button" onclick="switchView('schedule')"><span class="nav-icon" style="background:#3B82F6;"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>Schedule</div>
-        <div id="nav-schedule2" class="nav-button" onclick="switchView('schedule2')"><span class="nav-icon" style="background:#2563EB;"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h2M14 14h2M8 18h2"/></svg></span>Schedule New</div>
+        <!-- Old schedule page: hidden, kept for USE_OLD_SCHEDULE -->
+        <div id="nav-schedule" class="nav-button" onclick="switchView('schedule')" style="display:none;"><span class="nav-icon" style="background:#3B82F6;"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>Schedule</div>
+        <div id="nav-schedule2" class="nav-button" onclick="switchView('schedule2')"><span class="nav-icon" style="background:#3B82F6;"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>Schedule</div>
         <div id="nav-tracker" class="nav-button" onclick="switchView('tracker')"><span class="nav-icon" style="background:#10B981;"><svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg></span>Tour Tracker</div>
         <div id="nav-families" class="nav-button" onclick="switchView('families')"><span class="nav-icon" style="background:#fff;"><svg viewBox="0 0 24 24" style="stroke:#b39a6d;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>Family Points</div>
         <div id="nav-desk" class="nav-button" onclick="switchView('desk')"><span class="nav-icon" style="background:#06B6D4;"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>Desk Schedule</div>
+        <div id="nav-resources" class="nav-button" onclick="switchView('resources')"><span class="nav-icon" style="background:#8B5CF6;"><svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></span>Resources</div>
         <div id="nav-forms" class="nav-button" onclick="switchView('forms')"><span class="nav-icon" style="background:#F59E0B;"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/></svg></span>Required Forms</div>
         <div id="nav-desk-dashboard" class="nav-button hidden" onclick="switchView('desk-dashboard')"><span class="nav-icon" style="background:#6366F1;"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg></span>Desk Dashboard</div>
         <div id="view-switcher-container" class="hidden sb-switcher">
@@ -1678,6 +1732,28 @@ html.dark .theme-switch::after { transform: translateX(18px); }
 
     <!-- Full-screen guide profile (roster) -->
     <div id="rs-profile" class="rs-profile" hidden></div>
+
+    <!-- RESOURCES: built-in essentials + links codirectors/admins can add (resource_links) -->
+    <div id="view-resources" class="view-section">
+        <header class="mb-6"><h1 class="text-3xl font-black">Resources</h1></header>
+        <div class="rsc">
+            <section>
+                <p class="rsc-label">Essentials</p>
+                <div id="rsc-fixed" class="rsc-grid"></div>
+            </section>
+            <section class="rsc-two">
+                <div>
+                    <div class="rsc-head"><p class="rsc-label">Links</p><button id="rsc-add" class="rsc-add" onclick="rscOpenForm()" hidden>+ Add link</button></div>
+                    <div id="rsc-form-slot"></div>
+                    <div id="rsc-links"></div>
+                </div>
+                <div>
+                    <p class="rsc-label">Important numbers</p>
+                    <div id="rsc-contacts" class="ot-card"></div>
+                </div>
+            </section>
+        </div>
+    </div>
 
     <div id="view-handbook" class="view-section">
         <header class="mb-6"><h1 class="text-3xl font-black">Handbook</h1></header>
@@ -2800,7 +2876,12 @@ function runOmniSearch() {
     }).join('');
 }
 
+// The month/agenda page (schedule2) replaced the original Schedule page. Everything
+// that opens 'schedule' lands on it; flip this to bring the old page back.
+const USE_OLD_SCHEDULE = false;
+
 function switchView(viewId) {
+    if (viewId === 'schedule' && !USE_OLD_SCHEDULE) viewId = 'schedule2';
     // 1. Hide all sections, show the active one
     document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
     document.getElementById(`view-${viewId}`).classList.add('active');
@@ -2813,6 +2894,7 @@ function switchView(viewId) {
     if (viewId === 'roster') loadRoster();
     if (viewId === 'schedule2') renderScheduleNew();
     if (viewId === 'master') renderMaster();
+    if (viewId === 'resources') renderResources();
 
     // 2. Update desktop sidebar active state
     document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
@@ -2821,7 +2903,7 @@ function switchView(viewId) {
 
     // 3. Update mobile bottom nav active state
     document.querySelectorAll('.bn-btn').forEach(btn => btn.classList.remove('active'));
-    const activeBn = document.getElementById(`bn-${viewId}`);
+    const activeBn = document.getElementById(`bn-${viewId === 'schedule2' ? 'schedule' : viewId}`);
     if (activeBn) activeBn.classList.add('active');
 
     // 4. Close sidebar if open on mobile
@@ -2856,6 +2938,17 @@ const ON_TOUR_LINKS = [
     { label: 'Campus map',     sub: 'purdue.edu',        bg: '#10B981', href: 'https://www.purdue.edu/campus-map/', icon: '<path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/>' },
     { label: 'Handbook',       sub: 'Policies & facts',  bg: '#EF4444', view: 'handbook', icon: '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>' },
 ];
+// Tap-to-call rows for ON_TOUR_CONTACTS (On Tour home and the Resources page)
+function contactRowsHtml() {
+    const esc = v => String(v ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+    const phone = t => `(${t.slice(0, 3)}) ${t.slice(3, 6)}-${t.slice(6)}`;
+    return ON_TOUR_CONTACTS.map(c => `
+        <div class="ot-contact">
+            <div><b>${esc(c.name)}</b><small>${esc(c.sub)}</small></div>
+            ${c.tel ? `<a class="ot-call" href="tel:${c.tel}"><svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>${phone(c.tel)}</a>`
+                    : '<span class="ot-nonum">Number not set</span>'}
+        </div>`).join('');
+}
 let onTourActive = null;     // the running tour, or null
 let onTourShowUsual = false; // "Show my usual home" for the rest of this tour
 const otCrew = {};           // 'date|type' → tour rows for that slot
@@ -2927,13 +3020,7 @@ function renderOnTour() {
         return `<div class="ot-crew-row">${av}<div><b>${esc(n)}</b>${g.family ? `<small>${esc(g.family)}</small>` : ''}</div></div>`;
     }).join('') : '<p class="ot-muted">No other guides on this tour.</p>';
 
-    const phone = t => `(${t.slice(0, 3)}) ${t.slice(3, 6)}-${t.slice(6)}`;
-    const contacts = ON_TOUR_CONTACTS.map(c => `
-        <div class="ot-contact">
-            <div><b>${esc(c.name)}</b><small>${esc(c.sub)}</small></div>
-            ${c.tel ? `<a class="ot-call" href="tel:${c.tel}"><svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>${phone(c.tel)}</a>`
-                    : '<span class="ot-nonum">Number not set</span>'}
-        </div>`).join('');
+    const contacts = contactRowsHtml();
     const links = ON_TOUR_LINKS.map(l => `
         <button class="ot-link" onclick="${l.href ? `window.open('${l.href}','_blank')` : `switchView('${l.view}')`}">
             <span class="ot-link-icon" style="background:${l.bg}"><svg viewBox="0 0 24 24">${l.icon}</svg></span>
@@ -2980,8 +3067,8 @@ async function otSearch(q) {
 const QUICK_ACTIONS = [
     { href: 'https://webclock.purdue.edu', label: 'WebClock', bg: '#6366F1', icon: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>' },
     { view: 'search',   label: 'Search',        bg: '#1a1510', icon: '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>' },
+    { view: 'resources', label: 'Resources',    bg: '#8B5CF6', icon: '<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>' },
     { view: 'schedule', label: 'Schedule',      bg: '#3B82F6', icon: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>' },
-    { view: 'schedule2', label: 'Schedule New', bg: '#2563EB', icon: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h2M14 14h2M8 18h2"/>' },
     { view: 'tracker',  label: 'Tracker',       bg: '#10B981', icon: '<path d="M18 20V10M12 20V4M6 20v-6"/>' },
     { view: 'families', label: 'Points',        bg: '#CFB991', fg: '#1a1510', icon: '<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>' },
     { view: 'forms',    label: 'Forms',         bg: '#F59E0B', icon: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/>' },
@@ -4263,6 +4350,124 @@ const PF_ICONS = {
     updateScheduleView(myTours);
 }
 
+// ─── RESOURCES ──────────────────────────────────────────────────────────────
+// Built-in tiles (edit this list in code) + custom links from the resource_links
+// table, which codirectors/admins manage from the page itself (security.sql 2g).
+// NOTE: check the purdue.edu addresses below still open the right pages.
+const RESOURCES_FIXED = [
+    { label: 'Search',          sub: 'Find any tour guide',     bg: '#1a1510', view: 'search',   icon: '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>' },
+    { label: 'Handbook',        sub: 'Policies & tour facts',   bg: '#EF4444', view: 'handbook', icon: '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>' },
+    { label: 'WebClock',        sub: 'Clock in & out',          bg: '#6366F1', href: 'https://webclock.purdue.edu', icon: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>' },
+    { label: 'Campus Map',      sub: 'Interactive map',         bg: '#10B981', href: 'https://www.purdue.edu/campus-map/', icon: '<path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/>' },
+    { label: 'Desk Schedule',   sub: "Who's on the desk",       bg: '#06B6D4', view: 'desk',     icon: '<rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/>' },
+    { label: 'Required Forms',  sub: 'Due dates & links',       bg: '#F59E0B', view: 'forms',    icon: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/>' },
+    { label: 'Visit Purdue',    sub: 'What visitors see',       bg: '#b39a6d', href: 'https://admissions.purdue.edu/visit/', icon: '<path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><path d="M9 21V12h6v9"/>' },
+    { label: 'Events Calendar', sub: "What's on campus",        bg: '#3B82F6', href: 'https://events.purdue.edu/', icon: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01"/>' },
+    { label: 'Purdue Directory', sub: 'Faculty & staff lookup', bg: '#64748B', href: 'https://www.purdue.edu/directory/', icon: '<circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>' },
+    { label: 'CityBus',         sub: 'Routes & live buses',     bg: '#DC2626', href: 'https://www.gocitybus.com/', icon: '<rect x="4" y="3" width="16" height="15" rx="2"/><path d="M4 11h16M8 21v-3M16 21v-3"/><circle cx="8" cy="14.5" r="1"/><circle cx="16" cy="14.5" r="1"/>' },
+];
+let resourceLinks = null;   // rows from resource_links, or null until loaded
+let rscEditing = null;      // id being edited, 'new', or null
+
+function renderResources() {
+    const esc = ieEsc;
+    document.getElementById('rsc-fixed').innerHTML = RESOURCES_FIXED.map(r => {
+        const inner = `<span class="rsc-icon" style="background:${r.bg}"><svg viewBox="0 0 24 24">${r.icon}</svg></span>
+                       <span class="rsc-text"><b>${esc(r.label)}</b><small>${esc(r.sub)}</small></span>
+                       ${r.href ? '<svg class="rsc-ext" viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8"/></svg>' : ''}`;
+        return r.href ? `<a class="rsc-tile" href="${esc(r.href)}" target="_blank" rel="noopener">${inner}</a>`
+                      : `<button class="rsc-tile" onclick="switchView('${r.view}')">${inner}</button>`;
+    }).join('');
+    document.getElementById('rsc-contacts').innerHTML = contactRowsHtml();
+    document.getElementById('rsc-add').hidden = !canSeeRoster();
+    loadResourceLinks();
+}
+
+async function loadResourceLinks(force) {
+    const el = document.getElementById('rsc-links');
+    if (resourceLinks && !force) { renderResourceLinks(); return; }
+    if (!resourceLinks) el.innerHTML = '<p class="rsc-muted">Loading links…</p>';
+    try {
+        resourceLinks = await sbFetch('resource_links?select=*&order=category.asc,sort.asc,title.asc');
+        renderResourceLinks();
+    } catch (e) {
+        el.innerHTML = /resource_links|does not exist|404/i.test(e.message)
+            ? `<p class="rsc-muted">${canSeeRoster() ? 'Custom links aren\'t set up yet. Run step 2g in supabase/security.sql.' : 'No extra links yet.'}</p>`
+            : `<p class="rsc-muted">Couldn't load links: ${ieEsc(e.message)}</p>`;
+    }
+}
+
+function renderResourceLinks() {
+    const esc = ieEsc, admin = canSeeRoster();
+    const el = document.getElementById('rsc-links');
+    const groups = {};
+    (resourceLinks || []).forEach(l => { (groups[l.category] = groups[l.category] || []).push(l); });
+    const host = u => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch (e) { return ''; } };
+    const cats = Object.keys(groups);
+    if (!cats.length) {
+        el.innerHTML = `<p class="rsc-muted">${admin ? 'No custom links yet. Use “+ Add link” to add one for everyone.' : 'No extra links yet.'}</p>`;
+    } else {
+        el.innerHTML = cats.map(c => `
+            <div class="rsc-group">
+                ${cats.length > 1 || c !== 'Links' ? `<p class="rsc-cat">${esc(c)}</p>` : ''}
+                <div class="rsc-list">${groups[c].map(l => rscEditing === l.id ? rscFormHtml(l) : `
+                    <div class="rsc-link">
+                        <a href="${esc(l.url)}" target="_blank" rel="noopener">
+                            <span class="rsc-link-ic"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg></span>
+                            <span class="rsc-text"><b>${esc(l.title)}</b><small>${esc(l.description || host(l.url))}</small></span>
+                        </a>
+                        ${admin ? `<span class="rsc-tools">
+                            <button onclick="rscOpenForm(${l.id})" aria-label="Edit link">Edit</button>
+                            <button onclick="rscDelete(${l.id})" aria-label="Delete link" class="danger">Delete</button></span>` : ''}
+                    </div>`).join('')}</div>
+            </div>`).join('');
+    }
+    document.getElementById('rsc-form-slot').innerHTML = rscEditing === 'new' ? rscFormHtml(null) : '';
+}
+
+function rscFormHtml(l) {
+    const esc = ieEsc;
+    const cats = [...new Set((resourceLinks || []).map(x => x.category))];
+    return `
+        <form class="rsc-form" onsubmit="event.preventDefault(); rscSave(${l ? l.id : 'null'}, this);">
+            <label><span>Title</span><input class="ie-in" name="title" maxlength="80" required value="${esc(l ? l.title : '')}" placeholder="e.g. Tour script"></label>
+            <label><span>Link</span><input class="ie-in" name="url" required value="${esc(l ? l.url : '')}" placeholder="https://…" inputmode="url" autocomplete="off"></label>
+            <label><span>Description <em>(optional)</em></span><input class="ie-in" name="description" maxlength="200" value="${esc(l && l.description || '')}" placeholder="One line about it"></label>
+            <label><span>Section</span><input class="ie-in" name="category" maxlength="40" list="rsc-cats" value="${esc(l ? l.category : (cats[0] || 'Links'))}">
+                <datalist id="rsc-cats">${cats.map(c => `<option value="${esc(c)}">`).join('')}</datalist></label>
+            <p class="rsc-form-err" hidden></p>
+            <div class="rsc-form-actions">
+                <button type="button" class="pe-cancel" onclick="rscEditing = null; renderResourceLinks();">Cancel</button>
+                <button type="submit" class="pe-save">${l ? 'Save' : 'Add link'}</button>
+            </div>
+        </form>`;
+}
+
+function rscOpenForm(id) { rscEditing = id || 'new'; renderResourceLinks(); }
+
+async function rscSave(id, form) {
+    const err = form.querySelector('.rsc-form-err');
+    let url = form.url.value.trim();
+    if (url && !/^https?:\/\//i.test(url)) url = 'https://' + url;
+    const row = { title: form.title.value.trim(), url, description: form.description.value.trim() || null, category: form.category.value.trim() || 'Links' };
+    if (!/^https?:\/\/[^\s.]+\.[^\s]+$/i.test(url)) { err.textContent = 'That link doesn\'t look right.'; err.hidden = false; return; }
+    const btn = form.querySelector('.pe-save'); btn.disabled = true;
+    try {
+        await sbWrite(id ? 'PATCH' : 'POST', id ? `resource_links?id=eq.${id}` : 'resource_links', row);
+        rscEditing = null;
+        await loadResourceLinks(true);
+    } catch (e) {
+        err.textContent = e.message; err.hidden = false; btn.disabled = false;
+    }
+}
+
+async function rscDelete(id) {
+    const l = (resourceLinks || []).find(x => x.id === id);
+    if (!l || !confirm(`Remove "${l.title}" from Resources for everyone?`)) return;
+    try { await sbWrite('DELETE', `resource_links?id=eq.${id}`); await loadResourceLinks(true); }
+    catch (e) { alert(e.message); }
+}
+
 // ─── MASTER SCHEDULE (Codirector / Admin) ───────────────────────────────────
 // Every tour row (one guide per row) for a day or a month, loaded a month at a time.
 let msMode = 'day';
@@ -4996,7 +5201,7 @@ function updateNavigation(profile) {
     
     // 1. Define which buttons belong to which view
     const managerButtons = ['nav-desk-dashboard'];
-    const studentButtons = ['nav-home', 'nav-schedule', 'nav-schedule2', 'nav-tracker', 'nav-families', 'nav-desk', 'nav-forms'];
+    const studentButtons = ['nav-home', 'nav-schedule2', 'nav-resources', 'nav-tracker', 'nav-families', 'nav-desk', 'nav-forms'];
 
     // 2. Toggle visibility
     managerButtons.forEach(id => {
@@ -5237,6 +5442,28 @@ async function sbRpc(name, body) {
         throw new Error(detail || `Request failed (${res.status})`);
     }
     return res.json();
+}
+
+// Insert / update / delete through the REST API as the signed-in user (RLS decides)
+async function sbWrite(method, path, body) {
+    const { data: { session } } = await sbClient.auth.getSession();
+    const res = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
+        method,
+        headers: {
+            'apikey':        SUPABASE_ANON_KEY,
+            'Authorization': 'Bearer ' + (session ? session.access_token : SUPABASE_ANON_KEY),
+            'Content-Type':  'application/json',
+            'Prefer':        'return=representation'
+        },
+        body: body ? JSON.stringify(body) : undefined
+    });
+    if (!res.ok) {
+        let detail = '';
+        try { const b = await res.json(); detail = b.message || b.hint || ''; } catch (e) {}
+        if (/row-level security/i.test(detail)) detail = 'Only codirectors and admins can change links.';
+        throw new Error(detail || `Request failed (${res.status})`);
+    }
+    return res.status === 204 ? null : res.json();
 }
 
 async function sbFetch(path) {
