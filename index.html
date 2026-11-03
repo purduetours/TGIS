@@ -693,6 +693,102 @@ html.dark .sem-off-card { background: #161618 !important; border-color: #3a3a3c;
 html.dark .sem-off-icon { background: rgba(99,102,241,0.15); }
 html.dark .sem-off-title { color: #d4d4d8; }
 
+/* Profile page (card) */
+.pf { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 1rem; }
+.pf-card { background: white; border: 1px solid #ECECEC; border-radius: 1.5rem; overflow: hidden; }
+.pf-cover { position: relative; height: 104px; background: linear-gradient(120deg, #b39a6d 0%, #CFB991 45%, #e8d5a3 75%, #CFB991 100%); }
+.pf-cover::after { content: ''; position: absolute; inset: 0; opacity: 0.09;
+                   background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.6) 10px, rgba(0,0,0,0.6) 11px); }
+.pf-edit { position: absolute; top: 0.75rem; right: 0.75rem; z-index: 1; display: inline-flex; align-items: center; gap: 0.375rem; border: none;
+           background: rgba(255,255,255,0.92); color: #1a1510; font-family: inherit; font-size: 0.75rem; font-weight: 800; padding: 0.5rem 0.75rem;
+           border-radius: 0.75rem; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.pf-edit[hidden] { display: none; }
+.pf-edit svg { width: 14px; height: 14px; fill: none; stroke: #8a7550; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.pf-id { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 1.25rem 1.125rem; margin-top: -48px; position: relative; }
+.pf-avatar { width: 96px; height: 96px; border-radius: 99px; overflow: hidden; border: 4px solid white; background: #CFB991; box-shadow: 0 6px 18px rgba(0,0,0,0.12); }
+.pf-avatar img { width: 100%; height: 100%; object-fit: cover; }
+#profile-initial-fallback { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 2.25rem; font-weight: 900; color: #1a1510; }
+#pv-fullname { margin: 0.75rem 0 0; font-size: 1.5rem; font-weight: 900; color: #111827; letter-spacing: -0.01em; }
+#pv-role { margin: 0.25rem 0 0; font-size: 0.875rem; font-weight: 600; color: #6B7280; }
+.pf-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.375rem; margin-top: 0.75rem; }
+.pf-chip { display: inline-flex; align-items: center; gap: 0.3125rem; padding: 0.3125rem 0.625rem; border-radius: 99px; background: #F5F3EE;
+           font-size: 0.75rem; font-weight: 700; color: #57534e; }
+.pf-chip svg { width: 13px; height: 13px; fill: none; stroke: #b39a6d; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.pf-stats { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid #F3F4F6; }
+.pf-stats > div { padding: 0.875rem 0.5rem; text-align: center; }
+.pf-stats > div + div { border-left: 1px solid #F3F4F6; }
+.pf-stats b { display: block; font-size: 1.375rem; font-weight: 900; color: #111827; line-height: 1.1; }
+.pf-stats span { display: block; margin-top: 0.1875rem; font-size: 0.625rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #9CA3AF; }
+.pf-section { background: white; border: 1px solid #ECECEC; border-radius: 1.25rem; padding: 0.375rem 1rem; }
+.pf-section h2 { margin: 0.625rem 0 0.25rem; font-size: 0.6875rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.14em; color: #9CA3AF; }
+.pf-row { display: flex; align-items: center; gap: 0.875rem; padding: 0.75rem 0; width: 100%; border: none; background: none; font-family: inherit; text-align: left; }
+.pf-row + .pf-row { border-top: 1px solid #F5F5F4; }
+.pf-row.editing { align-items: flex-start; }
+.pf-row.locked { opacity: 0.55; }
+.pf-ic { width: 34px; height: 34px; border-radius: 10px; background: #F5F3EE; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.pf-ic svg { width: 16px; height: 16px; fill: none; stroke: #8a7550; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.pf-rv { flex: 1; min-width: 0; }
+.pf-rv small { display: block; font-size: 0.6875rem; font-weight: 700; color: #9CA3AF; margin-bottom: 1px; }
+.pf-rv b { display: block; font-size: 0.9375rem; font-weight: 700; color: #111827; overflow-wrap: anywhere; }
+.pf-rv b.pf-empty { color: #D1D5DB; font-weight: 600; }
+.pf-row.editing .pf-rv small { margin-bottom: 0.375rem; }
+.pf-lock { width: 15px; height: 15px; flex-shrink: 0; fill: none; stroke: #9CA3AF; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.pf-note { margin: 0.25rem 0 0.75rem; font-size: 0.6875rem; font-weight: 600; color: #9CA3AF; }
+.pf-signout { cursor: pointer; }
+.pf-signout .pf-ic { background: #FEF2F2; }
+.pf-signout .pf-ic svg { stroke: #EF4444; }
+.pf-signout b { color: #DC2626 !important; }
+@media (min-width: 1024px) { .pf-cover { height: 132px; } .pf-id { margin-top: -56px; } .pf-avatar { width: 112px; height: 112px; } #pv-fullname { font-size: 1.75rem; } }
+html.dark .pf-card, html.dark .pf-section { background: #1c1c1e; border-color: #2c2c2e; }
+html.dark .pf-avatar { border-color: #1c1c1e; }
+html.dark #pv-fullname, html.dark .pf-stats b, html.dark .pf-rv b { color: #f3f4f6; }
+html.dark .pf-rv b.pf-empty { color: #52525b; }
+html.dark .pf-chip, html.dark .pf-ic { background: #2c2c2e; }
+html.dark .pf-chip { color: #d4d4d8; }
+html.dark .pf-stats, html.dark .pf-stats > div + div, html.dark .pf-row + .pf-row { border-color: #2c2c2e; }
+html.dark .pf-signout .pf-ic { background: rgba(239,68,68,0.15); }
+
+/* In-place editing inputs + save bar */
+.ie-in { width: 100%; box-sizing: border-box; padding: 0.5625rem 0.75rem; border-radius: 0.75rem; border: 1px solid #E5E7EB; background: #FAFAF9;
+         font-family: inherit; font-size: 16px; font-weight: 600; color: #111827; outline: none; resize: vertical; }
+.ie-in:focus { border-color: #CFB991; box-shadow: 0 0 0 3px rgba(207,185,145,0.25); background: white; }
+.ie-multi { display: flex; flex-wrap: wrap; gap: 0.375rem; }
+.ie-chip input { position: absolute; opacity: 0; pointer-events: none; }
+.ie-chip span { display: inline-block; padding: 0.375rem 0.6875rem; border-radius: 99px; border: 1px solid #E5E7EB; background: white; font-size: 0.75rem;
+                font-weight: 700; color: #4B5563; cursor: pointer; user-select: none; }
+.ie-chip input:checked + span { background: #1a1510; border-color: #1a1510; color: #CFB991; }
+.ie-chip input:focus-visible + span { box-shadow: 0 0 0 3px rgba(207,185,145,0.4); }
+.ie-city { position: relative; }
+.ie-city-list { position: absolute; left: 0; right: 0; top: calc(100% + 4px); z-index: 20; margin: 0; padding: 0.25rem; list-style: none; background: white;
+                border: 1px solid #E5E7EB; border-radius: 0.875rem; box-shadow: 0 12px 28px rgba(0,0,0,0.12); max-height: 260px; overflow-y: auto; }
+.ie-city-list[hidden] { display: none; }
+.ie-city-list button { display: block; width: 100%; text-align: left; border: none; background: none; font-family: inherit; font-size: 0.875rem; font-weight: 600;
+                       color: #111827; padding: 0.5625rem 0.625rem; border-radius: 0.625rem; cursor: pointer; }
+.ie-city-list button:hover { background: #F5F3EE; }
+.ie-city-none { padding: 0.5625rem 0.625rem; font-size: 0.75rem; font-weight: 600; color: #9CA3AF; }
+.ie-bar { position: fixed; z-index: 240; left: 1rem; right: 1rem; bottom: calc(60px + min(env(safe-area-inset-bottom, 0px), 14px) + 0.625rem);
+          display: flex; align-items: center; gap: 0.5rem; padding: 0.625rem 0.625rem 0.625rem 1rem; border-radius: 1.125rem; background: #1a1510;
+          box-shadow: 0 12px 30px rgba(0,0,0,0.3); }
+.ie-bar[hidden] { display: none; }
+.ie-bar p { flex: 1; min-width: 0; margin: 0; font-size: 0.75rem; font-weight: 700; color: #d6cbb4; overflow: hidden; text-overflow: ellipsis; }
+.ie-bar p.err { color: #FCA5A5; white-space: normal; }
+.ie-bar .pe-cancel { background: rgba(255,255,255,0.1); color: #e7e5e4; }
+.ie-bar .pe-save { background: #CFB991; color: #1a1510; }
+@media (min-width: 1024px) { .ie-bar { left: calc(18rem + 2rem); right: 2rem; bottom: 1.5rem; max-width: 760px; margin: 0 auto; }
+                             .ie-bar.ie-overlay { left: 2rem; } }
+@media (max-width: 1023px) { .ie-bar.ie-overlay { bottom: calc(1rem + env(safe-area-inset-bottom)); } }
+body.ie-editing .content-area { padding-bottom: 10rem !important; }
+body.ie-editing .rs-profile-inner { padding-bottom: 10rem; }
+.rs-field.editing { flex-direction: column; gap: 0.375rem; }
+.rs-field.editing span { width: auto; }
+.rs-in { flex: 1; min-width: 0; }
+.rs-in small { display: block; margin-top: 0.3125rem; font-size: 0.6875rem; font-weight: 600; color: #9CA3AF; line-height: 1.35; }
+html.dark .ie-in, html.dark .ie-chip span, html.dark .ie-city-list { background: #242426; border-color: #3a3a3c; color: #f3f4f6; }
+html.dark .ie-in:focus { background: #1c1c1e; }
+html.dark .ie-chip input:checked + span { background: #CFB991; border-color: #CFB991; color: #1a1510; }
+html.dark .ie-city-list button { color: #f3f4f6; }
+html.dark .ie-city-list button:hover { background: #2c2c2e; }
+
 /* Profile editing */
 .pe-open { display: flex; align-items: center; justify-content: center; gap: 0.5rem; width: 100%; padding: 0.8125rem; border-radius: 1rem;
            border: 1px solid #ECECEC; background: white; font-family: inherit; font-size: 0.8125rem; font-weight: 800; color: #1a1510; cursor: pointer; }
@@ -763,6 +859,12 @@ html.dark .pe-cancel { background: #2c2c2e; color: #e5e7eb; }
 .rs-viewas { margin-left: auto; display: inline-flex; align-items: center; gap: 0.375rem; border: none; background: #1a1510; color: #CFB991; border-radius: 0.875rem;
              padding: 0.5rem 0.875rem; font-family: inherit; font-size: 0.8125rem; font-weight: 800; cursor: pointer; }
 .rs-viewas:hover { background: #2a2218; }
+
+/* Mobile: keep the last bit of every page clear of the bottom nav. (Tailwind's p-4 on
+   .content-area loads after our styles and was resetting this to 16px.) */
+@media (max-width: 1023px) {
+    .content-area { padding-bottom: calc(60px + min(env(safe-area-inset-bottom, 0px), 14px) + 1.5rem) !important; }
+}
 
 /* Available tours bottom sheet */
 #available-sheet { position: fixed; inset: 0; z-index: 200; }
@@ -1556,23 +1658,6 @@ html.dark .theme-switch::after { transform: translateX(18px); }
     </div>
 
     <!-- Import Slack members as TGIS accounts (roster) -->
-    <!-- Edit profile (own profile, or any guide from the Roster) -->
-    <div id="pe-modal" class="pe-modal" hidden>
-        <div class="imp-backdrop" onclick="closeProfileEdit()"></div>
-        <form class="pe-panel" onsubmit="event.preventDefault(); saveProfileEdit();">
-            <div class="pe-head">
-                <div><p class="pe-kicker" id="pe-kicker">Edit profile</p><h3 id="pe-title"></h3></div>
-                <button type="button" class="pe-x" onclick="closeProfileEdit()" aria-label="Close">✕</button>
-            </div>
-            <div class="pe-body" id="pe-body"></div>
-            <p class="pe-error" id="pe-error" hidden></p>
-            <div class="pe-foot">
-                <p class="pe-note" id="pe-note"></p>
-                <button type="button" class="pe-cancel" onclick="closeProfileEdit()">Cancel</button>
-                <button type="submit" class="pe-save" id="pe-save">Save</button>
-            </div>
-        </form>
-    </div>
     <div id="imp-modal" class="imp-modal" hidden>
         <div class="imp-backdrop" onclick="closeImportModal()"></div>
         <div class="imp-panel" role="dialog" aria-label="Import new accounts">
@@ -2576,9 +2661,9 @@ function applyMobileTopPadding(viewId) {
     if (homeLogo) homeLogo.style.display = showLogo ? 'block' : 'none';
     titleEl.style.display = showLogo ? 'none' : '';
     // Sheet edge takes the colour of whatever the view opens with.
-    const sheetColor = { home: desktop ? 'var(--page-bg)' : 'var(--home-bg)', profile: '#1a1510' }[viewId] || 'var(--page-bg)';
+    const sheetColor = { home: desktop ? 'var(--page-bg)' : 'var(--home-bg)' }[viewId] || 'var(--page-bg)';
     document.getElementById('mobile-page-sheet').style.background = sheetColor;
-    header.style.marginBottom = viewId === 'profile' || (viewId === 'home' && !desktop) ? '0' : (desktop ? '1.5rem' : '1rem');
+    header.style.marginBottom = viewId === 'home' && !desktop ? '0' : (desktop ? '1.5rem' : '1rem');
     header.style.display = 'block';
     const importBtn = document.getElementById('hdr-import-btn');
     if (importBtn) importBtn.hidden = !(viewId === 'roster' && canSeeRoster());
@@ -2720,6 +2805,7 @@ function switchView(viewId) {
     document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
     document.getElementById(`view-${viewId}`).classList.add('active');
     applyMobileTopPadding(viewId);
+    if (profileEditing && viewId !== 'profile') { profileEditing = false; ieHideBar(); }
     if (viewId === 'profile') renderProfileView();
     // Lazy-load desk schedule on first visit to that tab
     if (viewId === 'desk') loadDeskSchedule();
@@ -3244,6 +3330,8 @@ function rosterTourRow(t) {
 let rosterProfileIndex = null;
 
 function openRosterGuide(i, tab) {
+    // Leaving the overview (or switching guides) drops unsaved edits
+    if (rosterEditing && (tab && tab !== 'overview' || (rosterProfileIndex !== null && rosterProfileIndex !== i))) { rosterEditing = false; ieHideBar(); }
     const r = rosterRows[i];
     rosterProfileIndex = i;
     tab = tab || 'overview';
@@ -3263,12 +3351,20 @@ function openRosterGuide(i, tab) {
         const val = k => { const v = r[k]; return v === null || v === undefined || String(v).trim() === '' ? null : v; };
         const fmt = (k, v) => k === 'email' ? `<a href="mailto:${rosterEsc(v)}">${rosterEsc(v)}</a>`
             : rosterEsc(typeof v === 'boolean' ? (v ? 'Yes' : 'No') : v);
+        const families = [...new Set(rosterRows.map(g => g.family).filter(Boolean))].sort();
         const section = (title, fields) => {
-            const rows = fields.map(([k, label]) => { shown.add(k); const v = val(k); return v === null ? '' : `<div class="rs-field"><span>${label}</span><b>${fmt(k, v)}</b></div>`; }).join('');
+            const rows = fields.map(([k, label]) => {
+                shown.add(k);
+                if (rosterEditing && !PROFILE_ADMIN_SKIP.has(k)) {
+                    const hint = (PROFILE_FIELD_META[k] || {}).hint;
+                    return `<div class="rs-field editing"><span>${label}</span><div class="rs-in">${ieInput(k, r[k], { families })}${hint ? `<small>${rosterEsc(hint)}</small>` : ''}</div></div>`;
+                }
+                const v = val(k); return v === null ? '' : `<div class="rs-field"><span>${label}</span><b>${fmt(k, v)}</b></div>`;
+            }).join('');
             return rows ? `<div class="rs-panel"><p class="rs-label">${title}</p>${rows}</div>` : '';
         };
-        body = ROSTER_FIELDS.map(([t, f]) => section(t, f)).join('');
-        const extra = Object.keys(r).filter(k => !k.startsWith('_') && !shown.has(k) && !ROSTER_HIDDEN.has(k) && val(k) !== null);
+        body = ROSTER_FIELDS.map(([t, f]) => section(t, rosterEditing && t === 'Contact' ? [['full_name', 'Full name'], ...f] : f)).join('');
+        const extra = Object.keys(r).filter(k => !k.startsWith('_') && !shown.has(k) && !ROSTER_HIDDEN.has(k) && (rosterEditing ? !PROFILE_ADMIN_SKIP.has(k) : val(k) !== null));
         if (extra.length) body += section('Other', extra.map(k => [k, k.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())]));
         body = `<div class="rs-panels">${body || '<p class="rs-empty">No details on file.</p>'}</div>`;
     } else if (tab === 'schedule') {
@@ -3310,7 +3406,7 @@ function openRosterGuide(i, tab) {
         <div class="rs-profile-inner">
             <div class="rs-profile-bar">
                 <button class="rs-back" onclick="closeRosterGuide()">← Roster</button>
-                <button class="rs-back rs-edit" onclick="openProfileEdit('roster', ${i})">
+                <button class="rs-back rs-edit" onclick="startRosterEdit(${i})"${rosterEditing ? ' hidden' : ''}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
                     Edit</button>
                 ${r.username ? `<button class="rs-viewas" onclick="startViewAs('${rosterEsc(r.username)}')" title="See the app the way ${rosterEsc(r.display_name || r.full_name)} sees it (read-only)">
@@ -3338,6 +3434,7 @@ function openRosterGuide(i, tab) {
 }
 
 function closeRosterGuide() {
+    if (rosterEditing) { rosterEditing = false; ieHideBar(); }
     rosterProfileIndex = null;
     document.getElementById('rs-profile').hidden = true;
 }
@@ -3891,8 +3988,9 @@ const todayHTML = `
     setInterval(updateClock, 1000);
 
 function renderProfileView() {
-    const p    = cachedData.profile;
-    const st   = cachedData.stats;
+    const p  = cachedData.profile;
+    const st = cachedData.stats;
+    const esc = ieEsc;
 
     // Photo
     const photoEl    = document.getElementById('profile-slack-photo');
@@ -3907,58 +4005,64 @@ function renderProfileView() {
         fallbackEl.style.display = 'flex';
     }
 
-    // Header
-    document.getElementById('pv-fullname').innerText  = p.fullName || p.displayName || '';
-    document.getElementById('pv-role').innerText      = p.status || '';
-    document.getElementById('pv-career').innerText    = st.careerTotal   || 0;
-    document.getElementById('pv-semester').innerText  = isSemesterOff() ? 'Off' : (st.semesterTotal || 0);
-    document.getElementById('pv-family').innerText    = p.family || '—';
+    // Identity + stats
+    document.getElementById('pv-fullname').innerText = p.fullName || p.displayName || '';
+    document.getElementById('pv-role').innerText = [p.status, p.family ? `${p.family} family` : ''].filter(Boolean).join(' · ');
+    const chip = (icon, text) => text ? `<span class="pf-chip"><svg viewBox="0 0 24 24">${icon}</svg>${esc(text)}</span>` : '';
+    document.getElementById('pv-chips').innerHTML =
+        chip(PF_ICONS.user, p.year) +
+        chip(PF_ICONS.cap, p.gradDate ? `Class of ${p.gradDate}` : '') +
+        chip(PF_ICONS.pin, p.hometown);
+    document.getElementById('pv-career').innerText   = st.careerTotal || 0;
+    document.getElementById('pv-semester').innerText = isSemesterOff() ? 'Off' : (st.semesterTotal || 0);
+    document.getElementById('pv-rank').innerText     = cachedData.rank ? `#${cachedData.rank}` : '—';
 
-    // Row builder
-    function infoRow(icon, label, value) {
-        if (!value || !String(value).trim()) return '';
-        return `
-            <div style="display:flex;align-items:center;gap:0.875rem;padding:0.875rem 1rem;border-bottom:1px solid #F9FAFB;">
-                <div style="width:32px;height:32px;border-radius:8px;background:#F9FAFB;
-                            display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${icon}</svg>
-                </div>
-                <div style="flex:1;min-width:0;">
-                    <p style="font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#9CA3AF;margin:0 0 1px;">${label}</p>
-                    <p style="font-size:0.875rem;font-weight:600;color:#111827;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${value}</p>
-                </div>
-            </div>`;
-    }
-
-    const BOOK   = '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>';
-    const UNIV   = '<path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>';
-    const AWARD  = '<circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>';
-    const MAP    = '<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>';
-    const CAL    = '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>';
-    const USER   = '<circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>';
-    const LEAF   = '<path d="M2 22c1.25-1.25 2.5-3.5 2.5-5.5 0-4 3-7 7.5-7 4 0 7.5 2.5 7.5 7 0 2-1 3.5-2 5M8 22s1-2 4-2 4 2 4 2"/>';
-    const LAYERS = '<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>';
-
-    document.getElementById('pv-academic').innerHTML =
-        infoRow(BOOK,   'Major',       p.major) +
-        infoRow(UNIV,   'College',     p.college) +
-        infoRow(LAYERS, 'Minor',       p.minor) +
-        infoRow(AWARD,  'Certificate', p.certificate) +
-        infoRow(CAL,    'Grad Date',   p.gradDate) ||
-        '<p style="padding:1rem;font-size:0.8125rem;color:#9CA3AF;font-style:italic;">No academic data</p>';
-
-    document.getElementById('pv-personal').innerHTML =
-        infoRow(MAP,  'Hometown',         p.hometown) +
-        infoRow(LEAF, 'Dietary',          p.dietary) +
-        infoRow(USER, 'Year',             p.year) ||
-        '<p style="padding:1rem;font-size:0.8125rem;color:#9CA3AF;font-style:italic;">No personal data</p>';
-
+    // Rows: in edit mode the editable ones turn into inputs in place
+    const editing = profileEditing;
+    const self = profileSelfRow();
+    const row = (icon, label, key, value, editable) => {
+        const empty = value === null || value === undefined || String(value).trim() === '';
+        if (editing && editable) {
+            return `<div class="pf-row editing"><span class="pf-ic"><svg viewBox="0 0 24 24">${icon}</svg></span>
+                    <div class="pf-rv"><small>${label}</small>${ieInput(key, self[key])}</div></div>`;
+        }
+        return `<div class="pf-row${editing ? ' locked' : ''}"><span class="pf-ic"><svg viewBox="0 0 24 24">${icon}</svg></span>
+                <div class="pf-rv"><small>${label}</small><b class="${empty ? 'pf-empty' : ''}">${empty ? 'Not set' : esc(value)}</b></div>
+                ${editing && !editable ? '<svg class="pf-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>' : ''}</div>`;
+    };
+    document.getElementById('pv-about').innerHTML =
+        row(PF_ICONS.book,  'Major',       'major',       p.major, true) +
+        row(PF_ICONS.layer, 'Minor',       'minor',       p.minor, true) +
+        row(PF_ICONS.award, 'Certificate', 'certificate', p.certificate, true) +
+        row(PF_ICONS.univ,  'College',     'college',     p.college, true) +
+        row(PF_ICONS.cap,   'Graduation',  'grad_date',   p.gradDate, true) +
+        row(PF_ICONS.user,  'Year',        'year',        p.year, true) +
+        row(PF_ICONS.pin,   'Hometown',    'hometown',    p.hometown, true) +
+        row(PF_ICONS.leaf,  'Dietary restrictions', 'dietary', p.dietary, true);
+    const active = rosterActive({ giving_tours: p.givingTours });
     document.getElementById('pv-program').innerHTML =
-        infoRow(USER, 'Username',      p.username) +
-        infoRow(USER, 'Family Group',  p.family) +
-        infoRow(USER, 'Status',        p.status) ||
-        '<p style="padding:1rem;font-size:0.8125rem;color:#9CA3AF;font-style:italic;">No program data</p>';
+        row(PF_ICONS.at,    'Username', 'username', p.username, false) +
+        row(PF_ICONS.mail,  'Email',    'email',    p.email, false) +
+        row(PF_ICONS.users, 'Family',   'family',   p.family, false) +
+        row(PF_ICONS.badge, 'Role',     'status',   p.status, false) +
+        row(PF_ICONS.cal,   'Giving tours this semester', 'giving_tours', active === true ? 'Yes' : active === false ? 'No' : '', false);
+    document.getElementById('pf-edit-btn').hidden = editing;
 }
+const PF_ICONS = {
+    book:  '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
+    univ:  '<path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>',
+    award: '<circle cx="12" cy="8" r="6"/><path d="M15.5 12.9L17 22l-5-3-5 3 1.5-9.1"/>',
+    pin:   '<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>',
+    cal:   '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+    cap:   '<path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>',
+    user:  '<circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>',
+    users: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
+    leaf:  '<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.5 19 2c1 2 2 4.2 2 8 0 5.5-4.8 10-10 10z"/><path d="M2 21c0-3 1.9-5.4 5-6"/>',
+    layer: '<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>',
+    at:    '<circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8"/>',
+    mail:  '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/>',
+    badge: '<path d="M12 2l3 6 6 .9-4.5 4.3 1 6.3L12 16.5 6.5 19.5l1-6.3L3 8.9 9 8z"/>',
+};
     
     async function signOut() {
         try { await sbClient.auth.signOut(); } catch (e) {}
@@ -5188,127 +5292,227 @@ function calcMyFamilyPoints(myTours, specialRequests, displayName) {
     return pts;
 }
 
-// ─── PROFILE EDITING ────────────────────────────────────────────────────────
-// Guides edit a safe set of their own fields (update_my_profile); codirectors and
-// admins edit any guide from the Roster (admin_update_guide). See security.sql 2f.
+// ─── PROFILE EDITING (in place) ─────────────────────────────────────────────
+// Guides edit a safe set of their own fields on the Profile page (update_my_profile);
+// codirectors/admins edit any guide on the Roster (admin_update_guide). Both turn the
+// existing rows into inputs and save from a bar at the bottom. See security.sql 2f.
+const PURDUE_COLLEGES = [   // West Lafayette colleges & schools; stored comma-separated
+    'Agriculture', 'Daniels School of Business', 'Education', 'Engineering', 'Exploratory Studies',
+    'Graduate School', 'Health and Human Sciences', 'Honors College', 'Liberal Arts', 'Pharmacy',
+    'Polytechnic', 'Science', 'Veterinary Medicine',
+];
+const YEAR_OPTIONS = ['Freshman', 'Sophomore', 'Junior', 'Senior', 'Fifth Year', 'Grad Student'];
 const PROFILE_SELF_FIELDS = ['major', 'minor', 'certificate', 'college', 'grad_date', 'year', 'hometown', 'dietary'];
 const PROFILE_FIELD_META = {
     full_name:    { label: 'Full name' },
-    display_name: { label: 'Display name', hint: 'Tours and the tracker match guides by display name. Change it here only if the schedule uses the new name too.' },
+    display_name: { label: 'Display name', hint: 'Tours and the tracker match guides by display name. Only change it if the schedule uses the new name too.' },
     email:        { label: 'Email', type: 'email', hint: 'Must match their Slack email so they can sign in.' },
     status:       { label: 'Role', options: ['Tour Guide', 'Manager', 'Codirector', 'Admin', 'Boss', 'Retired'] },
     family:       { label: 'Family', suggest: 'family' },
     giving_tours: { label: 'Giving tours (census)', options: ['', 'Yes', 'No'] },
-    year:         { label: 'Year', suggest: ['Freshman', 'Sophomore', 'Junior', 'Senior', 'Super Senior', 'Graduate'] },
+    year:         { label: 'Year', options: ['', ...YEAR_OPTIONS] },
     major:        { label: 'Major' },
     minor:        { label: 'Minor' },
     certificate:  { label: 'Certificate' },
-    college:      { label: 'College' },
-    grad_date:    { label: 'Grad date', placeholder: 'e.g. May 2027' },
-    hometown:     { label: 'Hometown', placeholder: 'City, State' },
+    college:      { label: 'College', multi: PURDUE_COLLEGES },
+    grad_date:    { label: 'Graduation', term: true },
+    hometown:     { label: 'Hometown', city: true },
     dietary:      { label: 'Dietary restrictions', textarea: true, placeholder: 'None' },
 };
 const PROFILE_ADMIN_SKIP = new Set(['id', 'username', 'slack_photo', 'created_at', 'updated_at']);
-let peState = null;   // { mode: 'self'|'roster', row, index }
 
-function openProfileEdit(mode, index) {
-    if (viewAs) { viewAsBlocked(); return; }
-    let row, fields;
-    if (mode === 'self') {
-        const p = cachedData.profile;
-        row = { major: p.major, minor: p.minor, certificate: p.certificate, college: p.college, grad_date: p.gradDate,
-                year: p.year, hometown: p.hometown, dietary: p.dietary };
-        fields = PROFILE_SELF_FIELDS;
-        document.getElementById('pe-kicker').textContent = 'Edit my profile';
-        document.getElementById('pe-title').textContent = p.fullName || p.displayName;
-        document.getElementById('pe-note').textContent = 'Name, email, family and role are managed by codirectors.';
-    } else {
-        row = rosterRows[index];
-        const known = Object.keys(PROFILE_FIELD_META);
-        const extra = Object.keys(row).filter(k => !k.startsWith('_') && !PROFILE_ADMIN_SKIP.has(k) && !known.includes(k));
-        fields = [...known.filter(k => k in row), ...extra];
-        document.getElementById('pe-kicker').textContent = 'Edit guide';
-        document.getElementById('pe-title').textContent = row.full_name || row.display_name;
-        document.getElementById('pe-note').textContent = `Username: ${row.username}`;
-    }
-    peState = { mode, row, index, fields };
+const ieEsc = v => String(v ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+const ieAsText = v => v === true ? 'Yes' : v === false ? 'No' : (v ?? '');
 
-    const esc = v => String(v ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
-    const families = [...new Set(((rosterRows && rosterRows.length ? rosterRows : Object.values((cachedData && cachedData.guidesByName) || {}))).map(g => g.family).filter(Boolean))].sort();
-    const asText = v => v === true ? 'Yes' : v === false ? 'No' : (v ?? '');
-    document.getElementById('pe-body').innerHTML = fields.map(k => {
-        const m = PROFILE_FIELD_META[k] || { label: k.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) };
-        const v = asText(row[k]);
-        let input;
-        if (m.options) {
-            const opts = m.options.includes(v) || v === '' ? m.options : [...m.options, v];
-            input = `<select name="${k}">${opts.map(o => `<option value="${esc(o)}"${o === v ? ' selected' : ''}>${o ? esc(o) : '—'}</option>`).join('')}</select>`;
-        } else if (m.textarea) {
-            input = `<textarea name="${k}" rows="2" placeholder="${esc(m.placeholder || '')}">${esc(v)}</textarea>`;
-        } else {
-            const list = m.suggest === 'family' ? families : m.suggest;
-            input = `<input name="${k}" type="${m.type || 'text'}" value="${esc(v)}" placeholder="${esc(m.placeholder || '')}"${list ? ` list="pe-list-${k}"` : ''} autocomplete="off">`
-                  + (list ? `<datalist id="pe-list-${k}">${list.map(o => `<option value="${esc(o)}">`).join('')}</datalist>` : '');
-        }
-        return `<label class="pe-field${m.textarea ? ' wide' : ''}"><span>${esc(m.label)}</span>${input}${m.hint ? `<small>${esc(m.hint)}</small>` : ''}</label>`;
-    }).join('');
-    document.getElementById('pe-error').hidden = true;
-    document.getElementById('pe-modal').hidden = false;
+// Current term plus the next six years: "Fall 2026", "Spring 2027", "Summer 2027", ...
+function gradTermOptions() {
+    const now = new Date(), names = ['Spring', 'Summer', 'Fall'];
+    let y = now.getFullYear(), t = now.getMonth() <= 4 ? 0 : now.getMonth() <= 6 ? 1 : 2;
+    const out = [];
+    for (let i = 0; i < 19; i++) { out.push(`${names[t]} ${y}`); if (++t > 2) { t = 0; y++; } }
+    return out;
 }
-
-function closeProfileEdit() {
-    document.getElementById('pe-modal').hidden = true;
-    peState = null;
-}
-
-async function saveProfileEdit() {
-    if (!peState) return;
-    const form = document.getElementById('pe-body');
-    const asText = v => v === true ? 'Yes' : v === false ? 'No' : (v ?? '');
-    const patch = {};
-    peState.fields.forEach(k => {
-        const el = form.querySelector(`[name="${k}"]`);
-        if (!el) return;
-        const val = el.value.trim();
-        if (val !== String(asText(peState.row[k])).trim()) patch[k] = val === '' ? null : val;
+// "College of Science; Honors" → ['Science', 'Honors College'] (unknown parts kept as-is)
+function ieSplitColleges(v) {
+    return String(v || '').split(/\s*[,;]\s*/).filter(Boolean).map(part => {
+        const low = part.toLowerCase();
+        const exact = PURDUE_COLLEGES.find(c => c.toLowerCase() === low);
+        if (exact) return exact;
+        const near = PURDUE_COLLEGES.filter(c => low.includes(c.toLowerCase())).sort((a, b) => b.length - a.length)[0];
+        return near || part;
     });
-    if (!Object.keys(patch).length) { closeProfileEdit(); return; }
-    if (patch.status === null) { showPeError('Role can\'t be blank.'); return; }
-
-    const btn = document.getElementById('pe-save');
-    btn.disabled = true; btn.textContent = 'Saving…';
-    try {
-        if (peState.mode === 'self') {
-            const [g] = await sbRpc('update_my_profile', { patch });
-            const p = cachedData.profile;
-            Object.assign(p, { major: g.major, minor: g.minor, certificate: g.certificate, college: g.college, gradDate: g.grad_date,
-                               year: g.year, hometown: g.hometown, dietary: g.dietary });
-            closeProfileEdit();
-            renderProfileView();
-        } else {
-            const { index, row } = peState;
-            const [g] = await sbRpc('admin_update_guide', { target_username: row.username, patch });
-            const keep = Object.fromEntries(Object.entries(row).filter(([k]) => k.startsWith('_')));
-            rosterRows[index] = { ...g, ...keep, _active: rosterActive(g) };
-            closeProfileEdit();
-            renderRosterSummary();
-            renderRosterList();
-            openRosterGuide(index, 'overview');
-            // Editing yourself: keep your own header/profile in step
-            if (cachedData.profile.username === g.username) {
-                Object.assign(cachedData.profile, { displayName: g.display_name, fullName: g.full_name, family: g.family, status: g.status,
-                    major: g.major, minor: g.minor, certificate: g.certificate, college: g.college, gradDate: g.grad_date,
-                    year: g.year, hometown: g.hometown, dietary: g.dietary, givingTours: g.giving_tours, email: g.email });
-            }
-        }
-    } catch (e) {
-        showPeError(e.message);
-    } finally {
-        btn.disabled = false; btn.textContent = 'Save';
-    }
 }
-function showPeError(msg) { const el = document.getElementById('pe-error'); el.textContent = msg; el.hidden = false; }
-document.addEventListener('keydown', e => { if (e.key === 'Escape' && peState) closeProfileEdit(); });
+
+// One input for a field, in whatever form suits it. Every input carries data-field.
+function ieInput(key, value, opts = {}) {
+    const m = PROFILE_FIELD_META[key] || { label: key };
+    const v = String(ieAsText(value));
+    const attr = `data-field="${key}"`;
+    if (m.multi) {
+        const picked = ieSplitColleges(v);
+        const all = [...m.multi, ...picked.filter(x => !m.multi.includes(x))];
+        return `<div class="ie-multi" ${attr} data-multi>${all.map(c => `
+            <label class="ie-chip"><input type="checkbox" value="${ieEsc(c)}"${picked.includes(c) ? ' checked' : ''}><span>${ieEsc(c)}</span></label>`).join('')}</div>`;
+    }
+    if (m.options || m.term) {
+        let list = m.term ? ['', ...gradTermOptions()] : m.options;
+        if (v && !list.includes(v)) list = [v, ...list];
+        return `<select class="ie-in" ${attr}>${list.map(o => `<option value="${ieEsc(o)}"${o === v ? ' selected' : ''}>${o ? ieEsc(o) : '—'}</option>`).join('')}</select>`;
+    }
+    if (m.city) {
+        return `<div class="ie-city"><input class="ie-in" ${attr} data-city value="${ieEsc(v)}" placeholder="Start typing a city…" autocomplete="off" spellcheck="false">
+                <ul class="ie-city-list" hidden></ul></div>`;
+    }
+    if (m.textarea) return `<textarea class="ie-in" ${attr} rows="2" placeholder="${ieEsc(m.placeholder || '')}">${ieEsc(v)}</textarea>`;
+    const list = m.suggest === 'family' ? (opts.families || []) : null;
+    return `<input class="ie-in" ${attr} type="${m.type || 'text'}" value="${ieEsc(v)}" autocomplete="off"${list ? ` list="ie-list-${key}"` : ''}>`
+         + (list ? `<datalist id="ie-list-${key}">${list.map(o => `<option value="${ieEsc(o)}">`).join('')}</datalist>` : '');
+}
+
+// Changed fields only, as { column: value|null }
+function ieDiff(root, row) {
+    const patch = {};
+    root.querySelectorAll('[data-field]').forEach(el => {
+        const k = el.dataset.field;
+        const val = el.hasAttribute('data-multi')
+            ? [...el.querySelectorAll('input:checked')].map(i => i.value).join(', ')
+            : el.value.trim();
+        if (val !== String(ieAsText(row[k])).trim()) patch[k] = val === '' ? null : val;
+    });
+    return patch;
+}
+function ieValidate(patch) {
+    if ('hometown' in patch && patch.hometown && !/^[^,]+, [^,]+$/.test(patch.hometown)) {
+        return 'Hometown should look like "City, State". Start typing and pick a city from the list.';
+    }
+    if ('status' in patch && !patch.status) return 'Role can\'t be blank.';
+    if ('email' in patch && patch.email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(patch.email)) return 'That email doesn\'t look right.';
+    return null;
+}
+
+// Save bar shared by both screens
+let ieHandlers = null;
+function ieShowBar(onSave, onCancel, msg, overlay) {
+    ieHandlers = { onSave, onCancel };
+    const bar = document.getElementById('ie-bar');
+    bar.classList.toggle('ie-overlay', !!overlay);   // over the full-screen roster profile (no sidebar / bottom nav)
+    document.getElementById('ie-msg').textContent = msg || '';
+    document.getElementById('ie-msg').className = '';
+    bar.hidden = false;
+    document.body.classList.add('ie-editing');
+}
+function ieHideBar() {
+    ieHandlers = null;
+    document.getElementById('ie-bar').hidden = true;
+    document.body.classList.remove('ie-editing');
+}
+function ieError(msg) { const el = document.getElementById('ie-msg'); el.textContent = msg; el.className = 'err'; }
+// (delegated: the bar's markup comes after this script)
+document.addEventListener('click', e => { if (e.target.closest('#ie-cancel') && ieHandlers) ieHandlers.onCancel(); });
+document.addEventListener('click', async e => {
+    const btn = e.target.closest('#ie-save');
+    if (!btn || !ieHandlers || btn.disabled) return;
+    btn.disabled = true; btn.textContent = 'Saving…';
+    try { await ieHandlers.onSave(); } catch (e) { ieError(e.message); }
+    finally { btn.disabled = false; btn.textContent = 'Save'; }
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && ieHandlers) ieHandlers.onCancel(); });
+
+// Hometown: city search (Open-Meteo geocoding, free, no key) → "City, ST" / "City, Country"
+const US_STATES = { Alabama: 'AL', Alaska: 'AK', Arizona: 'AZ', Arkansas: 'AR', California: 'CA', Colorado: 'CO', Connecticut: 'CT', Delaware: 'DE',
+    'District of Columbia': 'DC', Florida: 'FL', Georgia: 'GA', Hawaii: 'HI', Idaho: 'ID', Illinois: 'IL', Indiana: 'IN', Iowa: 'IA', Kansas: 'KS',
+    Kentucky: 'KY', Louisiana: 'LA', Maine: 'ME', Maryland: 'MD', Massachusetts: 'MA', Michigan: 'MI', Minnesota: 'MN', Mississippi: 'MS',
+    Missouri: 'MO', Montana: 'MT', Nebraska: 'NE', Nevada: 'NV', 'New Hampshire': 'NH', 'New Jersey': 'NJ', 'New Mexico': 'NM', 'New York': 'NY',
+    'North Carolina': 'NC', 'North Dakota': 'ND', Ohio: 'OH', Oklahoma: 'OK', Oregon: 'OR', Pennsylvania: 'PA', 'Rhode Island': 'RI',
+    'South Carolina': 'SC', 'South Dakota': 'SD', Tennessee: 'TN', Texas: 'TX', Utah: 'UT', Vermont: 'VT', Virginia: 'VA', Washington: 'WA',
+    'West Virginia': 'WV', Wisconsin: 'WI', Wyoming: 'WY', 'Puerto Rico': 'PR' };
+let ieCityTimer = null, ieCitySeq = 0;
+document.addEventListener('input', e => {
+    const inp = e.target;
+    if (!inp.matches || !inp.matches('[data-city]')) return;
+    const list = inp.parentElement.querySelector('.ie-city-list');
+    const q = inp.value.split(',')[0].trim();
+    clearTimeout(ieCityTimer);
+    if (q.length < 2) { list.hidden = true; return; }
+    ieCityTimer = setTimeout(async () => {
+        const seq = ++ieCitySeq;
+        try {
+            const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=15&language=en&format=json`);
+            const j = await res.json();
+            if (seq !== ieCitySeq) return;
+            const seen = new Set();
+            const items = (j.results || [])
+                .sort((a, b) => (b.country_code === 'US') - (a.country_code === 'US'))
+                .map(c => c.country_code === 'US' ? (c.admin1 ? `${c.name}, ${US_STATES[c.admin1] || c.admin1}` : '') : `${c.name}, ${c.country}`)
+                .filter(x => x && !seen.has(x) && seen.add(x)).slice(0, 7);
+            list.innerHTML = items.length
+                ? items.map(x => `<li><button type="button" data-city-pick="${ieEsc(x)}">${ieEsc(x)}</button></li>`).join('')
+                : '<li class="ie-city-none">No matches. Type it as "City, State".</li>';
+            list.hidden = false;
+        } catch (err) { list.hidden = true; }
+    }, 220);
+});
+document.addEventListener('click', e => {
+    const pick = e.target.closest('[data-city-pick]');
+    if (pick) {
+        const wrap = pick.closest('.ie-city');
+        wrap.querySelector('input').value = pick.dataset.cityPick;
+        wrap.querySelector('.ie-city-list').hidden = true;
+        return;
+    }
+    document.querySelectorAll('.ie-city-list').forEach(l => { if (!l.parentElement.contains(e.target)) l.hidden = true; });
+});
+
+// ── Own profile ──
+let profileEditing = false;
+function profileSelfRow() {
+    const p = cachedData.profile;
+    return { major: p.major, minor: p.minor, certificate: p.certificate, college: p.college, grad_date: p.gradDate,
+             year: p.year, hometown: p.hometown, dietary: p.dietary };
+}
+function startProfileEdit() {
+    if (viewAs) { viewAsBlocked(); return; }
+    profileEditing = true;
+    renderProfileView();
+    ieShowBar(saveProfileInline, cancelProfileEdit, 'Editing your profile');
+}
+function cancelProfileEdit() { profileEditing = false; ieHideBar(); renderProfileView(); }
+async function saveProfileInline() {
+    const patch = ieDiff(document.getElementById('pv-about'), profileSelfRow());
+    if (!Object.keys(patch).length) { cancelProfileEdit(); return; }
+    const bad = ieValidate(patch); if (bad) { ieError(bad); return; }
+    const [g] = await sbRpc('update_my_profile', { patch });
+    Object.assign(cachedData.profile, { major: g.major, minor: g.minor, certificate: g.certificate, college: g.college,
+        gradDate: g.grad_date, year: g.year, hometown: g.hometown, dietary: g.dietary });
+    cancelProfileEdit();
+}
+
+// ── Roster (codirectors / admins) ──
+let rosterEditing = false;
+function startRosterEdit(i) {
+    if (viewAs) { viewAsBlocked(); return; }
+    rosterEditing = true;
+    openRosterGuide(i, 'overview');
+    ieShowBar(() => saveRosterInline(i), () => cancelRosterEdit(i), `Editing ${rosterRows[i].display_name || 'guide'} · username ${rosterRows[i].username}`, true);
+}
+function cancelRosterEdit(i) { rosterEditing = false; ieHideBar(); if (rosterProfileIndex !== null) openRosterGuide(i, 'overview'); }
+async function saveRosterInline(i) {
+    const row = rosterRows[i];
+    const patch = ieDiff(document.getElementById('rs-profile'), row);
+    if (!Object.keys(patch).length) { cancelRosterEdit(i); return; }
+    const bad = ieValidate(patch); if (bad) { ieError(bad); return; }
+    const [g] = await sbRpc('admin_update_guide', { target_username: row.username, patch });
+    const keep = Object.fromEntries(Object.entries(row).filter(([k]) => k.startsWith('_')));
+    rosterRows[i] = { ...g, ...keep, _active: rosterActive(g) };
+    if (cachedData.profile.username === g.username) {
+        Object.assign(cachedData.profile, { displayName: g.display_name, fullName: g.full_name, family: g.family, status: g.status,
+            major: g.major, minor: g.minor, certificate: g.certificate, college: g.college, gradDate: g.grad_date,
+            year: g.year, hometown: g.hometown, dietary: g.dietary, givingTours: g.giving_tours, email: g.email });
+    }
+    renderRosterSummary();
+    renderRosterList();
+    cancelRosterEdit(i);
+}
 
 // ─── VIEW AS (read-only impersonation for codirectors/admins) ────────────────
 // The target's username lives in sessionStorage, so it lasts for this tab only.
@@ -5799,98 +6003,61 @@ drawConfetti();
 
 <!-- ── PROFILE VIEW ── -->
 <div id="view-profile" class="view-section">
-
-  <!-- Hero header -->
-  <div id="profile-hero" style="margin:calc(-1rem - env(safe-area-inset-top)) -1rem 0;padding-bottom:1.5rem;background:var(--ink,#1a1510);">
-    <div style="padding:calc(env(safe-area-inset-top) + 3rem) 1.25rem 1.5rem;position:relative;">
-
-      <!-- Avatar -->
-      <div style="display:flex;flex-direction:column;align-items:center;gap:0.75rem;">
-        <div id="profile-photo-wrap" style="width:88px;height:88px;border-radius:22px;overflow:hidden;
-             border:2px solid rgba(207,185,145,0.35);box-shadow:0 8px 24px rgba(0,0,0,0.4);flex-shrink:0;">
-          <img id="profile-slack-photo" src="" alt=""
-               style="width:100%;height:100%;object-fit:cover;display:none;">
-          <div id="profile-initial-fallback"
-               style="width:100%;height:100%;background:var(--primary-gold,#CFB991);
-                      display:flex;align-items:center;justify-content:center;
-                      font-size:2rem;font-weight:900;color:#1a1510;"></div>
-        </div>
-        <div style="text-align:center;">
-          <h1 id="pv-fullname" style="font-size:1.25rem;font-weight:900;color:#fff;margin:0;"></h1>
-          <p id="pv-role" style="font-size:0.6rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;
-                                  color:rgba(207,185,145,0.55);margin:4px 0 0;"></p>
-        </div>
+  <div class="pf">
+    <!-- Profile card -->
+    <section class="pf-card">
+      <div class="pf-cover">
+        <button id="pf-edit-btn" class="pf-edit" onclick="startProfileEdit()">
+          <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg><span>Edit profile</span>
+        </button>
       </div>
-
-      <!-- Quick stats -->
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;margin-top:1.25rem;">
-        <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:0.875rem;padding:0.75rem;text-align:center;">
-          <p id="pv-career" style="font-size:1.375rem;font-weight:900;color:#CFB991;margin:0;line-height:1;"></p>
-          <p style="font-size:0.5rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin:3px 0 0;">Career</p>
+      <div class="pf-id">
+        <div class="pf-avatar">
+          <img id="profile-slack-photo" src="" alt="" style="display:none;">
+          <div id="profile-initial-fallback"></div>
         </div>
-        <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:0.875rem;padding:0.75rem;text-align:center;">
-          <p id="pv-semester" style="font-size:1.375rem;font-weight:900;color:#10B981;margin:0;line-height:1;"></p>
-          <p style="font-size:0.5rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin:3px 0 0;">This Sem</p>
-        </div>
-        <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:0.875rem;padding:0.75rem;text-align:center;">
-          <p id="pv-family" style="font-size:1.375rem;font-weight:900;color:#8B5CF6;margin:0;line-height:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></p>
-          <p style="font-size:0.5rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin:3px 0 0;">Family</p>
-        </div>
+        <h1 id="pv-fullname"></h1>
+        <p id="pv-role"></p>
+        <div id="pv-chips" class="pf-chips"></div>
       </div>
-    </div>
-  </div>
-
-  <!-- Info sections -->
-  <div style="padding:1.25rem 0;display:flex;flex-direction:column;gap:1.25rem;">
-    <button class="pe-open" onclick="openProfileEdit('self')">
-      <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
-      Edit my profile
-    </button>
-
-    <!-- Academic -->
-    <div style="background:#fff;border-radius:1rem;overflow:hidden;border:1px solid #F3F4F6;">
-      <div style="padding:0.75rem 1rem;border-bottom:1px solid #F3F4F6;">
-        <p style="font-size:0.6rem;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#9CA3AF;margin:0;">Academic</p>
+      <div class="pf-stats">
+        <div><b id="pv-career"></b><span>Career tours</span></div>
+        <div><b id="pv-semester"></b><span>This semester</span></div>
+        <div><b id="pv-rank"></b><span>Career rank</span></div>
       </div>
-      <div id="pv-academic"></div>
-    </div>
+    </section>
 
-    <!-- Personal -->
-    <div style="background:#fff;border-radius:1rem;overflow:hidden;border:1px solid #F3F4F6;">
-      <div style="padding:0.75rem 1rem;border-bottom:1px solid #F3F4F6;">
-        <p style="font-size:0.6rem;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#9CA3AF;margin:0;">Personal</p>
-      </div>
-      <div id="pv-personal"></div>
-    </div>
+    <section class="pf-section">
+      <h2>About</h2>
+      <div id="pv-about"></div>
+    </section>
 
-    <!-- Program -->
-    <div style="background:#fff;border-radius:1rem;overflow:hidden;border:1px solid #F3F4F6;">
-      <div style="padding:0.75rem 1rem;border-bottom:1px solid #F3F4F6;">
-        <p style="font-size:0.6rem;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#9CA3AF;margin:0;">Program</p>
-      </div>
+    <section class="pf-section">
+      <h2>Tour guide program</h2>
       <div id="pv-program"></div>
-    </div>
+      <p class="pf-note">Name, email, family and role are managed by codirectors.</p>
+    </section>
 
-    <!-- Appearance -->
-    <div style="background:#fff;border-radius:1rem;overflow:hidden;border:1px solid #F3F4F6;">
-      <div style="padding:0.75rem 1rem;border-bottom:1px solid #F3F4F6;">
-        <p style="font-size:0.6rem;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#9CA3AF;margin:0;">Appearance</p>
-      </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:0.875rem 1rem;">
-        <span style="font-size:0.8125rem;font-weight:700;color:#111827;">Dark Mode</span>
+    <section class="pf-section">
+      <h2>Settings</h2>
+      <div class="pf-row">
+        <span class="pf-ic"><svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></span>
+        <div class="pf-rv"><b>Dark mode</b></div>
         <button id="theme-toggle" class="theme-switch" role="switch" aria-label="Dark mode" onclick="toggleDarkMode()"></button>
       </div>
-    </div>
-
-    <!-- Sign out -->
-    <button onclick="signOut()"
-            style="width:100%;padding:0.875rem;border-radius:1rem;border:1px solid #FEE2E2;
-                   background:#FFF5F5;color:#EF4444;font-size:0.8125rem;font-weight:700;
-                   cursor:pointer;font-family:inherit;transition:all 0.15s;">
-      Sign Out
-    </button>
-
+      <button class="pf-row pf-signout" onclick="signOut()">
+        <span class="pf-ic"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></span>
+        <div class="pf-rv"><b>Sign out</b></div>
+      </button>
+    </section>
   </div>
+</div>
+
+<!-- Save bar for in-place editing (profile page and roster) -->
+<div id="ie-bar" class="ie-bar" hidden>
+  <p id="ie-msg"></p>
+  <button type="button" class="pe-cancel" id="ie-cancel">Cancel</button>
+  <button type="button" class="pe-save" id="ie-save">Save</button>
 </div>
     
 <!-- ROLE SELECTOR OVERLAY -->
