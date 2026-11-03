@@ -5,12 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">    <title>TGIS v4 [Beta]</title>
     <script>
         try { if (localStorage.getItem('tgis-theme') === 'dark') document.documentElement.classList.add('dark'); } catch (e) {}
+        window._ldStart = performance.now();   // loading screen start (see .ld)
         // iOS home-screen app: flag it before first layout (see html.ios-standalone below)
         if (window.navigator.standalone === true) document.documentElement.classList.add('ios-standalone');
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Playfair+Display:ital,wght@1,800&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
@@ -923,6 +924,42 @@ html.dark .pe-cancel { background: #2c2c2e; color: #e5e7eb; }
     .content-area { padding-bottom: calc(60px + min(env(safe-area-inset-bottom, 0px), 14px) + 1.5rem) !important; }
 }
 
+/* Loading screen */
+.ld { background: #000; overflow: hidden; z-index: 300 !important; }   /* above the bottom nav (100) and modals */
+.ld-gold { position: absolute; inset: 0; background: linear-gradient(160deg, #b39a6d 0%, #CFB991 38%, #e8d5a3 62%, #CFB991 100%);
+           clip-path: inset(50% 0 50% 0); animation: ldOpen 1s cubic-bezier(0.77, 0, 0.18, 1) 0.45s forwards; }
+.ld-gold::after { content: ''; position: absolute; inset: 0; opacity: 0.08;
+                  background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.6) 10px, rgba(0,0,0,0.6) 11px); }
+.ld-seam { position: absolute; left: 0; right: 0; top: 50%; height: 2px; margin-top: -1px; background: #e8d5a3; box-shadow: 0 0 18px 2px rgba(232,213,163,0.7);
+           transform: scaleX(0); animation: ldSeam 0.45s cubic-bezier(0.65, 0, 0.35, 1) forwards, ldFade 0.3s ease 0.9s forwards; }
+.ld-content { position: relative; display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 340px; padding: 0 2rem; }
+.ld-logo { width: 100%; max-width: 260px; height: auto; mix-blend-mode: multiply; opacity: 0; transform: translateY(10px) scale(0.97);
+           animation: ldRise 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) 1.15s forwards; }
+.ld-v4 { display: flex; align-items: center; gap: 0.875rem; margin-top: 0.75rem; opacity: 0; animation: ldRise 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) 1.4s forwards; }
+.ld-v4 i { display: block; width: 56px; height: 1.5px; background: #1a1510; opacity: 0.55; transform: scaleX(0); animation: ldLine 0.6s ease 1.6s forwards; }
+.ld-v4 i:first-child { transform-origin: right; } .ld-v4 i:last-child { transform-origin: left; }
+.ld-v4 span { font-family: 'Playfair Display', Georgia, serif; font-style: italic; font-weight: 800; font-size: 3.25rem; line-height: 1; padding: 0 0.15em;
+              background: linear-gradient(100deg, #1a1510 0%, #1a1510 42%, #8a7550 50%, #1a1510 58%, #1a1510 100%); background-size: 250% 100%;
+              background-position: 100% 0; -webkit-background-clip: text; background-clip: text; color: transparent;
+              animation: ldShine 2.4s ease-in-out 1.9s infinite; }
+.ld-bar { width: 120px; height: 2px; margin-top: 2rem; border-radius: 99px; background: rgba(26,21,16,0.15); overflow: hidden; opacity: 0;
+          animation: ldFadeIn 0.4s ease 1.8s forwards; }
+#loading-bar { height: 100%; width: 0%; background: #1a1510; border-radius: 99px; transition: width 0.4s ease; }
+.ld-status { margin: 0.75rem 0 0; font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.22em; color: rgba(26,21,16,0.55); opacity: 0;
+             animation: ldFadeIn 0.4s ease 1.8s forwards; }
+.ld.ld-error .ld-gold, .ld.ld-error .ld-seam { opacity: 0; transition: opacity 0.4s ease; }
+@keyframes ldSeam { to { transform: scaleX(1); } }
+@keyframes ldOpen { to { clip-path: inset(0 0 0 0); } }
+@keyframes ldRise { to { opacity: 1; transform: none; } }
+@keyframes ldLine { to { transform: scaleX(1); } }
+@keyframes ldFade { to { opacity: 0; } }
+@keyframes ldFadeIn { to { opacity: 1; } }
+@keyframes ldShine { 0% { background-position: 100% 0; } 60%, 100% { background-position: 0% 0; } }
+@media (prefers-reduced-motion: reduce) {
+    .ld-gold { animation: none; clip-path: none; } .ld-seam { display: none; }
+    .ld-logo, .ld-v4, .ld-bar, .ld-status { animation: none; opacity: 1; transform: none; } .ld-v4 i { animation: none; transform: none; } .ld-v4 span { animation: none; }
+}
+
 /* Available tours bottom sheet */
 #available-sheet { position: fixed; inset: 0; z-index: 200; }
 .avs-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.4); animation: avsFade 0.2s ease-out; }
@@ -1401,21 +1438,16 @@ html.dark .theme-switch::after { transform: translateX(18px); }
     </div>
 </div>
 
-<div id="loading-overlay" class="fixed inset-0 z-[100] flex flex-col items-center justify-center transition-opacity duration-500" style="background:#0f0c04;">
+<div id="loading-overlay" class="ld fixed inset-0 z-[100] flex flex-col items-center justify-center transition-opacity duration-500">
+    <!-- Black screen; a gold seam splits the middle and opens to the top and bottom -->
+    <div class="ld-seam" aria-hidden="true"></div>
+    <div class="ld-gold" aria-hidden="true"></div>
 
-    <div id="loader-content" class="flex flex-col items-center w-full max-w-xs px-8">
-
-        <div style="margin-bottom:2.5rem; text-align:center;">
-            <img src="TGISv3.png" 
-                 alt="Loading logo" 
-                 style="max-width: 140px; height: auto; margin: 0 auto; display: block;" />
-        </div>
-
-        <div style="width:100%;height:2px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;margin-bottom:1.5rem;">
-            <div id="loading-bar" style="height:100%;width:0%;background:#CFB991;border-radius:99px;transition:width 0.4s ease;"></div>
-        </div>
-
-        <p id="loading-status" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:rgba(207,185,145,0.5);">Connecting....</p>
+    <div id="loader-content" class="ld-content">
+        <img src="tgisv4logowhite.png" alt="Tour Guide Information System" class="ld-logo">
+        <div class="ld-v4" aria-label="version 4"><i></i><span>v4</span><i></i></div>
+        <div class="ld-bar"><div id="loading-bar"></div></div>
+        <p id="loading-status" class="ld-status">Connecting…</p>
     </div>
 
     <div id="error-content" class="hidden flex-col items-center text-center w-full max-w-xs px-8">
@@ -5500,10 +5532,12 @@ async function continueInit() {
         const status = document.getElementById('loading-status');
         if (bar) bar.style.width = '100%';
         if (status) status.innerText = 'Ready';
+        // Let the opening animation finish (about 2s) before fading out
+        const shown = performance.now() - (window._ldStart || 0);
         setTimeout(() => {
             document.getElementById('loading-overlay').classList.add('opacity-0');
             setTimeout(() => document.getElementById('loading-overlay').style.display = 'none', 500);
-        }, 350);
+        }, Math.max(350, 2100 - shown));
 
         document.getElementById('bn-home')?.classList.add('active');
     }
@@ -6178,6 +6212,7 @@ async function init(authUser) {
 
     // Helper function to swap loader for error message
     function showError(code) {
+        document.getElementById('loading-overlay').classList.add('ld-error');   // back to black so the error reads
         document.getElementById('loader-content').classList.add('hidden');
         document.getElementById('error-content').classList.remove('hidden');
         document.getElementById('error-code-display').innerText = code;
