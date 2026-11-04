@@ -1240,6 +1240,26 @@ html.dark .signin-logo { filter: invert(1) hue-rotate(180deg); mix-blend-mode: s
 .rs-active-filters { display: flex; flex-wrap: wrap; gap: 0.375rem; margin-top: 0.625rem; }
 .rs-active-filters:empty { display: none; }
 .rs-fclear { border: none; background: none; font-family: inherit; font-size: 0.75rem; font-weight: 800; color: #b39a6d; cursor: pointer; }
+/* Schedule sync dialog + retire button */
+.sync-panel { width: min(520px, calc(100vw - 1.5rem)); }
+.sync-body { padding: 0.25rem 1.25rem 1rem; }
+.sync-body label { display: block; font-size: 0.6875rem; font-weight: 800; color: #6B7280; margin-bottom: 0.375rem; }
+.sync-note { margin: 0.625rem 0 0; font-size: 0.75rem; font-weight: 600; color: #9CA3AF; line-height: 1.45; }
+.sync-msg { margin: 0.625rem 0 0; padding: 0.5rem 0.75rem; border-radius: 0.75rem; font-size: 0.75rem; font-weight: 700; }
+.sync-msg[hidden] { display: none; }
+.sync-msg.ok { background: #ECFDF5; color: #065F46; } .sync-msg.err { background: #FEF2F2; color: #B91C1C; }
+.hdr-import-btn.hdr-sync-btn { background: white; color: #1a1510; border: 1px solid #E5E7EB; }
+.hdr-import-btn.hdr-sync-btn svg { stroke: #8a7550; }
+@media (max-width: 1023px) { .hdr-import-btn.hdr-sync-btn { background: rgba(255,255,255,0.85); border-color: transparent; } }
+@media (max-width: 640px) {
+    .rs-pbar { flex-wrap: wrap; }
+    .rs-pbar-right { width: 100%; }
+    .rs-pbar-right .rs-btn { flex: 1; justify-content: center; padding: 0 0.5rem; }
+}
+.rs-btn.danger { color: #DC2626; border-color: #FECACA; background: #FEF2F2; }
+html.dark .hdr-import-btn.hdr-sync-btn { background: #1c1c1e; border-color: #2c2c2e; color: #f3f4f6; }
+html.dark .rs-btn.danger { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.3); color: #FCA5A5; }
+
 /* Roster profile (in page) */
 .rs-pbar { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
 .rs-pbar-right { display: flex; gap: 0.5rem; }
@@ -1547,6 +1567,11 @@ html.dark .theme-switch::after { transform: translateX(18px); }
                     <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>
                     <span>Import new accounts</span>
                 </button>
+                <!-- Roster only: link the Google Sheet schedule (placeholder, not wired to a sync yet) -->
+                <button id="hdr-sync-btn" class="hdr-import-btn hdr-sync-btn" onclick="openSyncModal()" hidden>
+                    <svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5M3 21v-5h5"/></svg>
+                    <span>Schedule sync</span>
+                </button>
                 <!-- Desktop: view-as status lives in the header (mobile uses #viewas-banner) -->
                 <div id="hdr-viewas" class="hdr-viewas" hidden>
                     <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -1808,6 +1833,28 @@ html.dark .theme-switch::after { transform: translateX(18px); }
         </div>
         <!-- One guide's profile, shown in place of the list -->
         <div id="rs-profile" class="rs-profile" hidden></div>
+    </div>
+
+    <!-- Schedule sync (roster header). Placeholder: stores the sheet link only. -->
+    <div id="sync-modal" class="pe-modal" hidden>
+        <div class="imp-backdrop" onclick="closeSyncModal()"></div>
+        <form class="pe-panel sync-panel" onsubmit="event.preventDefault(); saveSyncLink();">
+            <div class="pe-head">
+                <div><p class="pe-kicker">Google Sheets</p><h3>Schedule sync</h3></div>
+                <button type="button" class="pe-x" onclick="closeSyncModal()" aria-label="Close">✕</button>
+            </div>
+            <div class="sync-body">
+                <label for="sync-url">Schedule sheet link</label>
+                <input id="sync-url" class="ie-in" type="url" inputmode="url" autocomplete="off" placeholder="https://docs.google.com/spreadsheets/d/…">
+                <p class="sync-note">Paste the link to the Google Sheet that holds the tour schedule. Syncing from it isn't switched on yet; the link is saved for when it is.</p>
+                <p id="sync-msg" class="sync-msg" hidden></p>
+            </div>
+            <div class="pe-foot">
+                <p class="pe-note" id="sync-saved"></p>
+                <button type="button" class="pe-cancel" onclick="closeSyncModal()">Close</button>
+                <button type="submit" class="pe-save">Save link</button>
+            </div>
+        </form>
     </div>
 
     <!-- Import Slack members as TGIS accounts (roster) -->
@@ -2840,6 +2887,8 @@ function applyMobileTopPadding(viewId) {
     header.style.display = 'block';
     const importBtn = document.getElementById('hdr-import-btn');
     if (importBtn) importBtn.hidden = !(viewId === 'roster' && canSeeRoster());
+    const syncBtn = document.getElementById('hdr-sync-btn');
+    if (syncBtn) syncBtn.hidden = !(viewId === 'roster' && canSeeRoster());
 }
 // Re-apply the header when crossing the mobile/desktop breakpoint.
 window.addEventListener('resize', () => { if (window._currentView) applyMobileTopPadding(window._currentView); });
@@ -3624,6 +3673,9 @@ function openRosterGuide(i, tab) {
             <button class="rs-btn" onclick="closeRosterGuide()">${btnIcon('<path d="M15 18l-6-6 6-6"/>')}Roster</button>
             <div class="rs-pbar-right">
                 ${rosterEditing ? '' : `<button class="rs-btn" onclick="startRosterEdit(${i})">${btnIcon('<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>')}Edit</button>`}
+                ${rosterEditing ? '' : r.status === 'Retired'
+                    ? `<button class="rs-btn" onclick="rosterSetRetired(${i}, false)">${btnIcon('<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>')}Reactivate</button>`
+                    : `<button class="rs-btn danger" onclick="rosterSetRetired(${i}, true)">${btnIcon('<path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/>')}Retire</button>`}
                 ${r.username ? `<button class="rs-btn dark" onclick="startViewAs('${rosterEsc(r.username)}')" title="See the app the way ${rosterEsc(r.display_name || r.full_name)} sees it (read-only)">${btnIcon('<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>')}View as</button>` : ''}
             </div>
         </div>
@@ -3666,6 +3718,30 @@ async function impCall(body) {
         throw new Error(msg);
     }
     return data;
+}
+
+// ── SCHEDULE SYNC (placeholder) ──────────────────────────────────────────
+// Only remembers the sheet link in this browser for now; the actual sync is not built.
+function openSyncModal() {
+    let saved = '';
+    try { saved = localStorage.getItem('tgis-schedule-sheet') || ''; } catch (e) {}
+    document.getElementById('sync-url').value = saved;
+    document.getElementById('sync-saved').textContent = saved ? 'A link is saved.' : '';
+    document.getElementById('sync-msg').hidden = true;
+    document.getElementById('sync-modal').hidden = false;
+}
+function closeSyncModal() { document.getElementById('sync-modal').hidden = true; }
+function saveSyncLink() {
+    const url = document.getElementById('sync-url').value.trim();
+    const msg = document.getElementById('sync-msg');
+    if (url && !/^https:\/\/docs\.google\.com\/spreadsheets\/d\/[\w-]+/.test(url)) {
+        msg.textContent = 'That doesn\'t look like a Google Sheets link (docs.google.com/spreadsheets/d/…).';
+        msg.className = 'sync-msg err'; msg.hidden = false; return;
+    }
+    try { url ? localStorage.setItem('tgis-schedule-sheet', url) : localStorage.removeItem('tgis-schedule-sheet'); } catch (e) {}
+    msg.textContent = url ? 'Link saved. Syncing will use it once it\'s turned on.' : 'Link removed.';
+    msg.className = 'sync-msg ok'; msg.hidden = false;
+    document.getElementById('sync-saved').textContent = url ? 'A link is saved.' : '';
 }
 
 function openImportModal() {
@@ -5849,6 +5925,24 @@ function startRosterEdit(i) {
     rosterEditing = true;
     openRosterGuide(i, 'overview');
     ieShowBar(() => saveRosterInline(i), () => cancelRosterEdit(i), `Editing ${rosterRows[i].display_name || 'guide'} · username ${rosterRows[i].username}`);
+}
+// Retire a guide (status → Retired) or bring them back as a Tour Guide
+async function rosterSetRetired(i, retire) {
+    if (viewAs) { viewAsBlocked(); return; }
+    const row = rosterRows[i];
+    const name = row.full_name || row.display_name;
+    if (!confirm(retire
+        ? `Retire ${name}? They'll be marked Retired, hidden from the roster by default, and see the retirement screen when they sign in. You can reactivate them later.`
+        : `Reactivate ${name} as a Tour Guide?`)) return;
+    try {
+        const [g] = await sbRpc('admin_update_guide', { target_username: row.username, patch: { status: retire ? 'Retired' : 'Tour Guide' } });
+        const keep = Object.fromEntries(Object.entries(row).filter(([k]) => k.startsWith('_')));
+        rosterRows[i] = { ...g, ...keep, _active: rosterActive(g) };
+        renderRosterList();
+        openRosterGuide(i, 'overview');
+    } catch (e) {
+        alert(`Couldn't update ${name}: ${e.message}`);
+    }
 }
 function cancelRosterEdit(i) { rosterEditing = false; ieHideBar(); if (rosterProfileIndex !== null) openRosterGuide(i, 'overview'); }
 async function saveRosterInline(i) {
