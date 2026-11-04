@@ -566,6 +566,122 @@ html.dark .sn-empty { border-color: #2c2c2e; }
 html.dark .sn-tgit { color: #C4B5FD; }
 html.dark .sn-badge.done { background: #2c2c2e; }
 
+/* Dashboard */
+.db { display: flex; flex-direction: column; gap: 1rem; }
+.db-alert { background: #FEF2F2; border: 1.5px solid #FCA5A5; border-radius: 1.25rem; padding: 1rem 1.125rem; }
+.db-alert-head { display: flex; align-items: center; gap: 0.75rem; }
+.db-alert-ic { width: 34px; height: 34px; border-radius: 99px; background: #DC2626; color: white; font-weight: 900; display: flex; align-items: center; justify-content: center; flex-shrink: 0; animation: otPulse 1.6s infinite; box-shadow: 0 0 0 0 rgba(220,38,38,0.5); }
+.db-alert-head b { display: block; font-size: 1rem; font-weight: 900; color: #991B1B; }
+.db-alert-head small { display: block; font-size: 0.75rem; font-weight: 600; color: #B91C1C; }
+.db-alert-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 0.5rem; margin-top: 0.75rem; }
+.db-alert-row { display: flex; align-items: center; gap: 0.625rem; background: white; border-radius: 0.875rem; padding: 0.5rem 0.75rem; }
+.db-alert-row > div { flex: 1; min-width: 0; }
+.db-alert-row b { display: block; font-size: 0.8125rem; font-weight: 800; color: #111827; }
+.db-alert-row small { display: block; font-size: 0.6875rem; font-weight: 600; color: #6B7280; }
+.db-when { font-size: 0.6875rem; font-weight: 900; color: #DC2626; white-space: nowrap; }
+.db-ok { display: flex; align-items: center; gap: 0.75rem; background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 1.25rem; padding: 0.875rem 1.125rem; }
+.db-ok > span { width: 30px; height: 30px; border-radius: 99px; background: #10B981; color: white; font-weight: 900; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.db-ok b { display: block; font-size: 0.9375rem; font-weight: 900; color: #065F46; }
+.db-ok small { display: block; font-size: 0.75rem; font-weight: 600; color: #047857; }
+.db-kpis { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.625rem; }
+.db-kpi { text-align: left; background: white; border: 1px solid #ECECEC; border-radius: 1.125rem; padding: 0.875rem 1rem; font-family: inherit; cursor: default; }
+.db-kpi[onclick] { cursor: pointer; } .db-kpi[onclick]:hover { border-color: #CFB991; }
+.db-kpi b { display: block; font-size: 1.75rem; font-weight: 900; color: #111827; line-height: 1.05; }
+.db-kpi span { display: block; margin-top: 0.25rem; font-size: 0.75rem; font-weight: 800; color: #374151; }
+.db-kpi small { display: block; font-size: 0.6875rem; font-weight: 600; color: #9CA3AF; }
+.db-kpi.red { background: #FEF2F2; border-color: #FECACA; } .db-kpi.red b { color: #DC2626; }
+.db-kpi.amber b { color: #B45309; } .db-kpi.green b { color: #059669; }
+.db-grid { display: flex; flex-direction: column; gap: 1rem; }
+/* Phones: one list in priority order; desktop: two independent columns (no gaps) */
+.db-col, .db-pair { display: contents; }
+.db-o1 { order: 1; } .db-o2 { order: 2; } .db-o3 { order: 3; } .db-o4 { order: 4; } .db-o5 { order: 5; } .db-o6 { order: 6; } .db-o7 { order: 7; } .db-o8 { order: 8; }
+.db-card { background: white; border: 1px solid #ECECEC; border-radius: 1.25rem; padding: 1rem 1.125rem; min-width: 0; }
+.db-card-head { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.75rem; }
+.db-card-head h3 { margin: 0; font-size: 0.9375rem; font-weight: 900; color: #111827; }
+.db-link { border: none; background: none; font-family: inherit; font-size: 0.75rem; font-weight: 800; color: #b39a6d; cursor: pointer; white-space: nowrap; padding: 0; }
+.db-count { min-width: 24px; height: 24px; padding: 0 7px; border-radius: 99px; background: #FEF3C7; color: #B45309; font-size: 0.75rem; font-weight: 900; display: inline-flex; align-items: center; justify-content: center; }
+.db-empty { margin: 0; padding: 0.75rem; font-size: 0.8125rem; font-weight: 600; color: #9CA3AF; text-align: center; }
+.db-sub { margin: 0.875rem 0 0.375rem; font-size: 0.625rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.12em; color: #9CA3AF; }
+.db-sub:first-child { margin-top: 0; }
+.db-note { margin: 0.5rem 0 0; font-size: 0.6875rem; font-weight: 600; color: #9CA3AF; }
+.db-av { border-radius: 99px; flex-shrink: 0; background: #E9DFC9 center/cover no-repeat; display: inline-flex; align-items: center; justify-content: center; font-size: 0.6875rem; font-weight: 900; color: #6B5A3A; }
+.db-today { display: flex; flex-direction: column; gap: 0.5rem; }
+.db-slot { display: flex; align-items: stretch; gap: 0.75rem; padding: 0.625rem 0.75rem; border-radius: 0.875rem; background: #FAFAF9; border: 1px solid #F0F0EE; }
+.db-slot.done { opacity: 0.55; }
+.db-slot.live { background: #F0FDF4; border-color: #BBF7D0; }
+.db-slot-time { width: 44px; flex-shrink: 0; text-align: center; display: flex; flex-direction: column; justify-content: center; }
+.db-slot-time b { font-size: 1rem; font-weight: 900; color: #111827; line-height: 1; }
+.db-slot-time small { font-size: 0.625rem; font-weight: 800; color: #9CA3AF; }
+.db-slot-bar { width: 4px; border-radius: 99px; flex-shrink: 0; }
+.db-slot-main { flex: 1; min-width: 0; }
+.db-slot-title { display: flex; align-items: center; flex-wrap: wrap; gap: 0.375rem; }
+.db-slot-title b { font-size: 0.875rem; font-weight: 800; color: #111827; margin-right: 0.125rem; }
+.db-state { font-size: 0.5625rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; padding: 2px 7px; border-radius: 99px; background: #F3F4F6; color: #6B7280; }
+.db-state.live { background: #D1FAE5; color: #047857; } .db-state.drop { background: #FEE2E2; color: #B91C1C; }
+.db-slot-guides { display: flex; flex-wrap: wrap; gap: 0.3125rem; margin-top: 0.4375rem; }
+.db-gchip { display: inline-flex; align-items: center; gap: 0.3125rem; padding: 2px 8px 2px 2px; border-radius: 99px; background: white; border: 1px solid #ECECEC; font-size: 0.6875rem; font-weight: 700; color: #374151; }
+.db-gchip.drop { background: #FEF2F2; border-color: #FECACA; color: #B91C1C; } .db-gchip.pick { border-color: #DDD6FE; color: #6D28D9; } .db-gchip.ng { opacity: 0.45; text-decoration: line-through; }
+.db-slot-count { text-align: right; flex-shrink: 0; display: flex; flex-direction: column; justify-content: center; }
+.db-slot-count b { font-size: 1.125rem; font-weight: 900; color: #111827; line-height: 1; } .db-slot-count small { font-size: 0.625rem; font-weight: 700; color: #9CA3AF; }
+.db-list { display: flex; flex-direction: column; }
+.db-scroll { max-height: 320px; overflow-y: auto; }
+.db-row { display: flex; align-items: center; gap: 0.625rem; width: 100%; padding: 0.4375rem 0.25rem; border: none; background: none; font-family: inherit; text-align: left; border-radius: 0.625rem; }
+button.db-row { cursor: pointer; } button.db-row:hover { background: #FAFAF9; }
+.db-row > div { flex: 1; min-width: 0; }
+.db-row b { display: block; font-size: 0.8125rem; font-weight: 800; color: #111827; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.db-row small { display: block; font-size: 0.6875rem; font-weight: 600; color: #9CA3AF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.db-open { color: #DC2626 !important; }
+.db-pill { flex-shrink: 0; font-size: 0.6875rem; font-weight: 900; padding: 3px 9px; border-radius: 99px; background: #F3F4F6; color: #374151; white-space: nowrap; }
+.db-pill.red { background: #FEE2E2; color: #B91C1C; } .db-pill.amber { background: #FEF3C7; color: #B45309; } .db-pill.green { background: #D1FAE5; color: #047857; } .db-pill.gold { background: #F3EBDB; color: #7a6440; }
+.db-rank { width: 18px; text-align: center; font-size: 0.75rem; font-weight: 900; color: #b39a6d; flex-shrink: 0; }
+.db-more { margin: 0.25rem 0 0; font-size: 0.6875rem; font-weight: 700; color: #9CA3AF; padding-left: 0.25rem; }
+.db-desk + .db-desk { margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #F3F4F6; }
+.db-next { margin: 0.25rem 0 0 0.25rem; font-size: 0.6875rem; font-weight: 600; color: #9CA3AF; }
+.db-week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.375rem; }
+.db-wday { position: relative; display: flex; flex-direction: column; align-items: center; gap: 0.25rem; padding: 0.5rem 0.25rem; border-radius: 0.875rem; border: 1px solid transparent; background: #FAFAF9; font-family: inherit; cursor: pointer; }
+.db-wday.today { border-color: #CFB991; background: rgba(207,185,145,0.14); } .db-wday.past { opacity: 0.55; }
+.db-wbar { width: 100%; max-width: 28px; height: 70px; display: flex; align-items: flex-end; background: #F0EEE9; border-radius: 0.5rem; overflow: hidden; }
+.db-wbar i { display: block; width: 100%; background: linear-gradient(180deg, #CFB991, #b39a6d); border-radius: 0.5rem; min-height: 3px; }
+.db-wday b { font-size: 0.9375rem; font-weight: 900; color: #111827; line-height: 1; } .db-wday small { font-size: 0.625rem; font-weight: 800; color: #9CA3AF; text-transform: uppercase; }
+.db-wday em { position: absolute; top: 4px; right: 4px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 99px; background: #DC2626; color: white; font-style: normal; font-size: 0.5625rem; font-weight: 900; display: flex; align-items: center; justify-content: center; }
+.db-mini { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+.db-mini > div { background: #FAFAF9; border-radius: 0.875rem; padding: 0.625rem; text-align: center; }
+.db-mini b { display: block; font-size: 1.25rem; font-weight: 900; color: #111827; line-height: 1.1; } .db-mini small { display: block; font-size: 0.625rem; font-weight: 700; color: #9CA3AF; }
+.db-dist { display: flex; flex-direction: column; gap: 0.3125rem; }
+.db-dist > div { display: grid; grid-template-columns: 1fr 26px 36px; align-items: center; gap: 0.5rem; }
+.db-dbar { height: 10px; border-radius: 99px; background: #F0EEE9; overflow: hidden; } .db-dbar i { display: block; height: 100%; border-radius: 99px; background: #CFB991; }
+.db-dist b { font-size: 0.8125rem; font-weight: 900; color: #111827; text-align: right; } .db-dist small { font-size: 0.6875rem; font-weight: 700; color: #9CA3AF; }
+.db-gaps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.375rem; }
+.db-gaps > div { background: #FFFBEB; border-radius: 0.75rem; padding: 0.5rem 0.25rem; text-align: center; }
+.db-gaps > div.ok { background: #F0FDF4; }
+.db-gaps b { display: block; font-size: 1rem; font-weight: 900; color: #B45309; } .db-gaps .ok b { color: #059669; }
+.db-gaps small { display: block; font-size: 0.5625rem; font-weight: 800; color: #6B7280; }
+.db-form-ic { width: 28px; text-align: center; flex-shrink: 0; }
+@media (min-width: 640px) { .db-kpis { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1024px) {
+    .db-kpis { grid-template-columns: repeat(5, 1fr); }
+    .db-grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); align-items: start; }
+    .db-col { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
+    .db-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; align-items: start; }
+    .db-col > *, .db-pair > * { order: 0; }   /* desktop keeps source order within each column */
+}
+html.dark .db-kpi, html.dark .db-card { background: #1c1c1e; border-color: #2c2c2e; }
+html.dark .db-kpi b, html.dark .db-card-head h3, html.dark .db-row b, html.dark .db-slot-title b, html.dark .db-slot-time b, html.dark .db-slot-count b,
+html.dark .db-wday b, html.dark .db-mini b, html.dark .db-dist b, html.dark .db-alert-row b { color: #f3f4f6; }
+html.dark .db-kpi span { color: #d4d4d8; }
+html.dark .db-slot, html.dark .db-wday, html.dark .db-mini > div { background: #242426; border-color: #2c2c2e; }
+html.dark .db-slot.live { background: rgba(16,185,129,0.12); border-color: rgba(16,185,129,0.3); }
+html.dark .db-gchip { background: #1c1c1e; border-color: #3a3a3c; color: #d4d4d8; }
+html.dark .db-gchip.drop { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.4); color: #FCA5A5; }
+html.dark .db-alert { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.4); } html.dark .db-alert-row { background: #1c1c1e; }
+html.dark .db-alert-head b { color: #FCA5A5; } html.dark .db-alert-head small { color: #fecaca; }
+html.dark .db-ok { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.3); } html.dark .db-ok b { color: #6EE7B7; } html.dark .db-ok small { color: #a7f3d0; }
+html.dark .db-kpi.red { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.3); }
+html.dark .db-wbar, html.dark .db-dbar { background: #2c2c2e; }
+html.dark .db-gaps > div { background: rgba(245,158,11,0.12); } html.dark .db-gaps > div.ok { background: rgba(16,185,129,0.12); }
+html.dark button.db-row:hover { background: #242426; }
+html.dark .db-desk + .db-desk { border-top-color: #2c2c2e; }
+
 /* Master Schedule (reuses the Schedule New toolbar / calendar styles) */
 .ms-jump { margin-left: auto; position: relative; display: inline-flex; align-items: center; gap: 0.375rem; border: 1px solid #E5E7EB; background: white;
            color: #4B5563; border-radius: 0.875rem; padding: 0.375rem 0.625rem; cursor: pointer; }
@@ -1526,6 +1642,7 @@ html.dark .theme-switch::after { transform: translateX(18px); }
     <!-- Admin section (Codirector / Admin only; see ROSTER_ROLES) -->
     <div id="sb-admin-section" class="mb-6" hidden>
         <p class="sb-label">Admin</p>
+        <div id="nav-dashboard" class="nav-button" onclick="switchView('dashboard')"><span class="nav-icon" style="background:#1a1510;"><svg viewBox="0 0 24 24" style="stroke:#CFB991;"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg></span>Dashboard</div>
         <div id="nav-roster" class="nav-button" onclick="switchView('roster')"><span class="nav-icon" style="background:#1a1510;"><svg viewBox="0 0 24 24" style="stroke:#CFB991;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>Roster</div>
         <div id="nav-master" class="nav-button" onclick="switchView('master')"><span class="nav-icon" style="background:#1a1510;"><svg viewBox="0 0 24 24" style="stroke:#CFB991;"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M7 14h4M7 18h4M14 14h3M14 18h3"/></svg></span>Master Schedule</div>
     </div>
@@ -1740,6 +1857,12 @@ html.dark .theme-switch::after { transform: translateX(18px); }
 </div>
 
     
+
+    <!-- DASHBOARD (Codirector / Admin): one look at the whole program -->
+    <div id="view-dashboard" class="view-section">
+        <header class="mb-6"><h1 class="text-3xl font-black">Dashboard</h1></header>
+        <div id="db-root" class="db"></div>
+    </div>
 
     <!-- MASTER SCHEDULE (Codirector / Admin): every tour and guide, by day or month -->
     <div id="view-master" class="view-section">
@@ -3041,6 +3164,7 @@ function switchView(viewId) {
     if (viewId === 'schedule2') renderScheduleNew();
     if (viewId === 'master') renderMaster();
     if (viewId === 'resources') renderResources();
+    if (viewId === 'dashboard') renderDashboard();
 
     // 2. Update desktop sidebar active state
     document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
@@ -3435,25 +3559,38 @@ function rosterSemesterOf(date) {
 }
 const rosterSemLabel = col => col.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 
+// Loads every guide (get_roster) and attaches tracker numbers, ranks and active status.
+// Shared by the Roster and the Dashboard; throws with a readable message on failure.
+let rosterLoading = null;
+function ensureRosterRows() {
+    if (rosterRows) return Promise.resolve(rosterRows);
+    if (!rosterLoading) rosterLoading = (async () => {
+        let rows;
+        try { rows = await sbFetch('rpc/get_roster'); }
+        catch (e) {
+            throw new Error(/SUPABASE_404/.test(e.message)
+                ? 'The roster isn\'t set up in the database yet: run step 2b of supabase/security.sql in the Supabase SQL Editor.'
+                : `Couldn't load the roster (${e.message}).`);
+        }
+        if (!rows.length) throw new Error('No guides returned. Check that your guides row has status Codirector or Admin.');
+        rosterRows = rows;
+        rosterAttachStats();
+        return rosterRows;
+    })().finally(() => { rosterLoading = null; });
+    return rosterLoading;
+}
+
 async function loadRoster() {
     const list = document.getElementById('rs-list');
     if (!canSeeRoster()) { list.innerHTML = '<p class="rs-empty">The roster is only available to codirectors and admins.</p>'; return; }
     if (rosterRows) { renderRosterList(); return; }
     list.innerHTML = '<p class="rs-empty">Loading roster…</p>';
-    try {
-        rosterRows = await sbFetch('rpc/get_roster');
-    } catch (e) {
-        const missing = /SUPABASE_404/.test(e.message);
-        list.innerHTML = `<p class="rs-empty">${missing
-            ? 'The roster isn\'t set up in the database yet: run step 2b of supabase/security.sql in the Supabase SQL Editor.'
-            : `Couldn't load the roster (${rosterEsc(e.message)}).`}</p>`;
-        return;
-    }
-    if (!rosterRows.length) {
-        list.innerHTML = '<p class="rs-empty">No guides returned. Check that your guides row has status Codirector or Admin.</p>';
-        rosterRows = null;
-        return;
-    }
+    try { await ensureRosterRows(); }
+    catch (e) { list.innerHTML = `<p class="rs-empty">${rosterEsc(e.message)}</p>`; return; }
+    renderRosterList();
+}
+
+function rosterAttachStats() {
     // Attach tracker numbers + ranks
     const board = (cachedData && cachedData.fullList) || [];
     const bySem = [...board].sort((a, b) => b.semesterTotal - a.semesterTotal);
@@ -3470,7 +3607,6 @@ async function loadRoster() {
         r._active = rosterActive(r);
     });
     rosterRows.sort((a, b) => String(a.full_name || a.display_name).localeCompare(String(b.full_name || b.display_name)));
-    renderRosterList();
 }
 
 // Filters: pick any number of values per group; groups combine with AND, values
@@ -4668,6 +4804,231 @@ async function rscDelete(id) {
     if (!l || !confirm(`Remove "${l.title}" from Resources for everyone?`)) return;
     try { await sbWrite('DELETE', `resource_links?id=eq.${id}`); await loadResourceLinks(true); }
     catch (e) { alert(e.message); }
+}
+
+// ─── DASHBOARD (Codirector / Admin) ─────────────────────────────────────────
+// One page for managers: today's tours and uncovered drops first, then desks,
+// open drops, the tour tracker (who's under 3 tours, recent milestones) and data gaps.
+const DB_MILESTONES = [25, 50, 75, 100, 150, 200, 250, 300, 400, 500];
+const DB_MIN_TOURS = 3;
+let dbDesk = null;   // desk schedule payload from Apps Script, once loaded
+
+async function renderDashboard() {
+    const root = document.getElementById('db-root');
+    if (!canSeeRoster()) { root.innerHTML = '<div class="sn-empty">The dashboard is only available to codirectors and admins.</div>'; return; }
+    if (!root.dataset.ready) root.innerHTML = '<div class="ms-loading">Loading the program…</div>';
+    const today = snDay(new Date());
+    const weekStart = new Date(today); weekStart.setDate(today.getDate() - today.getDay());
+    const weekEnd = new Date(weekStart); weekEnd.setDate(weekStart.getDate() + 6);
+    const in30 = new Date(today); in30.setDate(today.getDate() + 30);
+    // Months covering this week and the next 30 days
+    const months = [today, weekStart, weekEnd, in30].map(d => new Date(d.getFullYear(), d.getMonth(), 1));
+    const uniqMonths = [...new Map(months.map(m => [+m, m])).values()];
+    let rows = [], guides = [];
+    try {
+        const [monthRows, roster] = await Promise.all([Promise.all(uniqMonths.map(msLoadMonth)), ensureRosterRows()]);
+        uniqMonths.forEach(m => { const k = msIso(m).slice(0, 7); if (msMonths[k]) msMonths[k].done = true; });
+        rows = monthRows.flat(); guides = roster;
+    } catch (e) { root.innerHTML = `<div class="sn-empty">Couldn't load the dashboard: ${snEsc(e.message)}</div>`; return; }
+    if (window._currentView !== 'dashboard') return;
+    root.dataset.ready = '1';
+    dbRender(rows, guides, today, weekStart, in30);
+    // Desk schedule comes from Apps Script; fill it in when it arrives
+    if (!dbDesk) {
+        try {
+            const res = await fetch(`${DESK_SCRIPT_URL}?page=desk_schedule&user=${encodeURIComponent(userName)}&_t=${Date.now()}`);
+            dbDesk = await res.json();
+        } catch (e) { dbDesk = { error: true }; }
+    }
+    const deskEl = document.getElementById('db-desk');
+    if (deskEl) deskEl.innerHTML = dbDeskHtml();
+}
+
+function dbRender(rows, guides, today, weekStart, in30) {
+    const esc = snEsc, iso = msIso(today), now = new Date();
+    const people = (cachedData && cachedData.guidesByName) || {};
+    const fmtT = d => d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    const dayLbl = d => d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+
+    // ── Today ──
+    const todaySlots = msSlots(rows.filter(r => r.tour_date === iso)).map(sl => {
+        const w = tourWindow({ type: sl.type, date: iso + 'T12:00:00' });
+        const state = !w ? 'upcoming' : now > w.end ? 'done' : now >= w.start ? 'live' : 'upcoming';
+        return { ...sl, w, state };
+    });
+    const urgent = todaySlots.filter(sl => sl.state !== 'done').flatMap(sl => sl.guides.filter(g => g.status === 'drop').map(g => ({ sl, g })));
+    const guidesToday = todaySlots.reduce((n, sl) => n + sl.active.length, 0);
+
+    // ── Open drops, next 30 days (after today) ──
+    const isoIn30 = msIso(in30);
+    const laterDrops = rows.filter(r => r.tour_date > iso && r.tour_date <= isoIn30 && String(r.guide || '').includes('*'))
+        .sort((a, b) => a.tour_date.localeCompare(b.tour_date) || snInfo(a).mins - snInfo(b).mins);
+    const tomorrowIso = msIso(new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1));
+    const dropsTomorrow = laterDrops.filter(r => r.tour_date === tomorrowIso).length;
+    const slackOpen = (typeof availableTours !== 'undefined' && Array.isArray(availableTours)) ? availableTours.length : null;
+
+    // ── This week ──
+    const week = Array.from({ length: 7 }, (_, i) => { const d = new Date(weekStart); d.setDate(d.getDate() + i); return d; }).map(d => {
+        const dayRows = rows.filter(r => r.tour_date === msIso(d));
+        const sl = msSlots(dayRows);
+        return { d, tours: sl.length, guides: sl.reduce((n, s) => n + s.active.length, 0), drops: sl.reduce((n, s) => n + s.drops, 0) };
+    });
+    const weekMax = Math.max(1, ...week.map(x => x.guides));
+
+    // ── Tracker ──
+    const current = guides.filter(r => r.status !== 'Retired');
+    const active = current.filter(r => r._active !== false);
+    const semTotal = current.reduce((n, r) => n + (r._sem || 0), 0);
+    const under = active.filter(r => (r._sem || 0) < DB_MIN_TOURS).sort((a, b) => (a._sem || 0) - (b._sem || 0) || String(a.full_name || a.display_name).localeCompare(String(b.full_name || b.display_name)));
+    const buckets = [['0', r => !r._sem], ['1–2', r => r._sem >= 1 && r._sem <= 2], ['3–5', r => r._sem >= 3 && r._sem <= 5], ['6–9', r => r._sem >= 6 && r._sem <= 9], ['10+', r => r._sem >= 10]]
+        .map(([label, f]) => ({ label, n: active.filter(f).length }));
+    const bucketMax = Math.max(1, ...buckets.map(b => b.n));
+    const top = [...active].sort((a, b) => (b._sem || 0) - (a._sem || 0)).slice(0, 5);
+    // Milestones crossed this semester (career - this semester < m <= career)
+    const milestones = current.flatMap(r => DB_MILESTONES.filter(m => r._career >= m && r._career - (r._sem || 0) < m).slice(-1).map(m => ({ r, m })))
+        .sort((a, b) => (a.r._career - a.m) - (b.r._career - b.m)).slice(0, 8);
+    const almost = current.flatMap(r => { const m = DB_MILESTONES.find(x => x > r._career); return m && m - r._career <= 3 ? [{ r, m, left: m - r._career }] : []; })
+        .sort((a, b) => a.left - b.left).slice(0, 6);
+
+    // ── Data gaps ──
+    const noCensus = current.filter(r => r._active === null);
+    const missing = f => current.filter(r => !String(r[f] ?? '').trim()).length;
+    const gaps = [['Census answer', noCensus.length], ['Hometown', missing('hometown')], ['College', missing('college')], ['Graduation', missing('grad_date')], ['Year', missing('year')]];
+
+    // ── Forms ──
+    const forms = ((cachedData && cachedData.forms) || []).filter(f => f.active && f.dueDate).sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate)).slice(0, 4);
+
+    const av = (name, size = 28) => { const g = people[name] || {}; return g.slack_photo ? `<span class="db-av" style="width:${size}px;height:${size}px;background-image:url('${esc(g.slack_photo)}')"></span>` : `<span class="db-av" style="width:${size}px;height:${size}px">${esc((name || '?').charAt(0))}</span>`; };
+    const guideName = r => r.full_name || r.display_name;
+    const openGuide = r => `switchView('roster'); setTimeout(() => openRosterGuide(${guides.indexOf(r)}), 0)`;
+    const kpi = (n, label, sub, tone = '', onclick = '') => `<button class="db-kpi ${tone}"${onclick ? ` onclick="${onclick}"` : ' tabindex="-1"'}><b>${n}</b><span>${label}</span>${sub ? `<small>${sub}</small>` : ''}</button>`;
+    const card = (title, body, extra = '', cls = '') => `<section class="db-card ${cls}"><div class="db-card-head"><h3>${title}</h3>${extra}</div>${body}</section>`;
+    const link = (label, onclick) => `<button class="db-link" onclick="${onclick}">${label} →</button>`;
+
+    // Alert banner
+    const alert = urgent.length ? `
+        <section class="db-alert">
+            <div class="db-alert-head"><span class="db-alert-ic">!</span><div><b>${urgent.length} uncovered drop${urgent.length === 1 ? '' : 's'} today</b><small>Still on the schedule as pending drops. Find a sub or reach out now.</small></div></div>
+            <div class="db-alert-list">${urgent.map(({ sl, g }) => `
+                <div class="db-alert-row">${av(g.name, 30)}<div><b>${esc(g.name)}</b><small>${esc(sl.info.time)} · ${esc(sl.info.name)}</small></div>
+                <span class="db-when">${sl.w ? (sl.state === 'live' ? 'In progress' : `in ${Math.max(0, Math.round((sl.w.start - now) / 60000))} min`) : ''}</span></div>`).join('')}</div>
+        </section>`
+        : `<section class="db-ok"><span>✓</span><div><b>Today is covered</b><small>${todaySlots.length ? 'No pending drops on any of today\'s remaining tours.' : 'No tours scheduled today.'}${dropsTomorrow ? ` Heads up: ${dropsTomorrow} drop${dropsTomorrow === 1 ? '' : 's'} tomorrow.` : ''}</small></div></section>`;
+
+    const todayHtml = todaySlots.length ? `<div class="db-today">${todaySlots.map(sl => `
+        <div class="db-slot ${sl.state}">
+            <div class="db-slot-time"><b>${esc(sl.info.time.replace(/ (AM|PM)/, ''))}</b><small>${esc((sl.info.time.match(/AM|PM/) || [''])[0])}</small></div>
+            <span class="db-slot-bar" style="background:${sl.info.color}"></span>
+            <div class="db-slot-main">
+                <div class="db-slot-title"><b>${esc(sl.info.name)}</b><span class="db-state ${sl.state}">${sl.state === 'live' ? '● Live' : sl.state === 'done' ? 'Done' : 'Upcoming'}</span>${sl.drops ? `<span class="db-state drop">${sl.drops} drop${sl.drops === 1 ? '' : 's'}</span>` : ''}</div>
+                <div class="db-slot-guides">${sl.guides.map(g => `<span class="db-gchip ${g.status}">${av(g.name, 20)}${esc(g.name)}</span>`).join('')}</div>
+            </div>
+            <div class="db-slot-count"><b>${sl.active.length}</b><small>guides</small></div>
+        </div>`).join('')}</div>` : '<p class="db-empty">No tours on the schedule today.</p>';
+
+    const weekHtml = `<div class="db-week">${week.map(x => `
+        <button class="db-wday${+x.d === +today ? ' today' : ''}${x.d < today ? ' past' : ''}" onclick="msDate = new Date(${+x.d}); msMode = 'day'; switchView('master')">
+            <span class="db-wbar"><i style="height:${x.guides / weekMax * 100}%"></i></span>
+            <b>${x.guides}</b><small>${x.d.toLocaleDateString('en-US', { weekday: 'short' })}</small>${x.drops ? `<em>${x.drops}</em>` : ''}
+        </button>`).join('')}</div><p class="db-note">Guides scheduled each day · red = pending drops · tap a day for details</p>`;
+
+    const dropsHtml = laterDrops.length ? `<div class="db-list">${laterDrops.slice(0, 6).map(r => { const g = msParse(r); const info = snInfo(r); return `
+        <div class="db-row">${av(g.name)}<div><b>${esc(g.name)}</b><small>${dayLbl(new Date(r.tour_date + 'T12:00:00'))} · ${esc(info.time)} ${esc(info.short)}</small></div></div>`; }).join('')}
+        ${laterDrops.length > 6 ? `<p class="db-more">+${laterDrops.length - 6} more</p>` : ''}</div>` : '<p class="db-empty">No pending drops in the next 30 days.</p>';
+
+    const underHtml = under.length ? `<div class="db-list db-scroll">${under.map(r => `
+        <button class="db-row" onclick="${openGuide(r)}">${av(r.display_name)}<div><b>${esc(guideName(r))}</b><small>${esc(r.family || r.status || '')}</small></div>
+        <span class="db-pill ${(r._sem || 0) === 0 ? 'red' : 'amber'}">${r._sem || 0} / ${DB_MIN_TOURS}</span></button>`).join('')}</div>`
+        : `<p class="db-empty">Every active guide has ${DB_MIN_TOURS}+ tours this semester.</p>`;
+
+    const msHtml = (milestones.length || almost.length) ? `
+        ${milestones.length ? `<p class="db-sub">Reached this semester</p><div class="db-list">${milestones.map(({ r, m }) => `
+            <button class="db-row" onclick="${openGuide(r)}">${av(r.display_name)}<div><b>${esc(guideName(r))}</b><small>${r._career} career tours</small></div><span class="db-pill gold">🏅 ${m}</span></button>`).join('')}</div>` : ''}
+        ${almost.length ? `<p class="db-sub">Almost there</p><div class="db-list">${almost.map(({ r, m, left }) => `
+            <button class="db-row" onclick="${openGuide(r)}">${av(r.display_name)}<div><b>${esc(guideName(r))}</b><small>${left} tour${left === 1 ? '' : 's'} from ${m}</small></div><span class="db-pill">${r._career}</span></button>`).join('')}</div>` : ''}`
+        : '<p class="db-empty">No milestones crossed this semester yet.</p>';
+
+    const trackerHtml = `
+        <div class="db-mini">
+            <div><b>${semTotal}</b><small>tours this semester</small></div>
+            <div><b>${active.length ? (active.reduce((n, r) => n + (r._sem || 0), 0) / active.length).toFixed(1) : '0'}</b><small>avg per active guide</small></div>
+            <div><b>${active.length ? Math.round((active.length - under.length) / active.length * 100) : 0}%</b><small>at ${DB_MIN_TOURS}+ tours</small></div>
+        </div>
+        <p class="db-sub">Tours per active guide</p>
+        <div class="db-dist">${buckets.map(b => `<div><span class="db-dbar"><i style="width:${b.n / bucketMax * 100}%"></i></span><b>${b.n}</b><small>${b.label}</small></div>`).join('')}</div>
+        <p class="db-sub">Top this semester</p>
+        <div class="db-list">${top.map((r, i) => `<button class="db-row" onclick="${openGuide(r)}"><span class="db-rank">${i + 1}</span>${av(r.display_name)}<div><b>${esc(guideName(r))}</b><small>${esc(r.family || '')}</small></div><span class="db-pill">${r._sem || 0}</span></button>`).join('')}</div>`;
+
+    const peopleHtml = `
+        <div class="db-mini">
+            <div><b>${current.length}</b><small>current guides</small></div>
+            <div><b>${current.filter(r => r._active === true).length}</b><small>active this sem</small></div>
+            <div><b>${current.filter(r => r._active === false).length}</b><small>not active</small></div>
+        </div>
+        <p class="db-sub">Missing profile info</p>
+        <div class="db-gaps">${gaps.map(([label, n]) => `<div class="${n ? '' : 'ok'}"><b>${n}</b><small>${label}</small></div>`).join('')}</div>
+        ${forms.length ? `<p class="db-sub">Forms due</p><div class="db-list">${forms.map(f => { const due = new Date(f.dueDate); const days = Math.ceil((due - now) / 86400000); return `
+            <div class="db-row"><span class="db-form-ic">📝</span><div><b>${esc(f.formName || f.formId)}</b><small>${days < 0 ? 'Past due' : days === 0 ? 'Due today' : `Due ${dayLbl(due)}`}</small></div></div>`; }).join('')}</div>` : ''}`;
+
+    document.getElementById('db-root').innerHTML = `
+        ${alert}
+        <div class="db-kpis">
+            ${kpi(todaySlots.length, 'Tours today', `${guidesToday} guide${guidesToday === 1 ? '' : 's'} out`, '', "switchView('master')")}
+            ${kpi(urgent.length, 'Uncovered today', urgent.length ? 'Needs a sub' : 'All covered', urgent.length ? 'red' : 'green')}
+            ${kpi(laterDrops.length, 'Pending drops', 'next 30 days', laterDrops.length ? 'amber' : '')}
+            ${kpi(slackOpen ?? '—', 'Open sub requests', 'in Slack', slackOpen ? 'amber' : '', slackOpen ? 'openAvailableSheet()' : '')}
+            ${kpi(under.length, `Under ${DB_MIN_TOURS} tours`, 'active guides', under.length ? 'amber' : 'green')}
+        </div>
+        <div class="db-grid">
+            <div class="db-col">
+                ${card(`Today · ${today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}`, todayHtml, link('Master schedule', "msDate = snDay(new Date()); msMode = 'day'; switchView('master')"), 'db-o1')}
+                ${card('This week', weekHtml, '', 'db-o4')}
+                <div class="db-pair">
+                    ${card(`Under ${DB_MIN_TOURS} tours this semester`, underHtml, `<span class="db-count">${under.length}</span>`, 'db-o5')}
+                    ${card('Milestones', msHtml, '', 'db-o6')}
+                </div>
+                ${card('Roster health', peopleHtml, link('Roster', "switchView('roster')"), 'db-o8')}
+            </div>
+            <div class="db-col">
+                ${card('On the desk now', `<div id="db-desk">${dbDeskHtml()}</div>`, link('Desk schedule', "switchView('desk')"), 'db-o2')}
+                ${card('Pending drops · next 30 days', dropsHtml, '', 'db-o3')}
+                ${card('Tour tracker', trackerHtml, link('Tracker', "switchView('tracker')"), 'db-o7')}
+            </div>
+        </div>`;
+}
+
+// Who is on each desk right now, from the Apps Script desk schedule
+function dbDeskHtml() {
+    if (!dbDesk) return '<p class="db-empty">Loading desk schedule…</p>';
+    if (dbDesk.error || !dbDesk.masterDeskSchedule) return '<p class="db-empty">Couldn\'t load the desk schedule.</p>';
+    const now = new Date();
+    const day = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][now.getDay()];
+    const keys = dbDesk.masterTimeSlotKeys || [];
+    const toMin = t => { const m = String(t).trim().match(/(\d{1,2}):(\d{2})\s*(AM|PM)?/i); if (!m) return null; let h = +m[1] % 12; if (/pm/i.test(m[3] || '')) h += 12; else if (!m[3] && h < 7) h += 12; return h * 60 + +m[2]; };
+    const nowMin = now.getHours() * 60 + now.getMinutes();
+    // Slot keys are either "9:00 AM - 10:00 AM" or just a start time (then it runs to the next key)
+    const slots = keys.map((k, i) => {
+        const parts = String(k).split(/\s*[-–]\s*/);
+        const start = toMin(parts[0]);
+        const end = parts[1] ? toMin(parts[1]) : (keys[i + 1] ? toMin(String(keys[i + 1]).split(/\s*[-–]\s*/)[0]) : start + 60);
+        return { k, start, end };
+    }).filter(x => x.start !== null);
+    const cur = slots.find(x => nowMin >= x.start && nowMin < x.end);
+    const next = slots.find(x => x.start > nowMin);
+    const sched = dbDesk.masterDeskSchedule[day] || {};
+    const who = (slot, desk) => slot ? ((sched[slot.k] || {}).desk || {})[desk] || [] : [];
+    const desks = ['Welcome Desk', 'Front Desk'];
+    if (!Object.keys(sched).length) return `<p class="db-empty">No desk shifts on ${day}s.</p>`;
+    return desks.map(desk => {
+        const nowList = who(cur, desk), nextList = who(next, desk);
+        return `<div class="db-desk">
+            <p class="db-sub">${desk}</p>
+            ${cur ? (nowList.length ? nowList.map(g => `<div class="db-row">${(() => { const n = g.displayName || g.username; const p = ((cachedData && cachedData.guidesByName) || {})[n] || {}; return p.slack_photo ? `<span class="db-av" style="width:28px;height:28px;background-image:url('${snEsc(p.slack_photo)}')"></span>` : `<span class="db-av" style="width:28px;height:28px">${snEsc(String(n || '?').charAt(0))}</span>`; })()}<div><b>${snEsc(g.displayName || g.username)}</b><small>Until ${snEsc(String(cur.k).split(/\s*[-–]\s*/)[1] || '')}</small></div><span class="db-pill green">On now</span></div>`).join('')
+                : '<div class="db-row"><span class="db-av" style="width:28px;height:28px">–</span><div><b class="db-open">Nobody scheduled</b><small>' + snEsc(cur.k) + '</small></div><span class="db-pill red">Open</span></div>')
+                : '<p class="db-empty">Desk is closed right now.</p>'}
+            ${next ? `<p class="db-next">Next ${snEsc(String(next.k).split(/\s*[-–]\s*/)[0])}: ${nextList.length ? nextList.map(g => snEsc(g.displayName || g.username)).join(', ') : 'nobody scheduled'}</p>` : ''}
+        </div>`;
+    }).join('');
 }
 
 // ─── MASTER SCHEDULE (Codirector / Admin) ───────────────────────────────────
@@ -6136,6 +6497,7 @@ async function init(authUser) {
         if (canSeeRoster()) {
             document.getElementById('sb-admin-section').hidden = false;
             if (!QUICK_ACTIONS.some(a => a.view === 'roster')) {
+                QUICK_ACTIONS.splice(2, 0, { view: 'dashboard', label: 'Dashboard', bg: '#1a1510', icon: '<rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/>' });
                 QUICK_ACTIONS.splice(2, 0, { view: 'master', label: 'Master Schedule', bg: '#1a1510', icon: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M7 14h4M7 18h4M14 14h3M14 18h3"/>' });
                 QUICK_ACTIONS.splice(2, 0, { view: 'roster', label: 'Roster', bg: '#78350F', icon: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>' });
                 renderQuickActions();
