@@ -567,42 +567,56 @@ html.dark .sn-tgit { color: #C4B5FD; }
 html.dark .sn-badge.done { background: #2c2c2e; }
 
 /* Forms */
-.fm { display: flex; flex-direction: column; }
-.fm-group { margin-top: 0.5rem; }
-.fm-group + .fm-group { margin-top: 1.25rem; }
-.fm-label { margin: 0 0 0.5rem 0.125rem; font-size: 0.6875rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.14em; color: #9CA3AF; }
-.fm-list { background: white; border: 1px solid #ECECEC; border-radius: 1.25rem; overflow: hidden; }
-.fm-row { display: flex; align-items: center; gap: 0.875rem; padding: 0.9375rem 1rem; }
-.fm-row + .fm-row { border-top: 1px solid #F3F4F6; }
-.fm-ic { width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: rgba(207,185,145,0.18); }
-.fm-ic svg { width: 20px; height: 20px; fill: none; stroke: #8a7550; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
-.fm-row.soon .fm-ic { background: #FEF3C7; } .fm-row.soon .fm-ic svg { stroke: #B45309; }
-.fm-row.late .fm-ic { background: #FEE2E2; } .fm-row.late .fm-ic svg { stroke: #DC2626; }
-.fm-row.done .fm-ic { background: #D1FAE5; } .fm-row.done .fm-ic svg { stroke: #059669; }
-.fm-text { flex: 1; min-width: 0; }
-.fm-text b { display: block; font-size: 0.9375rem; font-weight: 800; color: #111827; line-height: 1.25; }
-.fm-row.done .fm-text b { color: #6B7280; }
-.fm-text small { display: flex; align-items: center; flex-wrap: wrap; gap: 0.375rem; margin-top: 0.25rem; font-size: 0.75rem; font-weight: 600; color: #9CA3AF; }
-.fm-text em { font-style: normal; font-weight: 800; color: #6B7280; }
-.fm-row.soon .fm-text em { color: #B45309; } .fm-row.late .fm-text em { color: #DC2626; }
-.fm-tag { font-size: 0.5625rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; padding: 2px 7px; border-radius: 99px; background: #F3F4F6; color: #6B7280; }
-.fm-tag.req { background: rgba(207,185,145,0.2); color: #7a6440; }
-.fm-btn { flex-shrink: 0; border: none; background: #1a1510; color: #CFB991; font-family: inherit; font-size: 0.8125rem; font-weight: 900; padding: 0.625rem 1rem; border-radius: 0.875rem; cursor: pointer; white-space: nowrap; }
-.fm-btn span { margin-left: 0.125rem; } .fm-btn:hover { background: #2a2218; }
-.fm-btn.ghost { background: #F3F4F6; color: #374151; }
-.fm-done { flex-shrink: 0; font-size: 0.75rem; font-weight: 800; color: #059669; white-space: nowrap; }
-.fm-empty { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.25rem; padding: 2.5rem 1rem; background: white; border: 1px solid #ECECEC; border-radius: 1.25rem; }
-.fm-empty.small { padding: 1.25rem 1rem; margin-top: 0.5rem; }
-.fm-empty span { width: 44px; height: 44px; border-radius: 99px; background: #D1FAE5; color: #059669; font-weight: 900; display: flex; align-items: center; justify-content: center; margin-bottom: 0.375rem; }
-.fm-empty b { font-size: 1rem; font-weight: 900; color: #111827; } .fm-empty small { font-size: 0.8125rem; font-weight: 600; color: #9CA3AF; }
-.fm-foot { margin: 1rem 0 0 0.125rem; font-size: 0.6875rem; font-weight: 600; color: #9CA3AF; }
-html.dark .fm-list, html.dark .fm-empty { background: #1c1c1e; border-color: #2c2c2e; }
-html.dark .fm-row + .fm-row { border-top-color: #2c2c2e; }
-html.dark .fm-text b, html.dark .fm-empty b { color: #f3f4f6; } html.dark .fm-row.done .fm-text b { color: #a1a1aa; }
-html.dark .fm-text em { color: #d4d4d8; } html.dark .fm-tag { background: #2c2c2e; color: #a1a1aa; } html.dark .fm-tag.req { background: rgba(207,185,145,0.15); color: #e8d5a3; }
-html.dark .fm-btn { background: #CFB991; color: #1a1510; } html.dark .fm-btn.ghost { background: #2c2c2e; color: #e5e7eb; }
-html.dark .fm-ic { background: rgba(207,185,145,0.15); } html.dark .fm-ic svg { stroke: #e8d5a3; }
-html.dark .fm-row.soon .fm-ic { background: rgba(245,158,11,0.15); } html.dark .fm-row.late .fm-ic { background: rgba(239,68,68,0.15); } html.dark .fm-row.done .fm-ic { background: rgba(16,185,129,0.15); }
+.fm { display: flex; flex-direction: column; gap: 1rem; }
+.fm-card { position: relative; display: flex; align-items: center; gap: 1.25rem; padding: 1.375rem 1.5rem 1.375rem 1.75rem; background: white; border: 1px solid #ECECEC;
+           border-radius: 1.5rem; box-shadow: 0 10px 30px -18px rgba(26,21,16,0.35); overflow: hidden; }
+.fm-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: linear-gradient(180deg, #CFB991, #b39a6d); }
+.fm-card.soon::before { background: linear-gradient(180deg, #FBBF24, #D97706); }
+.fm-card.late::before { background: linear-gradient(180deg, #F87171, #DC2626); }
+.fm-card.done::before { background: linear-gradient(180deg, #34D399, #059669); }
+.fm-tile { width: 76px; height: 82px; flex-shrink: 0; border-radius: 1.125rem; display: flex; flex-direction: column; align-items: center; justify-content: center;
+           background: linear-gradient(160deg, #f6efe0, #eadcbf); border: 1px solid rgba(179,154,109,0.35); color: #5c4a2a; }
+.fm-tile small { font-size: 0.625rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.75; }
+.fm-tile b { font-size: 2rem; font-weight: 900; line-height: 1; margin: 1px 0; }
+.fm-tile svg { width: 28px; height: 28px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.fm-tile.soon { background: linear-gradient(160deg, #FEF3C7, #FDE68A); border-color: #FCD34D; color: #92400E; }
+.fm-tile.late { background: linear-gradient(160deg, #FEE2E2, #FECACA); border-color: #FCA5A5; color: #991B1B; }
+.fm-tile.done { background: linear-gradient(160deg, #D1FAE5, #A7F3D0); border-color: #6EE7B7; color: #047857; gap: 0.25rem; }
+.fm-body { flex: 1; min-width: 0; }
+.fm-badges { display: flex; flex-wrap: wrap; gap: 0.375rem; margin-bottom: 0.4375rem; }
+.fm-badge { font-size: 0.625rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; padding: 0.25rem 0.5rem; border-radius: 0.5rem; background: #F3F4F6; color: #6B7280; }
+.fm-badge.req { background: #FEE2E2; color: #DC2626; } .fm-badge.ok { background: #D1FAE5; color: #047857; } .fm-badge.late { background: #DC2626; color: white; }
+.fm-body h2 { margin: 0; font-size: 1.5rem; font-weight: 900; color: #111827; letter-spacing: -0.01em; line-height: 1.2; }
+.fm-desc { margin: 0.375rem 0 0; font-size: 0.875rem; font-weight: 600; color: #6B7280; line-height: 1.45; }
+.fm-when { margin: 0.5rem 0 0; font-size: 0.8125rem; font-weight: 700; color: #9CA3AF; }
+.fm-when em { font-style: normal; font-weight: 900; color: #8a7550; background: rgba(207,185,145,0.18); padding: 0.125rem 0.5rem; border-radius: 99px; margin-left: 0.375rem; white-space: nowrap; }
+.fm-card.soon .fm-when em { color: #B45309; background: #FEF3C7; } .fm-card.late .fm-when em { color: #DC2626; background: #FEE2E2; }
+.fm-act { flex-shrink: 0; }
+.fm-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.375rem; border: none; font-family: inherit; font-size: 0.8125rem; font-weight: 900;
+          text-transform: uppercase; letter-spacing: 0.1em; padding: 1rem 1.75rem; border-radius: 1rem; cursor: pointer; white-space: nowrap;
+          background: linear-gradient(135deg, #CFB991, #b39a6d); color: #1a1510; box-shadow: 0 10px 22px -10px rgba(138,117,80,0.8); transition: transform 0.12s, box-shadow 0.12s; }
+.fm-btn:hover { transform: translateY(-1px); box-shadow: 0 14px 26px -10px rgba(138,117,80,0.9); }
+.fm-btn span { font-size: 1rem; }
+.fm-btn.ghost { background: #F3F4F6; color: #374151; box-shadow: none; } .fm-btn.static { cursor: default; } .fm-btn.static:hover { transform: none; }
+.fm-card.done .fm-body h2 { color: #4B5563; }
+.fm-empty { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.375rem; padding: 3rem 1.5rem; background: white; border: 1px solid #ECECEC; border-radius: 1.5rem; }
+.fm-empty span { width: 52px; height: 52px; border-radius: 99px; background: #D1FAE5; color: #059669; font-size: 1.375rem; font-weight: 900; display: flex; align-items: center; justify-content: center; margin-bottom: 0.375rem; }
+.fm-empty b { font-size: 1.125rem; font-weight: 900; color: #111827; } .fm-empty small { max-width: 340px; font-size: 0.875rem; font-weight: 600; color: #9CA3AF; line-height: 1.45; }
+@media (max-width: 767px) {
+    .fm-card { flex-wrap: wrap; align-items: flex-start; gap: 1rem; padding: 1.25rem 1.125rem 1.25rem 1.375rem; }
+    .fm-tile { width: 64px; height: 70px; } .fm-tile b { font-size: 1.625rem; }
+    .fm-body h2 { font-size: 1.25rem; }
+    .fm-act { width: 100%; } .fm-btn { width: 100%; }
+}
+html.dark .fm-card, html.dark .fm-empty { background: #1c1c1e; border-color: #2c2c2e; box-shadow: none; }
+html.dark .fm-body h2, html.dark .fm-empty b { color: #f3f4f6; } html.dark .fm-card.done .fm-body h2 { color: #a1a1aa; }
+html.dark .fm-desc { color: #a1a1aa; }
+html.dark .fm-tile { background: rgba(207,185,145,0.12); border-color: rgba(207,185,145,0.3); color: #e8d5a3; }
+html.dark .fm-tile.soon { background: rgba(245,158,11,0.15); border-color: rgba(245,158,11,0.35); color: #FCD34D; }
+html.dark .fm-tile.late { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.35); color: #FCA5A5; }
+html.dark .fm-tile.done { background: rgba(16,185,129,0.15); border-color: rgba(16,185,129,0.35); color: #6EE7B7; }
+html.dark .fm-badge { background: #2c2c2e; color: #a1a1aa; } html.dark .fm-badge.req { background: rgba(239,68,68,0.15); color: #FCA5A5; } html.dark .fm-badge.ok { background: rgba(16,185,129,0.15); color: #6EE7B7; }
+html.dark .fm-btn.ghost { background: #2c2c2e; color: #e5e7eb; }
 
 /* Census */
 .cz { }
@@ -2669,49 +2683,47 @@ function renderForms() {
     const esc = v => String(v ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
     const now = new Date();
     const today = new Date(now); today.setHours(0, 0, 0, 0);
-    const forms = (cachedData.forms || []).filter(f => f.active);
     const dueOf = f => f.dueDate ? new Date(f.dueDate) : null;
-    const todo = forms.filter(f => !f.submitted).sort((a, b) => (dueOf(a) || Infinity) - (dueOf(b) || Infinity));
-    const done = forms.filter(f => f.submitted);
-    const overdue = todo.filter(f => dueOf(f) && dueOf(f) < now);
+    // Open forms first (soonest due), then submitted ones
+    const forms = (cachedData.forms || []).filter(f => f.active)
+        .sort((a, b) => (!!a.submitted - !!b.submitted) || ((dueOf(a) || Infinity) - (dueOf(b) || Infinity)));
 
     if (!forms.length) {
-        container.innerHTML = `<div class="fm-empty"><span>✓</span><b>You're all caught up</b><small>No forms right now. New ones will show up here and on Home.</small></div>`;
+        container.innerHTML = `
+            <div class="fm-empty"><span>✓</span><b>You're all caught up</b><small>There are no forms to fill out right now. When one opens, it'll show up here and on Home.</small></div>`;
         return;
     }
-    const ICON = '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/>';
-    const CHECK = '<path d="M20 6L9 17l-5-5"/>';
-    const row = f => {
+    container.innerHTML = forms.map(f => {
         const due = dueOf(f), submitted = !!f.submitted, required = (f.type || '').toLowerCase() === 'required';
         const days = due ? Math.round((new Date(due).setHours(0, 0, 0, 0) - today) / 86400000) : null;
-        const tone = submitted ? 'done' : due && due < now ? 'late' : days !== null && days <= 2 ? 'soon' : '';
-        const when = !due ? 'No due date'
-            : `Due ${due.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}`;
-        const rel = submitted || !due ? '' : due < now ? 'Overdue' : days === 0 ? 'Due today' : days === 1 ? 'Tomorrow' : `in ${days} days`;
+        const late = !submitted && due && due < now;
+        const tone = submitted ? 'done' : late ? 'late' : days !== null && days <= 2 ? 'soon' : '';
+        const left = submitted || !due ? '' : late ? 'Past due' : days === 0 ? 'Due today' : days === 1 ? '1 day left' : `${days} days left`;
+        const desc = f.census ? `Your availability, training times and desk preferences for ${esc(String(f.formName).replace(/ Census$/, ''))}. Takes about 3 minutes.` : (f.description ? esc(f.description) : '');
         const formUrl = `https://tgis.pages.dev/${f.formId}.html?user=${userName}`;
         const action = f.census ? "switchView('census')" : viewAs ? 'viewAsBlocked()' : `window.location.href='${formUrl}'`;
-        const btn = f.census ? `<button class="fm-btn${submitted ? ' ghost' : ''}" onclick="${action}">${submitted ? 'Review' : 'Start'} <span>→</span></button>`
-            : submitted ? `<span class="fm-done">✓ Submitted</span>`
-            : `<button class="fm-btn" onclick="${action}">Open <span>→</span></button>`;
+        const btn = submitted
+            ? (f.census ? `<button class="fm-btn ghost" onclick="${action}">Review answers</button>` : `<span class="fm-btn ghost static">Submitted ✓</span>`)
+            : `<button class="fm-btn" onclick="${action}">${f.census ? 'Start census' : 'Open form'} <span aria-hidden="true">→</span></button>`;
+        const tile = submitted
+            ? `<div class="fm-tile done"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg><small>Done</small></div>`
+            : due ? `<div class="fm-tile ${tone}"><small>${due.toLocaleDateString('en-US', { month: 'short' })}</small><b>${due.getDate()}</b><small>${due.toLocaleDateString('en-US', { weekday: 'short' })}</small></div>`
+            : `<div class="fm-tile"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/></svg></div>`;
         return `
-            <div class="fm-row ${tone}">
-                <span class="fm-ic"><svg viewBox="0 0 24 24">${submitted ? CHECK : ICON}</svg></span>
-                <div class="fm-text">
-                    <b>${esc(f.formName || f.formId)}</b>
-                    <small><span class="fm-tag ${required ? 'req' : ''}">${required ? 'Required' : 'Optional'}</span><span>${esc(when)}</span>${rel ? `<em>${rel}</em>` : ''}</small>
+            <article class="fm-card ${tone}">
+                ${tile}
+                <div class="fm-body">
+                    <div class="fm-badges">
+                        <span class="fm-badge ${required ? 'req' : ''}">${required ? 'Required' : 'Optional'}</span>
+                        ${submitted ? '<span class="fm-badge ok">✓ Submitted</span>' : late ? '<span class="fm-badge late">Overdue</span>' : ''}
+                    </div>
+                    <h2>${esc(f.formName || f.formId)}</h2>
+                    ${desc ? `<p class="fm-desc">${desc}</p>` : ''}
+                    <p class="fm-when">${due ? `Due ${due.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })} at 11:59 PM` : 'No due date'}${left ? ` <em>${left}</em>` : ''}</p>
                 </div>
-                ${btn}
-            </div>`;
-    };
-    const chip = (n, label, cls = '') => `<span class="sn-chip ${cls}"><b>${n}</b>${label}</span>`;
-    container.innerHTML = `
-        <div class="sn-summary">
-            ${chip(todo.length, 'to do')}${chip(done.length, 'done')}${overdue.length ? chip(overdue.length, 'overdue', 'red') : ''}
-        </div>
-        ${todo.length ? `<section class="fm-group"><p class="fm-label">To do</p><div class="fm-list">${todo.map(row).join('')}</div></section>`
-                      : `<div class="fm-empty small"><span>✓</span><b>Nothing left to do</b><small>Every form is submitted.</small></div>`}
-        ${done.length ? `<section class="fm-group"><p class="fm-label">Completed</p><div class="fm-list">${done.map(row).join('')}</div></section>` : ''}
-        <p class="fm-foot">Required forms are due by 11:59 PM on their due date.</p>`;
+                <div class="fm-act">${btn}</div>
+            </article>`;
+    }).join('');
 }
 
 // ── DESK SCHEDULE (from desk6) ─────────────────────────────────────────────
