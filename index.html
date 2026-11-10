@@ -617,10 +617,11 @@ html.dark .fm-btn.ghost { background: #2c2c2e; color: #e5e7eb; }
 
 /* Census */
 .cz { }
+@media (min-width: 1024px) { .cz { max-width: 720px; margin: 0 auto; } }
 .cz-head { margin-bottom: 0.75rem; }
 .cz-kicker { margin: 0; font-size: 0.625rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.16em; color: #b39a6d; }
 .cz-head h2 { margin: 0.125rem 0 0; font-size: 1.5rem; font-weight: 900; color: #111827; }
-.cz-steps { display: flex; align-items: flex-start; margin: 0 0.25rem 1.25rem; }
+.cz-steps { display: flex; align-items: flex-start; margin: 0.75rem 0.25rem 1.25rem; }
 .cz-step { display: flex; flex-direction: column; align-items: center; gap: 0.25rem; width: 56px; flex-shrink: 0; }
 .cz-step span { width: 30px; height: 30px; border-radius: 99px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 900;
                 border: 2px solid #E5E7EB; background: white; color: #9CA3AF; }
@@ -628,9 +629,10 @@ html.dark .fm-btn.ghost { background: #2c2c2e; color: #e5e7eb; }
 .cz-step.on span { border-color: #CFB991; background: #CFB991; color: #1a1510; } .cz-step.on small { color: #8a7550; }
 .cz-step.done span { border-color: #10B981; background: #10B981; color: white; } .cz-step.done small { color: #059669; }
 .cz-steps > i { flex: 1; height: 2px; background: #E5E7EB; margin-top: 15px; } .cz-steps > i.done { background: #10B981; }
-.cz-card { background: white; border: 1px solid #ECECEC; border-radius: 1.5rem; padding: 1.25rem 1.5rem; margin-bottom: 1rem; box-shadow: 0 10px 30px -18px rgba(26,21,16,0.35); }
-.cz-hero { margin-bottom: 1.25rem; }
-.cz-card h3 { font-size: 1rem !important; }
+.cz-card { background: white; border: 1px solid #ECECEC; border-radius: 1.25rem; padding: 1.25rem 1.375rem; margin-bottom: 0.875rem; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
+.cz-card h3 { font-size: 1rem !important; line-height: 1.35; }
+.cz-req { font-style: normal; color: #DC2626; margin-left: 0.125rem; }
+.cz-due.ok { background: #D1FAE5; color: #047857; }
 .cz-card h3 { margin: 0; font-size: 0.9375rem; font-weight: 900; color: #111827; }
 .cz-card h3 em { font-style: normal; font-size: 0.5625rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; color: #1a1510; background: #CFB991; padding: 2px 6px; border-radius: 99px; vertical-align: middle; margin-left: 0.25rem; }
 .cz-hint { margin: 0.25rem 0 0; font-size: 0.75rem; font-weight: 600; color: #9CA3AF; }
@@ -675,7 +677,7 @@ html.dark .fm-btn.ghost { background: #2c2c2e; color: #e5e7eb; }
 .cz-next.danger { background: linear-gradient(135deg, #F87171, #DC2626); color: white; box-shadow: 0 10px 22px -10px rgba(220,38,38,0.7); }
 .cz-next:disabled { opacity: 0.6; }
 @media (max-width: 767px) { .cz-back, .cz-next { padding: 0.6875rem 1rem; font-size: 0.75rem; border-radius: 0.875rem; } .cz-nav .cz-next { flex: 1; }
-                            .cz-hero .fm-act { display: none; } .cz-card { padding: 1.125rem 1.125rem; } }
+                            .cz-card { padding: 1.125rem; } }
 .cz-center { text-align: center; padding: 2rem 1.25rem; }
 .cz-center h2 { margin: 0.75rem 0 0.25rem; font-size: 1.375rem; font-weight: 900; color: #111827; } .cz-center > p { margin: 0; font-size: 0.875rem; font-weight: 600; color: #6B7280; }
 .cz-big-ic { width: 60px; height: 60px; margin: 0 auto; border-radius: 99px; background: #F5F3EE; display: flex; align-items: center; justify-content: center; font-size: 1.75rem; }
@@ -686,8 +688,7 @@ html.dark .fm-btn.ghost { background: #2c2c2e; color: #e5e7eb; }
 .cz-summary span { width: 130px; flex-shrink: 0; font-weight: 700; color: #9CA3AF; } .cz-summary b { font-weight: 700; color: #111827; overflow-wrap: anywhere; }
              background: linear-gradient(120deg, #b39a6d, #CFB991 60%, #e8d5a3); text-align: left; font-family: inherit; cursor: pointer; box-shadow: 0 6px 18px -8px rgba(138,117,80,0.6); position: relative; z-index: 3; }
 @media (min-width: 640px) { .cz-grid { grid-template-columns: 1fr 1fr; } .cz-f.wide { grid-column: 1 / -1; } }
-@media (min-width: 1024px) { .cz-info { display: grid; grid-template-columns: 1fr 1fr; column-gap: 2rem; } .cz-info > div:nth-last-child(2) { border-bottom: none; }
-                             .cz-grid { grid-template-columns: repeat(3, 1fr); } }
+
 
 /* Census results */
 .cza { display: flex; flex-direction: column; gap: 1rem; }
@@ -731,7 +732,7 @@ html.dark .cz-chip.on, html.dark .cz-opt.on { background: #CFB991; border-color:
 html.dark .cz-yn.on.yes { background: rgba(16,185,129,0.15); color: #6EE7B7; } html.dark .cz-yn.on.no { background: rgba(239,68,68,0.15); color: #FCA5A5; } html.dark .cz-yn.on.gold { background: rgba(207,185,145,0.2); color: #e8d5a3; }
 html.dark .cz-note { background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.3); color: #FCD34D; } html.dark .cz-note.ok { background: rgba(16,185,129,0.12); border-color: rgba(16,185,129,0.3); color: #6EE7B7; }
 html.dark .cz-affirm { color: #d4d4d8; } html.dark .cz-affirm.red { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.3); color: #FCA5A5; }
-html.dark .cz-card { box-shadow: none; } html.dark .cz-back { background: #2c2c2e; color: #e5e7eb; border-color: #2c2c2e; } html.dark .cz-big-ic { background: #2c2c2e; } html.dark .cz-big-ic.ok { background: #10B981; }
+html.dark .cz-card { box-shadow: none; } html.dark .cz-due.ok { background: rgba(16,185,129,0.15); color: #6EE7B7; } html.dark .cz-back { background: #2c2c2e; color: #e5e7eb; border-color: #2c2c2e; } html.dark .cz-big-ic { background: #2c2c2e; } html.dark .cz-big-ic.ok { background: #10B981; }
 html.dark .cza-progress span, html.dark .cza-bar div { background: #2c2c2e; } html.dark .cza-bar span { color: #d4d4d8; }
 
 /* Dashboard */
@@ -5033,7 +5034,7 @@ async function renderCensus(fresh) {
     if (viewAs) { root.innerHTML = '<div class="sn-empty">The census is turned off while viewing as someone else.</div>'; return; }
     if (!czConfig && !fresh) { root.innerHTML = '<div class="ms-loading">Loading…</div>'; await loadCensusStatus(); }
     if (!czConfig || !czConfig.open) {
-        root.innerHTML = `<div class="fm-empty"><span>✓</span><b>No census right now</b><small>The census isn't open at the moment. When it opens, it'll show up on your Forms page.</small></div>`;
+        root.innerHTML = `<div class="cz-card cz-center"><div class="cz-big-ic">📋</div><h2>No census right now</h2><p>The census isn't open at the moment. When it opens, it'll show up on your Forms page.</p></div>`;
         return;
     }
     if (!czState) { czState = czNewState(); czStep = czMine ? 0 : 1; }
@@ -5061,7 +5062,7 @@ function czHtml() {
     // Already submitted
     if (czStep === 0) {
         const r = czMine;
-        return czHeroHtml(true) + `
+        return `<div class="cz-head"><p class="cz-kicker">Purdue Admissions · Required form</p><h2>${esc(term)} Census <span class="cz-due ok">✓ Submitted</span></h2></div>
             <section class="cz-card">
                 <h3>Your answers</h3>
                 <p class="cz-hint">Submitted ${new Date(r.submitted_at).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}. You can update them until the census closes.</p>
@@ -5069,7 +5070,9 @@ function czHtml() {
             </section>
             <div class="cz-nav"><button type="button" class="cz-back" onclick="switchView('forms')">← Forms</button><button type="button" class="cz-next" onclick="czGo(1)">Update answers</button></div>`;
     }
-    const head = czHeroHtml(false) + czStepper();
+    const due = czConfig.due ? new Date(czConfig.due + 'T23:59:00') : null;
+    const dueTxt = due ? `<span class="cz-due${due < new Date() ? ' late' : ''}">Due ${due.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</span>` : '';
+    const head = `<div class="cz-head"><p class="cz-kicker">Purdue Admissions · Required form</p><h2>${esc(term)} Census ${dueTxt}</h2></div>${czStepper()}`;
 
     if (czStep === 1) {
         const rows = [['Full name', p.fullName], ['Preferred name', p.displayName], ['Role', p.status], ['Email', p.email], ['Birthday', p.birthday],
@@ -5079,7 +5082,7 @@ function czHtml() {
             <section class="cz-card"><h3>Your information</h3><p class="cz-hint">This is what TGIS has on file for you.</p>
                 <div class="cz-info">${rows.map(([l, v]) => `<div><span>${l}</span><b class="${v ? '' : 'none'}">${v ? esc(v) : 'Not set'}</b></div>`).join('')}</div>
             </section>
-            <section class="cz-card"><h3>Is all of this correct?</h3>
+            <section class="cz-card"><h3>Is all of this correct? <i class="cz-req" aria-label="required">*</i></h3>
                 <div class="cz-yns">${yn('infoCorrect', true, '✓ Yes, looks good', 'yes')}${yn('infoCorrect', false, '✕ No, I need to update', 'no')}</div>
             </section>
             ${st.infoCorrect === false ? `<section class="cz-card" id="cz-upd"><h3>Update your information</h3><p class="cz-hint">Change only what's wrong.</p>
@@ -5105,16 +5108,16 @@ function czHtml() {
     if (czStep === 2) {
         return head + `
             <div class="cz-note">Tour preferences are <b>not guaranteed</b>.</div>
-            <section class="cz-card"><h3>Will you be giving tours this semester?</h3>
+            <section class="cz-card"><h3>Will you be giving tours this semester? <i class="cz-req" aria-label="required">*</i></h3>
                 <div class="cz-yns">${yn('giving', 'Yes', '✓ Yes', 'yes')}${yn('giving', 'No', '✕ No', 'no')}</div></section>
             ${st.giving === 'No' ? `
-                <section class="cz-card"><h3>Reason for not giving tours</h3>
+                <section class="cz-card"><h3>Reason for not giving tours <i class="cz-req" aria-label="required">*</i></h3>
                     <textarea class="ie-in" rows="3" placeholder="Please explain…" oninput="czState.reason = this.value">${esc(st.reason)}</textarea></section>
                 <label class="cz-affirm red"><input type="checkbox" ${st.affirmNo ? 'checked' : ''} onchange="czState.affirmNo = this.checked">
                     <span>I understand that I must speak with ${CZ_TALK_TO} about not giving tours this semester before submitting this form.</span></label>
                 ${err}${nav(1, 'czSubmit()', 'Submit census', true)}` : ''}
             ${st.giving === 'Yes' ? `
-                <section class="cz-card"><h3>How many tours per week do you prefer to give?</h3><p class="cz-hint">This is a preference, not a guarantee.</p>
+                <section class="cz-card"><h3>How many tours per week do you prefer to give? <i class="cz-req" aria-label="required">*</i></h3><p class="cz-hint">This is a preference, not a guarantee.</p>
                     <div class="cz-yns">${yn('perWeek', 1, '1 tour / week', 'gold')}${yn('perWeek', 2, '2 tours / week', 'gold')}</div></section>
                 ${err}${nav(1, 'czNext(2)', 'Next: Training →')}` : ''}
             ${st.giving === null ? nav(1, 'czNext(2)', 'Next →') : ''}`;
@@ -5122,7 +5125,7 @@ function czHtml() {
 
     if (czStep === 3) {
         return head + `
-            <section class="cz-card"><h3>Which days are you available for bi-weekly evening training?</h3><p class="cz-hint">Select all that apply</p>${chips('availDays', CZ_DAYS)}</section>
+            <section class="cz-card"><h3>Which days are you available for bi-weekly evening training? <i class="cz-req" aria-label="required">*</i></h3><p class="cz-hint">Select all that apply</p>${chips('availDays', CZ_DAYS)}</section>
             <section class="cz-card"><h3>Which days do you prefer?</h3><p class="cz-hint">Select all that apply</p>${chips('prefDays', CZ_DAYS)}</section>
             <section class="cz-card"><h3>What times are you available for training to start?</h3><p class="cz-hint">Select all that apply</p>${chips('times', CZ_TIMES)}</section>
             <section class="cz-card"><h3>Any dietary restrictions?</h3>
@@ -5137,41 +5140,18 @@ function czHtml() {
     return head + (existing ? `
             <div class="cz-note ok">✓ You're already scheduled to work desk this semester.</div>
             ${dual ? `<section class="cz-card"><h3>Which desk(s)?</h3>${desks([['Front Desk', 'Front Desk'], ['Welcome Desk', 'Welcome Desk'], ['Both', 'Both desks']])}</section>` : ''}
-            <section class="cz-card"><h3>How many desk hours would you like per week?</h3>${hours}</section>`
+            <section class="cz-card"><h3>How many desk hours would you like per week? <i class="cz-req" aria-label="required">*</i></h3>${hours}</section>`
         : `
             <div class="cz-note">Desk interest is <b>not guaranteed</b> for guides not already assigned to desk.</div>
-            <section class="cz-card"><h3>Are you interested in working desk this semester?</h3>
+            <section class="cz-card"><h3>Are you interested in working desk this semester? <i class="cz-req" aria-label="required">*</i></h3>
                 <div class="cz-yns">${yn('deskInterest', true, '✓ Yes', 'yes')}${yn('deskInterest', false, '✕ No', 'no')}</div></section>
             ${st.deskInterest ? `
-                <section class="cz-card"><h3>Which desk would you prefer?</h3>${desks([['Front Desk', 'Front Desk'], ['Welcome Desk', 'Welcome Desk'], ['Either', 'No preference']])}</section>
-                <section class="cz-card"><h3>How many desk hours would you like per week?</h3>${hours}</section>` : ''}`) + `
-            <section class="cz-card"><h3>Semester commitment</h3>
+                <section class="cz-card"><h3>Which desk would you prefer? <i class="cz-req" aria-label="required">*</i></h3>${desks([['Front Desk', 'Front Desk'], ['Welcome Desk', 'Welcome Desk'], ['Either', 'No preference']])}</section>
+                <section class="cz-card"><h3>How many desk hours would you like per week? <i class="cz-req" aria-label="required">*</i></h3>${hours}</section>` : ''}`) + `
+            <section class="cz-card"><h3>Semester commitment <i class="cz-req" aria-label="required">*</i></h3>
                 <label class="cz-affirm"><input type="checkbox" ${st.commitment ? 'checked' : ''} onchange="czState.commitment = this.checked">
                     <span>I agree to give <b>1–2 tours per week</b>, take part in <b>3–4 Saturday or Program Days per semester</b>, and <b>attend bi-weekly training sessions</b> as scheduled.</span></label></section>
             ${err}${nav(3, 'czSubmit()', czMine ? 'Update census' : 'Submit census')}`;
-}
-
-// Census header in the same card style as the Forms page (date tile, badges, due line)
-function czHeroHtml(submitted) {
-    const esc = snEsc, due = czConfig.due ? new Date(czConfig.due + 'T23:59:00') : null, now = new Date();
-    const today = new Date(now); today.setHours(0, 0, 0, 0);
-    const days = due ? Math.round((new Date(due).setHours(0, 0, 0, 0) - today) / 86400000) : null;
-    const late = !submitted && due && due < now;
-    const tone = submitted ? 'done' : late ? 'late' : days !== null && days <= 2 ? 'soon' : '';
-    const left = submitted || !due || late ? '' : days === 0 ? 'Due today' : days === 1 ? '1 day left' : `${days} days left`;
-    const tile = submitted
-        ? `<div class="fm-tile done"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg><small>Done</small></div>`
-        : due ? `<div class="fm-tile ${tone}"><small>${due.toLocaleDateString('en-US', { month: 'short' })}</small><b>${due.getDate()}</b><small>${due.toLocaleDateString('en-US', { weekday: 'short' })}</small></div>`
-        : `<div class="fm-tile"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/></svg></div>`;
-    return `
-        <article class="fm-card cz-hero ${tone}">
-            ${tile}
-            <div class="fm-body">
-                <div class="fm-badges"><span class="fm-badge req">Required</span>${submitted ? '<span class="fm-badge ok">✓ Submitted</span>' : late ? '<span class="fm-badge late">Overdue</span>' : ''}</div>
-                <h2>${esc(czConfig.term)} Census</h2>
-                <p class="fm-when">${due ? `Due ${due.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })} at 11:59 PM` : 'No due date'}${left ? ` <em>${left}</em>` : ''}</p>
-            </div>
-        </article>`;
 }
 
 function czSummaryRows(r) {
