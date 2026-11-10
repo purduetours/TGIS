@@ -602,10 +602,8 @@ html.dark .sn-badge.done { background: #2c2c2e; }
     .fm-card { flex-wrap: wrap; align-items: flex-start; gap: 1rem; padding: 1.25rem 1.125rem; }
     .fm-tile { width: 64px; height: 70px; } .fm-tile b { font-size: 1.625rem; }
     .fm-body h2 { font-size: 1.25rem; }
-    /* compact button lined up under the text column (tile 64px + 1rem gap) */
-    .fm-act { width: 100%; padding-left: calc(64px + 1rem); margin-top: -0.25rem; }
-    .fm-btn { padding: 0.625rem 1rem; font-size: 0.6875rem; letter-spacing: 0.08em; border-radius: 0.75rem; box-shadow: 0 6px 14px -8px rgba(138,117,80,0.8); }
-    .fm-btn span { font-size: 0.875rem; }
+    /* full-width button, just shorter than on desktop */
+    .fm-act { width: 100%; } .fm-btn { width: 100%; padding: 0.6875rem 1rem; font-size: 0.75rem; border-radius: 0.875rem; }
 }
 html.dark .fm-card, html.dark .fm-empty { background: #1c1c1e; border-color: #2c2c2e; box-shadow: none; }
 html.dark .fm-card { border-left-color: #CFB991; } html.dark .fm-card.soon { border-left-color: #F59E0B; } html.dark .fm-card.late { border-left-color: #EF4444; } html.dark .fm-card.done { border-left-color: #10B981; }
