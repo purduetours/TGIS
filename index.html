@@ -568,12 +568,9 @@ html.dark .sn-badge.done { background: #2c2c2e; }
 
 /* Forms */
 .fm { display: flex; flex-direction: column; gap: 1rem; }
-.fm-card { position: relative; display: flex; align-items: center; gap: 1.25rem; padding: 1.375rem 1.5rem 1.375rem 1.75rem; background: white; border: 1px solid #ECECEC;
-           border-radius: 1.5rem; box-shadow: 0 10px 30px -18px rgba(26,21,16,0.35); overflow: hidden; }
-.fm-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: linear-gradient(180deg, #CFB991, #b39a6d); }
-.fm-card.soon::before { background: linear-gradient(180deg, #FBBF24, #D97706); }
-.fm-card.late::before { background: linear-gradient(180deg, #F87171, #DC2626); }
-.fm-card.done::before { background: linear-gradient(180deg, #34D399, #059669); }
+.fm-card { display: flex; align-items: center; gap: 1.25rem; padding: 1.375rem 1.5rem; background: white; border: 1px solid #ECECEC;
+           border-left: 8px solid #CFB991; border-radius: 1.5rem; box-shadow: 0 10px 30px -18px rgba(26,21,16,0.35); }
+.fm-card.soon { border-left-color: #F59E0B; } .fm-card.late { border-left-color: #EF4444; } .fm-card.done { border-left-color: #10B981; }
 .fm-tile { width: 76px; height: 82px; flex-shrink: 0; border-radius: 1.125rem; display: flex; flex-direction: column; align-items: center; justify-content: center;
            background: linear-gradient(160deg, #f6efe0, #eadcbf); border: 1px solid rgba(179,154,109,0.35); color: #5c4a2a; }
 .fm-tile small { font-size: 0.625rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.75; }
@@ -585,9 +582,8 @@ html.dark .sn-badge.done { background: #2c2c2e; }
 .fm-body { flex: 1; min-width: 0; }
 .fm-badges { display: flex; flex-wrap: wrap; gap: 0.375rem; margin-bottom: 0.4375rem; }
 .fm-badge { font-size: 0.625rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; padding: 0.25rem 0.5rem; border-radius: 0.5rem; background: #F3F4F6; color: #6B7280; }
-.fm-badge.req { background: #FEE2E2; color: #DC2626; } .fm-badge.ok { background: #D1FAE5; color: #047857; } .fm-badge.late { background: #DC2626; color: white; }
+.fm-badge.req { background: #FEE2E2; color: #DC2626; } .fm-badge.ok { background: #D1FAE5; color: #047857; }
 .fm-body h2 { margin: 0; font-size: 1.5rem; font-weight: 900; color: #111827; letter-spacing: -0.01em; line-height: 1.2; }
-.fm-desc { margin: 0.375rem 0 0; font-size: 0.875rem; font-weight: 600; color: #6B7280; line-height: 1.45; }
 .fm-when { margin: 0.5rem 0 0; font-size: 0.8125rem; font-weight: 700; color: #9CA3AF; }
 .fm-when em { font-style: normal; font-weight: 900; color: #8a7550; background: rgba(207,185,145,0.18); padding: 0.125rem 0.5rem; border-radius: 99px; margin-left: 0.375rem; white-space: nowrap; }
 .fm-card.soon .fm-when em { color: #B45309; background: #FEF3C7; } .fm-card.late .fm-when em { color: #DC2626; background: #FEE2E2; }
@@ -603,14 +599,14 @@ html.dark .sn-badge.done { background: #2c2c2e; }
 .fm-empty span { width: 52px; height: 52px; border-radius: 99px; background: #D1FAE5; color: #059669; font-size: 1.375rem; font-weight: 900; display: flex; align-items: center; justify-content: center; margin-bottom: 0.375rem; }
 .fm-empty b { font-size: 1.125rem; font-weight: 900; color: #111827; } .fm-empty small { max-width: 340px; font-size: 0.875rem; font-weight: 600; color: #9CA3AF; line-height: 1.45; }
 @media (max-width: 767px) {
-    .fm-card { flex-wrap: wrap; align-items: flex-start; gap: 1rem; padding: 1.25rem 1.125rem 1.25rem 1.375rem; }
+    .fm-card { flex-wrap: wrap; align-items: flex-start; gap: 1rem; padding: 1.25rem 1.125rem; }
     .fm-tile { width: 64px; height: 70px; } .fm-tile b { font-size: 1.625rem; }
     .fm-body h2 { font-size: 1.25rem; }
     .fm-act { width: 100%; } .fm-btn { width: 100%; }
 }
 html.dark .fm-card, html.dark .fm-empty { background: #1c1c1e; border-color: #2c2c2e; box-shadow: none; }
+html.dark .fm-card { border-left-color: #CFB991; } html.dark .fm-card.soon { border-left-color: #F59E0B; } html.dark .fm-card.late { border-left-color: #EF4444; } html.dark .fm-card.done { border-left-color: #10B981; }
 html.dark .fm-body h2, html.dark .fm-empty b { color: #f3f4f6; } html.dark .fm-card.done .fm-body h2 { color: #a1a1aa; }
-html.dark .fm-desc { color: #a1a1aa; }
 html.dark .fm-tile { background: rgba(207,185,145,0.12); border-color: rgba(207,185,145,0.3); color: #e8d5a3; }
 html.dark .fm-tile.soon { background: rgba(245,158,11,0.15); border-color: rgba(245,158,11,0.35); color: #FCD34D; }
 html.dark .fm-tile.late { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.35); color: #FCA5A5; }
@@ -2699,7 +2695,6 @@ function renderForms() {
         const late = !submitted && due && due < now;
         const tone = submitted ? 'done' : late ? 'late' : days !== null && days <= 2 ? 'soon' : '';
         const left = submitted || !due ? '' : late ? 'Past due' : days === 0 ? 'Due today' : days === 1 ? '1 day left' : `${days} days left`;
-        const desc = f.census ? `Your availability, training times and desk preferences for ${esc(String(f.formName).replace(/ Census$/, ''))}. Takes about 3 minutes.` : (f.description ? esc(f.description) : '');
         const formUrl = `https://tgis.pages.dev/${f.formId}.html?user=${userName}`;
         const action = f.census ? "switchView('census')" : viewAs ? 'viewAsBlocked()' : `window.location.href='${formUrl}'`;
         const btn = submitted
@@ -2715,10 +2710,9 @@ function renderForms() {
                 <div class="fm-body">
                     <div class="fm-badges">
                         <span class="fm-badge ${required ? 'req' : ''}">${required ? 'Required' : 'Optional'}</span>
-                        ${submitted ? '<span class="fm-badge ok">✓ Submitted</span>' : late ? '<span class="fm-badge late">Overdue</span>' : ''}
+                        ${submitted ? '<span class="fm-badge ok">✓ Submitted</span>' : ''}
                     </div>
                     <h2>${esc(f.formName || f.formId)}</h2>
-                    ${desc ? `<p class="fm-desc">${desc}</p>` : ''}
                     <p class="fm-when">${due ? `Due ${due.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })} at 11:59 PM` : 'No due date'}${left ? ` <em>${left}</em>` : ''}</p>
                 </div>
                 <div class="fm-act">${btn}</div>
