@@ -628,14 +628,7 @@ html.dark .sn-badge.done { background: #2c2c2e; }
 .cz-summary > div { display: flex; gap: 1rem; padding: 0.4375rem 0; border-bottom: 1px solid #F5F5F4; font-size: 0.8125rem; }
 .cz-summary > div:last-child { border-bottom: none; }
 .cz-summary span { width: 130px; flex-shrink: 0; font-weight: 700; color: #9CA3AF; } .cz-summary b { font-weight: 700; color: #111827; overflow-wrap: anywhere; }
-.cz-banner { display: flex; align-items: center; gap: 0.75rem; width: 100%; margin: 0.25rem 0 1rem; padding: 0.875rem 1rem; border: none; border-radius: 1.125rem;
              background: linear-gradient(120deg, #b39a6d, #CFB991 60%, #e8d5a3); text-align: left; font-family: inherit; cursor: pointer; box-shadow: 0 6px 18px -8px rgba(138,117,80,0.6); position: relative; z-index: 3; }
-.cz-banner[hidden] { display: none; }
-.cz-banner-ic { width: 40px; height: 40px; border-radius: 12px; background: #1a1510; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.cz-banner-ic svg { width: 20px; height: 20px; fill: none; stroke: #CFB991; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
-.cz-banner-text { flex: 1; min-width: 0; } .cz-banner-text b { display: block; font-size: 0.9375rem; font-weight: 900; color: #1a1510; }
-.cz-banner-text small { display: block; font-size: 0.75rem; font-weight: 700; color: rgba(26,21,16,0.7); }
-.cz-banner-go { font-size: 0.75rem; font-weight: 900; color: #1a1510; background: rgba(255,255,255,0.55); padding: 0.4375rem 0.75rem; border-radius: 0.75rem; white-space: nowrap; }
 @media (min-width: 640px) { .cz-grid { grid-template-columns: 1fr 1fr; } .cz-f.wide { grid-column: 1 / -1; } }
 @media (min-width: 1024px) { .cz-info { display: grid; grid-template-columns: 1fr 1fr; column-gap: 2rem; } .cz-info > div:nth-last-child(2) { border-bottom: none; }
                              .cz-grid { grid-template-columns: repeat(3, 1fr); } }
@@ -647,7 +640,10 @@ html.dark .sn-badge.done { background: #2c2c2e; }
 .cza-ctrl-l b { display: block; font-size: 0.9375rem; font-weight: 900; color: #111827; } .cza-ctrl-l small { display: block; font-size: 0.75rem; font-weight: 600; color: #9CA3AF; }
 .cza-status { flex-shrink: 0; font-size: 0.6875rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; padding: 0.375rem 0.625rem; border-radius: 99px; background: #F3F4F6; color: #6B7280; }
 .cza-status.open { background: #D1FAE5; color: #047857; }
-.cza-ctrl-r { display: flex; gap: 0.5rem; align-items: center; } .cza-ctrl-r .ie-in { width: 150px; }
+.cza-ctrl-r { display: flex; gap: 0.5rem; align-items: flex-end; flex-wrap: wrap; } .cza-ctrl-r .ie-in { width: 150px; }
+.cza-in { display: flex; flex-direction: column; gap: 0.25rem; } .cza-in span { font-size: 0.625rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #9CA3AF; }
+.cz-due { display: inline-block; vertical-align: middle; margin-left: 0.375rem; font-size: 0.6875rem; font-weight: 900; padding: 0.25rem 0.5rem; border-radius: 99px; background: #FEF3C7; color: #B45309; }
+.cz-due.late { background: #FEE2E2; color: #B91C1C; }
 .cza-viewing { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap; }
 .cza-viewing label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8125rem; font-weight: 800; color: #4B5563; }
 .cza-viewing select { width: auto; }
@@ -670,7 +666,7 @@ html.dark .sn-badge.done { background: #2c2c2e; }
 .cza-bar div { height: 10px; border-radius: 99px; background: #F0EEE9; overflow: hidden; } .cza-bar i { display: block; height: 100%; border-radius: 99px; background: #CFB991; }
 .cza-bar b { font-size: 0.8125rem; font-weight: 900; color: #111827; text-align: right; }
 .rs-btn[disabled] { opacity: 0.5; cursor: default; }
-@media (max-width: 640px) { .cza-ctrl-r { width: 100%; } .cza-ctrl-r .ie-in { flex: 1; width: auto; min-width: 0; } .cza-ctrl-r .rs-btn { flex-shrink: 0; } .cza-progress { grid-template-columns: 1fr auto; } .cza-progress div { grid-column: 1 / -1; } }
+@media (max-width: 640px) { .cza-ctrl-r { width: 100%; } .cza-in { flex: 1 1 140px; min-width: 0; } .cza-ctrl-r .ie-in { width: 100%; min-width: 0; } .cza-ctrl-r .rs-btn { flex: 1; justify-content: center; } .cza-progress { grid-template-columns: 1fr auto; } .cza-progress div { grid-column: 1 / -1; } }
 html.dark .cz-card, html.dark .cza-ctrl, html.dark .cza-progress, html.dark .cz-yn, html.dark .cz-chip, html.dark .cz-opt, html.dark .cz-back, html.dark .cz-hours button, html.dark .cz-step span { background: #1c1c1e; border-color: #2c2c2e; color: #e5e7eb; }
 html.dark .cz-head h2, html.dark .cz-card h3, html.dark .cz-info b, html.dark .cz-hours b, html.dark .cz-summary b, html.dark .cz-center h2, html.dark .cza-ctrl-l b, html.dark .cza-progress b, html.dark .cza-progress em, html.dark .cza-resp summary b, html.dark .cza-bar b, html.dark .cz-tags input { color: #f3f4f6; }
 html.dark .cz-info > div, html.dark .cz-summary > div, html.dark .cza-resp { border-color: #2c2c2e; }
@@ -1744,7 +1740,6 @@ html.dark .theme-switch::after { transform: translateX(18px); }
         <div id="nav-families" class="nav-button" onclick="switchView('families')"><span class="nav-icon" style="background:#fff;"><svg viewBox="0 0 24 24" style="stroke:#b39a6d;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>Family Points</div>
         <div id="nav-desk" class="nav-button" onclick="switchView('desk')"><span class="nav-icon" style="background:#06B6D4;"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>Desk Schedule</div>
         <div id="nav-resources" class="nav-button" onclick="switchView('resources')"><span class="nav-icon" style="background:#8B5CF6;"><svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></span>Resources</div>
-        <div id="nav-census" class="nav-button" onclick="switchView('census')" style="display:none;"><span class="nav-icon" style="background:#EA580C;"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12l2 2 4-4"/></svg></span>Census</div>
         <div id="nav-forms" class="nav-button" onclick="switchView('forms')"><span class="nav-icon" style="background:#F59E0B;"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/></svg></span>Required Forms</div>
         <div id="nav-desk-dashboard" class="nav-button hidden" onclick="switchView('desk-dashboard')"><span class="nav-icon" style="background:#6366F1;"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg></span>Desk Dashboard</div>
         <div id="view-switcher-container" class="hidden sb-switcher">
@@ -1877,9 +1872,6 @@ html.dark .theme-switch::after { transform: translateX(18px); }
     <!-- WHITE CARD SHEET -->
     <div class="mh-sheet" style="background:#F5F5F5;
                 padding:0.25rem 1rem 6rem;position:relative;z-index:2;min-height:calc(100vh - 160px);">
-
-        <!-- Census reminder: shown while the census is open and you haven't submitted -->
-        <button id="cz-banner" class="cz-banner" onclick="switchView('census')" hidden></button>
 
         <!-- GREETING -->
         <div class="mh-greet" style="margin-bottom:1rem;">
@@ -2684,7 +2676,12 @@ function renderForms() {
             : '';
 
         // Button
-        const btn = submitted
+        const btn = f.census
+            ? `<button onclick="switchView('census')"
+                 class="w-full md:w-auto ${submitted ? 'bg-gray-100 text-gray-600' : 'bg-primary-gold hover:bg-[#b39a6d] text-white shadow-lg shadow-primary-gold/30'} font-black py-4 px-8 rounded-2xl transition-all text-center uppercase text-xs tracking-widest">
+                 ${submitted ? 'Review answers' : 'Open Census'}
+               </button>`
+            : submitted
             ? `<button disabled class="w-full md:w-auto bg-gray-100 text-gray-400 font-black py-4 px-8 rounded-2xl uppercase text-xs tracking-widest cursor-not-allowed">
                  Submitted ✓
                </button>`
@@ -3303,12 +3300,12 @@ function switchView(viewId) {
 
     // 2. Update desktop sidebar active state
     document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
-    const activeNav = document.getElementById(`nav-${viewId}`);
+    const activeNav = document.getElementById(`nav-${viewId === 'census' ? 'forms' : viewId}`);
     if (activeNav) activeNav.classList.add('active');
 
     // 3. Update mobile bottom nav active state
     document.querySelectorAll('.bn-btn').forEach(btn => btn.classList.remove('active'));
-    const activeBn = document.getElementById(`bn-${viewId === 'schedule2' ? 'schedule' : viewId}`);
+    const activeBn = document.getElementById(`bn-${viewId === 'schedule2' ? 'schedule' : viewId === 'census' ? 'forms' : viewId}`);
     if (activeBn) activeBn.classList.add('active');
 
     // 4. Close sidebar if open on mobile
@@ -4975,22 +4972,18 @@ async function loadCensusStatus() {
     renderCensusBanner();
 }
 
+// While a census is open it shows up as a Required form (Forms page, Home's
+// "Forms due", the dashboard), with the due date admins set.
 function renderCensusBanner() {
-    // While a census is open, everyone also gets a Census menu item / quick action
-    const open = !!(czConfig && czConfig.open && !viewAs);
-    const nav = document.getElementById('nav-census');
-    if (nav) nav.style.display = open ? 'flex' : 'none';
-    const hasQa = QUICK_ACTIONS.some(a => a.view === 'census');
-    if (open && !hasQa) { QUICK_ACTIONS.splice(1, 0, { view: 'census', label: 'Census', bg: '#EA580C', icon: '<path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12l2 2 4-4"/>' }); renderQuickActions(); }
-    if (!open && hasQa) { QUICK_ACTIONS.splice(QUICK_ACTIONS.findIndex(a => a.view === 'census'), 1); renderQuickActions(); }
-    const b = document.getElementById('cz-banner');
-    if (!b) return;
-    const show = !!(czConfig && czConfig.open && !czMine && !viewAs);
-    b.hidden = !show;
-    if (show) b.innerHTML = `
-        <span class="cz-banner-ic"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12l2 2 4-4"/></svg></span>
-        <span class="cz-banner-text"><b>${snEsc(czConfig.term)} census is open</b><small>Takes about 3 minutes · please fill it out</small></span>
-        <span class="cz-banner-go">Start →</span>`;
+    if (!cachedData) return;
+    const forms = (cachedData.forms || []).filter(f => !f.census);
+    if (czConfig && czConfig.open && czConfig.term && !viewAs) {
+        forms.unshift({ formId: 'census', formName: `${czConfig.term} Census`, active: true, type: 'Required',
+                        dueDate: czConfig.due ? czConfig.due + 'T23:59:00' : null, submitted: !!czMine, census: true });
+    }
+    cachedData.forms = forms;
+    try { renderForms(); } catch (e) {}
+    try { if (window._homeTours) renderMobileHome(window._homeTours); } catch (e) {}
 }
 
 function czNewState() {
@@ -5054,7 +5047,9 @@ function czHtml() {
             <div class="cz-nav center"><button type="button" class="cz-back" onclick="czGo(1)">Update my answers</button><button type="button" class="cz-next" onclick="switchView('home')">Back to Home</button></div>
         </div>`;
     }
-    const head = `<div class="cz-head"><p class="cz-kicker">Purdue Admissions</p><h2>${esc(term)} Census</h2></div>${czStepper()}`;
+    const due = czConfig.due ? new Date(czConfig.due + 'T23:59:00') : null;
+    const dueTxt = due ? `<span class="cz-due${due < new Date() ? ' late' : ''}">Due ${due.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</span>` : '';
+    const head = `<div class="cz-head"><p class="cz-kicker">Purdue Admissions · Required form</p><h2>${esc(term)} Census ${dueTxt}</h2></div>${czStepper()}`;
 
     if (czStep === 1) {
         const rows = [['Full name', p.fullName], ['Preferred name', p.displayName], ['Role', p.status], ['Email', p.email], ['Birthday', p.birthday],
@@ -5292,12 +5287,14 @@ function czaRender() {
         <section class="cza-ctrl">
             <div class="cza-ctrl-l">
                 <span class="cza-status ${cfg.open ? 'open' : ''}">${cfg.open ? '● Open' : 'Closed'}</span>
-                <div><b>${cfg.term ? esc(cfg.term) + ' census' : 'No census opened yet'}</b><small>${cfg.open ? 'Guides see a reminder on Home until they submit.' : 'Guides can\'t submit right now.'}</small></div>
+                <div><b>${cfg.term ? esc(cfg.term) + ' census' : 'No census opened yet'}</b><small>${cfg.open ? `Listed as a required form${cfg.due ? ', due ' + new Date(cfg.due + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) : ' (no due date set)'}.` : 'Guides can\'t submit right now.'}</small></div>
             </div>
             <div class="cza-ctrl-r">
-                <input id="cza-term-in" class="ie-in" list="cza-terms" value="${esc(cfg.term || czDefaultTerm())}" aria-label="Census term">
+                <label class="cza-in"><span>Term</span><input id="cza-term-in" class="ie-in" list="cza-terms" value="${esc(cfg.term || czDefaultTerm())}"></label>
                 <datalist id="cza-terms">${allTerms.map(t => `<option value="${esc(t)}">`).join('')}</datalist>
-                ${cfg.open ? `<button class="rs-btn danger" onclick="czaSetOpen(false)">Close census</button>` : `<button class="rs-btn dark" onclick="czaSetOpen(true)">Open census</button>`}
+                <label class="cza-in"><span>Due date</span><input id="cza-due-in" class="ie-in" type="date" value="${esc(cfg.due || '')}"></label>
+                ${cfg.open ? `<button class="rs-btn dark" onclick="czaSetOpen(true)">Save</button><button class="rs-btn danger" onclick="czaSetOpen(false)">Close census</button>`
+                           : `<button class="rs-btn dark" onclick="czaSetOpen(true)">Open census</button>`}
             </div>
         </section>
         <div class="cza-viewing">
@@ -5344,10 +5341,12 @@ function czaRender() {
 
 async function czaSetOpen(open) {
     const term = document.getElementById('cza-term-in').value.trim();
+    const due = document.getElementById('cza-due-in').value || null;   // YYYY-MM-DD
     if (!/^(Spring|Summer|Fall) \d{4}$/.test(term)) { alert('Write the term like "Spring 2027".'); return; }
-    if (open && !confirm(`Open the ${term} census? Every guide will see a reminder on Home until they submit.`)) return;
+    const opening = open && !(czConfig && czConfig.open);
+    if (opening && !confirm(`Open the ${term} census${due ? ' (due ' + new Date(due + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ')' : ''}? It will show up as a required form for every guide until they submit.`)) return;
     try {
-        const value = { term, open };
+        const value = { term, open, due };
         const existing = await sbFetch('app_settings?key=eq.census&select=key');
         existing.length ? await sbWrite('PATCH', 'app_settings?key=eq.census', { value, updated_at: new Date().toISOString() })
                         : await sbWrite('POST', 'app_settings', { key: 'census', value });
