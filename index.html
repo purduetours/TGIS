@@ -620,7 +620,7 @@ html.dark .fm-btn.ghost { background: #2c2c2e; color: #e5e7eb; }
 .cz-head { margin-bottom: 0.75rem; }
 .cz-kicker { margin: 0; font-size: 0.625rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.16em; color: #b39a6d; }
 .cz-head h2 { margin: 0.125rem 0 0; font-size: 1.5rem; font-weight: 900; color: #111827; }
-.cz-steps { display: flex; align-items: flex-start; margin: 0.5rem 0 1.25rem; }
+.cz-steps { display: flex; align-items: flex-start; margin: 0 0.25rem 1.25rem; }
 .cz-step { display: flex; flex-direction: column; align-items: center; gap: 0.25rem; width: 56px; flex-shrink: 0; }
 .cz-step span { width: 30px; height: 30px; border-radius: 99px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 900;
                 border: 2px solid #E5E7EB; background: white; color: #9CA3AF; }
@@ -628,7 +628,9 @@ html.dark .fm-btn.ghost { background: #2c2c2e; color: #e5e7eb; }
 .cz-step.on span { border-color: #CFB991; background: #CFB991; color: #1a1510; } .cz-step.on small { color: #8a7550; }
 .cz-step.done span { border-color: #10B981; background: #10B981; color: white; } .cz-step.done small { color: #059669; }
 .cz-steps > i { flex: 1; height: 2px; background: #E5E7EB; margin-top: 15px; } .cz-steps > i.done { background: #10B981; }
-.cz-card { background: white; border: 1px solid #ECECEC; border-radius: 1.25rem; padding: 1.125rem 1.25rem; margin-bottom: 0.875rem; }
+.cz-card { background: white; border: 1px solid #ECECEC; border-radius: 1.5rem; padding: 1.25rem 1.5rem; margin-bottom: 1rem; box-shadow: 0 10px 30px -18px rgba(26,21,16,0.35); }
+.cz-hero { margin-bottom: 1.25rem; }
+.cz-card h3 { font-size: 1rem !important; }
 .cz-card h3 { margin: 0; font-size: 0.9375rem; font-weight: 900; color: #111827; }
 .cz-card h3 em { font-style: normal; font-size: 0.5625rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; color: #1a1510; background: #CFB991; padding: 2px 6px; border-radius: 99px; vertical-align: middle; margin-left: 0.25rem; }
 .cz-hint { margin: 0.25rem 0 0; font-size: 0.75rem; font-weight: 600; color: #9CA3AF; }
@@ -666,9 +668,14 @@ html.dark .fm-btn.ghost { background: #2c2c2e; color: #e5e7eb; }
 .cz-err[hidden] { display: none; }
 .cz-nav { display: flex; justify-content: space-between; gap: 0.75rem; margin-top: 0.5rem; }
 .cz-nav.center { justify-content: center; flex-wrap: wrap; margin-top: 1rem; }
-.cz-back, .cz-next { border: none; font-family: inherit; font-size: 0.875rem; font-weight: 900; padding: 0.875rem 1.25rem; border-radius: 0.875rem; cursor: pointer; }
-.cz-back { background: white; border: 1.5px solid #E5E7EB; color: #4B5563; }
-.cz-next { background: #1a1510; color: #CFB991; } .cz-next.danger { background: #DC2626; color: white; } .cz-next:disabled { opacity: 0.6; }
+.cz-back, .cz-next { display: inline-flex; align-items: center; justify-content: center; border: none; font-family: inherit; font-size: 0.8125rem; font-weight: 900;
+                       text-transform: uppercase; letter-spacing: 0.1em; padding: 1rem 1.75rem; border-radius: 1rem; cursor: pointer; white-space: nowrap; }
+.cz-back { background: #F3F4F6; color: #374151; }
+.cz-next { background: linear-gradient(135deg, #CFB991, #b39a6d); color: #1a1510; box-shadow: 0 10px 22px -10px rgba(138,117,80,0.8); }
+.cz-next.danger { background: linear-gradient(135deg, #F87171, #DC2626); color: white; box-shadow: 0 10px 22px -10px rgba(220,38,38,0.7); }
+.cz-next:disabled { opacity: 0.6; }
+@media (max-width: 767px) { .cz-back, .cz-next { padding: 0.6875rem 1rem; font-size: 0.75rem; border-radius: 0.875rem; } .cz-nav .cz-next { flex: 1; }
+                            .cz-hero .fm-act { display: none; } .cz-card { padding: 1.125rem 1.125rem; } }
 .cz-center { text-align: center; padding: 2rem 1.25rem; }
 .cz-center h2 { margin: 0.75rem 0 0.25rem; font-size: 1.375rem; font-weight: 900; color: #111827; } .cz-center > p { margin: 0; font-size: 0.875rem; font-weight: 600; color: #6B7280; }
 .cz-big-ic { width: 60px; height: 60px; margin: 0 auto; border-radius: 99px; background: #F5F3EE; display: flex; align-items: center; justify-content: center; font-size: 1.75rem; }
@@ -724,7 +731,7 @@ html.dark .cz-chip.on, html.dark .cz-opt.on { background: #CFB991; border-color:
 html.dark .cz-yn.on.yes { background: rgba(16,185,129,0.15); color: #6EE7B7; } html.dark .cz-yn.on.no { background: rgba(239,68,68,0.15); color: #FCA5A5; } html.dark .cz-yn.on.gold { background: rgba(207,185,145,0.2); color: #e8d5a3; }
 html.dark .cz-note { background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.3); color: #FCD34D; } html.dark .cz-note.ok { background: rgba(16,185,129,0.12); border-color: rgba(16,185,129,0.3); color: #6EE7B7; }
 html.dark .cz-affirm { color: #d4d4d8; } html.dark .cz-affirm.red { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.3); color: #FCA5A5; }
-html.dark .cz-next { background: #CFB991; color: #1a1510; } html.dark .cz-big-ic { background: #2c2c2e; } html.dark .cz-big-ic.ok { background: #10B981; }
+html.dark .cz-card { box-shadow: none; } html.dark .cz-back { background: #2c2c2e; color: #e5e7eb; border-color: #2c2c2e; } html.dark .cz-big-ic { background: #2c2c2e; } html.dark .cz-big-ic.ok { background: #10B981; }
 html.dark .cza-progress span, html.dark .cza-bar div { background: #2c2c2e; } html.dark .cza-bar span { color: #d4d4d8; }
 
 /* Dashboard */
@@ -5026,7 +5033,7 @@ async function renderCensus(fresh) {
     if (viewAs) { root.innerHTML = '<div class="sn-empty">The census is turned off while viewing as someone else.</div>'; return; }
     if (!czConfig && !fresh) { root.innerHTML = '<div class="ms-loading">Loading…</div>'; await loadCensusStatus(); }
     if (!czConfig || !czConfig.open) {
-        root.innerHTML = `<div class="cz-card cz-center"><div class="cz-big-ic">📋</div><h2>No census right now</h2><p>The census isn't open at the moment. You'll see a reminder on Home when it opens.</p></div>`;
+        root.innerHTML = `<div class="fm-empty"><span>✓</span><b>No census right now</b><small>The census isn't open at the moment. When it opens, it'll show up on your Forms page.</small></div>`;
         return;
     }
     if (!czState) { czState = czNewState(); czStep = czMine ? 0 : 1; }
@@ -5054,17 +5061,15 @@ function czHtml() {
     // Already submitted
     if (czStep === 0) {
         const r = czMine;
-        return `<div class="cz-card cz-center">
-            <div class="cz-big-ic ok">✓</div>
-            <h2>You're all set for ${esc(term)}</h2>
-            <p>You submitted the census on ${new Date(r.submitted_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}.</p>
-            <div class="cz-summary">${czSummaryRows(r)}</div>
-            <div class="cz-nav center"><button type="button" class="cz-back" onclick="czGo(1)">Update my answers</button><button type="button" class="cz-next" onclick="switchView('home')">Back to Home</button></div>
-        </div>`;
+        return czHeroHtml(true) + `
+            <section class="cz-card">
+                <h3>Your answers</h3>
+                <p class="cz-hint">Submitted ${new Date(r.submitted_at).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}. You can update them until the census closes.</p>
+                <div class="cz-summary">${czSummaryRows(r)}</div>
+            </section>
+            <div class="cz-nav"><button type="button" class="cz-back" onclick="switchView('forms')">← Forms</button><button type="button" class="cz-next" onclick="czGo(1)">Update answers</button></div>`;
     }
-    const due = czConfig.due ? new Date(czConfig.due + 'T23:59:00') : null;
-    const dueTxt = due ? `<span class="cz-due${due < new Date() ? ' late' : ''}">Due ${due.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</span>` : '';
-    const head = `<div class="cz-head"><p class="cz-kicker">Purdue Admissions · Required form</p><h2>${esc(term)} Census ${dueTxt}</h2></div>${czStepper()}`;
+    const head = czHeroHtml(false) + czStepper();
 
     if (czStep === 1) {
         const rows = [['Full name', p.fullName], ['Preferred name', p.displayName], ['Role', p.status], ['Email', p.email], ['Birthday', p.birthday],
@@ -5144,6 +5149,29 @@ function czHtml() {
                 <label class="cz-affirm"><input type="checkbox" ${st.commitment ? 'checked' : ''} onchange="czState.commitment = this.checked">
                     <span>I agree to give <b>1–2 tours per week</b>, take part in <b>3–4 Saturday or Program Days per semester</b>, and <b>attend bi-weekly training sessions</b> as scheduled.</span></label></section>
             ${err}${nav(3, 'czSubmit()', czMine ? 'Update census' : 'Submit census')}`;
+}
+
+// Census header in the same card style as the Forms page (date tile, badges, due line)
+function czHeroHtml(submitted) {
+    const esc = snEsc, due = czConfig.due ? new Date(czConfig.due + 'T23:59:00') : null, now = new Date();
+    const today = new Date(now); today.setHours(0, 0, 0, 0);
+    const days = due ? Math.round((new Date(due).setHours(0, 0, 0, 0) - today) / 86400000) : null;
+    const late = !submitted && due && due < now;
+    const tone = submitted ? 'done' : late ? 'late' : days !== null && days <= 2 ? 'soon' : '';
+    const left = submitted || !due || late ? '' : days === 0 ? 'Due today' : days === 1 ? '1 day left' : `${days} days left`;
+    const tile = submitted
+        ? `<div class="fm-tile done"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg><small>Done</small></div>`
+        : due ? `<div class="fm-tile ${tone}"><small>${due.toLocaleDateString('en-US', { month: 'short' })}</small><b>${due.getDate()}</b><small>${due.toLocaleDateString('en-US', { weekday: 'short' })}</small></div>`
+        : `<div class="fm-tile"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/></svg></div>`;
+    return `
+        <article class="fm-card cz-hero ${tone}">
+            ${tile}
+            <div class="fm-body">
+                <div class="fm-badges"><span class="fm-badge req">Required</span>${submitted ? '<span class="fm-badge ok">✓ Submitted</span>' : late ? '<span class="fm-badge late">Overdue</span>' : ''}</div>
+                <h2>${esc(czConfig.term)} Census</h2>
+                <p class="fm-when">${due ? `Due ${due.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })} at 11:59 PM` : 'No due date'}${left ? ` <em>${left}</em>` : ''}</p>
+            </div>
+        </article>`;
 }
 
 function czSummaryRows(r) {
