@@ -5014,7 +5014,7 @@ function czNewState() {
     const split = v => String(v || '').split(/\s*,\s*/).filter(Boolean);
     return {
         infoCorrect: r ? r.info_correct : null,
-        profile: { ...(r && r.profile_updates || {}) },
+        profile: {},   // step-1 corrections; written to the guide's profile on submit, not kept on the response
         involvements: split(r ? r.involvements : p.involvements),
         giving: r ? r.giving_tours : null,
         reason: r ? r.no_tour_reason || '' : '',
@@ -5087,7 +5087,7 @@ function czHtml() {
             </section>
             ${st.infoCorrect === false ? `<section class="cz-card" id="cz-upd"><h3>Update your information</h3><p class="cz-hint">Change only what's wrong.</p>
                 <div class="cz-grid">
-                    <label class="cz-f"><span>Preferred name</span><input class="ie-in" data-field="preferred_name" value="${esc(st.profile.preferred_name || '')}" placeholder="${esc(p.displayName || '')}"><small>Codirectors update this in TGIS, since tours use it.</small></label>
+                    <label class="cz-f"><span>Preferred name</span><input class="ie-in" data-field="preferred_name" value="${esc(st.profile.preferred_name || '')}" placeholder="${esc(p.displayName || '')}"></label>
                     <label class="cz-f"><span>Birthday</span><input class="ie-in" type="date" data-field="birthday" value="${esc(st.profile.birthday || '')}"></label>
                     <label class="cz-f"><span>Hometown</span>${ieInput('hometown', cur.hometown)}</label>
                     <label class="cz-f"><span>Graduation</span>${ieInput('grad_date', cur.grad_date)}</label>
@@ -5244,6 +5244,7 @@ async function czSubmit() {
         if (profile.hometown) p.hometown = profile.hometown; if (profile.grad_date) p.gradDate = profile.grad_date; if (profile.year) p.year = profile.year;
         if (profile.college) p.college = profile.college; if (profile.major) p.major = profile.major; if (profile.minor) p.minor = profile.minor;
         if (profile.certificate) p.certificate = profile.certificate; if (profile.birthday) p.birthday = profile.birthday;
+        if (profile.preferred_name) p.displayName = profile.preferred_name;
         czState = null; czStep = 0;
         renderCensusBanner();
         renderCensus(true);
@@ -5342,7 +5343,7 @@ function czaRender() {
                             <summary><span class="db-av" style="width:30px;height:30px">${esc(nameOf(r).charAt(0))}</span>
                                 <div><b>${esc(nameOf(r))}</b><small>${new Date(r.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}${r.involvements ? ' · ' + esc(r.involvements) : ''}</small></div>
                                 <span class="db-pill ${r.giving_tours === 'Yes' ? 'green' : 'red'}">${r.giving_tours === 'Yes' ? `${r.tours_per_week || '?'}/wk` : 'No tours'}</span></summary>
-                            <div class="cz-summary">${czSummaryRows(r)}${Object.keys(r.profile_updates || {}).length ? `<div><span>Profile changes</span><b>${Object.entries(r.profile_updates).map(([k, v]) => `${esc(k.replace(/_/g, ' '))}: ${esc(v)}`).join('<br>')}</b></div>` : ''}${r.commitment ? '<div><span>Commitment</span><b>Agreed</b></div>' : ''}</div>
+                            <div class="cz-summary">${czSummaryRows(r)}${r.commitment ? '<div><span>Commitment</span><b>Agreed</b></div>' : ''}</div>
                         </details>`).join('')}</div>` : `<p class="db-empty">${rows.length ? 'No responses match.' : 'No responses yet for ' + esc(czaTerm) + '.'}</p>`}
                 </section>
                 ${no.length ? `<section class="db-card"><div class="db-card-head"><h3>Not giving tours</h3><span class="db-count">${no.length}</span></div>
@@ -5393,7 +5394,6 @@ function czaCsv() {
         ['Giving tours', r => r.giving_tours], ['Tours per week', r => r.tours_per_week], ['Reason (no tours)', r => r.no_tour_reason],
         ['Training days available', r => r.training_days_avail], ['Training days preferred', r => r.training_days_pref], ['Training start times', r => r.training_times],
         ['Dietary', r => r.dietary], ['Involvements', r => r.involvements], ['Desk', r => r.desk_interest], ['Desk preference', r => r.desk_where], ['Desk hours', r => r.desk_hours],
-        ['Info correct', r => r.info_correct === false ? 'No' : r.info_correct ? 'Yes' : ''], ['Profile changes', r => Object.entries(r.profile_updates || {}).map(([k, v]) => `${k}: ${v}`).join('; ')],
         ['Commitment', r => r.commitment ? 'Yes' : 'No']];
     const cell = v => { const t = String(v ?? ''); return /[",\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t; };
     const csv = [cols.map(c => c[0]).join(','), ...(czaRows || []).map(r => cols.map(([, f]) => cell(f(r))).join(','))].join('\n');

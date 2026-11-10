@@ -285,13 +285,15 @@ create policy "Admins remove links" on public.resource_links for delete to authe
 --   app_settings       small key/value settings admins change in the app
 --                      (key 'census' = { "term": "Spring 2027", "open": true })
 --   census_responses   one row per guide per term
---   submit_census()    the only way a guide writes a response; it also copies
---                      their profile updates, dietary, involvements and
---                      giving-tours answer onto their guides row
+--   submit_census()    the only way a guide writes a response; it also writes
+--                      their info corrections (step 1), dietary, involvements
+--                      and giving-tours answer straight onto their guides row
+--                      (corrections aren't kept on the response itself)
 -- Guides read only their own response; codirectors/admins read all of them.
 -- ───────────────────────────────────────────────────────────────────────────
 
 alter table public.guides add column if not exists involvements text;
+alter table public.guides add column if not exists birthday text;
 
 create table if not exists public.app_settings (
   key        text primary key,
@@ -352,7 +354,8 @@ declare
   cfg jsonb;
   giving text := answers ->> 'giving_tours';
   -- profile columns the census may update on the guide's own row (keep in sync with index.html)
-  allowed text[] := array['major','minor','certificate','college','grad_date','year','hometown','birthday','dietary','involvements','giving_tours'];
+  allowed text[] := array['display_name','major','minor','certificate','college','grad_date','year','hometown','birthday','dietary','involvements','giving_tours'];
+  profile jsonb := coalesce(answers -> 'profile', '{}'::jsonb);
   patch jsonb;
   sets text;
 begin
@@ -373,8 +376,8 @@ begin
   insert into public.census_responses as c (term, email, username, display_name, info_correct, profile_updates, giving_tours,
       no_tour_reason, tours_per_week, training_days_avail, training_days_pref, training_times, dietary, involvements,
       desk_interest, desk_where, desk_hours, commitment)
-  values (p_term, me_email, me.username, me.display_name, (answers ->> 'info_correct')::boolean,
-      coalesce(answers -> 'profile', '{}'::jsonb), giving, nullif(trim(answers ->> 'no_tour_reason'), ''),
+  values (p_term, me_email, me.username, coalesce(nullif(trim(profile ->> 'preferred_name'), ''), me.display_name),
+      (answers ->> 'info_correct')::boolean, '{}'::jsonb, giving, nullif(trim(answers ->> 'no_tour_reason'), ''),
       nullif(answers ->> 'tours_per_week', '')::int, nullif(answers ->> 'training_days_avail', ''),
       nullif(answers ->> 'training_days_pref', ''), nullif(answers ->> 'training_times', ''),
       nullif(trim(answers ->> 'dietary'), ''), nullif(trim(answers ->> 'involvements'), ''),
@@ -389,8 +392,12 @@ begin
       desk_interest = excluded.desk_interest, desk_where = excluded.desk_where, desk_hours = excluded.desk_hours,
       commitment = excluded.commitment;
 
-  -- Copy answers onto the guide's row: profile corrections, dietary, involvements, giving tours
-  patch := coalesce(answers -> 'profile', '{}'::jsonb)
+  -- Write answers onto the guide's row: info corrections (preferred name = display_name),
+  -- dietary, involvements, giving tours
+  if nullif(trim(profile ->> 'preferred_name'), '') is not null then
+    profile := profile || jsonb_build_object('display_name', trim(profile ->> 'preferred_name'));
+  end if;
+  patch := (profile - 'preferred_name')
         || jsonb_build_object('giving_tours', giving)
         || jsonb_strip_nulls(jsonb_build_object('dietary', nullif(trim(answers ->> 'dietary'), ''),
                                                 'involvements', nullif(trim(answers ->> 'involvements'), '')));
