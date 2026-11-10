@@ -281,6 +281,136 @@ create policy "Admins remove links" on public.resource_links for delete to authe
 
 
 -- ───────────────────────────────────────────────────────────────────────────
+-- STEP 2h — Census in TGIS v4. Run after step 2g (uses is_roster_admin()).
+--   app_settings       small key/value settings admins change in the app
+--                      (key 'census' = { "term": "Spring 2027", "open": true })
+--   census_responses   one row per guide per term
+--   submit_census()    the only way a guide writes a response; it also copies
+--                      their profile updates, dietary, involvements and
+--                      giving-tours answer onto their guides row
+-- Guides read only their own response; codirectors/admins read all of them.
+-- ───────────────────────────────────────────────────────────────────────────
+
+alter table public.guides add column if not exists involvements text;
+
+create table if not exists public.app_settings (
+  key        text primary key,
+  value      jsonb not null,
+  updated_at timestamptz not null default now(),
+  updated_by text default (auth.jwt() ->> 'email')
+);
+alter table public.app_settings enable row level security;
+revoke all on public.app_settings from anon;
+grant select, insert, update on public.app_settings to authenticated;
+grant all on public.app_settings to service_role;
+drop policy if exists "Guides read settings" on public.app_settings;
+drop policy if exists "Admins add settings" on public.app_settings;
+drop policy if exists "Admins change settings" on public.app_settings;
+create policy "Guides read settings"   on public.app_settings for select to authenticated using (public.is_guide());
+create policy "Admins add settings"    on public.app_settings for insert to authenticated with check (public.is_roster_admin());
+create policy "Admins change settings" on public.app_settings for update to authenticated using (public.is_roster_admin()) with check (public.is_roster_admin());
+
+create table if not exists public.census_responses (
+  id                  bigint generated always as identity primary key,
+  term                text not null,
+  email               text not null,
+  username            text,
+  display_name        text,
+  submitted_at        timestamptz not null default now(),
+  info_correct        boolean,
+  profile_updates     jsonb not null default '{}'::jsonb,
+  giving_tours        text not null check (giving_tours in ('Yes', 'No')),
+  no_tour_reason      text,
+  tours_per_week      int check (tours_per_week in (1, 2)),
+  training_days_avail text,
+  training_days_pref  text,
+  training_times      text,
+  dietary             text,
+  involvements        text,
+  desk_interest       text check (desk_interest in ('Yes', 'No', 'Assigned')),
+  desk_where          text,
+  desk_hours          int check (desk_hours between 5 and 10),
+  commitment          boolean not null default false,
+  unique (term, email)
+);
+alter table public.census_responses enable row level security;
+revoke all on public.census_responses from anon;
+revoke insert, update, delete on public.census_responses from authenticated;
+grant select on public.census_responses to authenticated;
+grant all on public.census_responses to service_role;
+drop policy if exists "Own response or admins" on public.census_responses;
+create policy "Own response or admins" on public.census_responses for select to authenticated
+  using (lower(email) = lower(auth.jwt() ->> 'email') or public.is_roster_admin());
+
+create or replace function public.submit_census(p_term text, answers jsonb)
+returns setof public.census_responses
+language plpgsql security definer set search_path = public
+as $$
+declare
+  me_email text := lower(auth.jwt() ->> 'email');
+  me public.guides;
+  cfg jsonb;
+  giving text := answers ->> 'giving_tours';
+  -- profile columns the census may update on the guide's own row (keep in sync with index.html)
+  allowed text[] := array['major','minor','certificate','college','grad_date','year','hometown','birthday','dietary','involvements','giving_tours'];
+  patch jsonb;
+  sets text;
+begin
+  select * into me from public.guides where lower(trim(email)) = me_email limit 1;
+  if me is null then raise exception 'No TGIS profile for this account'; end if;
+
+  select value into cfg from public.app_settings where key = 'census';
+  if cfg is not null and (coalesce((cfg ->> 'open')::boolean, false) = false or cfg ->> 'term' is distinct from p_term) then
+    raise exception 'The % census is closed', p_term;
+  end if;
+  if giving is null or giving not in ('Yes', 'No') then raise exception 'Answer whether you are giving tours'; end if;
+  if giving = 'No' and coalesce(trim(answers ->> 'no_tour_reason'), '') = '' then raise exception 'Give a reason for not giving tours'; end if;
+  if giving = 'Yes' and coalesce(answers ->> 'tours_per_week', '') not in ('1', '2') then raise exception 'Pick 1 or 2 tours per week'; end if;
+  if coalesce(answers ->> 'desk_hours', '') <> '' and (answers ->> 'desk_hours')::numeric not between 5 and 10 then
+    raise exception 'Desk hours must be between 5 and 10';
+  end if;
+
+  insert into public.census_responses as c (term, email, username, display_name, info_correct, profile_updates, giving_tours,
+      no_tour_reason, tours_per_week, training_days_avail, training_days_pref, training_times, dietary, involvements,
+      desk_interest, desk_where, desk_hours, commitment)
+  values (p_term, me_email, me.username, me.display_name, (answers ->> 'info_correct')::boolean,
+      coalesce(answers -> 'profile', '{}'::jsonb), giving, nullif(trim(answers ->> 'no_tour_reason'), ''),
+      nullif(answers ->> 'tours_per_week', '')::int, nullif(answers ->> 'training_days_avail', ''),
+      nullif(answers ->> 'training_days_pref', ''), nullif(answers ->> 'training_times', ''),
+      nullif(trim(answers ->> 'dietary'), ''), nullif(trim(answers ->> 'involvements'), ''),
+      nullif(answers ->> 'desk_interest', ''), nullif(answers ->> 'desk_where', ''),
+      nullif(answers ->> 'desk_hours', '')::int, coalesce((answers ->> 'commitment')::boolean, false))
+  on conflict (term, email) do update set
+      submitted_at = now(), username = excluded.username, display_name = excluded.display_name,
+      info_correct = excluded.info_correct, profile_updates = excluded.profile_updates, giving_tours = excluded.giving_tours,
+      no_tour_reason = excluded.no_tour_reason, tours_per_week = excluded.tours_per_week,
+      training_days_avail = excluded.training_days_avail, training_days_pref = excluded.training_days_pref,
+      training_times = excluded.training_times, dietary = excluded.dietary, involvements = excluded.involvements,
+      desk_interest = excluded.desk_interest, desk_where = excluded.desk_where, desk_hours = excluded.desk_hours,
+      commitment = excluded.commitment;
+
+  -- Copy answers onto the guide's row: profile corrections, dietary, involvements, giving tours
+  patch := coalesce(answers -> 'profile', '{}'::jsonb)
+        || jsonb_build_object('giving_tours', giving)
+        || jsonb_strip_nulls(jsonb_build_object('dietary', nullif(trim(answers ->> 'dietary'), ''),
+                                                'involvements', nullif(trim(answers ->> 'involvements'), '')));
+  select string_agg(format('%I = r.%I', c.column_name, c.column_name), ', ') into sets
+  from information_schema.columns c
+  where c.table_schema = 'public' and c.table_name = 'guides'
+    and c.column_name = any(allowed) and patch ? c.column_name;
+  if sets is not null then
+    execute format('update public.guides g set %s from jsonb_populate_record(null::public.guides, $1) r
+                    where lower(trim(g.email)) = $2', sets) using patch, me_email;
+  end if;
+
+  return query select * from public.census_responses where term = p_term and email = me_email;
+end $$;
+
+revoke all on function public.submit_census(text, jsonb) from public, anon;
+grant execute on function public.submit_census(text, jsonb) to authenticated;
+
+
+-- ───────────────────────────────────────────────────────────────────────────
 -- STEP 3 — Not SQL. Move Apps Script off the public key BEFORE step 4.
 --   1. Supabase → Project Settings → API Keys → copy the service_role (secret) key.
 --   2. Apps Script → Project Settings → Script Properties → SUPABASE_ANON_KEY →

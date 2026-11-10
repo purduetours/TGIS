@@ -566,6 +566,122 @@ html.dark .sn-empty { border-color: #2c2c2e; }
 html.dark .sn-tgit { color: #C4B5FD; }
 html.dark .sn-badge.done { background: #2c2c2e; }
 
+/* Census */
+.cz { }
+.cz-head { margin-bottom: 0.75rem; }
+.cz-kicker { margin: 0; font-size: 0.625rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.16em; color: #b39a6d; }
+.cz-head h2 { margin: 0.125rem 0 0; font-size: 1.5rem; font-weight: 900; color: #111827; }
+.cz-steps { display: flex; align-items: flex-start; margin: 0.5rem 0 1.25rem; }
+.cz-step { display: flex; flex-direction: column; align-items: center; gap: 0.25rem; width: 56px; flex-shrink: 0; }
+.cz-step span { width: 30px; height: 30px; border-radius: 99px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 900;
+                border: 2px solid #E5E7EB; background: white; color: #9CA3AF; }
+.cz-step small { font-size: 0.5625rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; color: #9CA3AF; }
+.cz-step.on span { border-color: #CFB991; background: #CFB991; color: #1a1510; } .cz-step.on small { color: #8a7550; }
+.cz-step.done span { border-color: #10B981; background: #10B981; color: white; } .cz-step.done small { color: #059669; }
+.cz-steps > i { flex: 1; height: 2px; background: #E5E7EB; margin-top: 15px; } .cz-steps > i.done { background: #10B981; }
+.cz-card { background: white; border: 1px solid #ECECEC; border-radius: 1.25rem; padding: 1.125rem 1.25rem; margin-bottom: 0.875rem; }
+.cz-card h3 { margin: 0; font-size: 0.9375rem; font-weight: 900; color: #111827; }
+.cz-card h3 em { font-style: normal; font-size: 0.5625rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; color: #1a1510; background: #CFB991; padding: 2px 6px; border-radius: 99px; vertical-align: middle; margin-left: 0.25rem; }
+.cz-hint { margin: 0.25rem 0 0; font-size: 0.75rem; font-weight: 600; color: #9CA3AF; }
+.cz-card > .cz-yns, .cz-card > .cz-chips, .cz-card > .cz-opts, .cz-card > .cz-hours, .cz-card > .cz-info, .cz-card > .cz-grid, .cz-card > .cz-tags, .cz-card > .ie-in { margin-top: 0.75rem; }
+.cz-info > div { display: flex; gap: 1rem; padding: 0.5rem 0; border-bottom: 1px solid #F5F5F4; font-size: 0.8125rem; }
+.cz-info > div:last-child { border-bottom: none; }
+.cz-info span { width: 120px; flex-shrink: 0; font-weight: 700; color: #9CA3AF; }
+.cz-info b { font-weight: 700; color: #111827; overflow-wrap: anywhere; } .cz-info b.none { color: #D1D5DB; font-weight: 600; }
+.cz-yns { display: flex; gap: 0.5rem; }
+.cz-yn { flex: 1; padding: 0.8125rem 0.75rem; border-radius: 0.875rem; border: 1.5px solid #E5E7EB; background: white; font-family: inherit; font-size: 0.8125rem; font-weight: 800; color: #6B7280; cursor: pointer; }
+.cz-yn.on.yes { background: #ECFDF5; border-color: #10B981; color: #065F46; } .cz-yn.on.no { background: #FEF2F2; border-color: #EF4444; color: #991B1B; }
+.cz-yn.on.gold { background: rgba(207,185,145,0.18); border-color: #CFB991; color: #5c4a2a; }
+.cz-chips, .cz-opts { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.cz-chip, .cz-opt { padding: 0.5625rem 0.9375rem; border-radius: 99px; border: 1.5px solid #E5E7EB; background: white; font-family: inherit; font-size: 0.8125rem; font-weight: 700; color: #374151; cursor: pointer; }
+.cz-chip.on, .cz-opt.on { background: #1a1510; border-color: #1a1510; color: #CFB991; }
+.cz-opt { border-radius: 0.875rem; flex: 1; min-width: 140px; }
+.cz-grid { display: grid; grid-template-columns: 1fr; gap: 0.75rem; }
+.cz-f { display: flex; flex-direction: column; gap: 0.3125rem; min-width: 0; }
+.cz-f > span { font-size: 0.6875rem; font-weight: 800; color: #6B7280; }
+.cz-f small { font-size: 0.6875rem; font-weight: 600; color: #9CA3AF; }
+.cz-tags { display: flex; flex-wrap: wrap; gap: 0.375rem; align-items: center; padding: 0.4375rem; border: 1px solid #E5E7EB; border-radius: 0.875rem; background: #FAFAF9; cursor: text; min-height: 46px; }
+.cz-tag { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.3125rem 0.375rem 0.3125rem 0.6875rem; border-radius: 99px; background: #1a1510; color: #e8dcc2; font-size: 0.75rem; font-weight: 700; }
+.cz-tag button { border: none; background: rgba(255,255,255,0.15); color: #e8dcc2; width: 18px; height: 18px; border-radius: 99px; font-size: 0.5625rem; cursor: pointer; }
+.cz-tags input { flex: 1; min-width: 140px; border: none; background: transparent; font-family: inherit; font-size: 16px; font-weight: 600; color: #111827; outline: none; padding: 0.25rem 0.375rem; }
+.cz-note { padding: 0.75rem 1rem; border-radius: 1rem; background: #FFFBEB; border: 1px solid #FDE68A; color: #92400E; font-size: 0.8125rem; font-weight: 600; margin-bottom: 0.875rem; }
+.cz-note.ok { background: #ECFDF5; border-color: #A7F3D0; color: #065F46; }
+.cz-affirm { display: flex; gap: 0.75rem; align-items: flex-start; padding: 0.25rem 0; font-size: 0.875rem; font-weight: 600; color: #374151; line-height: 1.5; cursor: pointer; }
+.cz-affirm input { width: 20px; height: 20px; margin-top: 2px; accent-color: #b39a6d; flex-shrink: 0; }
+.cz-affirm.red { background: #FEF2F2; border: 1px solid #FECACA; border-radius: 1rem; padding: 0.875rem 1rem; color: #991B1B; margin-bottom: 0.875rem; } .cz-affirm.red input { accent-color: #DC2626; }
+.cz-hours { display: flex; align-items: center; gap: 0.75rem; }
+.cz-hours button { width: 42px; height: 42px; border-radius: 0.875rem; border: 1.5px solid #E5E7EB; background: white; font-size: 1.25rem; font-weight: 800; color: #1a1510; cursor: pointer; }
+.cz-hours b { min-width: 2.5rem; text-align: center; font-size: 1.5rem; font-weight: 900; color: #111827; }
+.cz-hours small { font-size: 0.75rem; font-weight: 700; color: #9CA3AF; }
+.cz-err { margin: 0 0 0.75rem; padding: 0.625rem 0.875rem; border-radius: 0.875rem; background: #FEF2F2; border: 1px solid #FECACA; color: #B91C1C; font-size: 0.8125rem; font-weight: 700; }
+.cz-err[hidden] { display: none; }
+.cz-nav { display: flex; justify-content: space-between; gap: 0.75rem; margin-top: 0.5rem; }
+.cz-nav.center { justify-content: center; flex-wrap: wrap; margin-top: 1rem; }
+.cz-back, .cz-next { border: none; font-family: inherit; font-size: 0.875rem; font-weight: 900; padding: 0.875rem 1.25rem; border-radius: 0.875rem; cursor: pointer; }
+.cz-back { background: white; border: 1.5px solid #E5E7EB; color: #4B5563; }
+.cz-next { background: #1a1510; color: #CFB991; } .cz-next.danger { background: #DC2626; color: white; } .cz-next:disabled { opacity: 0.6; }
+.cz-center { text-align: center; padding: 2rem 1.25rem; }
+.cz-center h2 { margin: 0.75rem 0 0.25rem; font-size: 1.375rem; font-weight: 900; color: #111827; } .cz-center > p { margin: 0; font-size: 0.875rem; font-weight: 600; color: #6B7280; }
+.cz-big-ic { width: 60px; height: 60px; margin: 0 auto; border-radius: 99px; background: #F5F3EE; display: flex; align-items: center; justify-content: center; font-size: 1.75rem; }
+.cz-big-ic.ok { background: #10B981; color: white; font-weight: 900; }
+.cz-summary { text-align: left; margin-top: 1rem; }
+.cz-summary > div { display: flex; gap: 1rem; padding: 0.4375rem 0; border-bottom: 1px solid #F5F5F4; font-size: 0.8125rem; }
+.cz-summary > div:last-child { border-bottom: none; }
+.cz-summary span { width: 130px; flex-shrink: 0; font-weight: 700; color: #9CA3AF; } .cz-summary b { font-weight: 700; color: #111827; overflow-wrap: anywhere; }
+.cz-banner { display: flex; align-items: center; gap: 0.75rem; width: 100%; margin: 0.25rem 0 1rem; padding: 0.875rem 1rem; border: none; border-radius: 1.125rem;
+             background: linear-gradient(120deg, #b39a6d, #CFB991 60%, #e8d5a3); text-align: left; font-family: inherit; cursor: pointer; box-shadow: 0 6px 18px -8px rgba(138,117,80,0.6); position: relative; z-index: 3; }
+.cz-banner[hidden] { display: none; }
+.cz-banner-ic { width: 40px; height: 40px; border-radius: 12px; background: #1a1510; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.cz-banner-ic svg { width: 20px; height: 20px; fill: none; stroke: #CFB991; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.cz-banner-text { flex: 1; min-width: 0; } .cz-banner-text b { display: block; font-size: 0.9375rem; font-weight: 900; color: #1a1510; }
+.cz-banner-text small { display: block; font-size: 0.75rem; font-weight: 700; color: rgba(26,21,16,0.7); }
+.cz-banner-go { font-size: 0.75rem; font-weight: 900; color: #1a1510; background: rgba(255,255,255,0.55); padding: 0.4375rem 0.75rem; border-radius: 0.75rem; white-space: nowrap; }
+@media (min-width: 640px) { .cz-grid { grid-template-columns: 1fr 1fr; } .cz-f.wide { grid-column: 1 / -1; } }
+@media (min-width: 1024px) { .cz-info { display: grid; grid-template-columns: 1fr 1fr; column-gap: 2rem; } .cz-info > div:nth-last-child(2) { border-bottom: none; }
+                             .cz-grid { grid-template-columns: repeat(3, 1fr); } }
+
+/* Census results */
+.cza { display: flex; flex-direction: column; gap: 1rem; }
+.cza-ctrl { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; background: white; border: 1px solid #ECECEC; border-radius: 1.25rem; padding: 1rem 1.125rem; }
+.cza-ctrl-l { display: flex; align-items: center; gap: 0.75rem; min-width: 0; }
+.cza-ctrl-l b { display: block; font-size: 0.9375rem; font-weight: 900; color: #111827; } .cza-ctrl-l small { display: block; font-size: 0.75rem; font-weight: 600; color: #9CA3AF; }
+.cza-status { flex-shrink: 0; font-size: 0.6875rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; padding: 0.375rem 0.625rem; border-radius: 99px; background: #F3F4F6; color: #6B7280; }
+.cza-status.open { background: #D1FAE5; color: #047857; }
+.cza-ctrl-r { display: flex; gap: 0.5rem; align-items: center; } .cza-ctrl-r .ie-in { width: 150px; }
+.cza-viewing { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap; }
+.cza-viewing label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8125rem; font-weight: 800; color: #4B5563; }
+.cza-viewing select { width: auto; }
+.cza-progress { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 0.875rem; background: white; border: 1px solid #ECECEC; border-radius: 1.125rem; padding: 0.875rem 1.125rem; font-size: 0.8125rem; font-weight: 600; color: #4B5563; }
+.cza-progress b { color: #111827; font-weight: 900; }
+.cza-progress span { height: 10px; border-radius: 99px; background: #F0EEE9; overflow: hidden; } .cza-progress i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, #b39a6d, #CFB991); }
+.cza-progress em { font-style: normal; font-weight: 900; color: #111827; }
+.cza-search { margin-bottom: 0.625rem; }
+.cza-list { display: flex; flex-direction: column; }
+.cza-resp { border-top: 1px solid #F3F4F6; } .cza-resp:first-child { border-top: none; }
+.cza-resp summary { list-style: none; display: flex; align-items: center; gap: 0.625rem; padding: 0.625rem 0.25rem; cursor: pointer; }
+.cza-resp summary::-webkit-details-marker { display: none; }
+.cza-resp summary > div { flex: 1; min-width: 0; }
+.cza-resp summary b { display: block; font-size: 0.8125rem; font-weight: 800; color: #111827; }
+.cza-resp summary small { display: block; font-size: 0.6875rem; font-weight: 600; color: #9CA3AF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cza-resp .cz-summary { margin: 0 0 0.75rem; padding: 0.5rem 0.875rem; background: #FAFAF9; border-radius: 0.875rem; }
+.cza-copy { margin-bottom: 0.5rem; }
+.cza-bar { display: grid; grid-template-columns: 110px 1fr 28px; align-items: center; gap: 0.5rem; padding: 0.1875rem 0; }
+.cza-bar span { font-size: 0.75rem; font-weight: 700; color: #4B5563; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cza-bar div { height: 10px; border-radius: 99px; background: #F0EEE9; overflow: hidden; } .cza-bar i { display: block; height: 100%; border-radius: 99px; background: #CFB991; }
+.cza-bar b { font-size: 0.8125rem; font-weight: 900; color: #111827; text-align: right; }
+.rs-btn[disabled] { opacity: 0.5; cursor: default; }
+@media (max-width: 640px) { .cza-ctrl-r { width: 100%; } .cza-ctrl-r .ie-in { flex: 1; width: auto; min-width: 0; } .cza-ctrl-r .rs-btn { flex-shrink: 0; } .cza-progress { grid-template-columns: 1fr auto; } .cza-progress div { grid-column: 1 / -1; } }
+html.dark .cz-card, html.dark .cza-ctrl, html.dark .cza-progress, html.dark .cz-yn, html.dark .cz-chip, html.dark .cz-opt, html.dark .cz-back, html.dark .cz-hours button, html.dark .cz-step span { background: #1c1c1e; border-color: #2c2c2e; color: #e5e7eb; }
+html.dark .cz-head h2, html.dark .cz-card h3, html.dark .cz-info b, html.dark .cz-hours b, html.dark .cz-summary b, html.dark .cz-center h2, html.dark .cza-ctrl-l b, html.dark .cza-progress b, html.dark .cza-progress em, html.dark .cza-resp summary b, html.dark .cza-bar b, html.dark .cz-tags input { color: #f3f4f6; }
+html.dark .cz-info > div, html.dark .cz-summary > div, html.dark .cza-resp { border-color: #2c2c2e; }
+html.dark .cz-tags, html.dark .cza-resp .cz-summary { background: #161618; border-color: #2c2c2e; }
+html.dark .cz-chip.on, html.dark .cz-opt.on { background: #CFB991; border-color: #CFB991; color: #1a1510; }
+html.dark .cz-yn.on.yes { background: rgba(16,185,129,0.15); color: #6EE7B7; } html.dark .cz-yn.on.no { background: rgba(239,68,68,0.15); color: #FCA5A5; } html.dark .cz-yn.on.gold { background: rgba(207,185,145,0.2); color: #e8d5a3; }
+html.dark .cz-note { background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.3); color: #FCD34D; } html.dark .cz-note.ok { background: rgba(16,185,129,0.12); border-color: rgba(16,185,129,0.3); color: #6EE7B7; }
+html.dark .cz-affirm { color: #d4d4d8; } html.dark .cz-affirm.red { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.3); color: #FCA5A5; }
+html.dark .cz-next { background: #CFB991; color: #1a1510; } html.dark .cz-big-ic { background: #2c2c2e; } html.dark .cz-big-ic.ok { background: #10B981; }
+html.dark .cza-progress span, html.dark .cza-bar div { background: #2c2c2e; } html.dark .cza-bar span { color: #d4d4d8; }
+
 /* Dashboard */
 .db { display: flex; flex-direction: column; gap: 1rem; }
 .db-alert { background: #FEF2F2; border: 1.5px solid #FCA5A5; border-radius: 1.25rem; padding: 1rem 1.125rem; }
@@ -1628,6 +1744,7 @@ html.dark .theme-switch::after { transform: translateX(18px); }
         <div id="nav-families" class="nav-button" onclick="switchView('families')"><span class="nav-icon" style="background:#fff;"><svg viewBox="0 0 24 24" style="stroke:#b39a6d;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>Family Points</div>
         <div id="nav-desk" class="nav-button" onclick="switchView('desk')"><span class="nav-icon" style="background:#06B6D4;"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>Desk Schedule</div>
         <div id="nav-resources" class="nav-button" onclick="switchView('resources')"><span class="nav-icon" style="background:#8B5CF6;"><svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></span>Resources</div>
+        <div id="nav-census" class="nav-button" onclick="switchView('census')" style="display:none;"><span class="nav-icon" style="background:#EA580C;"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12l2 2 4-4"/></svg></span>Census</div>
         <div id="nav-forms" class="nav-button" onclick="switchView('forms')"><span class="nav-icon" style="background:#F59E0B;"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/></svg></span>Required Forms</div>
         <div id="nav-desk-dashboard" class="nav-button hidden" onclick="switchView('desk-dashboard')"><span class="nav-icon" style="background:#6366F1;"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg></span>Desk Dashboard</div>
         <div id="view-switcher-container" class="hidden sb-switcher">
@@ -1644,6 +1761,7 @@ html.dark .theme-switch::after { transform: translateX(18px); }
         <p class="sb-label">Admin</p>
         <div id="nav-dashboard" class="nav-button" onclick="switchView('dashboard')"><span class="nav-icon" style="background:#1a1510;"><svg viewBox="0 0 24 24" style="stroke:#CFB991;"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg></span>Dashboard</div>
         <div id="nav-roster" class="nav-button" onclick="switchView('roster')"><span class="nav-icon" style="background:#1a1510;"><svg viewBox="0 0 24 24" style="stroke:#CFB991;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>Roster</div>
+        <div id="nav-census-admin" class="nav-button" onclick="switchView('census-admin')"><span class="nav-icon" style="background:#1a1510;"><svg viewBox="0 0 24 24" style="stroke:#CFB991;"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12l2 2 4-4"/></svg></span>Census</div>
         <div id="nav-master" class="nav-button" onclick="switchView('master')"><span class="nav-icon" style="background:#1a1510;"><svg viewBox="0 0 24 24" style="stroke:#CFB991;"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M7 14h4M7 18h4M14 14h3M14 18h3"/></svg></span>Master Schedule</div>
     </div>
 
@@ -1760,6 +1878,9 @@ html.dark .theme-switch::after { transform: translateX(18px); }
     <div class="mh-sheet" style="background:#F5F5F5;
                 padding:0.25rem 1rem 6rem;position:relative;z-index:2;min-height:calc(100vh - 160px);">
 
+        <!-- Census reminder: shown while the census is open and you haven't submitted -->
+        <button id="cz-banner" class="cz-banner" onclick="switchView('census')" hidden></button>
+
         <!-- GREETING -->
         <div class="mh-greet" style="margin-bottom:1rem;">
             <p id="home-greeting" style="font-size:1.375rem;font-weight:900;color:#1a1510;margin:0;line-height:1.2;"></p>
@@ -1857,6 +1978,18 @@ html.dark .theme-switch::after { transform: translateX(18px); }
 </div>
 
     
+
+    <!-- CENSUS: each guide's semester census (replaces fullcensus.html) -->
+    <div id="view-census" class="view-section">
+        <header class="mb-6"><h1 class="text-3xl font-black">Census</h1></header>
+        <div id="cz-root" class="cz"></div>
+    </div>
+
+    <!-- CENSUS RESULTS (Codirector / Admin) -->
+    <div id="view-census-admin" class="view-section">
+        <header class="mb-6"><h1 class="text-3xl font-black">Census Results</h1></header>
+        <div id="cza-root" class="cza"></div>
+    </div>
 
     <!-- DASHBOARD (Codirector / Admin): one look at the whole program -->
     <div id="view-dashboard" class="view-section">
@@ -3165,6 +3298,8 @@ function switchView(viewId) {
     if (viewId === 'master') renderMaster();
     if (viewId === 'resources') renderResources();
     if (viewId === 'dashboard') renderDashboard();
+    if (viewId === 'census') renderCensus();
+    if (viewId === 'census-admin') renderCensusAdmin();
 
     // 2. Update desktop sidebar active state
     document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
@@ -4806,6 +4941,447 @@ async function rscDelete(id) {
     catch (e) { alert(e.message); }
 }
 
+// ─── CENSUS ─────────────────────────────────────────────────────────────────
+// Each guide's semester census. Answers go through submit_census (security.sql
+// step 2h), which also copies profile corrections, dietary, involvements and the
+// giving-tours answer onto their guides row. Admins open/close it and read the
+// results on Census Results; the open term lives in app_settings key 'census'.
+const CZ_DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday'];
+const CZ_TIMES = ['5:00 PM', '5:30 PM', '6:00 PM', '6:30 PM', '7:00 PM', '7:30 PM'];
+const CZ_DESK_ROLES = ['Welcome Desk', 'Front Desk', 'Codirector', 'Manager', 'Admissions Rep'];   // already work desk
+const CZ_DUAL_DESK_ROLES = ['Codirector', 'Manager', 'Admissions Rep'];                            // pick which desk
+const CZ_TALK_TO = 'Nancy, Amanda, and Todd';
+let czConfig = null;     // { term, open } from app_settings, or null if never set
+let czMine = null;       // this guide's response for the open term, or null
+let czState = null;      // answers in progress
+let czStep = 1;
+
+// The term a census is usually for: late fall → next spring, late spring/summer → fall
+function czDefaultTerm(d = new Date()) {
+    const m = d.getMonth(), y = d.getFullYear();
+    return m >= 10 ? `Spring ${y + 1}` : m <= 2 ? `Spring ${y}` : `Fall ${y}`;
+}
+
+async function loadCensusStatus() {
+    try {
+        const cfg = await sbFetch('app_settings?key=eq.census&select=value');
+        czConfig = cfg[0] ? cfg[0].value : null;
+        if (czConfig && czConfig.open && czConfig.term && !viewAs) {
+            const email = String(cachedData.profile.email || '').toLowerCase();
+            const mine = await sbFetch(`census_responses?term=eq.${encodeURIComponent(czConfig.term)}&email=eq.${encodeURIComponent(email)}&select=*`);
+            czMine = mine[0] || null;
+        }
+    } catch (e) { czConfig = null; }   // tables not created yet (step 2h): census stays hidden
+    renderCensusBanner();
+}
+
+function renderCensusBanner() {
+    // While a census is open, everyone also gets a Census menu item / quick action
+    const open = !!(czConfig && czConfig.open && !viewAs);
+    const nav = document.getElementById('nav-census');
+    if (nav) nav.style.display = open ? 'flex' : 'none';
+    const hasQa = QUICK_ACTIONS.some(a => a.view === 'census');
+    if (open && !hasQa) { QUICK_ACTIONS.splice(1, 0, { view: 'census', label: 'Census', bg: '#EA580C', icon: '<path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12l2 2 4-4"/>' }); renderQuickActions(); }
+    if (!open && hasQa) { QUICK_ACTIONS.splice(QUICK_ACTIONS.findIndex(a => a.view === 'census'), 1); renderQuickActions(); }
+    const b = document.getElementById('cz-banner');
+    if (!b) return;
+    const show = !!(czConfig && czConfig.open && !czMine && !viewAs);
+    b.hidden = !show;
+    if (show) b.innerHTML = `
+        <span class="cz-banner-ic"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12l2 2 4-4"/></svg></span>
+        <span class="cz-banner-text"><b>${snEsc(czConfig.term)} census is open</b><small>Takes about 3 minutes · please fill it out</small></span>
+        <span class="cz-banner-go">Start →</span>`;
+}
+
+function czNewState() {
+    const p = cachedData.profile, r = czMine;
+    const split = v => String(v || '').split(/\s*,\s*/).filter(Boolean);
+    return {
+        infoCorrect: r ? r.info_correct : null,
+        profile: { ...(r && r.profile_updates || {}) },
+        involvements: split(r ? r.involvements : p.involvements),
+        giving: r ? r.giving_tours : null,
+        reason: r ? r.no_tour_reason || '' : '',
+        affirmNo: !!r && r.giving_tours === 'No',
+        perWeek: r ? r.tours_per_week : null,
+        availDays: split(r && r.training_days_avail), prefDays: split(r && r.training_days_pref), times: split(r && r.training_times),
+        dietary: r ? r.dietary || '' : (p.dietary || ''),
+        deskInterest: r ? (r.desk_interest === 'Yes' ? true : r.desk_interest === 'No' ? false : null) : null,
+        deskWhere: r ? r.desk_where || '' : '', deskHours: r ? r.desk_hours || '' : '',
+        commitment: !!(r && r.commitment),
+        done: false,
+    };
+}
+
+async function renderCensus(fresh) {
+    const root = document.getElementById('cz-root');
+    if (viewAs) { root.innerHTML = '<div class="sn-empty">The census is turned off while viewing as someone else.</div>'; return; }
+    if (!czConfig && !fresh) { root.innerHTML = '<div class="ms-loading">Loading…</div>'; await loadCensusStatus(); }
+    if (!czConfig || !czConfig.open) {
+        root.innerHTML = `<div class="cz-card cz-center"><div class="cz-big-ic">📋</div><h2>No census right now</h2><p>The census isn't open at the moment. You'll see a reminder on Home when it opens.</p></div>`;
+        return;
+    }
+    if (!czState) { czState = czNewState(); czStep = czMine ? 0 : 1; }
+    root.innerHTML = czHtml();
+}
+
+function czStepper() {
+    const steps = ['You', 'Tours', 'Training', 'Desk'];
+    const last = czState.giving === 'No' ? 2 : 4;
+    return `<div class="cz-steps">${steps.slice(0, last).map((t, i) => {
+        const n = i + 1, cls = n < czStep ? 'done' : n === czStep ? 'on' : '';
+        return `<div class="cz-step ${cls}"><span>${n < czStep ? '✓' : n}</span><small>${t}</small></div>${n < last ? `<i class="${n < czStep ? 'done' : ''}"></i>` : ''}`;
+    }).join('')}</div>`;
+}
+
+function czHtml() {
+    const st = czState, p = cachedData.profile, esc = snEsc, term = czConfig.term;
+    const lit = v => typeof v === 'string' ? `'${v}'` : String(v);   // safe inside onclick="…"
+    const yn = (key, val, label, tone) => `<button type="button" class="cz-yn${st[key] === val ? ' on ' + tone : ''}" onclick="czSet('${key}', ${lit(val)})">${label}</button>`;
+    const chips = (key, list) => `<div class="cz-chips">${list.map(v => `<button type="button" class="cz-chip${st[key].includes(v) ? ' on' : ''}" onclick="czToggle('${key}', '${v}')">${v}</button>`).join('')}</div>`;
+    const nav = (back, next, nextLabel, danger) => `<div class="cz-nav">${back ? `<button type="button" class="cz-back" onclick="czGo(${back})">← Back</button>` : '<span></span>'}
+        <button type="button" class="cz-next${danger ? ' danger' : ''}" onclick="${next}">${nextLabel}</button></div>`;
+    const err = `<p id="cz-err" class="cz-err" hidden></p>`;
+
+    // Already submitted
+    if (czStep === 0) {
+        const r = czMine;
+        return `<div class="cz-card cz-center">
+            <div class="cz-big-ic ok">✓</div>
+            <h2>You're all set for ${esc(term)}</h2>
+            <p>You submitted the census on ${new Date(r.submitted_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}.</p>
+            <div class="cz-summary">${czSummaryRows(r)}</div>
+            <div class="cz-nav center"><button type="button" class="cz-back" onclick="czGo(1)">Update my answers</button><button type="button" class="cz-next" onclick="switchView('home')">Back to Home</button></div>
+        </div>`;
+    }
+    const head = `<div class="cz-head"><p class="cz-kicker">Purdue Admissions</p><h2>${esc(term)} Census</h2></div>${czStepper()}`;
+
+    if (czStep === 1) {
+        const rows = [['Full name', p.fullName], ['Preferred name', p.displayName], ['Role', p.status], ['Email', p.email], ['Birthday', p.birthday],
+            ['Hometown', p.hometown], ['Graduation', p.gradDate], ['Year', p.year], ['Major', p.major], ['College', p.college], ['Minor', p.minor], ['Certificate', p.certificate]];
+        const cur = { hometown: p.hometown, grad_date: p.gradDate, year: p.year, college: p.college, ...st.profile };
+        return head + `
+            <section class="cz-card"><h3>Your information</h3><p class="cz-hint">This is what TGIS has on file for you.</p>
+                <div class="cz-info">${rows.map(([l, v]) => `<div><span>${l}</span><b class="${v ? '' : 'none'}">${v ? esc(v) : 'Not set'}</b></div>`).join('')}</div>
+            </section>
+            <section class="cz-card"><h3>Is all of this correct?</h3>
+                <div class="cz-yns">${yn('infoCorrect', true, '✓ Yes, looks good', 'yes')}${yn('infoCorrect', false, '✕ No, I need to update', 'no')}</div>
+            </section>
+            ${st.infoCorrect === false ? `<section class="cz-card" id="cz-upd"><h3>Update your information</h3><p class="cz-hint">Change only what's wrong.</p>
+                <div class="cz-grid">
+                    <label class="cz-f"><span>Preferred name</span><input class="ie-in" data-field="preferred_name" value="${esc(st.profile.preferred_name || '')}" placeholder="${esc(p.displayName || '')}"><small>Codirectors update this in TGIS, since tours use it.</small></label>
+                    <label class="cz-f"><span>Birthday</span><input class="ie-in" type="date" data-field="birthday" value="${esc(st.profile.birthday || '')}"></label>
+                    <label class="cz-f"><span>Hometown</span>${ieInput('hometown', cur.hometown)}</label>
+                    <label class="cz-f"><span>Graduation</span>${ieInput('grad_date', cur.grad_date)}</label>
+                    <label class="cz-f"><span>Year</span>${ieInput('year', cur.year)}</label>
+                    <label class="cz-f"><span>Major(s)</span><input class="ie-in" data-field="major" value="${esc(st.profile.major ?? p.major ?? '')}" placeholder="Separate with commas"></label>
+                    <label class="cz-f wide"><span>College(s)</span>${ieInput('college', cur.college)}</label>
+                    <label class="cz-f"><span>Minor(s)</span><input class="ie-in" data-field="minor" value="${esc(st.profile.minor ?? p.minor ?? '')}" placeholder="Optional"></label>
+                    <label class="cz-f"><span>Certificate(s)</span><input class="ie-in" data-field="certificate" value="${esc(st.profile.certificate ?? p.certificate ?? '')}" placeholder="Optional"></label>
+                </div></section>` : ''}
+            <section class="cz-card"><h3>Involvements <em>new</em></h3><p class="cz-hint">Clubs, organizations, teams, jobs or anything else you're part of on campus. Press Enter after each one.</p>
+                <div class="cz-tags" onclick="document.getElementById('cz-tag-in').focus()">
+                    ${st.involvements.map((t, i) => `<span class="cz-tag">${esc(t)}<button type="button" onclick="event.stopPropagation(); czRemoveTag(${i})" aria-label="Remove ${esc(t)}">✕</button></span>`).join('')}
+                    <input id="cz-tag-in" placeholder="${st.involvements.length ? 'Add another…' : 'e.g. Purdue Marching Band'}" onkeydown="czTagKey(event)" onblur="czAddTag(this)">
+                </div></section>
+            ${err}${nav(0, 'czNext(1)', 'Next: Tours →')}`;
+    }
+
+    if (czStep === 2) {
+        return head + `
+            <div class="cz-note">Tour preferences are <b>not guaranteed</b>.</div>
+            <section class="cz-card"><h3>Will you be giving tours this semester?</h3>
+                <div class="cz-yns">${yn('giving', 'Yes', '✓ Yes', 'yes')}${yn('giving', 'No', '✕ No', 'no')}</div></section>
+            ${st.giving === 'No' ? `
+                <section class="cz-card"><h3>Reason for not giving tours</h3>
+                    <textarea class="ie-in" rows="3" placeholder="Please explain…" oninput="czState.reason = this.value">${esc(st.reason)}</textarea></section>
+                <label class="cz-affirm red"><input type="checkbox" ${st.affirmNo ? 'checked' : ''} onchange="czState.affirmNo = this.checked">
+                    <span>I understand that I must speak with ${CZ_TALK_TO} about not giving tours this semester before submitting this form.</span></label>
+                ${err}${nav(1, 'czSubmit()', 'Submit census', true)}` : ''}
+            ${st.giving === 'Yes' ? `
+                <section class="cz-card"><h3>How many tours per week do you prefer to give?</h3><p class="cz-hint">This is a preference, not a guarantee.</p>
+                    <div class="cz-yns">${yn('perWeek', 1, '1 tour / week', 'gold')}${yn('perWeek', 2, '2 tours / week', 'gold')}</div></section>
+                ${err}${nav(1, 'czNext(2)', 'Next: Training →')}` : ''}
+            ${st.giving === null ? nav(1, 'czNext(2)', 'Next →') : ''}`;
+    }
+
+    if (czStep === 3) {
+        return head + `
+            <section class="cz-card"><h3>Which days are you available for bi-weekly evening training?</h3><p class="cz-hint">Select all that apply</p>${chips('availDays', CZ_DAYS)}</section>
+            <section class="cz-card"><h3>Which days do you prefer?</h3><p class="cz-hint">Select all that apply</p>${chips('prefDays', CZ_DAYS)}</section>
+            <section class="cz-card"><h3>What times are you available for training to start?</h3><p class="cz-hint">Select all that apply</p>${chips('times', CZ_TIMES)}</section>
+            <section class="cz-card"><h3>Any dietary restrictions?</h3>
+                <input class="ie-in" value="${esc(st.dietary)}" placeholder="e.g. Vegetarian, gluten-free, nut allergy… or leave blank" oninput="czState.dietary = this.value"></section>
+            ${err}${nav(2, 'czNext(3)', 'Next: Desk →')}`;
+    }
+
+    // Step 4: desk + commitment
+    const role = p.status || '', existing = CZ_DESK_ROLES.includes(role), dual = CZ_DUAL_DESK_ROLES.includes(role);
+    const hours = `<div class="cz-hours"><button type="button" onclick="czHours(-1)">−</button><b>${st.deskHours || '–'}</b><button type="button" onclick="czHours(1)">+</button><small>hours / week (5–10)</small></div>`;
+    const desks = opts => `<div class="cz-opts">${opts.map(([v, l]) => `<button type="button" class="cz-opt${st.deskWhere === v ? ' on' : ''}" onclick="czSet('deskWhere', '${v}')">${l}</button>`).join('')}</div>`;
+    return head + (existing ? `
+            <div class="cz-note ok">✓ You're already scheduled to work desk this semester.</div>
+            ${dual ? `<section class="cz-card"><h3>Which desk(s)?</h3>${desks([['Front Desk', 'Front Desk'], ['Welcome Desk', 'Welcome Desk'], ['Both', 'Both desks']])}</section>` : ''}
+            <section class="cz-card"><h3>How many desk hours would you like per week?</h3>${hours}</section>`
+        : `
+            <div class="cz-note">Desk interest is <b>not guaranteed</b> for guides not already assigned to desk.</div>
+            <section class="cz-card"><h3>Are you interested in working desk this semester?</h3>
+                <div class="cz-yns">${yn('deskInterest', true, '✓ Yes', 'yes')}${yn('deskInterest', false, '✕ No', 'no')}</div></section>
+            ${st.deskInterest ? `
+                <section class="cz-card"><h3>Which desk would you prefer?</h3>${desks([['Front Desk', 'Front Desk'], ['Welcome Desk', 'Welcome Desk'], ['Either', 'No preference']])}</section>
+                <section class="cz-card"><h3>How many desk hours would you like per week?</h3>${hours}</section>` : ''}`) + `
+            <section class="cz-card"><h3>Semester commitment</h3>
+                <label class="cz-affirm"><input type="checkbox" ${st.commitment ? 'checked' : ''} onchange="czState.commitment = this.checked">
+                    <span>I agree to give <b>1–2 tours per week</b>, take part in <b>3–4 Saturday or Program Days per semester</b>, and <b>attend bi-weekly training sessions</b> as scheduled.</span></label></section>
+            ${err}${nav(3, 'czSubmit()', czMine ? 'Update census' : 'Submit census')}`;
+}
+
+function czSummaryRows(r) {
+    const esc = snEsc;
+    const rows = [['Giving tours', r.giving_tours === 'Yes' ? `Yes · ${r.tours_per_week || '?'} per week` : `No${r.no_tour_reason ? ` · ${r.no_tour_reason}` : ''}`],
+        ['Training days', r.training_days_avail], ['Preferred days', r.training_days_pref], ['Start times', r.training_times],
+        ['Dietary', r.dietary], ['Involvements', r.involvements],
+        ['Desk', r.desk_interest === 'No' ? 'Not interested' : [r.desk_where, r.desk_hours ? `${r.desk_hours} hrs/week` : ''].filter(Boolean).join(' · ')]];
+    return rows.filter(([, v]) => v).map(([l, v]) => `<div><span>${l}</span><b>${esc(v)}</b></div>`).join('');
+}
+
+// ── interaction ──
+function czRerender(keepScroll) { const y = document.querySelector('.content-area').scrollTop; document.getElementById('cz-root').innerHTML = czHtml(); if (keepScroll) document.querySelector('.content-area').scrollTop = y; }
+function czCaptureProfile() {
+    const box = document.getElementById('cz-upd');
+    if (!box) return;
+    box.querySelectorAll('[data-field]').forEach(el => {
+        const k = el.dataset.field;
+        czState.profile[k] = el.hasAttribute('data-multi') ? [...el.querySelectorAll('input:checked')].map(i => i.value).join(', ') : el.value.trim();
+    });
+}
+function czSet(key, val) { if (czStep === 1) czCaptureProfile(); czState[key] = val; czRerender(true); }
+function czToggle(key, val) { const a = czState[key]; const i = a.indexOf(val); i >= 0 ? a.splice(i, 1) : a.push(val); czRerender(true); }
+function czHours(d) { const n = Number(czState.deskHours) || (d > 0 ? 4 : 11); czState.deskHours = Math.min(10, Math.max(5, n + d)); czRerender(true); }
+function czTagKey(e) {
+    if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); czAddTag(e.target, true); }
+    else if (e.key === 'Backspace' && !e.target.value && czState.involvements.length) { czState.involvements.pop(); czCaptureProfile(); czRerender(true); document.getElementById('cz-tag-in').focus(); }
+}
+function czAddTag(input, refocus) {
+    const v = input.value.replace(/,/g, ' ').trim();
+    if (!v) return;
+    if (!czState.involvements.some(t => t.toLowerCase() === v.toLowerCase())) czState.involvements.push(v.slice(0, 60));
+    czCaptureProfile(); czRerender(true);
+    if (refocus) document.getElementById('cz-tag-in').focus();
+}
+function czRemoveTag(i) { czState.involvements.splice(i, 1); czCaptureProfile(); czRerender(true); }
+function czError(msg) { const el = document.getElementById('cz-err'); if (el) { el.textContent = msg; el.hidden = false; } }
+function czGo(n) { if (czStep === 1) czCaptureProfile(); czStep = n; czRerender(); document.querySelector('.content-area').scrollTop = 0; }
+
+function czNext(from) {
+    const st = czState;
+    if (from === 1) {
+        czCaptureProfile();
+        const tagIn = document.getElementById('cz-tag-in'); if (tagIn && tagIn.value.trim()) czAddTag(tagIn);
+        if (st.infoCorrect === null) return czError('Let us know whether your information is correct.');
+        if (st.infoCorrect === false && st.profile.hometown && !/^[^,]+, [^,]+$/.test(st.profile.hometown)) return czError('Hometown should look like "City, State". Start typing and pick a city.');
+    }
+    if (from === 2) {
+        if (!st.giving) return czError('Answer whether you\'ll be giving tours.');
+        if (st.giving === 'Yes' && !st.perWeek) return czError('Pick how many tours per week you\'d like.');
+    }
+    if (from === 3 && !st.availDays.length) return czError('Pick at least one day you\'re available for training.');
+    czGo(from + 1);
+}
+
+async function czSubmit() {
+    const st = czState, p = cachedData.profile;
+    if (st.giving === 'No') {
+        if (!st.reason.trim()) return czError('Give a reason for not giving tours.');
+        if (!st.affirmNo) return czError(`Confirm you'll speak with ${CZ_TALK_TO}.`);
+    } else {
+        const existing = CZ_DESK_ROLES.includes(p.status || '');
+        if (!existing && st.deskInterest === null) return czError('Answer whether you\'re interested in working desk.');
+        if ((existing || st.deskInterest) && !st.deskHours) return czError('Pick how many desk hours you\'d like.');
+        if (!existing && st.deskInterest && !st.deskWhere) return czError('Pick which desk you\'d prefer.');
+        if (!st.commitment) return czError('Please agree to the semester commitment.');
+    }
+    // Only profile fields that actually changed
+    const cur = { hometown: p.hometown, grad_date: p.gradDate, year: p.year, college: p.college, major: p.major, minor: p.minor, certificate: p.certificate, birthday: p.birthday };
+    const profile = {};
+    if (st.infoCorrect === false) Object.entries(st.profile).forEach(([k, v]) => { if (v && String(v).trim() !== String(cur[k] ?? '').trim()) profile[k] = String(v).trim(); });
+    const existing = CZ_DESK_ROLES.includes(p.status || ''), dual = CZ_DUAL_DESK_ROLES.includes(p.status || '');
+    const tours = st.giving === 'Yes';
+    const answers = {
+        info_correct: st.infoCorrect, profile, giving_tours: st.giving,
+        no_tour_reason: tours ? '' : st.reason.trim(), tours_per_week: tours ? st.perWeek : '',
+        training_days_avail: tours ? st.availDays.join(', ') : '', training_days_pref: tours ? st.prefDays.join(', ') : '', training_times: tours ? st.times.join(', ') : '',
+        dietary: st.dietary.trim(), involvements: st.involvements.join(', '),
+        desk_interest: !tours ? '' : existing ? 'Assigned' : st.deskInterest ? 'Yes' : 'No',
+        desk_where: !tours ? '' : existing ? (dual ? st.deskWhere || p.status : p.status) : (st.deskInterest ? st.deskWhere : ''),
+        desk_hours: tours && (existing || st.deskInterest) ? st.deskHours : '',
+        commitment: tours ? st.commitment : false,
+    };
+    const btn = document.querySelector('.cz-next'); if (btn) { btn.disabled = true; btn.textContent = 'Submitting…'; }
+    try {
+        const [row] = await sbRpc('submit_census', { p_term: czConfig.term, answers });
+        czMine = row;
+        // Keep this session's profile in step with what was saved
+        Object.assign(p, { givingTours: row.giving_tours, dietary: row.dietary ?? p.dietary, involvements: row.involvements ?? p.involvements });
+        if (profile.hometown) p.hometown = profile.hometown; if (profile.grad_date) p.gradDate = profile.grad_date; if (profile.year) p.year = profile.year;
+        if (profile.college) p.college = profile.college; if (profile.major) p.major = profile.major; if (profile.minor) p.minor = profile.minor;
+        if (profile.certificate) p.certificate = profile.certificate; if (profile.birthday) p.birthday = profile.birthday;
+        czState = null; czStep = 0;
+        renderCensusBanner();
+        renderCensus(true);
+        document.querySelector('.content-area').scrollTop = 0;
+    } catch (e) {
+        if (btn) { btn.disabled = false; btn.textContent = 'Submit census'; }
+        czError(e.message);
+    }
+}
+
+// ─── CENSUS RESULTS (admin) ─────────────────────────────────────────────────
+let czaTerm = null, czaRows = null, czaQuery = '', czaTerms = [];
+
+async function renderCensusAdmin() {
+    const root = document.getElementById('cza-root');
+    if (!canSeeRoster()) { root.innerHTML = '<div class="sn-empty">Census results are only available to codirectors and admins.</div>'; return; }
+    root.innerHTML = '<div class="ms-loading">Loading census…</div>';
+    let terms = [];
+    try {
+        const [cfg, termRows] = await Promise.all([sbFetch('app_settings?key=eq.census&select=value'), sbFetch('census_responses?select=term'), ensureRosterRows()]);
+        czConfig = cfg[0] ? cfg[0].value : null;
+        terms = [...new Set(termRows.map(r => r.term))];
+    } catch (e) {
+        root.innerHTML = `<div class="sn-empty">${/census_responses|app_settings|404/i.test(e.message) ? 'The census isn\'t set up in the database yet. Run step 2h in supabase/security.sql.' : `Couldn't load the census: ${snEsc(e.message)}`}</div>`;
+        return;
+    }
+    if (!czaTerm) czaTerm = (czConfig && czConfig.term) || terms[0] || czDefaultTerm();
+    try { czaRows = await sbFetch(`census_responses?term=eq.${encodeURIComponent(czaTerm)}&select=*&order=submitted_at.desc`); }
+    catch (e) { czaRows = []; }
+    if (window._currentView !== 'census-admin') return;
+    czaTerms = terms;
+    czaRender();
+}
+function czaSearch(v) {
+    czaQuery = v;
+    czaRender();
+    const el = document.getElementById('cza-q');   // keep typing in the box after the redraw
+    el.focus(); el.setSelectionRange(v.length, v.length);
+}
+
+function czaRender() {
+    const terms = czaTerms;
+    const esc = snEsc, rows = czaRows || [], cfg = czConfig || {};
+    const current = (rosterRows || []).filter(r => r.status !== 'Retired');
+    const byEmail = new Map(rows.map(r => [r.email.toLowerCase(), r]));
+    const missing = current.filter(g => !byEmail.has(String(g.email || '').trim().toLowerCase()));
+    const pct = current.length ? Math.round((current.length - missing.length) / current.length * 100) : 0;
+    const yes = rows.filter(r => r.giving_tours === 'Yes'), no = rows.filter(r => r.giving_tours === 'No');
+    const count = (list, field, values) => values.map(v => ({ v, n: list.filter(r => String(r[field] || '').split(/\s*,\s*/).includes(v)).length }));
+    const bars = (items, max) => items.map(x => `<div class="cza-bar"><span>${esc(x.v)}</span><div><i style="width:${max ? x.n / max * 100 : 0}%"></i></div><b>${x.n}</b></div>`).join('');
+    const avail = count(yes, 'training_days_avail', CZ_DAYS), pref = count(yes, 'training_days_pref', CZ_DAYS), times = count(yes, 'training_times', CZ_TIMES);
+    const dayMax = Math.max(1, ...avail.map(x => x.n)), timeMax = Math.max(1, ...times.map(x => x.n));
+    const deskYes = yes.filter(r => r.desk_interest === 'Yes').length, deskAssigned = yes.filter(r => r.desk_interest === 'Assigned').length;
+    const invCount = {};
+    rows.forEach(r => String(r.involvements || '').split(/\s*,\s*/).filter(Boolean).forEach(t => { const k = t.trim(); invCount[k] = (invCount[k] || 0) + 1; }));
+    const topInv = Object.entries(invCount).sort((a, b) => b[1] - a[1]).slice(0, 8);
+    const allTerms = [...new Set([cfg.term, czaTerm, ...terms, czDefaultTerm()].filter(Boolean))];
+    const q = czaQuery.toLowerCase();
+    const shown = rows.filter(r => !q || [r.display_name, r.username, r.email, r.involvements, r.dietary].some(v => String(v || '').toLowerCase().includes(q)));
+    const nameOf = r => { const g = (rosterRows || []).find(x => String(x.email || '').trim().toLowerCase() === r.email.toLowerCase()); return g ? (g.full_name || g.display_name) : (r.display_name || r.email); };
+    const kpi = (n, label, sub, tone = '') => `<div class="db-kpi ${tone}"><b>${n}</b><span>${label}</span>${sub ? `<small>${sub}</small>` : ''}</div>`;
+
+    document.getElementById('cza-root').innerHTML = `
+        <section class="cza-ctrl">
+            <div class="cza-ctrl-l">
+                <span class="cza-status ${cfg.open ? 'open' : ''}">${cfg.open ? '● Open' : 'Closed'}</span>
+                <div><b>${cfg.term ? esc(cfg.term) + ' census' : 'No census opened yet'}</b><small>${cfg.open ? 'Guides see a reminder on Home until they submit.' : 'Guides can\'t submit right now.'}</small></div>
+            </div>
+            <div class="cza-ctrl-r">
+                <input id="cza-term-in" class="ie-in" list="cza-terms" value="${esc(cfg.term || czDefaultTerm())}" aria-label="Census term">
+                <datalist id="cza-terms">${allTerms.map(t => `<option value="${esc(t)}">`).join('')}</datalist>
+                ${cfg.open ? `<button class="rs-btn danger" onclick="czaSetOpen(false)">Close census</button>` : `<button class="rs-btn dark" onclick="czaSetOpen(true)">Open census</button>`}
+            </div>
+        </section>
+        <div class="cza-viewing">
+            <label>Results for <select id="cza-term-pick" class="ie-in" onchange="czaTerm = this.value; renderCensusAdmin();">${allTerms.map(t => `<option${t === czaTerm ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select></label>
+            <button class="rs-btn" onclick="czaCsv()" ${rows.length ? '' : 'disabled'}><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Export CSV</button>
+        </div>
+        <div class="cza-progress"><div><b>${current.length - missing.length} of ${current.length}</b> current guides have responded</div><span><i style="width:${pct}%"></i></span><em>${pct}%</em></div>
+        <div class="db-kpis">
+            ${kpi(rows.length, 'Responses', czaTerm)}
+            ${kpi(yes.length, 'Giving tours', `${yes.filter(r => r.tours_per_week === 1).length} × 1/wk · ${yes.filter(r => r.tours_per_week === 2).length} × 2/wk`, 'green')}
+            ${kpi(no.length, 'Not giving tours', no.length ? 'See reasons below' : '', no.length ? 'amber' : '')}
+            ${kpi(deskYes, 'Want to work desk', `${deskAssigned} already on desk`)}
+            ${kpi(missing.length, "Haven't responded", missing.length ? 'Remind them' : 'Everyone is in', missing.length ? 'red' : 'green')}
+        </div>
+        <div class="db-grid">
+            <div class="db-col">
+                <section class="db-card"><div class="db-card-head"><h3>Responses</h3><span class="db-count">${rows.length}</span></div>
+                    <div class="rs-search cza-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+                        <input id="cza-q" type="search" placeholder="Search name, involvement, dietary…" value="${esc(czaQuery)}" oninput="czaSearch(this.value)"></div>
+                    ${shown.length ? `<div class="cza-list">${shown.map(r => `
+                        <details class="cza-resp">
+                            <summary><span class="db-av" style="width:30px;height:30px">${esc(nameOf(r).charAt(0))}</span>
+                                <div><b>${esc(nameOf(r))}</b><small>${new Date(r.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}${r.involvements ? ' · ' + esc(r.involvements) : ''}</small></div>
+                                <span class="db-pill ${r.giving_tours === 'Yes' ? 'green' : 'red'}">${r.giving_tours === 'Yes' ? `${r.tours_per_week || '?'}/wk` : 'No tours'}</span></summary>
+                            <div class="cz-summary">${czSummaryRows(r)}${Object.keys(r.profile_updates || {}).length ? `<div><span>Profile changes</span><b>${Object.entries(r.profile_updates).map(([k, v]) => `${esc(k.replace(/_/g, ' '))}: ${esc(v)}`).join('<br>')}</b></div>` : ''}${r.commitment ? '<div><span>Commitment</span><b>Agreed</b></div>' : ''}</div>
+                        </details>`).join('')}</div>` : `<p class="db-empty">${rows.length ? 'No responses match.' : 'No responses yet for ' + esc(czaTerm) + '.'}</p>`}
+                </section>
+                ${no.length ? `<section class="db-card"><div class="db-card-head"><h3>Not giving tours</h3><span class="db-count">${no.length}</span></div>
+                    <div class="db-list">${no.map(r => `<div class="db-row"><span class="db-av" style="width:28px;height:28px">${esc(nameOf(r).charAt(0))}</span><div><b>${esc(nameOf(r))}</b><small style="white-space:normal">${esc(r.no_tour_reason || '')}</small></div></div>`).join('')}</div></section>` : ''}
+            </div>
+            <div class="db-col">
+                <section class="db-card"><div class="db-card-head"><h3>Haven't responded</h3><span class="db-count">${missing.length}</span></div>
+                    ${missing.length ? `<button class="rs-btn cza-copy" onclick="czaCopyMissing(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy their emails</button>
+                    <div class="db-list db-scroll">${missing.map(g => `<div class="db-row"><span class="db-av" style="width:28px;height:28px">${esc(String(g.full_name || g.display_name || '?').charAt(0))}</span><div><b>${esc(g.full_name || g.display_name)}</b><small>${esc(g.email || '')}</small></div></div>`).join('')}</div>`
+                    : '<p class="db-empty">Every current guide has responded.</p>'}</section>
+                <section class="db-card"><div class="db-card-head"><h3>Training availability</h3></div>
+                    <p class="db-sub">Available days</p>${bars(avail, dayMax)}
+                    <p class="db-sub">Preferred days</p>${bars(pref, dayMax)}
+                    <p class="db-sub">Start times</p>${bars(times, timeMax)}</section>
+                ${topInv.length ? `<section class="db-card"><div class="db-card-head"><h3>Top involvements</h3></div>${bars(topInv.map(([v, n]) => ({ v, n })), topInv[0][1])}</section>` : ''}
+            </div>
+        </div>`;
+}
+
+async function czaSetOpen(open) {
+    const term = document.getElementById('cza-term-in').value.trim();
+    if (!/^(Spring|Summer|Fall) \d{4}$/.test(term)) { alert('Write the term like "Spring 2027".'); return; }
+    if (open && !confirm(`Open the ${term} census? Every guide will see a reminder on Home until they submit.`)) return;
+    try {
+        const value = { term, open };
+        const existing = await sbFetch('app_settings?key=eq.census&select=key');
+        existing.length ? await sbWrite('PATCH', 'app_settings?key=eq.census', { value, updated_at: new Date().toISOString() })
+                        : await sbWrite('POST', 'app_settings', { key: 'census', value });
+        czConfig = value; czaTerm = term; czMine = null;
+        loadCensusStatus();
+        renderCensusAdmin();
+    } catch (e) { alert(`Couldn't update the census: ${e.message}`); }
+}
+
+function czaCopyMissing(btn) {
+    const current = (rosterRows || []).filter(r => r.status !== 'Retired');
+    const done = new Set((czaRows || []).map(r => r.email.toLowerCase()));
+    const emails = current.filter(g => g.email && !done.has(String(g.email).trim().toLowerCase())).map(g => g.email.trim()).join(', ');
+    const ok = () => { btn.lastChild.textContent = 'Copied!'; setTimeout(() => { btn.lastChild.textContent = 'Copy their emails'; }, 1500); };
+    navigator.clipboard ? navigator.clipboard.writeText(emails).then(ok, () => prompt('Copy these emails:', emails)) : prompt('Copy these emails:', emails);
+}
+
+function czaCsv() {
+    const cols = [['Name', r => { const g = (rosterRows || []).find(x => String(x.email || '').trim().toLowerCase() === r.email.toLowerCase()); return g ? (g.full_name || g.display_name) : r.display_name; }],
+        ['Username', r => r.username], ['Email', r => r.email], ['Submitted', r => new Date(r.submitted_at).toLocaleString()],
+        ['Giving tours', r => r.giving_tours], ['Tours per week', r => r.tours_per_week], ['Reason (no tours)', r => r.no_tour_reason],
+        ['Training days available', r => r.training_days_avail], ['Training days preferred', r => r.training_days_pref], ['Training start times', r => r.training_times],
+        ['Dietary', r => r.dietary], ['Involvements', r => r.involvements], ['Desk', r => r.desk_interest], ['Desk preference', r => r.desk_where], ['Desk hours', r => r.desk_hours],
+        ['Info correct', r => r.info_correct === false ? 'No' : r.info_correct ? 'Yes' : ''], ['Profile changes', r => Object.entries(r.profile_updates || {}).map(([k, v]) => `${k}: ${v}`).join('; ')],
+        ['Commitment', r => r.commitment ? 'Yes' : 'No']];
+    const cell = v => { const t = String(v ?? ''); return /[",\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t; };
+    const csv = [cols.map(c => c[0]).join(','), ...(czaRows || []).map(r => cols.map(([, f]) => cell(f(r))).join(','))].join('\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+    a.download = `TGIS census ${czaTerm}.csv`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
 // ─── DASHBOARD (Codirector / Admin) ─────────────────────────────────────────
 // One page for managers: today's tours and uncovered drops first, then desks,
 // open drops, the tour tracker (who's under 3 tours, recent milestones) and data gaps.
@@ -5960,6 +6536,7 @@ async function continueInit() {
             renderHomeNextTour(myTours);
             renderMobileHome(myTours);
             loadAvailableTours();
+            loadCensusStatus();
             checkTourLock(myTours);
             setInterval(() => checkTourLock(myTours), 60000);
             renderWelcomeCenter(cachedData.tours);
@@ -6451,6 +7028,8 @@ async function init(authUser) {
                 year:        p.year,
                 dietary:     p.dietary,
                 givingTours: p.giving_tours,
+                involvements: p.involvements || null,
+                birthday:    p.birthday || null,
                 slackPhoto:  p.slack_photo || null,
             },
             stats: {
@@ -6497,6 +7076,7 @@ async function init(authUser) {
         if (canSeeRoster()) {
             document.getElementById('sb-admin-section').hidden = false;
             if (!QUICK_ACTIONS.some(a => a.view === 'roster')) {
+                QUICK_ACTIONS.splice(2, 0, { view: 'census-admin', label: 'Census Results', bg: '#1a1510', icon: '<path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12l2 2 4-4"/>' });
                 QUICK_ACTIONS.splice(2, 0, { view: 'dashboard', label: 'Dashboard', bg: '#1a1510', icon: '<rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/>' });
                 QUICK_ACTIONS.splice(2, 0, { view: 'master', label: 'Master Schedule', bg: '#1a1510', icon: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M7 14h4M7 18h4M14 14h3M14 18h3"/>' });
                 QUICK_ACTIONS.splice(2, 0, { view: 'roster', label: 'Roster', bg: '#78350F', icon: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>' });
